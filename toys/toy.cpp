@@ -196,6 +196,15 @@ Vector CToy::GetPhysicsBoxHalfSize(size_t iBox)
 	return aabbBox.m_vecMaxs - aabbBox.Center();
 }
 
+bool CToy::GetPhysicsIsConcave()
+{
+	// Assume older toys are concave.
+	if (!m_pToy->phys().has_concave())
+		return true;
+
+	return m_pToy->phys().concave();
+}
+
 size_t CToy::GetNumSceneAreas()
 {
 	return m_pToy->area().size();

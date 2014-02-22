@@ -55,6 +55,8 @@ public:
 
 	void			AddPhysTriangle(size_t v1, size_t v2, size_t v3);
 	void			AddPhysVertex(Vector vecPosition);
+	void            AllowConcave(bool bAllowed) { m_bConcaveAllowed = bAllowed; }
+	bool            IsConcaveAllowed() { return m_bConcaveAllowed; }
 	size_t			GetNumPhysIndices() { return m_aiPhysIndices.size(); }
 	size_t			GetNumPhysVerts() { return m_avecPhysVerts.size(); }
 
@@ -99,6 +101,7 @@ protected:
 	tvector<uint32_t>			m_aiPhysIndices;
 	tvector<Vector>				m_avecPhysVerts;
 	tvector<TRS>				m_atrsPhysBoxes;
+	bool                        m_bConcaveAllowed;
 	tvector<CSceneArea>			m_asSceneAreas;
 
 	float					m_flNeighborDistance;	// How far can an area be considered a neighbor in the finding neighbors check?

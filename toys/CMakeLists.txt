@@ -12,4 +12,5 @@ add_library (toys
 	toy.cpp
 	toy_util.cpp
 	toy.pb.cc
+	toy.proto
 )

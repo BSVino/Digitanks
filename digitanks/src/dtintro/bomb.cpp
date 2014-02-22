@@ -30,6 +30,9 @@ void CBomb::Spawn()
 	m_hTrailParticles.SetSystem("shell-trail", GetGlobalOrigin());
 	m_hTrailParticles.FollowEntity(this);
 	m_hTrailParticles.SetActive(true);
+
+	SetModel("models/weapons/shell.toy");
+	AddToPhysics(CT_DYNAMIC);
 }
 
 void CBomb::Think()

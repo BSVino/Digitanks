@@ -15,7 +15,7 @@ public:
 				CGeppetto(bool bForce=false, const tstring& sCWD="");
 
 public:
-	bool		BuildFiles(const tstring& sOutput, const tstring& sInput, const tstring& sPhysics="", bool bGlobalTransforms = false);
+	bool		BuildFiles(const tstring& sOutput, const tstring& sInput, const tstring& sPhysics="", bool bGlobalTransforms = false, bool bAllowConcave = false);
 	bool		BuildFromInputScript(const tstring& sScript);
 
 	void		LoadFromFiles(const tstring& sMesh, const tstring& sPhysics);

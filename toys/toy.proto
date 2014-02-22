@@ -34,6 +34,7 @@ message ToyPhys {
 	repeated float vert = 1 [packed=true];
 	repeated int32 index = 2 [packed=true];
 	repeated TRS box = 3;
+	optional bool concave = 4;
 }
 
 // Area data format - Scene areas used for scene management

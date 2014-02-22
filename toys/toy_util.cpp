@@ -23,6 +23,8 @@ CToyUtil::CToyUtil()
 
 	m_bUseUV = false;
 	m_bUseNormals = false;
+
+	m_bConcaveAllowed = false;
 }
 
 tstring CToyUtil::GetGameDirectoryFile(const tstring& sFile) const
@@ -500,6 +502,15 @@ bool CToyUtil::Write(const tstring& sFilename)
 	tinker::protobuf::ToyPhys* pToyPhys = (m_aiPhysIndices.size()||m_atrsPhysBoxes.size())?pbToy.mutable_phys():nullptr;
 	if (m_aiPhysIndices.size())
 	{
+		if (!m_bConcaveAllowed)
+		{
+			CConvexHullGenerator c(m_avecPhysVerts);
+			m_aiPhysIndices = c.GetConvexTriangles();
+			pToyPhys->set_concave(false);
+		}
+		else
+			pToyPhys->set_concave(true);
+
 		auto* pIndices = pToyPhys->mutable_index();
 		auto* pVerts = pToyPhys->mutable_vert();
 

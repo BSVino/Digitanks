@@ -172,9 +172,9 @@ public:
 	virtual void			RemoveAllEntities();
 	virtual bool            IsEntityAdded(IPhysicsEntity* pEnt);
 
-	virtual void			LoadCollisionMesh(const tstring& sModel, size_t iTris, const int* aiTris, size_t iVerts, const float* aflVerts);
+	virtual void			LoadCollisionMesh(const tstring& sModel, bool bConcave, size_t iTris, const int* aiTris, size_t iVerts, const float* aflVerts);
 	virtual void			UnloadCollisionMesh(const tstring& sModel);
-	virtual size_t          LoadExtraCollisionMesh(size_t iTris, int* aiTris, size_t iVerts, float* aflVerts);
+	virtual size_t          LoadExtraCollisionMesh(size_t iTris, bool bConcave, int* aiTris, size_t iVerts, float* aflVerts);
 	virtual void			UnloadExtraCollisionMesh(size_t iMesh);
 
 	virtual void			Simulate();

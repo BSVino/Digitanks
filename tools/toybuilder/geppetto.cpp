@@ -98,10 +98,12 @@ CGeppetto::CGeppetto(bool bForce, const tstring& sCWD)
 		m_sCWD.append("/");
 }
 
-bool CGeppetto::BuildFiles(const tstring& sOutput, const tstring& sInput, const tstring& sPhysics, bool bGlobalTransforms)
+bool CGeppetto::BuildFiles(const tstring& sOutput, const tstring& sInput, const tstring& sPhysics, bool bGlobalTransforms, bool bAllowConcave)
 {
 	if (bGlobalTransforms)
 		t.UseGlobalTransformations();
+
+	t.AllowConcave(bAllowConcave);
 
 	m_sOutput = FindAbsolutePath(sOutput);
 	t.SetOutputDirectory(m_sOutput.substr(0, m_sOutput.rfind(DIR_SEP)));
@@ -140,7 +142,7 @@ bool CGeppetto::Compile()
 {
 	TMsg(sprintf(" Mesh materials: %d\n", t.GetNumMaterials()));
 	TMsg(sprintf(" Mesh tris: %d\n", t.GetNumVerts()/3));
-	TMsg(sprintf(" Physics tris: %d\n", t.GetNumPhysIndices()/3));
+	TMsg(sprintf(" Physics tris: %d - ", t.GetNumPhysIndices()/3) + (t.IsConcaveAllowed()?tstring("CONCAVE\n"):tstring("Convex\n")));
 	TMsg(sprintf(" Scene areas: %d\n", t.GetNumSceneAreas()));
 	if (t.IsUsingUV())
 		TMsg(" Using UV's\n");

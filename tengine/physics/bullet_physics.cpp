@@ -198,6 +198,10 @@ void CBulletPhysics::AddEntity(IPhysicsEntity* pEntity, collision_type_t eCollis
 		{
 			AddModel(pEntity, eCollisionType, pEntity->GetModelID());
 		}
+		else if (eCollisionType == CT_DYNAMIC)
+		{
+			AddModel(pEntity, eCollisionType, pEntity->GetModelID());
+		}
 		else
 		{
 			TAssert(!"Unimplemented collision type");
@@ -319,6 +323,16 @@ void CBulletPhysics::AddModelTris(IPhysicsEntity* pEntity, collision_type_t eCol
 		flMass = 0;
 		pCollisionShape = s_apCollisionMeshes[iModel].m_pCollisionShape;
 	}
+	else if (eCollisionType == CT_DYNAMIC)
+	{
+		pPhysicsEntity->m_bCenterMassOffset = false;
+
+		pCollisionShape = s_apCollisionMeshes[iModel].m_pCollisionShape;
+
+		btVector3 vecMin, vecMax;
+		pCollisionShape->getAabb(btTransform(btMatrix3x3(1, 0, 0, 0, 1, 0, 0, 0, 1)), vecMin, vecMax);
+		flMass = (vecMax.x() - vecMin.x()) * (vecMax.y() - vecMin.y()) * (vecMax.z() - vecMin.z());
+	}
 	else
 	{
 		TAssert(!"Unimplemented collision type");
@@ -350,6 +364,8 @@ void CBulletPhysics::AddModelTris(IPhysicsEntity* pEntity, collision_type_t eCol
 		}
 		else if (eCollisionType == CT_STATIC_MESH)
 			pPhysicsEntity->m_pRigidBody->setActivationState(DISABLE_SIMULATION);
+		else if (eCollisionType == CT_DYNAMIC)
+			pPhysicsEntity->m_pRigidBody->setCollisionFlags(pPhysicsEntity->m_pRigidBody->getCollisionFlags() & ~(btCollisionObject::CF_KINEMATIC_OBJECT|btCollisionObject::CF_STATIC_OBJECT));
 
 		m_pDynamicsWorld->addRigidBody(pPhysicsEntity->m_pRigidBody, pEntity->GetCollisionGroup(), GetMaskForGroup(pEntity->GetCollisionGroup()));
 	}
@@ -597,7 +613,7 @@ bool CBulletPhysics::IsEntityAdded(IPhysicsEntity* pEntity)
 	return (pPhysicsEntity->m_pCharacterController || pPhysicsEntity->m_pExtraShape || pPhysicsEntity->m_pGhostObject || pPhysicsEntity->m_pRigidBody || pPhysicsEntity->m_pTriggerController);
 }
 
-void CBulletPhysics::LoadCollisionMesh(const tstring& sModel, size_t iTris, const int* aiTris, size_t iVerts, const float* aflVerts)
+void CBulletPhysics::LoadCollisionMesh(const tstring& sModel, bool bConcave, size_t iTris, const int* aiTris, size_t iVerts, const float* aflVerts)
 {
 	size_t iModel = CModelLibrary::FindModel(sModel);
 
@@ -619,7 +635,10 @@ void CBulletPhysics::LoadCollisionMesh(const tstring& sModel, size_t iTris, cons
 	m.m_vertexStride = sizeof(Vector);
 	s_apCollisionMeshes[iModel].m_pIndexVertexArray->addIndexedMesh(m, PHY_INTEGER);
 
-	s_apCollisionMeshes[iModel].m_pCollisionShape = new btBvhTriangleMeshShape(s_apCollisionMeshes[iModel].m_pIndexVertexArray, true);
+	if (bConcave)
+		s_apCollisionMeshes[iModel].m_pCollisionShape = new btBvhTriangleMeshShape(s_apCollisionMeshes[iModel].m_pIndexVertexArray, true);
+	else
+		s_apCollisionMeshes[iModel].m_pCollisionShape = new btConvexTriangleMeshShape(s_apCollisionMeshes[iModel].m_pIndexVertexArray, true);
 }
 
 void CBulletPhysics::UnloadCollisionMesh(const tstring& sModel)
@@ -659,8 +678,11 @@ void CBulletPhysics::UnloadCollisionMesh(const tstring& sModel)
 	s_apCollisionMeshes.erase(it->first);
 }
 
-size_t CBulletPhysics::LoadExtraCollisionMesh(size_t iTris, int* aiTris, size_t iVerts, float* aflVerts)
+size_t CBulletPhysics::LoadExtraCollisionMesh(size_t iTris, bool bConcave, int* aiTris, size_t iVerts, float* aflVerts)
 {
+	if (!bConcave)
+		TUnimplemented();
+
 	size_t iIndex = ~0;
 	for (size_t i = 0; i < s_apExtraCollisionMeshes.size(); i++)
 	{

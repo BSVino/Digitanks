@@ -14,6 +14,7 @@ typedef enum collision_type_e
 	CT_KINEMATIC,	// Not simulated by the engine, but collides with dynamic objects. Animated externally by game code.
 	CT_CHARACTER,	// Kinematically animated character controller.
 	CT_TRIGGER,		// Does not collide, but reports intersections.
+	CT_DYNAMIC,		// Bounces around and shit. Collides with static and kinematic objects.
 } collision_type_t;
 
 typedef enum
@@ -106,9 +107,9 @@ public:
 	virtual void			RemoveAllEntities() {};
 	virtual bool            IsEntityAdded(IPhysicsEntity* pEnt) { return false; };
 
-	virtual void			LoadCollisionMesh(const tstring& sModel, size_t iTris, const int* aiTris, size_t iVerts, const float* aflVerts) {};
+	virtual void			LoadCollisionMesh(const tstring& sModel, bool bConcave, size_t iTris, const int* aiTris, size_t iVerts, const float* aflVerts) {};
 	virtual void			UnloadCollisionMesh(const tstring& sModel) {};
-	virtual size_t          LoadExtraCollisionMesh(size_t iTris, int* aiTris, size_t iVerts, float* aflVerts) { return ~0; };
+	virtual size_t          LoadExtraCollisionMesh(size_t iTris, bool bConcave, int* aiTris, size_t iVerts, float* aflVerts) { return ~0; };
 	virtual void            UnloadExtraCollisionMesh(size_t iMesh) {};
 
 	virtual void			Simulate() {};

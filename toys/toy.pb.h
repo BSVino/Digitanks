@@ -566,8 +566,17 @@ class ToyPhys : public ::google::protobuf::Message {
   inline ::google::protobuf::RepeatedPtrField< ::tinker::protobuf::TRS >*
       mutable_box();
 
+  // optional bool concave = 4;
+  inline bool has_concave() const;
+  inline void clear_concave();
+  static const int kConcaveFieldNumber = 4;
+  inline bool concave() const;
+  inline void set_concave(bool value);
+
   // @@protoc_insertion_point(class_scope:tinker.protobuf.ToyPhys)
  private:
+  inline void set_has_concave();
+  inline void clear_has_concave();
 
   ::google::protobuf::UnknownFieldSet _unknown_fields_;
 
@@ -576,9 +585,10 @@ class ToyPhys : public ::google::protobuf::Message {
   ::google::protobuf::RepeatedField< ::google::protobuf::int32 > index_;
   mutable int _index_cached_byte_size_;
   ::google::protobuf::RepeatedPtrField< ::tinker::protobuf::TRS > box_;
+  bool concave_;
 
   mutable int _cached_size_;
-  ::google::protobuf::uint32 _has_bits_[(3 + 31) / 32];
+  ::google::protobuf::uint32 _has_bits_[(4 + 31) / 32];
 
   friend void  protobuf_AddDesc_toys_2ftoy_2eproto();
   friend void protobuf_AssignDesc_toys_2ftoy_2eproto();
@@ -1270,6 +1280,28 @@ ToyPhys::box() const {
 inline ::google::protobuf::RepeatedPtrField< ::tinker::protobuf::TRS >*
 ToyPhys::mutable_box() {
   return &box_;
+}
+
+// optional bool concave = 4;
+inline bool ToyPhys::has_concave() const {
+  return (_has_bits_[0] & 0x00000008u) != 0;
+}
+inline void ToyPhys::set_has_concave() {
+  _has_bits_[0] |= 0x00000008u;
+}
+inline void ToyPhys::clear_has_concave() {
+  _has_bits_[0] &= ~0x00000008u;
+}
+inline void ToyPhys::clear_concave() {
+  concave_ = false;
+  clear_has_concave();
+}
+inline bool ToyPhys::concave() const {
+  return concave_;
+}
+inline void ToyPhys::set_concave(bool value) {
+  set_has_concave();
+  concave_ = value;
 }
 
 // -------------------------------------------------------------------

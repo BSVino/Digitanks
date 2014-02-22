@@ -46,6 +46,7 @@ public:
 	const int*  GetPhysicsTri(size_t iTri);
 	TRS         GetPhysicsBox(size_t iBox);
 	Vector      GetPhysicsBoxHalfSize(size_t iBox);
+	bool        GetPhysicsIsConcave();
 
 	size_t      GetNumSceneAreas();
 	AABB        GetSceneAreaAABB(size_t iSceneArea);

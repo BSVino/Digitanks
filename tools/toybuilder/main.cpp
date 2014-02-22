@@ -52,27 +52,11 @@ int main(int argc, char** args)
 		else
 			sOutput = args[2];
 
-		tstring sPhysics;
-		bool bGlobalTransformations = false;
+		tstring sPhysics = Shell()->GetCommandLineSwitchValue("--physics");
+		bool bGlobalTransformations = Shell()->HasCommandLineSwitch("--use-global-transforms");
+		bool bAllowConcave = Shell()->HasCommandLineSwitch("--concave");
 
-		for (int i = 3; i < argc; i++)
-		{
-			if (strcmp(args[i], "--physics") == 0)
-			{
-				if (argc < i+1)
-				{
-					TMsg(tstring("Usage: ") + Shell()->GetBinaryName() + " input.obj output.toy [--physics input.obj]\n");
-					return 1;
-				}
-
-				sPhysics = args[i+1];
-				i++;
-			}
-			else if (strcmp(args[i], "--use-global-transforms") == 0)
-				bGlobalTransformations = true;
-		}
-
-		if (!g.BuildFiles(sOutput, sInput, sPhysics, bGlobalTransformations))
+		if (!g.BuildFiles(sOutput, sInput, sPhysics, bGlobalTransformations, bAllowConcave))
 			return 1;
 	}
 

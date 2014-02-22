@@ -84,6 +84,8 @@ const char* CShell::GetCommandLineSwitchValue(const char* pszSwitch)
 
 void CShell::PrintConsole(const tstring& sText)
 {
+	DebugPrint(sText.c_str());
+
 	int i = 0;
 	const char* pszText = sText.c_str();
 
@@ -94,6 +96,8 @@ void CShell::PrintConsole(const tstring& sText)
 void CShell::PrintError(const tstring& sText)
 {
 	tstring sErrorText = tstring("ERROR: ") + sText;
+
+	DebugPrint(sErrorText.c_str());
 
 	int i = 0;
 	const char* pszText = sErrorText.c_str();

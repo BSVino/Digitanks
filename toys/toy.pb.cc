@@ -121,10 +121,11 @@ void protobuf_AssignDesc_toys_2ftoy_2eproto() {
       ::google::protobuf::MessageFactory::generated_factory(),
       sizeof(ToyMesh_Material));
   ToyPhys_descriptor_ = file->message_type(2);
-  static const int ToyPhys_offsets_[3] = {
+  static const int ToyPhys_offsets_[4] = {
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(ToyPhys, vert_),
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(ToyPhys, index_),
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(ToyPhys, box_),
+    GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(ToyPhys, concave_),
   };
   ToyPhys_reflection_ =
     new ::google::protobuf::internal::GeneratedMessageReflection(
@@ -239,15 +240,16 @@ void protobuf_AddDesc_toys_2ftoy_2eproto() {
     "set\030\007 \001(\005:\002-1\022\034\n\020bitangent_offset\030\010 \001(\005:"
     "\002-1\"\\\n\007ToyMesh\0223\n\010material\030\001 \003(\0132!.tinke"
     "r.protobuf.ToyMesh.Material\032\034\n\010Material\022"
-    "\020\n\004data\030\001 \003(\002B\002\020\001\"Q\n\007ToyPhys\022\020\n\004vert\030\001 \003"
+    "\020\n\004data\030\001 \003(\002B\002\020\001\"b\n\007ToyPhys\022\020\n\004vert\030\001 \003"
     "(\002B\002\020\001\022\021\n\005index\030\002 \003(\005B\002\020\001\022!\n\003box\030\003 \003(\0132\024"
-    ".tinker.protobuf.TRS\"R\n\007ToyArea\022#\n\004size\030"
-    "\001 \002(\0132\025.tinker.protobuf.AABB\022\024\n\010neighbor"
-    "\030\002 \003(\005B\002\020\001\022\014\n\004file\030\003 \002(\t\"\245\001\n\003Toy\022&\n\004base"
-    "\030\001 \002(\0132\030.tinker.protobuf.ToyBase\022&\n\004mesh"
-    "\030\002 \001(\0132\030.tinker.protobuf.ToyMesh\022&\n\004phys"
-    "\030\003 \001(\0132\030.tinker.protobuf.ToyPhys\022&\n\004area"
-    "\030\004 \003(\0132\030.tinker.protobuf.ToyArea", 832);
+    ".tinker.protobuf.TRS\022\017\n\007concave\030\004 \001(\010\"R\n"
+    "\007ToyArea\022#\n\004size\030\001 \002(\0132\025.tinker.protobuf"
+    ".AABB\022\024\n\010neighbor\030\002 \003(\005B\002\020\001\022\014\n\004file\030\003 \002("
+    "\t\"\245\001\n\003Toy\022&\n\004base\030\001 \002(\0132\030.tinker.protobu"
+    "f.ToyBase\022&\n\004mesh\030\002 \001(\0132\030.tinker.protobu"
+    "f.ToyMesh\022&\n\004phys\030\003 \001(\0132\030.tinker.protobu"
+    "f.ToyPhys\022&\n\004area\030\004 \003(\0132\030.tinker.protobu"
+    "f.ToyArea", 849);
   ::google::protobuf::MessageFactory::InternalRegisterGeneratedFile(
     "toys/toy.proto", &protobuf_RegisterTypes);
   ToyBase::default_instance_ = new ToyBase();
@@ -1481,6 +1483,7 @@ void ToyMesh::Swap(ToyMesh* other) {
 const int ToyPhys::kVertFieldNumber;
 const int ToyPhys::kIndexFieldNumber;
 const int ToyPhys::kBoxFieldNumber;
+const int ToyPhys::kConcaveFieldNumber;
 #endif  // !_MSC_VER
 
 ToyPhys::ToyPhys()
@@ -1499,6 +1502,7 @@ ToyPhys::ToyPhys(const ToyPhys& from)
 
 void ToyPhys::SharedCtor() {
   _cached_size_ = 0;
+  concave_ = false;
   ::memset(_has_bits_, 0, sizeof(_has_bits_));
 }
 
@@ -1533,6 +1537,9 @@ ToyPhys* ToyPhys::New() const {
 }
 
 void ToyPhys::Clear() {
+  if (_has_bits_[3 / 32] & (0xffu << (3 % 32))) {
+    concave_ = false;
+  }
   vert_.Clear();
   index_.Clear();
   box_.Clear();
@@ -1598,6 +1605,22 @@ bool ToyPhys::MergePartialFromCodedStream(
           goto handle_uninterpreted;
         }
         if (input->ExpectTag(26)) goto parse_box;
+        if (input->ExpectTag(32)) goto parse_concave;
+        break;
+      }
+
+      // optional bool concave = 4;
+      case 4: {
+        if (::google::protobuf::internal::WireFormatLite::GetTagWireType(tag) ==
+            ::google::protobuf::internal::WireFormatLite::WIRETYPE_VARINT) {
+         parse_concave:
+          DO_((::google::protobuf::internal::WireFormatLite::ReadPrimitive<
+                   bool, ::google::protobuf::internal::WireFormatLite::TYPE_BOOL>(
+                 input, &concave_)));
+          set_has_concave();
+        } else {
+          goto handle_uninterpreted;
+        }
         if (input->ExpectAtEnd()) return true;
         break;
       }
@@ -1646,6 +1669,11 @@ void ToyPhys::SerializeWithCachedSizes(
       3, this->box(i), output);
   }
 
+  // optional bool concave = 4;
+  if (has_concave()) {
+    ::google::protobuf::internal::WireFormatLite::WriteBool(4, this->concave(), output);
+  }
+
   if (!unknown_fields().empty()) {
     ::google::protobuf::internal::WireFormat::SerializeUnknownFields(
         unknown_fields(), output);
@@ -1689,6 +1717,11 @@ void ToyPhys::SerializeWithCachedSizes(
         3, this->box(i), target);
   }
 
+  // optional bool concave = 4;
+  if (has_concave()) {
+    target = ::google::protobuf::internal::WireFormatLite::WriteBoolToArray(4, this->concave(), target);
+  }
+
   if (!unknown_fields().empty()) {
     target = ::google::protobuf::internal::WireFormat::SerializeUnknownFieldsToArray(
         unknown_fields(), target);
@@ -1699,6 +1732,13 @@ void ToyPhys::SerializeWithCachedSizes(
 int ToyPhys::ByteSize() const {
   int total_size = 0;
 
+  if (_has_bits_[3 / 32] & (0xffu << (3 % 32))) {
+    // optional bool concave = 4;
+    if (has_concave()) {
+      total_size += 1 + 1;
+    }
+
+  }
   // repeated float vert = 1 [packed = true];
   {
     int data_size = 0;
@@ -1766,6 +1806,11 @@ void ToyPhys::MergeFrom(const ToyPhys& from) {
   vert_.MergeFrom(from.vert_);
   index_.MergeFrom(from.index_);
   box_.MergeFrom(from.box_);
+  if (from._has_bits_[3 / 32] & (0xffu << (3 % 32))) {
+    if (from.has_concave()) {
+      set_concave(from.concave());
+    }
+  }
   mutable_unknown_fields()->MergeFrom(from.unknown_fields());
 }
 
@@ -1794,6 +1839,7 @@ void ToyPhys::Swap(ToyPhys* other) {
     vert_.Swap(&other->vert_);
     index_.Swap(&other->index_);
     box_.Swap(&other->box_);
+    std::swap(concave_, other->concave_);
     std::swap(_has_bits_[0], other->_has_bits_[0]);
     _unknown_fields_.Swap(&other->_unknown_fields_);
     std::swap(_cached_size_, other->_cached_size_);

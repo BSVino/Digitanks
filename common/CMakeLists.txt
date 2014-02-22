@@ -33,6 +33,7 @@ set (LWBASE_SOURCES
 	../datamanager/dataserializer.cpp
 
 	protobuf/math.pb.cc
+	protobuf/math.proto
 )
 
 if (WITH_EASTL)

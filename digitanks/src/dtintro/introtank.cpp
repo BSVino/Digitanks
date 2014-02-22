@@ -38,6 +38,7 @@ void CIntroTank::Precache()
 {
 	PrecacheParticleSystem("tank-fire");
 	PrecacheSound("sound/tank-fire.wav");
+	PrecacheModel("models/weapons/shell.toy");
 }
 
 void CIntroTank::Think()
