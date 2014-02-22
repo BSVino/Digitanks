@@ -43,7 +43,7 @@ public:
 	void							Simulate();
 	void							SpawnParticle();
 
-	void							Render(class CGameRenderingContext* c);
+	void							Render(class CGameRenderingContext* c, bool bTransparent);
 
 	void							FollowEntity(CBaseEntity* pFollow);
 	void							SetInheritedVelocity(Vector vecInheritedVelocity);

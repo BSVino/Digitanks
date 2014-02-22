@@ -52,7 +52,7 @@ void CParticleSystemLibrary::InitSystems()
 	pIntroExplosionFragments->SetEndRadius(400.0f);
 	pIntroExplosionFragments->SetFadeOut(1.0f);
 	pIntroExplosionFragments->SetInheritedVelocity(0.0f);
-	pIntroExplosionFragments->SetRandomVelocity(AABB(Vector(-400, -200, -200), Vector(400, 500, 200)));
+	pIntroExplosionFragments->SetRandomVelocity(AABB(Vector(-400, -200, -200), Vector(400, 200, 500)));
 	pIntroExplosionFragments->SetGravity(Vector(0, -500, 0));
 	pIntroExplosionFragments->SetDrag(0.95f);
 	pIntroExplosionFragments->SetRandomModelYaw(true);
@@ -131,8 +131,8 @@ void CParticleSystemLibrary::InitSystems()
 	pTrailSparksDark->SetLifeTime(1.0f);
 	pTrailSparksDark->SetEmissionRate(0.01f);
 	pTrailSparksDark->SetEmissionMaxDistance(5);
-	pTrailSparksDark->SetAlpha(0.3f);
-	pTrailSparksDark->SetStartRadius(4);
+	pTrailSparksDark->SetAlpha(0.9f);
+	pTrailSparksDark->SetStartRadius(6);
 	pTrailSparksDark->SetEndRadius(2);
 	pTrailSparksDark->SetFadeOut(1.0f);
 	pTrailSparksDark->SetInheritedVelocity(0.5f);
@@ -217,7 +217,7 @@ void CParticleSystemLibrary::InitSystems()
 	pExplosionBolts2->SetLifeTime(1.0f);
 	pExplosionBolts2->SetEmissionRate(0.0f);
 	pExplosionBolts2->SetEmissionMax(20);
-	pExplosionBolts2->SetAlpha(0.2f);
+	pExplosionBolts2->SetAlpha(0.4f);
 	pExplosionBolts2->SetStartRadius(40.0f);
 	pExplosionBolts2->SetEndRadius(60.0f);
 	pExplosionBolts2->SetFadeOut(1.0f);

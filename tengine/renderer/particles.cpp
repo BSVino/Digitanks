@@ -109,32 +109,29 @@ void CParticleSystemLibrary::Render()
 	if (true)
 	{
 		CGameRenderingContext c(GameServer()->GetRenderer(), true);
-		c.UseProgram("model");
+		c.UseProgram("particle");
 		c.SetUniform("bDiffuse", true);
 		c.SetUniform("iDiffuse", 0);
-		c.SetUniform("bColorSwapInAlpha", false);
 
 		for (it = pPSL->m_apInstances.begin(); it != pPSL->m_apInstances.end(); it++)
 		{
 			CSystemInstance* pInstance = (*it).second;
-			if (pInstance->GetSystem()->GetBlend() == BLEND_NONE)
-				pInstance->Render(&c);
+			pInstance->Render(&c, false);
 		}
 	}
 
 	if (true)
 	{
 		CGameRenderingContext c(GameServer()->GetRenderer(), true);
-		c.UseProgram("model");
+		c.UseProgram("particle");
 		c.SetUniform("bDiffuse", true);
 		c.SetUniform("iDiffuse", 0);
-		c.SetUniform("bColorSwapInAlpha", false);
+		c.SetDepthMask(false);
 
 		for (it = pPSL->m_apInstances.begin(); it != pPSL->m_apInstances.end(); it++)
 		{
 			CSystemInstance* pInstance = (*it).second;
-			if (pInstance->GetSystem()->GetBlend() != BLEND_NONE)
-				pInstance->Render(&c);
+			pInstance->Render(&c, true);
 		}
 	}
 }
@@ -529,10 +526,16 @@ void CSystemInstance::SpawnParticle()
 		pNewParticle->m_flBillboardYaw = 0;
 }
 
-void CSystemInstance::Render(CGameRenderingContext* c)
+void CSystemInstance::Render(CGameRenderingContext* c, bool bTransparent)
 {
 	for (size_t i = 0; i < m_apChildren.size(); i++)
-		m_apChildren[i]->Render(c);
+		m_apChildren[i]->Render(c, bTransparent);
+
+	if (m_pSystem->GetBlend() == BLEND_NONE && bTransparent)
+		return;
+
+	if (m_pSystem->GetBlend() != BLEND_NONE && !bTransparent)
+		return;
 
 	CGameRenderer* pRenderer = GameWindow()->GetGameRenderer();
 
@@ -598,20 +601,20 @@ void CSystemInstance::Render(CGameRenderingContext* c)
 			c->SetUniform("flAlpha", pParticle->m_flAlpha);
 
 			if (m_bColorOverride)
-				c->SetColor(m_clrOverride);
+				c->SetUniform("vecColor", m_clrOverride);
 			else
-				c->SetColor(m_pSystem->GetColor());
+				c->SetUniform("vecColor", m_pSystem->GetColor());
 
 			c->BeginRenderTriFan();
 
 			c->TexCoord(0.0f, 1.0f);
 			c->Vertex(vecTL);
-			c->TexCoord(0.0f, 0.0f);
-			c->Vertex(vecBL);
-			c->TexCoord(1.0f, 0.0f);
-			c->Vertex(vecBR);
 			c->TexCoord(1.0f, 1.0f);
 			c->Vertex(vecTR);
+			c->TexCoord(1.0f, 0.0f);
+			c->Vertex(vecBR);
+			c->TexCoord(0.0f, 0.0f);
+			c->Vertex(vecBL);
 
 			c->EndRender();
 		}
