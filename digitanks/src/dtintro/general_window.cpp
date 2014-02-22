@@ -12,10 +12,12 @@
 #include <renderer/game_renderingcontext.h>
 #include <sound/sound.h>
 #include <game/entities/game.h>
+#include <game/cameramanager.h>
 
 #include "script.h"
 #include "intro_window.h"
 #include "intro_renderer.h"
+#include "intro_camera.h"
 
 CGeneralWindow::CGeneralWindow()
 	: CPanel(0, 0, 400, 400), m_hAntivirus("textures/intro/antivirus.txt"), m_hGeneral("textures/hud/helper-emotions.txt"), m_hGeneralMouth("textures/hud/helper-emotions-open.txt")
@@ -267,7 +269,7 @@ void CGeneralWindow::ButtonPressedCallback(const tstring& sArgs)
 	}
 	else
 	{
-		IntroWindow()->GetRenderer()->ZoomIntoHole();
+		static_cast<CIntroCamera*>(GameServer()->GetCameraManager()->GetActiveCamera())->ZoomIntoHole();
 		m_flFadeToBlack = GameServer()->GetGameTime();
 	}
 }

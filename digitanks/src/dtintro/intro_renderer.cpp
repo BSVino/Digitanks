@@ -26,8 +26,6 @@ CIntroRenderer::CIntroRenderer()
 	m_flLayer4Alpha = RandomFloat(0.2f, 1);
 	m_flLayer5Alpha = RandomFloat(0.2f, 1);
 
-	m_flZoomIntoHole = 0;
-
 	m_bRenderOrthographic = true;
 }
 
@@ -39,13 +37,6 @@ CIntroRenderer::CIntroRenderer()
 #define FRUSTUM_DOWN	5
 
 CVar cam_free_ortho("cam_free_ortho", "off");
-
-void ZoomIntoHole(class CCommand* pCommand, tvector<tstring>& asTokens, const tstring& sCommand)
-{
-	IntroWindow()->GetRenderer()->ZoomIntoHole();
-}
-
-CCommand zoomintohole("zoomintohole", ::ZoomIntoHole);
 
 void CIntroRenderer::Initialize()
 {
@@ -60,34 +51,6 @@ void CIntroRenderer::Initialize()
 
 void CIntroRenderer::StartRendering(class CRenderingContext* pContext)
 {
-	if (m_flZoomIntoHole)
-	{
-		float flWidth = (float)CApplication::Get()->GetWindowWidth();
-		float flHeight = (float)CApplication::Get()->GetWindowHeight();
-
-		float flLerp = Bias((float)RemapValClamped(GameServer()->GetGameTime(), m_flZoomIntoHole, m_flZoomIntoHole+1.5f, 0.0, 1.0), 0.2f);
-		float flEndWidth = flWidth*0.05f;
-		float flEndHeight = flHeight*0.05f;
-
-		float flLeftEnd = flWidth*0.2f;
-		float flRightEnd = flLeftEnd+flEndWidth;
-
-		float flTopEnd = flEndHeight/2;
-		float flBottomEnd = flTopEnd-flEndHeight;
-
-		float flLeft = RemapVal(flLerp, 0, 1, -flWidth/2, flLeftEnd);
-		float flRight = RemapVal(flLerp, 0, 1, flWidth/2, flRightEnd);
-		float flTop = RemapVal(flLerp, 0, 1, flHeight/2, flTopEnd);
-		float flBottom = RemapVal(flLerp, 0, 1, -flHeight/2, flBottomEnd);
-
-		TUnimplemented();
-		//glOrtho(flLeft, flRight, flBottom, flTop, 1, 2000);
-
-		// Kind of a lame place to put it but I don't care!
-		if (GameServer()->GetGameTime() - m_flZoomIntoHole > 1.5f)
-			exit(0);
-	}
-
 	BaseClass::StartRendering(pContext);
 
 	RenderBackdrop();
@@ -182,9 +145,4 @@ void CIntroRenderer::RenderBackdrop()
 		c.Vertex(Vector(-500, -flWidth/2, flWidth/2));
 		c.EndRender();
 	}
-}
-
-void CIntroRenderer::ZoomIntoHole()
-{
-	m_flZoomIntoHole = GameServer()->GetGameTime();
 }

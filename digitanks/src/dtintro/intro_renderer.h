@@ -18,8 +18,6 @@ public:
 
 	void			RenderBackdrop();
 
-	void			ZoomIntoHole();
-
 protected:
 	CMaterialHandle	m_hBackdrop;
 	float			m_flLayer1Speed;
@@ -32,8 +30,6 @@ protected:
 	float			m_flLayer4Alpha;
 	float			m_flLayer5Speed;
 	float			m_flLayer5Alpha;
-
-	double			m_flZoomIntoHole;
 };
 
 #endif

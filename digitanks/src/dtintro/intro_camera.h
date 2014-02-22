@@ -13,9 +13,14 @@ public:
 
 	virtual void	CameraThink();
 
+	void ZoomIntoHole();
+
 	virtual float	GetOrthoHeight() const { return m_flOrthoHeight; }
 	virtual float	GetCameraNear() const { return 1; }
 	virtual float	GetCameraFar() const { return 2000; }
+
+private:
+	double			m_flZoomIntoHole;
 };
 
 #endif
