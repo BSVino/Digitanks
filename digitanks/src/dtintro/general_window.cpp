@@ -148,10 +148,8 @@ void CGeneralWindow::Paint(float x, float y, float w, float h)
 			flLastEstimateUpdate = GameServer()->GetGameTime();
 		}
 
-		c.SetColor(Color(0, 0, 0, 255));
-
 		float flWidth = glgui::CLabel::GetTextWidth(sEstimate, sEstimate.length(), "sans-serif", 12);
-		glgui::CLabel::PaintText(sEstimate, sEstimate.length(), "sans-serif", 12, x + m_pText->GetLeft() + m_pText->GetWidth()/2 - flWidth/2, (float)y + 190);
+		glgui::CLabel::PaintText(sEstimate, sEstimate.length(), "sans-serif", 12, x + m_pText->GetLeft() + m_pText->GetWidth()/2 - flWidth/2, (float)y + 190, Color(0, 0, 0, 255));
 	}
 }
 

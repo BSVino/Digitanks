@@ -189,6 +189,9 @@ void CLabel::DrawSection(const CLine& l, const CLineSection& s, float x, float y
 			iDrawChars = m_iPrintChars - m_iCharsDrawn;
 		else
 			iDrawChars = s.m_sText.length();
+
+		if (iDrawChars <= 0)
+			return;
 	}
 
 	if (Is3D())
