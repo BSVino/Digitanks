@@ -80,13 +80,13 @@ const Matrix4x4 CIntroTank::GetRenderTransform() const
 
 		Vector vecForward, vecRight;
 		AngleVectors(GetGlobalAngles(), &vecForward, &vecRight, NULL);
-		float flDotForward = -m_vecRockDirection.Dot(vecForward.Normalized());
+		float flDotForward = m_vecRockDirection.Dot(vecForward.Normalized());
 		float flDotRight = -m_vecRockDirection.Dot(vecRight.Normalized());
 
 		float flLerp = Bias(1-Oscillate((float)(GameServer()->GetGameTime() - m_flStartedRock), 1), 0.7f);
 
-		angReturn.p += flDotForward*flLerp*m_flRockIntensity*45;
-		angReturn.r += flDotRight*flLerp*m_flRockIntensity*45;
+		angReturn.p -= flDotForward*flLerp*m_flRockIntensity*45;
+		angReturn.r -= flDotRight*flLerp*m_flRockIntensity*45;
 
 		Matrix4x4 m = BaseClass::GetRenderTransform();
 		return m.AddAngles(angReturn);
@@ -106,7 +106,7 @@ void CIntroTank::OnRender(class CGameRenderingContext* pContext) const
 
 	r.Translate(Vector(-0.0f, 0, 0.810368f));
 
-	r.Rotate(-m_flCurrentTurretYaw, Vector(0, 0, 1));
+	r.Rotate(m_flCurrentTurretYaw, Vector(0, 0, 1));
 
 	r.RenderModel(m_iTurretModel, this);
 }
