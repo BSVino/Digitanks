@@ -60,6 +60,7 @@ protected:
 		depth_function_t	m_eDepthFunction;
 		bool				m_bCull;
 		bool				m_bWinding;
+		cull_face_t         m_eCullFace;
 	};
 
 public:
@@ -88,6 +89,7 @@ public:
 	void					SetDepthFunction(depth_function_t eDepthFunction);
 	void					SetBackCulling(bool bCull);
 	void					SetWinding(bool bWinding);	// True is default
+	void                    SetCullFace(cull_face_t eCullFace);
 
 	float					GetAlpha() { return GetContext().m_flAlpha; };
 	blendtype_t				GetBlend() { return GetContext().m_eBlend; };
@@ -119,6 +121,7 @@ public:
 	void					SetUniform(const char* pszName, const ::Color& vecValue);
 	void					SetUniform(const char* pszName, const Matrix4x4& mValue);
 	void					SetUniform(const char* pszName, size_t iSize, const float* aflValues);
+	void					SetUniform(const char* pszName, size_t iSize, const Vector* avecValues);
 	void					BindTexture(size_t iTexture, int iChannel = 0, bool bMultisample = false);
 	void					BindBufferTexture(const CFrameBuffer& oBuffer, int iChannel = 0);
 	void					SetColor(const ::Color& c);	// Set the mesh's uniform color. Do this before BeginRender*

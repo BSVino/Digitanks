@@ -3,8 +3,7 @@
 
 #include <common.h>
 
-#include <game/camera.h>
-#include <weapons/cameraguided.h>
+#include <game/entities/camera.h>
 
 class CDigitanksCamera : public CCamera
 {
@@ -44,7 +43,7 @@ public:
 
 	virtual Vector	GetCameraPosition();
 	virtual Vector	GetCameraTarget();
-	virtual float	GetCameraFOV();
+	virtual float	GetFOV();
 	virtual float	GetCameraNear();
 	virtual float	GetCameraFar();
 
@@ -58,15 +57,15 @@ public:
 public:
 	Vector			m_vecOldTarget;
 	Vector			m_vecNewTarget;
-	float			m_flTargetRamp;
+	double			m_flTargetRamp;
 
 	float			m_flOldDistance;
 	float			m_flNewDistance;
-	float			m_flDistanceRamp;
+	double			m_flDistanceRamp;
 
 	EAngle			m_angOldAngle;
 	EAngle			m_angNewAngle;
-	float			m_flAngleRamp;
+	double			m_flAngleRamp;
 
 	Vector			m_vecShakeLocation;
 	float			m_flShakeMagnitude;
@@ -96,9 +95,9 @@ public:
 
 	CEntityHandle<class CDigitank>		m_hTankTarget;
 	CEntityHandle<class CProjectile>	m_hTankProjectile;
-	float			m_flTransitionToProjectileTime;
+	double			m_flTransitionToProjectileTime;
 
-	float			m_flTimeSinceNewGame;
+	double			m_flTimeSinceNewGame;
 };
 
 #endif

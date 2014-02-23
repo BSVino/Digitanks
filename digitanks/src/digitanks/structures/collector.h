@@ -15,16 +15,16 @@ public:
 	virtual void				UpdateInfo(tstring& sInfo);
 
 	resource_t					GetResourceType() { return RESOURCE_ELECTRONODE; };
-	void						SetResource(class CResource* pResource) { m_hResource = pResource; };
-	class CResource*			GetResource() { return m_hResource; };
+	void						SetResource(class CResourceNode* pResource) { m_hResource = pResource; };
+	class CResourceNode*		GetResource() { return m_hResource; };
 	virtual float				GetPowerProduced() const;
 
 	virtual size_t				InitialTurnsToConstruct() { return 2; };
-	virtual tstring				GetEntityName() const { return _T("Power Supply Unit"); };
+	virtual tstring				GetEntityName() const { return "Power Supply Unit"; };
 	virtual unittype_t			GetUnitType() const { return STRUCTURE_PSU; };
 
 protected:
-	CNetworkedHandle<CResource>	m_hResource;
+	CNetworkedHandle<CResourceNode>	m_hResource;
 };
 
 class CBattery : public CCollector
@@ -43,12 +43,12 @@ public:
 	virtual void				UpgradeComplete();
 
 	resource_t					GetResourceType() { return RESOURCE_ELECTRONODE; };
-	void						SetResource(class CResource* pResource) { m_hResource = pResource; };
-	class CResource*			GetResource() { return m_hResource; };
+	void						SetResource(class CResourceNode* pResource) { m_hResource = pResource; };
+	class CResourceNode*		GetResource() { return m_hResource; };
 	virtual float				GetPowerProduced() const;
 
 	virtual size_t				InitialTurnsToConstruct() { return 1; };
-	virtual tstring				GetEntityName() const { return _T("Capacitor"); };
+	virtual tstring				GetEntityName() const { return "Capacitor"; };
 	virtual unittype_t			GetUnitType() const { return STRUCTURE_BATTERY; };
 	virtual unittype_t			GetUpgradeType() const { return STRUCTURE_PSU; };
 };

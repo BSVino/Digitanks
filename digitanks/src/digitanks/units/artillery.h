@@ -13,7 +13,7 @@ public:
 
 	virtual bool				AllowControlMode(controlmode_t eMode) const;
 
-	virtual tstring				GetEntityName() const { return _T("Artillery"); };
+	virtual tstring				GetEntityName() const { return "Artillery"; };
 
 	virtual void				OnFortify();
 	virtual bool				CanFortify() { return true; };
@@ -34,7 +34,7 @@ public:
 	virtual float				BaseVisibleRange() const { return 45; };
 	virtual float				MinRangeRadius() const { return 15; };
 	virtual float				MaxRangeRadius() const { return 25; };
-	virtual float				FirstProjectileTime() const;
+	virtual double				FirstProjectileTime() const;
 	virtual float				SlowMovementFactor() const { return 0.5f; };
 	virtual bool				TurningMatters() const { return true; };
 

@@ -11,9 +11,9 @@ public:
 	virtual void				Precache();
 	virtual void				Spawn();
 
-	virtual void				PostRender(bool bTransparent) const;
+	virtual void				PostRender() const;
 
-	virtual tstring				GetEntityName() const { return _T("Resistor"); };
+	virtual tstring				GetEntityName() const { return "Resistor"; };
 
 	virtual float				RenderShieldScale() const { return 10.0f; };
 
@@ -29,7 +29,7 @@ public:
 	virtual float				GetTransitionTime() const { return 2.5f; }
 	virtual float				ProjectileCurve() const;
 	virtual float				BaseVisibleRange() const { return 60.0f; };
-	virtual float				FirstProjectileTime() const;
+	virtual double				FirstProjectileTime() const;
 	virtual float				SlowMovementFactor() const { return 0.7f; };
 	virtual float				BaseChargeRadius() const { return 50.0f; }
 	virtual float				ChargeEnergy() const { return 9.0f; }

@@ -15,9 +15,6 @@ public:
 	virtual						~CTeam();
 
 public:
-	bool						IsHumanPlayable() { return m_bHumanPlayable; }
-	void						SetNotHumanPlayable() { m_bHumanPlayable = false; }
-
 	virtual bool				OnUnserialize(std::istream& i);
 
 	void						AddEntity(CBaseEntity* pEntity);
@@ -30,8 +27,6 @@ public:
 
 	virtual void				OnDeleted(const CBaseEntity* pEntity);
 
-	bool						IsPlayerControlled() const { return m_bClientControlled; };
-
 	void						SetColor(Color clrTeam) { m_clrTeam = clrTeam; };
 	Color						GetColor() const { return m_clrTeam; };
 
@@ -42,13 +37,9 @@ public:
 	const tstring&				GetTeamName() const { return m_sName; }
 
 protected:
-	CNetworkedVariable<bool>	m_bHumanPlayable;
-
 	CNetworkedColor				m_clrTeam;
 
 	CNetworkedSTLVector<CEntityHandle<CBaseEntity> >	m_ahMembers;
-
-	CNetworkedVariable<bool>	m_bClientControlled;
 
 	CNetworkedString			m_sName;
 };

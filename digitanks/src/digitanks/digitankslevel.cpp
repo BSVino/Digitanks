@@ -10,8 +10,6 @@ CDigitanksLevel::CDigitanksLevel()
 {
 	m_eGameType = GAMETYPE_EMPTY;
 	m_flMaxHeight = 60;
-	m_iTerrainHeight = 0;
-	m_iTerrainData = 0;
 
 	m_bBuffers = true;
 	m_bPSUs = true;
@@ -28,17 +26,15 @@ CDigitanksLevel::CDigitanksLevel()
 
 CDigitanksLevel::~CDigitanksLevel()
 {
-	CRenderer::UnloadTextureData(m_iTerrainHeight);
-	CRenderer::UnloadTextureData(m_iTerrainData);
 }
 
-void CDigitanksLevel::OnReadData(const CData* pData)
+void CDigitanksLevel::OnReadInfo(const CData* pData)
 {
-	BaseClass::OnReadData(pData);
+	BaseClass::OnReadInfo(pData);
 
 	if (pData->GetKey() == "GameType")
 	{
-		tstring sValue = pData->GetValueTString();
+		tstring sValue = pData->GetValueString();
 		if (sValue == "artillery")
 			m_eGameType = GAMETYPE_ARTILLERY;
 		else if (sValue == "strategy")
@@ -48,41 +44,29 @@ void CDigitanksLevel::OnReadData(const CData* pData)
 	}
 	else if (pData->GetKey() == "Objective")
 	{
-		m_sObjective = pData->GetValueTString();
+		m_sObjective = pData->GetValueString();
 	}
 	else if (pData->GetKey() == "TerrainHeight")
 	{
-		m_sTerrainHeight = pData->GetValueTString();
-		m_iTerrainHeight = CRenderer::LoadTextureData(m_sTerrainHeight);
+		m_sTerrainHeight = pData->GetValueString();
+		m_hTerrainHeight = CTextureLibrary::AddTexture(m_sTerrainHeight);
 
-		if (CRenderer::GetTextureHeight(m_iTerrainHeight) != 256)
-		{
-			CRenderer::UnloadTextureData(m_iTerrainHeight);
-			m_iTerrainHeight = 0;
-		}
+		if (m_hTerrainHeight->m_iHeight != 256)
+			m_hTerrainHeight.Reset();
 
-		if (CRenderer::GetTextureWidth(m_iTerrainHeight) != 256)
-		{
-			CRenderer::UnloadTextureData(m_iTerrainHeight);
-			m_iTerrainHeight = 0;
-		}
+		if (m_hTerrainHeight->m_iWidth != 256)
+			m_hTerrainHeight.Reset();
 	}
 	else if (pData->GetKey() == "TerrainData")
 	{
-		m_sTerrainData = pData->GetValueTString();
-		m_iTerrainData = CRenderer::LoadTextureData(m_sTerrainData);
+		m_sTerrainData = pData->GetValueString();
+		m_hTerrainData = CTextureLibrary::AddTexture(m_sTerrainData);
 
-		if (CRenderer::GetTextureHeight(m_iTerrainData) != 256)
-		{
-			CRenderer::UnloadTextureData(m_iTerrainData);
-			m_iTerrainData = 0;
-		}
+		if (m_hTerrainData->m_iHeight != 256)
+			m_hTerrainData.Reset();
 
-		if (CRenderer::GetTextureWidth(m_iTerrainData) != 256)
-		{
-			CRenderer::UnloadTextureData(m_iTerrainData);
-			m_iTerrainData = 0;
-		}
+		if (m_hTerrainData->m_iWidth != 256)
+			m_hTerrainData.Reset();
 	}
 	else if (pData->GetKey() == "MaxHeight")
 		m_flMaxHeight = pData->GetValueFloat();
@@ -91,9 +75,9 @@ void CDigitanksLevel::OnReadData(const CData* pData)
 	else if (pData->GetKey() == "Entity")
 		ReadUnit(pData);
 	else if (pData->GetKey() == "Author")
-		m_sAuthor = pData->GetValueTString();
+		m_sAuthor = pData->GetValueString();
 	else if (pData->GetKey() == "Description")
-		m_sDescription = pData->GetValueTString();
+		m_sDescription = pData->GetValueString();
 	else if (pData->GetKey() == "GameRules")
 		ReadGameRules(pData);
 	else if (pData->GetKey() == "Lesson")
@@ -110,7 +94,7 @@ void CDigitanksLevel::ReadProp(const CData* pData)
 		CData* pChildData = pData->GetChild(i);
 
 		if (pChildData->GetKey() == "Model")
-			pProp->m_sModel = pChildData->GetValueTString();
+			pProp->m_sModel = pChildData->GetValueString();
 		else if (pChildData->GetKey() == "Position")
 			pProp->m_vecPosition = pChildData->GetValueVector2D();
 		else if (pChildData->GetKey() == "Angle")
@@ -149,7 +133,7 @@ void CDigitanksLevel::ReadUnit(const CData* pData)
 		else if (pChildData->GetKey() == "Type")
 			pUnit->m_sType = pChildData->GetValueString();
 		else if (pChildData->GetKey() == "File")
-			pUnit->m_sFile = pChildData->GetValueTString();
+			pUnit->m_sFile = pChildData->GetValueString();
 	}
 }
 

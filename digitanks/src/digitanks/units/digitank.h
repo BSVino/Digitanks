@@ -1,7 +1,7 @@
 #ifndef DT_DIGITANK_H
 #define DT_DIGITANK_H
 
-#include <EASTL/vector.h>
+#include <tvector.h>
 
 #include <selectable.h>
 #include <structures/loader.h>
@@ -58,7 +58,7 @@ public:
 	virtual void				Spawn();
 
 	virtual const TFloat		GetBoundingRadius() const { return 4; };
-	virtual float				GetRenderRadius() const { return GetBoundingRadius() + RenderShieldScale(); };
+	virtual const TFloat		GetRenderRadius() const { return GetBoundingRadius() + RenderShieldScale(); };
 
 	float						GetTotalPower() const { return m_flTotalPower; };
 	float						GetStartingPower() const { return m_flStartingPower; };
@@ -261,16 +261,16 @@ public:
 	DECLARE_ENTITY_OUTPUT(OnTakeShieldDamage);
 	DECLARE_ENTITY_OUTPUT(OnTakeLaserDamage);
 
-	virtual Vector				GetOrigin() const;
+	virtual const TVector		GetGlobalOrigin() const;
 	virtual Vector				GetRealOrigin() const;
 	virtual EAngle				GetAngles() const;
 
-	virtual void				PreRender(bool bTransparent) const;
+	virtual void				PreRender() const;
 	virtual Vector				GetRenderOrigin() const;
 	virtual EAngle				GetRenderAngles() const;
 	virtual void				ModifyContext(class CRenderingContext* pContext) const;
 	virtual void				OnRender(class CGameRenderingContext* pContext) const;
-	virtual void				RenderTurret(bool bTransparent, float flAlpha = 1.0f) const;
+	virtual void				RenderTurret(float flAlpha = 1.0f) const;
 	virtual void				RenderShield() const;
 	virtual float				RenderShieldScale() const { return 20.0f; };
 
@@ -280,7 +280,7 @@ public:
 	virtual int					GetNumAvailableAreas() const { return 1; };
 	virtual bool				IsAvailableAreaActive(int iArea) const;
 
-	virtual void				DrawSchema(int x, int y, int w, int h);
+	virtual void				DrawSchema(float x, float y, float w, float h);
 
 	virtual void				UpdateInfo(tstring& sInfo);
 
@@ -303,8 +303,6 @@ public:
 
 	virtual float				FindHoverHeight(Vector vecPosition) const;
 
-	virtual bool				Collide(const Vector& v1, const Vector& v2, Vector& vecPoint);
-
 	float						HealthRechargeRate() const;
 	float						ShieldRechargeRate() const;
 	virtual float				BaseHealthRechargeRate() const { return 3.0f; };
@@ -324,7 +322,7 @@ public:
 	virtual float				BobHeight() const { return 0.5f; };
 	virtual float				MinRangeRadius() const { return 1; };
 	virtual float				MaxRangeRadius() const { return 10; };
-	virtual float				FirstProjectileTime() const;
+	virtual double				FirstProjectileTime() const;
 	virtual float				SlowMovementFactor() const { return 0.5f; };
 	virtual bool				TurningMatters() const { return false; };
 
@@ -349,8 +347,8 @@ public:
 
 	void						GiveAirstrike() { m_iAirstrikes++; }
 
-	static size_t				GetAimBeamTexture() { return s_iAimBeam; }
-	static size_t				GetAutoMoveTexture() { return s_iAutoMove; }
+	static CMaterialHandle      GetAimBeamMaterial() { return s_hAimBeam; }
+	static CMaterialHandle      GetAutoMoveMaterial() { return s_hAutoMove; }
 
 protected:
 	// Power remaining for this turn
@@ -380,18 +378,18 @@ protected:
 	float						m_flCurrentTurretYaw;
 	CNetworkedVariable<float>	m_flGoalTurretYaw;
 
-	CNetworkedVariable<float>	m_flStartedRock;
+	CNetworkedVariable<double>	m_flStartedRock;
 	CNetworkedVariable<float>	m_flRockIntensity;
 	CNetworkedVector			m_vecRockDirection;
 
 	Vector						m_vecPreviewMove;
 	CNetworkedVector			m_vecPreviousOrigin;
-	CNetworkedVariable<float>	m_flStartedMove;
+	CNetworkedVariable<double>	m_flStartedMove;
 	CNetworkedVariable<int>		m_iMoveType;
 
 	float						m_flPreviewTurn;
 	CNetworkedVariable<float>	m_flPreviousTurn;
-	CNetworkedVariable<float>	m_flStartedTurn;
+	CNetworkedVariable<double>	m_flStartedTurn;
 
 	bool						m_bPreviewAim;
 	Vector						m_vecPreviewAim;
@@ -402,8 +400,8 @@ protected:
 	float						m_flDisplayAimRadius;
 
 	CEntityHandle<CBaseEntity>	m_hPreviewCharge;
-	CNetworkedVariable<float>	m_flBeginCharge;
-	CNetworkedVariable<float>	m_flEndCharge;
+	CNetworkedVariable<double>	m_flBeginCharge;
+	CNetworkedVariable<double>	m_flEndCharge;
 	CEntityHandle<CBaseEntity>	m_hChargeTarget;
 
 	CNetworkedVariable<bool>	m_bHasCloak;
@@ -416,17 +414,17 @@ protected:
 	CNetworkedVariable<bool>	m_bActionTaken;
 	CNetworkedVariable<bool>	m_bLostConcealment;
 
-	float						m_flFireWeaponTime;
+	double						m_flFireWeaponTime;
 	size_t						m_iFireWeapons;
 	CEntityHandle<CBaseWeapon>	m_hWeapon;
 
-	float						m_flLastSpeech;
-	float						m_flNextIdle;
+	double						m_flLastSpeech;
+	double						m_flNextIdle;
 
 	size_t						m_iTurretModel;
 	size_t						m_iShieldModel;
 
-	CNetworkedVariable<float>	m_flShieldPulse;
+	CNetworkedVariable<double>	m_flShieldPulse;
 
 	CParticleSystemInstanceHandle m_hHoverParticles;
 	CParticleSystemInstanceHandle m_hSmokeParticles;
@@ -435,7 +433,7 @@ protected:
 
 	CNetworkedVariable<bool>	m_bFortified;
 	CNetworkedVariable<size_t>	m_iFortifyLevel;
-	CNetworkedVariable<float>	m_flFortifyTime;
+	CNetworkedVariable<double>	m_flFortifyTime;
 
 	bool						m_bStayPut;
 
@@ -448,13 +446,13 @@ protected:
 
 	CNetworkedVariable<size_t>	m_iAirstrikes;
 	size_t						m_iMissileDefenses;
-	float						m_flNextMissileDefense;
+	double						m_flNextMissileDefense;
 
 	CNetworkedVariable<size_t>	m_iTurnsDisabled;
 
 	float						m_flGlowYaw;
 
-	float						m_flNextHoverHeightCheck;
+	double						m_flNextHoverHeightCheck;
 
 	// AI stuff
 	bool						m_bInAttackTeam;
@@ -462,10 +460,10 @@ protected:
 	Vector						m_vecFortifyPoint;
 	CEntityHandle<class CStructure>	m_hFortifyDefending;
 
-	static size_t				s_iAimBeam;
+	static CMaterialHandle      s_hAimBeam;
 
-	static size_t				s_iAutoMove;
-	static size_t				s_iSupportGlow;
+	static CMaterialHandle      s_hAutoMove;
+	static CMaterialHandle      s_hSupportGlow;
 
 	static const char*			s_apszTankLines[];
 };

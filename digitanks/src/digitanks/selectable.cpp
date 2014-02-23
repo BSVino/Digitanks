@@ -17,19 +17,19 @@ INPUTS_TABLE_END();
 
 void CSelectable::Select(const tvector<tstring>& sArgs)
 {
-	if (!GetDigitanksTeam())
+	if (!GetDigitanksPlayer())
 		return;
 
 	for (size_t i = 0; i < sArgs.size(); i++)
 	{
 		if (sArgs[i] == "if-selection-empty")
 		{
-			if (GetDigitanksTeam()->GetPrimarySelection())
+			if (GetDigitanksPlayer()->GetPrimarySelection())
 				return;
 		}
 	}
 
-	GetDigitanksTeam()->SetPrimarySelection(this);
+	GetDigitanksPlayer()->SetPrimarySelection(this);
 }
 
 void CSelectable::OnCurrentSelection()

@@ -1,9 +1,9 @@
 #ifndef DT_INTRO_SCRIPT_H
 #define DT_INTRO_SCRIPT_H
 
-#include <EASTL/map.h>
-#include <EASTL/string.h>
-#include <EASTL/vector.h>
+#include <tmap.h>
+#include <tstring.h>
+#include <tvector.h>
 
 #include <vector.h>
 

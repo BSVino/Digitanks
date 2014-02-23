@@ -5,9 +5,9 @@
 #include "collector.h"
 #include <renderer/particles.h>
 
-class CResource : public CStructure
+class CResourceNode : public CStructure
 {
-	REGISTER_ENTITY_CLASS(CResource, CStructure);
+	REGISTER_ENTITY_CLASS(CResourceNode, CStructure);
 
 public:
 	virtual const TFloat		GetBoundingRadius() const { return 2; };
@@ -21,7 +21,7 @@ public:
 	virtual void				UpdateInfo(tstring& sInfo);
 
 	virtual void				ModifyContext(class CRenderingContext* pContext) const;
-	virtual void				PostRender(bool bTransparent) const;
+	virtual void				PostRender() const;
 
 	resource_t					GetResource() { return RESOURCE_ELECTRONODE; };
 	virtual bool				ShowHealthBar() { return false; }
@@ -38,7 +38,7 @@ public:
 	virtual int					GetNumAvailableAreas() const { return 1; };
 	virtual bool				IsAvailableAreaActive(int iArea) const;
 
-	static CResource*			FindClosestResource(Vector vecPoint, resource_t eResource);
+	static CResourceNode*		FindClosestResource(Vector vecPoint, resource_t eResource);
 
 protected:
 	CNetworkedHandle<CCollector> m_hCollector;

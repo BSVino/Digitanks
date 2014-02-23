@@ -575,9 +575,13 @@ public:
 	virtual float							GetHealth() const { return m_flHealth; }
 	virtual bool							IsAlive() { return m_flHealth > 0; }
 
-	class CTeam*							GetTeam() const;
+	virtual class CTeam*					GetTeam() const;
 	void									SetTeam(class CTeam* pTeam);
 	virtual void							OnTeamChange() {};
+
+	class CBaseEntity*                      GetOwner() const;
+	void                                    SetOwner(CBaseEntity* pOwner);
+	virtual void                            OnSetOwner(class CBaseEntity* pOwner) {};
 
 	virtual void							ClientUpdate(int iClient);
 	virtual void							ClientEnterGame();
@@ -769,6 +773,7 @@ protected:
 	CNetworkedVariable<bool>				m_bActive;
 
 	CNetworkedHandle<CTeam>					m_hTeam;
+	CNetworkedHandle<CBaseEntity>           m_hOwner;
 
 	bool									m_bVisible;
 	bool									m_bInPhysics;

@@ -70,6 +70,7 @@ CRenderingContext::CRenderingContext(CRenderer* pRenderer, bool bInherit)
 		oThisContext.m_eDepthFunction = oLastContext.m_eDepthFunction;
 		oThisContext.m_bCull = oLastContext.m_bCull;
 		oThisContext.m_bWinding = oLastContext.m_bWinding;
+		oThisContext.m_eCullFace = oLastContext.m_eCullFace;
 
 		m_pShader = oThisContext.m_pShader;
 
@@ -127,6 +128,7 @@ CRenderingContext::~CRenderingContext()
 		SetDepthFunction(oContext.m_eDepthFunction);
 		SetBackCulling(oContext.m_bCull);
 		SetWinding(oContext.m_bWinding);
+		SetCullFace(oContext.m_eCullFace);
 	}
 	else
 	{
@@ -287,6 +289,17 @@ void CRenderingContext::SetWinding(bool bWinding)
 {
 	GetContext().m_bWinding = bWinding;
 	glFrontFace(bWinding?GL_CCW:GL_CW);
+}
+
+void CRenderingContext::SetCullFace(cull_face_t eCullFace)
+{
+	GetContext().m_eCullFace = eCullFace;
+	if (eCullFace == CF_FRONT)
+		glCullFace(GL_FRONT);
+	else if (eCullFace == CF_BACK)
+		glCullFace(GL_BACK);
+	else
+		TUnimplemented();
 }
 
 void CRenderingContext::ClearColor(const ::Color& clrClear)
@@ -698,6 +711,13 @@ void CRenderingContext::SetUniform(const char* pszName, size_t iSize, const floa
 	TAssert(m_pShader);
 	int iUniform = glGetUniformLocation((GLuint)m_iProgram, pszName);
 	glUniform1fv(iUniform, iSize, aflValues);
+}
+
+void CRenderingContext::SetUniform(const char* pszName, size_t iSize, const Vector* avecValues)
+{
+	TAssert(m_pShader);
+	int iUniform = glGetUniformLocation((GLuint)m_iProgram, pszName);
+	glUniform3fv(iUniform, iSize, &avecValues[0].x);
 }
 
 void CRenderingContext::BindTexture(size_t iTexture, int iChannel, bool bMultisample)

@@ -1,7 +1,7 @@
 #ifndef DT_LOBBYUI_H
 #define DT_LOBBYUI_H
 
-#include <glgui/glgui.h>
+#include <glgui/panel.h>
 #include <network/network.h>
 
 class CPlayerPanel : public glgui::CPanel, public glgui::IEventListener

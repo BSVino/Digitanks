@@ -54,8 +54,10 @@ public:
 
 	static CTextureHandle	AddTexture(const tstring& sTexture, int iClamp = 0);
 	static CTextureHandle	AddTexture(Vector* vecColors, size_t iWidth, size_t iHeight, bool bMipMaps=true);
+	static CTextureHandle	AddTexture(Color* clrColors, size_t iWidth, size_t iHeight, bool bMipMaps=true);
 	static CTexture*		AddAsset(const tstring& sTexture, int iClamp = 0);
 	static CTexture*		AddAsset(const tstring& sTexture, Vector* vecColors, size_t iWidth, size_t iHeight, bool bMipMaps=true);
+	static CTexture*		AddAsset(const tstring& sTexture, Color* clrColors, size_t iWidth, size_t iHeight, bool bMipMaps=true);
 	static CTextureHandle	FindAsset(const tstring& sTexture);
 	static size_t			FindTextureID(const tstring& sTexture);
 

@@ -11,12 +11,12 @@ public:
 	virtual void				Precache();
 	virtual void				ClientSpawn();
 
-	virtual void				OnSetOwner(class CDigitanksEntity* pOwner);
+	virtual void				OnSetOwner(class CBaseEntity* pOwner);
 
-	virtual float				GetRenderRadius() const { return LaserLength(); };
+	virtual const TFloat		GetRenderRadius() const { return LaserLength(); };
 
 	virtual bool				ShouldRender() const { return true; };
-	virtual void				PostRender(bool bTransparent) const;
+	virtual void				PostRender() const;
 
 	virtual float				LaserLength() const { return 400; }
 
@@ -28,7 +28,7 @@ public:
 	virtual float				PushDistance() { return 0.0f; };
 
 protected:
-	static size_t				s_iBeam;
+	static CMaterialHandle s_hBeam;
 };
 
 class CInfantryLaser : public CLaser

@@ -16,9 +16,9 @@
 #include "units/mobilecpu.h"
 #include "wreckage.h"
 
-REGISTER_ENTITY(CDigitanksTeam);
+REGISTER_ENTITY(CDigitanksPlayer);
 
-NETVAR_TABLE_BEGIN(CDigitanksTeam);
+NETVAR_TABLE_BEGIN(CDigitanksPlayer);
 	NETVAR_DEFINE_CALLBACK(CEntityHandle<CDigitank>, m_ahTanks, &CDigitanksGame::UpdateTeamMembers);
 	NETVAR_DEFINE_CALLBACK(float, m_flPowerPerTurn, &CDigitanksGame::UpdateHUD);
 	NETVAR_DEFINE_CALLBACK(float, m_flPower, &CDigitanksGame::UpdateHUD);
@@ -44,7 +44,7 @@ NETVAR_TABLE_BEGIN(CDigitanksTeam);
 	NETVAR_DEFINE(bool, m_bIncludeInScoreboard);
 NETVAR_TABLE_END();
 
-SAVEDATA_TABLE_BEGIN(CDigitanksTeam);
+SAVEDATA_TABLE_BEGIN(CDigitanksPlayer);
 	SAVEDATA_DEFINE(CSaveData::DATA_NETVAR, CEntityHandle<CDigitank>, m_ahTanks);
 	SAVEDATA_DEFINE(CSaveData::DATA_COPYVECTOR, size_t, m_aiCurrentSelection);
 	SAVEDATA_OMIT(m_aflVisibilities);	// Automatically generated
@@ -61,6 +61,7 @@ SAVEDATA_TABLE_BEGIN(CDigitanksTeam);
 	SAVEDATA_DEFINE(CSaveData::DATA_COPYTYPE, CEntityHandle<CLoader>, m_hTankLoader);
 	SAVEDATA_DEFINE(CSaveData::DATA_COPYTYPE, CEntityHandle<CLoader>, m_hArtilleryLoader);
 	SAVEDATA_OMIT(m_aeBuildPriorities);	// Automatically generated
+	SAVEDATA_OMIT(m_iBuildPrioritiesHead);	// Automatically generated
 	SAVEDATA_DEFINE(CSaveData::DATA_COPYTYPE, bool, m_bCanUpgrade);
 	SAVEDATA_DEFINE(CSaveData::DATA_COPYTYPE, Vector, m_vecExplore);
 	SAVEDATA_DEFINE(CSaveData::DATA_COPYTYPE, bool, m_bUseArtilleryAI);
@@ -86,10 +87,10 @@ SAVEDATA_TABLE_BEGIN(CDigitanksTeam);
 	SAVEDATA_DEFINE(CSaveData::DATA_NETVAR, bool, m_bIncludeInScoreboard);
 SAVEDATA_TABLE_END();
 
-INPUTS_TABLE_BEGIN(CDigitanksTeam);
+INPUTS_TABLE_BEGIN(CDigitanksPlayer);
 INPUTS_TABLE_END();
 
-CDigitanksTeam::CDigitanksTeam()
+CDigitanksPlayer::CDigitanksPlayer()
 {
 	m_bLKV = false;
 	m_bCanUpgrade = true;
@@ -103,11 +104,11 @@ CDigitanksTeam::CDigitanksTeam()
 	m_bLost = false;
 }
 
-CDigitanksTeam::~CDigitanksTeam()
+CDigitanksPlayer::~CDigitanksPlayer()
 {
 }
 
-void CDigitanksTeam::Spawn()
+void CDigitanksPlayer::Spawn()
 {
 	BaseClass::Spawn();
 
@@ -130,34 +131,14 @@ void CDigitanksTeam::Spawn()
 	m_hPrimaryCPU = NULL;
 }
 
-void CDigitanksTeam::OnAddEntity(CBaseEntity* pEntity)
-{
-	CDigitank* pTank = dynamic_cast<CDigitank*>(pEntity);
-	if (pTank)
-		m_ahTanks.push_back(pTank);
-
-	m_aflVisibilities[pEntity->GetHandle()] = 1;
-
-	const CCPU* pCPU = dynamic_cast<const CCPU*>(pEntity);
-	if (!m_hPrimaryCPU && pCPU)
-		m_hPrimaryCPU = pCPU;
-
-	DigitanksWindow()->GetHUD()->OnAddEntityToTeam(this, pEntity);
-}
-
-void CDigitanksTeam::OnRemoveEntity(CBaseEntity* pEntity)
-{
-	DigitanksWindow()->GetHUD()->OnRemoveEntityFromTeam(this, pEntity);
-}
-
-void CDigitanksTeam::ClientEnterGame()
+void CDigitanksPlayer::ClientEnterGame()
 {
 	BaseClass::ClientEnterGame();
 
 	CalculateVisibility();
 }
 
-CSelectable* CDigitanksTeam::GetPrimarySelection()
+CSelectable* CDigitanksPlayer::GetPrimarySelection()
 {
 	if (m_aiCurrentSelection.size() == 0)
 		return NULL;
@@ -170,17 +151,17 @@ CSelectable* CDigitanksTeam::GetPrimarySelection()
 	return dynamic_cast<CSelectable*>(pEntity);
 }
 
-CDigitank* CDigitanksTeam::GetPrimarySelectionTank()
+CDigitank* CDigitanksPlayer::GetPrimarySelectionTank()
 {
 	return dynamic_cast<CDigitank*>(GetPrimarySelection());
 }
 
-CStructure* CDigitanksTeam::GetPrimarySelectionStructure()
+CStructure* CDigitanksPlayer::GetPrimarySelectionStructure()
 {
 	return dynamic_cast<CStructure*>(GetPrimarySelection());
 }
 
-size_t CDigitanksTeam::GetPrimarySelectionId()
+size_t CDigitanksPlayer::GetPrimarySelectionId()
 {
 	if (m_aiCurrentSelection.size() == 0)
 		return -1;
@@ -188,7 +169,7 @@ size_t CDigitanksTeam::GetPrimarySelectionId()
 	return m_aiCurrentSelection[0];
 }
 
-void CDigitanksTeam::SetPrimarySelection(const CSelectable* pCurrent)
+void CDigitanksPlayer::SetPrimarySelection(const CSelectable* pCurrent)
 {
 	m_aiCurrentSelection.clear();
 
@@ -199,16 +180,16 @@ void CDigitanksTeam::SetPrimarySelection(const CSelectable* pCurrent)
 		DigitanksGame()->SetControlMode(MODE_NONE);
 
 		if (DigitanksGame()->GetGameType() == GAMETYPE_ARTILLERY)
-			DigitanksWindow()->GetInstructor()->DisplayTutorial("artillery-select");
+			DigitanksWindow()->GetInstructor()->DisplayLesson("artillery-select");
 
 		if (DigitanksGame()->GetGameType() == GAMETYPE_STANDARD && !GetPrimaryCPU())
 		{
-			tstring sTutorialName;
-			if (DigitanksWindow()->GetInstructor()->GetCurrentTutorial())
-				sTutorialName = DigitanksWindow()->GetInstructor()->GetCurrentTutorial()->m_sTutorialName;
+			tstring sLessonName;
+			if (DigitanksWindow()->GetInstructor()->GetCurrentLesson())
+				sLessonName = DigitanksWindow()->GetInstructor()->GetCurrentLesson()->m_sLessonName;
 
-			if (DigitanksWindow()->GetInstructor()->GetActive() && sTutorialName != "strategy-buildbuffer" && sTutorialName != "strategy-placebuffer")
-				DigitanksWindow()->GetInstructor()->DisplayTutorial("strategy-select");
+			if (DigitanksWindow()->GetInstructor()->GetActive() && sLessonName != "strategy-buildbuffer" && sLessonName != "strategy-placebuffer")
+				DigitanksWindow()->GetInstructor()->DisplayLesson("strategy-select");
 			else
 				DigitanksWindow()->GetInstructor()->SetActive(false);
 		}
@@ -225,31 +206,31 @@ void CDigitanksTeam::SetPrimarySelection(const CSelectable* pCurrent)
 	{
 		GetPrimarySelection()->OnCurrentSelection();
 
-		DigitanksWindow()->GetInstructor()->FinishedTutorial("mission-1-selection");
+		DigitanksWindow()->GetInstructor()->FinishedLesson("mission-1-selection");
 
 		if (DigitanksGame()->GetGameType() == GAMETYPE_ARTILLERY)
 		{
-			if (DigitanksGame()->GetCurrentLocalDigitanksTeam() == GetPrimarySelection()->GetTeam())
+			if (DigitanksGame()->GetCurrentLocalDigitanksPlayer() == GetPrimarySelection()->GetPlayerOwner())
 			{
-				DigitanksWindow()->GetInstructor()->FinishedTutorial("artillery-select", true);
-				DigitanksWindow()->GetInstructor()->FinishedTutorial("artillery-onepertank");
+				DigitanksWindow()->GetInstructor()->FinishedLesson("artillery-select", true);
+				DigitanksWindow()->GetInstructor()->FinishedLesson("artillery-onepertank");
 			}
 			else
-				DigitanksWindow()->GetInstructor()->DisplayTutorial("artillery-select");
+				DigitanksWindow()->GetInstructor()->DisplayLesson("artillery-select");
 		}
 
 		if (DigitanksGame()->GetGameType() == GAMETYPE_STANDARD && !GetPrimaryCPU())
 		{
-			tstring sTutorialName;
-			if (DigitanksWindow()->GetInstructor()->GetCurrentTutorial())
-				sTutorialName = DigitanksWindow()->GetInstructor()->GetCurrentTutorial()->m_sTutorialName;
+			tstring sLessonName;
+			if (DigitanksWindow()->GetInstructor()->GetCurrentLesson())
+				sLessonName = DigitanksWindow()->GetInstructor()->GetCurrentLesson()->m_sLessonName;
 
-			if (sTutorialName != "strategy-buildbuffer" && sTutorialName != "strategy-placebuffer")
+			if (sLessonName != "strategy-buildbuffer" && sLessonName != "strategy-placebuffer")
 			{
-				if (dynamic_cast<CMobileCPU*>(GetPrimarySelection()) && DigitanksGame()->GetCurrentLocalDigitanksTeam() == GetPrimarySelection()->GetTeam())
-					DigitanksWindow()->GetInstructor()->FinishedTutorial("strategy-select", true);
+				if (dynamic_cast<CMobileCPU*>(GetPrimarySelection()) && DigitanksGame()->GetCurrentLocalDigitanksPlayer() == GetPrimarySelection()->GetPlayerOwner())
+					DigitanksWindow()->GetInstructor()->FinishedLesson("strategy-select", true);
 				else
-					DigitanksWindow()->GetInstructor()->DisplayTutorial("strategy-select");
+					DigitanksWindow()->GetInstructor()->DisplayLesson("strategy-select");
 			}
 			else
 			{
@@ -260,12 +241,12 @@ void CDigitanksTeam::SetPrimarySelection(const CSelectable* pCurrent)
 	}
 }
 
-bool CDigitanksTeam::IsPrimarySelection(const CSelectable* pEntity)
+bool CDigitanksPlayer::IsPrimarySelection(const CSelectable* pEntity)
 {
 	return GetPrimarySelection() == pEntity;
 }
 
-void CDigitanksTeam::AddToSelection(const CSelectable* pEntity)
+void CDigitanksPlayer::AddToSelection(const CSelectable* pEntity)
 {
 	if (!pEntity)
 		return;
@@ -273,28 +254,28 @@ void CDigitanksTeam::AddToSelection(const CSelectable* pEntity)
 	if (GetPrimarySelection())
 	{
 		// Don't pick teamless entities up in this selection if there's a team up front.
-		if (pEntity->GetTeam() && !GetPrimarySelection()->GetTeam())
+		if (pEntity->GetPlayerOwner() && !GetPrimarySelection()->GetPlayerOwner())
 		{
 			SetPrimarySelection(pEntity);
 			return;
 		}
 
 		// Prioritize our own team over enemy teams.
-		if (pEntity->GetTeam() && DigitanksGame()->IsTeamControlledByMe(pEntity->GetTeam()) && !DigitanksGame()->IsTeamControlledByMe(GetPrimarySelection()->GetTeam()))
+		if (pEntity->GetPlayerOwner() && DigitanksGame()->IsTeamControlledByMe(pEntity->GetPlayerOwner()) && !DigitanksGame()->IsTeamControlledByMe(GetPrimarySelection()->GetPlayerOwner()))
 		{
 			SetPrimarySelection(pEntity);
 			return;
 		}
 
 		// Only pick up one team at a time.
-		if (pEntity->GetTeam() != GetPrimarySelection()->GetTeam())
+		if (pEntity->GetPlayerOwner() != GetPrimarySelection()->GetPlayerOwner())
 			return;
 	}
 
 	m_aiCurrentSelection.push_back(pEntity->GetHandle());
 }
 
-bool CDigitanksTeam::IsSelected(const CSelectable* pEntity)
+bool CDigitanksPlayer::IsSelected(const CSelectable* pEntity)
 {
 	if (!pEntity)
 		return false;
@@ -308,34 +289,34 @@ bool CDigitanksTeam::IsSelected(const CSelectable* pEntity)
 	return false;
 }
 
-void CDigitanksTeam::StartNewRound()
+void CDigitanksPlayer::StartNewRound()
 {
 	m_bLost = false;
 }
 
-void CDigitanksTeam::StartTurn()
+void CDigitanksPlayer::StartTurn()
 {
 	m_iTotalFleetPoints = m_iUsedFleetPoints = 0;
 
-	for (size_t i = 0; i < Game()->GetNumTeams(); i++)
+	for (size_t i = 0; i < Game()->GetNumPlayers(); i++)
 	{
-		if (Game()->GetTeam(i))
-			DigitanksGame()->GetDigitanksTeam(i)->CalculateVisibility();
+		if (Game()->GetPlayer(i))
+			DigitanksGame()->GetDigitanksPlayer(i)->CalculateVisibility();
 	}
 
 	CountProducers();
 
 	// Tell CPU's to calculate data flow before StartTurn logic, which updates tendrils and data strengths.
-	for (size_t i = 0; i < m_ahMembers.size(); i++)
+	for (size_t i = 0; i < m_ahUnits.size(); i++)
 	{
-		if (m_ahMembers[i] == NULL)
+		if (!m_ahUnits[i])
 			continue;
 
-		CDigitanksEntity* pEntity = dynamic_cast<CDigitanksEntity*>(m_ahMembers[i].GetPointer());
+		CDigitanksEntity* pEntity = dynamic_cast<CDigitanksEntity*>(m_ahUnits[i].GetPointer());
 		if (!pEntity)
 			continue;
 
-		CCPU* pCPU = dynamic_cast<CCPU*>(m_ahMembers[i].GetPointer());
+		CCPU* pCPU = dynamic_cast<CCPU*>(m_ahUnits[i].GetPointer());
 		if (pCPU && !pCPU->IsConstructing())
 			pCPU->CalculateDataFlow();
 	}
@@ -343,12 +324,12 @@ void CDigitanksTeam::StartTurn()
 	tvector<CDigitanksEntity*> apMembers;
 
 	// Form a list so that members added during another member's startturn aren't considered this turn.
-	for (size_t i = 0; i < m_ahMembers.size(); i++)
+	for (size_t i = 0; i < m_ahUnits.size(); i++)
 	{
-		if (m_ahMembers[i] == NULL)
+		if (!m_ahUnits[i])
 			continue;
 
-		CDigitanksEntity* pEntity = dynamic_cast<CDigitanksEntity*>(m_ahMembers[i].GetPointer());
+		CDigitanksEntity* pEntity = dynamic_cast<CDigitanksEntity*>(m_ahUnits[i].GetPointer());
 		if (pEntity)
 			apMembers.push_back(pEntity);
 	}
@@ -390,7 +371,7 @@ void CDigitanksTeam::StartTurn()
 	}
 	else if (DigitanksGame()->GetUpdateGrid())
 	{
-		if (DigitanksGame()->GetTurn() > 1 && !DigitanksGame()->GetCurrentTeam()->GetUpdateDownloading())
+		if (DigitanksGame()->GetTurn() > 1 && !DigitanksGame()->GetCurrentPlayer()->GetUpdateDownloading())
 			AddActionItem(NULL, ACTIONTYPE_DOWNLOADUPDATES);
 	}
 
@@ -404,17 +385,17 @@ void CDigitanksTeam::StartTurn()
 	DigitanksWindow()->GetHUD()->Layout();
 }
 
-void CDigitanksTeam::EndTurn()
+void CDigitanksPlayer::EndTurn()
 {
 	m_sTurnInfo = "";
 	m_aActionItems.clear();
 
-	for (size_t i = 0; i < m_ahMembers.size(); i++)
+	for (size_t i = 0; i < m_ahUnits.size(); i++)
 	{
-		if (m_ahMembers[i] == NULL)
+		if (!m_ahUnits[i])
 			continue;
 
-		CDigitanksEntity* pEntity = dynamic_cast<CDigitanksEntity*>(m_ahMembers[i].GetPointer());
+		CDigitanksEntity* pEntity = dynamic_cast<CDigitanksEntity*>(m_ahUnits[i].GetPointer());
 		if (pEntity)
 		{
 			pEntity->EndTurn();
@@ -423,7 +404,7 @@ void CDigitanksTeam::EndTurn()
 	}
 }
 
-void CDigitanksTeam::CountProducers()
+void CDigitanksPlayer::CountProducers()
 {
 	if (!GameNetwork()->IsHost())
 		return;
@@ -431,26 +412,26 @@ void CDigitanksTeam::CountProducers()
 	m_flPowerPerTurn = 0;
 
 	// Find and count producers and accumulate production points
-	for (size_t i = 0; i < m_ahMembers.size(); i++)
+	for (size_t i = 0; i < m_ahUnits.size(); i++)
 	{
-		if (m_ahMembers[i] == NULL)
+		if (!m_ahUnits[i])
 			continue;
 
-		CDigitanksEntity* pEntity = dynamic_cast<CDigitanksEntity*>(m_ahMembers[i].GetPointer());
+		CDigitanksEntity* pEntity = dynamic_cast<CDigitanksEntity*>(m_ahUnits[i].GetPointer());
 		if (!pEntity)
 			continue;
 
-		CStructure* pStructure = dynamic_cast<CStructure*>(m_ahMembers[i].GetPointer());
+		CStructure* pStructure = dynamic_cast<CStructure*>(m_ahUnits[i].GetPointer());
 		if (pStructure && pStructure->Power())
 			AddPowerPerTurn(pStructure->Power());
 
-		CCollector* pCollector = dynamic_cast<CCollector*>(m_ahMembers[i].GetPointer());
+		CCollector* pCollector = dynamic_cast<CCollector*>(m_ahUnits[i].GetPointer());
 		if (pCollector && !pCollector->IsConstructing() && !pCollector->IsUpgrading())
 			AddPowerPerTurn(pCollector->GetPowerProduced());
 	}
 }
 
-void CDigitanksTeam::AddPowerPerTurn(float flPower)
+void CDigitanksPlayer::AddPowerPerTurn(float flPower)
 {
 	if (!GameNetwork()->IsHost())
 		return;
@@ -458,7 +439,7 @@ void CDigitanksTeam::AddPowerPerTurn(float flPower)
 	m_flPowerPerTurn += flPower;
 }
 
-void CDigitanksTeam::ConsumePower(float flPower)
+void CDigitanksPlayer::ConsumePower(float flPower)
 {
 	TAssert(m_flPower >= flPower);
 
@@ -468,7 +449,7 @@ void CDigitanksTeam::ConsumePower(float flPower)
 		m_flPower -= flPower;
 }
 
-void CDigitanksTeam::CountFleetPoints()
+void CDigitanksPlayer::CountFleetPoints()
 {
 	if (!GameNetwork()->IsHost())
 		return;
@@ -477,12 +458,12 @@ void CDigitanksTeam::CountFleetPoints()
 	m_iUsedFleetPoints = 0;
 
 	// Find and count fleet points
-	for (size_t i = 0; i < m_ahMembers.size(); i++)
+	for (size_t i = 0; i < m_ahUnits.size(); i++)
 	{
-		if (m_ahMembers[i] == NULL)
+		if (!m_ahUnits[i])
 			continue;
 
-		CDigitanksEntity* pEntity = dynamic_cast<CDigitanksEntity*>(m_ahMembers[i].GetPointer());
+		CDigitanksEntity* pEntity = dynamic_cast<CDigitanksEntity*>(m_ahUnits[i].GetPointer());
 		if (!pEntity)
 			continue;
 
@@ -501,7 +482,7 @@ void CDigitanksTeam::CountFleetPoints()
 	}
 }
 
-size_t CDigitanksTeam::GetUnusedFleetPoints()
+size_t CDigitanksPlayer::GetUnusedFleetPoints()
 {
 	if (GetUsedFleetPoints() > GetTotalFleetPoints())
 		return 0;
@@ -509,7 +490,7 @@ size_t CDigitanksTeam::GetUnusedFleetPoints()
 	return GetTotalFleetPoints() - GetUsedFleetPoints();
 }
 
-void CDigitanksTeam::CountScore()
+void CDigitanksPlayer::CountScore()
 {
 	if (!GameNetwork()->IsHost())
 		return;
@@ -520,12 +501,12 @@ void CDigitanksTeam::CountScore()
 	m_iScore = 0;
 
 	// Find and count fleet points
-	for (size_t i = 0; i < m_ahMembers.size(); i++)
+	for (size_t i = 0; i < m_ahUnits.size(); i++)
 	{
-		if (m_ahMembers[i] == NULL)
+		if (!m_ahUnits[i])
 			continue;
 
-		CDigitanksEntity* pEntity = dynamic_cast<CDigitanksEntity*>(m_ahMembers[i].GetPointer());
+		CDigitanksEntity* pEntity = dynamic_cast<CDigitanksEntity*>(m_ahUnits[i].GetPointer());
 		if (!pEntity)
 			continue;
 
@@ -547,26 +528,26 @@ SERVER_GAME_COMMAND(YouLoseSirGoodDay)
 	DigitanksGame()->GetListener()->GameOver(false);
 }
 
-void CDigitanksTeam::YouLoseSirGoodDay()
+void CDigitanksPlayer::YouLoseSirGoodDay()
 {
 	m_bLost = true;
 
 	::YouLoseSirGoodDay.RunCommand("", GetClient());
 }
 
-void CDigitanksTeam::CountBandwidth()
+void CDigitanksPlayer::CountBandwidth()
 {
 	if (!GameNetwork()->IsHost())
 		return;
 
 	m_flBandwidth = 0;
 
-	for (size_t i = 0; i < m_ahMembers.size(); i++)
+	for (size_t i = 0; i < m_ahUnits.size(); i++)
 	{
-		if (m_ahMembers[i] == NULL)
+		if (!m_ahUnits[i])
 			continue;
 
-		CDigitanksEntity* pEntity = dynamic_cast<CDigitanksEntity*>(m_ahMembers[i].GetPointer());
+		CDigitanksEntity* pEntity = dynamic_cast<CDigitanksEntity*>(m_ahUnits[i].GetPointer());
 		if (!pEntity)
 			continue;
 
@@ -577,7 +558,7 @@ void CDigitanksTeam::CountBandwidth()
 	}
 }
 
-void CDigitanksTeam::AppendTurnInfo(const tstring& sTurnInfo)
+void CDigitanksPlayer::AppendTurnInfo(const tstring& sTurnInfo)
 {
 	if (m_sTurnInfo.length() == 0)
 		m_sTurnInfo = "TURN REPORT\n \n";
@@ -585,12 +566,12 @@ void CDigitanksTeam::AppendTurnInfo(const tstring& sTurnInfo)
 	m_sTurnInfo += "* " + sTurnInfo + "\n";
 }
 
-tstring CDigitanksTeam::GetTurnInfo()
+tstring CDigitanksPlayer::GetTurnInfo()
 {
 	return m_sTurnInfo;
 }
 
-void CDigitanksTeam::OnDeleted(CBaseEntity* pEntity)
+void CDigitanksPlayer::OnDeleted(CBaseEntity* pEntity)
 {
 	BaseClass::OnDeleted(pEntity);
 
@@ -601,7 +582,7 @@ void CDigitanksTeam::OnDeleted(CBaseEntity* pEntity)
 	}
 }
 
-size_t CDigitanksTeam::GetNumTanksAlive() const
+size_t CDigitanksPlayer::GetNumTanksAlive() const
 {
 	size_t iTanksAlive = 0;
 	for (size_t i = 0; i < m_ahTanks.size(); i++)
@@ -613,7 +594,7 @@ size_t CDigitanksTeam::GetNumTanksAlive() const
 	return iTanksAlive;
 }
 
-void CDigitanksTeam::CalculateVisibility()
+void CDigitanksPlayer::CalculateVisibility()
 {
 	m_aflVisibilities.clear();
 	// For every entity in the game, calculate the visibility to this team
@@ -621,7 +602,7 @@ void CDigitanksTeam::CalculateVisibility()
 		CalculateEntityVisibility(CBaseEntity::GetEntity(i));
 }
 
-void CDigitanksTeam::CalculateEntityVisibility(CBaseEntity* pEntity)
+void CDigitanksPlayer::CalculateEntityVisibility(CBaseEntity* pEntity)
 {
 	if (!pEntity)
 		return;
@@ -630,7 +611,7 @@ void CDigitanksTeam::CalculateEntityVisibility(CBaseEntity* pEntity)
 	if (pDTEntity)
 		pDTEntity->DirtyVisibility();
 
-	if (pEntity->GetTeam() == ((CTeam*)this))
+	if (pEntity->GetOwner() == this)
 	{
 		m_aflVisibilities[pEntity->GetHandle()] = 1;
 		return;
@@ -639,7 +620,7 @@ void CDigitanksTeam::CalculateEntityVisibility(CBaseEntity* pEntity)
 	CWreckage* pWreckage = dynamic_cast<CWreckage*>(pEntity);
 	if (pWreckage)
 	{
-		if (pWreckage->GetOldTeam() == this && GameServer()->GetGameTime() - pWreckage->GetSpawnTime() < 10)
+		if (pWreckage->GetOldPlayer() == this && GameServer()->GetGameTime() - pWreckage->GetSpawnTime() < 10)
 		{
 			// We can continue to see our wreckage even after it dies, just in case we die in a remote place.
 			m_aflVisibilities[pEntity->GetHandle()] = 1;
@@ -652,7 +633,7 @@ void CDigitanksTeam::CalculateEntityVisibility(CBaseEntity* pEntity)
 	if (pDigitank)
 		vecOrigin = pDigitank->GetRealOrigin();
 	else
-		vecOrigin = pEntity->GetOrigin();
+		vecOrigin = pEntity->GetGlobalOrigin();
 
 	bool bCloak = false;
 	if (pDigitank && pDigitank->IsCloaked())
@@ -663,7 +644,7 @@ void CDigitanksTeam::CalculateEntityVisibility(CBaseEntity* pEntity)
 	m_aflVisibilities[pEntity->GetHandle()] = flVisibility;
 }
 
-float CDigitanksTeam::GetEntityVisibility(size_t iHandle)
+float CDigitanksPlayer::GetEntityVisibility(size_t iHandle)
 {
 	tmap<size_t, float>::iterator it = m_aflVisibilities.find(iHandle);
 	if (it == m_aflVisibilities.end())
@@ -672,20 +653,20 @@ float CDigitanksTeam::GetEntityVisibility(size_t iHandle)
 	return (*it).second;
 }
 
-float CDigitanksTeam::GetVisibilityAtPoint(Vector vecPoint, bool bCloak) const
+float CDigitanksPlayer::GetVisibilityAtPoint(Vector vecPoint, bool bCloak) const
 {
-	if (IsPlayerControlled() && !DigitanksGame()->ShouldRenderFogOfWar())
+	if (IsHumanControlled() && !DigitanksGame()->ShouldRenderFogOfWar())
 		return 1;
 
 	float flFinalVisibility = 0;
 
 	// For every entity on this team, see what the visibility is
-	for (size_t j = 0; j < m_ahMembers.size(); j++)
+	for (size_t j = 0; j < m_ahUnits.size(); j++)
 	{
-		if (m_ahMembers[j] == NULL)
+		if (!m_ahUnits[j])
 			continue;
 
-		CDigitanksEntity* pTeammate = dynamic_cast<CDigitanksEntity*>(m_ahMembers[j].GetPointer());
+		CDigitanksEntity* pTeammate = dynamic_cast<CDigitanksEntity*>(m_ahUnits[j].GetPointer());
 		if (!pTeammate)
 			continue;
 
@@ -697,13 +678,13 @@ float CDigitanksTeam::GetVisibilityAtPoint(Vector vecPoint, bool bCloak) const
 		if (pDigitank)
 			vecOrigin = pDigitank->GetRealOrigin();
 		else
-			vecOrigin = pTeammate->GetOrigin();
+			vecOrigin = pTeammate->GetGlobalOrigin();
 
 		float flVisibileRange = pTeammate->VisibleRange();
 		if (bCloak)
 			flVisibileRange /= 2;
 
-		float flVisibility = RemapValClamped((vecOrigin - vecPoint).Length(), flVisibileRange, flVisibileRange+DigitanksGame()->FogPenetrationDistance(), 1, 0);
+		float flVisibility = RemapValClamped((vecOrigin - vecPoint).Length(), flVisibileRange, flVisibileRange+DigitanksGame()->FogPenetrationDistance(), 1.0f, 0.0f);
 
 		// Use the brightest visibility
 		if (flVisibility > flFinalVisibility)
@@ -716,9 +697,9 @@ float CDigitanksTeam::GetVisibilityAtPoint(Vector vecPoint, bool bCloak) const
 	return flFinalVisibility;
 }
 
-void CDigitanksTeam::AddActionItem(const CSelectable* pUnit, actiontype_t eActionType)
+void CDigitanksPlayer::AddActionItem(const CSelectable* pUnit, actiontype_t eActionType)
 {
-	if (pUnit && pUnit->GetDigitanksTeam() != this)
+	if (pUnit && pUnit->GetDigitanksPlayer() != this)
 		return;
 
 	if (DigitanksGame()->GetGameType() != GAMETYPE_STANDARD && DigitanksGame()->GetGameType() != GAMETYPE_CAMPAIGN)
@@ -750,12 +731,12 @@ void CDigitanksTeam::AddActionItem(const CSelectable* pUnit, actiontype_t eActio
 	DigitanksWindow()->GetHUD()->OnAddNewActionItem();
 }
 
-void CDigitanksTeam::ClearActionItems()
+void CDigitanksPlayer::ClearActionItems()
 {
 	m_aActionItems.clear();
 }
 
-void CDigitanksTeam::ServerHandledActionItem(size_t i)
+void CDigitanksPlayer::ServerHandledActionItem(size_t i)
 {
 	if (i >= m_aActionItems.size())
 		return;
@@ -772,7 +753,7 @@ CLIENT_GAME_COMMAND(HandledActionItem)
 		return;
 	}
 
-	CEntityHandle<CDigitanksTeam> hTeam(pCmd->ArgAsUInt(0));
+	CEntityHandle<CDigitanksPlayer> hTeam(pCmd->ArgAsUInt(0));
 
 	if (!hTeam)
 	{
@@ -789,7 +770,7 @@ CLIENT_GAME_COMMAND(HandledActionItem)
 	hTeam->ServerHandledActionItem(pCmd->ArgAsUInt(1));
 }
 
-void CDigitanksTeam::HandledActionItem(size_t i)
+void CDigitanksPlayer::HandledActionItem(size_t i)
 {
 	::HandledActionItem.RunCommand(sprintf(tstring("%d %d"), GetHandle(), i));
 
@@ -798,7 +779,7 @@ void CDigitanksTeam::HandledActionItem(size_t i)
 		ServerHandledActionItem(i);
 }
 
-void CDigitanksTeam::HandledActionItem(CSelectable* pUnit)
+void CDigitanksPlayer::HandledActionItem(CSelectable* pUnit)
 {
 	if (!pUnit)
 		return;
@@ -820,7 +801,7 @@ void CDigitanksTeam::HandledActionItem(CSelectable* pUnit)
 		HandledActionItem(iItem);
 }
 
-void CDigitanksTeam::HandledActionItem(actiontype_t eItem)
+void CDigitanksPlayer::HandledActionItem(actiontype_t eItem)
 {
 	for (size_t i = 0; i < m_aActionItems.size(); i++)
 	{
@@ -832,7 +813,7 @@ void CDigitanksTeam::HandledActionItem(actiontype_t eItem)
 	}
 }
 
-void CDigitanksTeam::DownloadUpdate(int iX, int iY, bool bCheckValid)
+void CDigitanksPlayer::DownloadUpdate(int iX, int iY, bool bCheckValid)
 {
 	if (m_iCurrentUpdateX == iX && m_iCurrentUpdateY == iY)
 		return;
@@ -851,7 +832,7 @@ void CDigitanksTeam::DownloadUpdate(int iX, int iY, bool bCheckValid)
 	GameNetwork()->CallFunctionParameters(NETWORK_TOEVERYONE, "DownloadUpdate", &p);
 }
 
-void CDigitanksTeam::DownloadUpdate(class CNetworkParameters* p)
+void CDigitanksPlayer::DownloadUpdate(class CNetworkParameters* p)
 {
 	int iX = p->i2;
 	int iY = p->i3;
@@ -893,7 +874,7 @@ void CDigitanksTeam::DownloadUpdate(class CNetworkParameters* p)
 	}
 }
 
-float CDigitanksTeam::GetUpdateSize()
+float CDigitanksPlayer::GetUpdateSize()
 {
 	if (m_iCurrentUpdateX < 0 || m_iCurrentUpdateY < 0)
 		return 0;
@@ -904,7 +885,7 @@ float CDigitanksTeam::GetUpdateSize()
 	return DigitanksGame()->GetUpdateGrid()->m_aUpdates[m_iCurrentUpdateX][m_iCurrentUpdateY].m_flSize;
 }
 
-void CDigitanksTeam::DownloadComplete(bool bInformMembers)
+void CDigitanksPlayer::DownloadComplete(bool bInformMembers)
 {
 	if (m_iCurrentUpdateX < 0 || m_iCurrentUpdateY < 0)
 		return;
@@ -924,7 +905,7 @@ void CDigitanksTeam::DownloadComplete(bool bInformMembers)
 	GameNetwork()->CallFunctionParameters(NETWORK_TOCLIENTS, "DownloadComplete", &p);
 }
 
-void CDigitanksTeam::DownloadComplete(class CNetworkParameters* p)
+void CDigitanksPlayer::DownloadComplete(class CNetworkParameters* p)
 {
 	bool bInformMembers = !!p->i2;
 
@@ -933,9 +914,9 @@ void CDigitanksTeam::DownloadComplete(class CNetworkParameters* p)
 
 	if (bInformMembers)
 	{
-		for (size_t i = 0; i < GetNumMembers(); i++)
+		for (size_t i = 0; i < GetNumUnits(); i++)
 		{
-			CDigitanksEntity* pEntity = dynamic_cast<CDigitanksEntity*>(GetMember(i));
+			CDigitanksEntity* pEntity = dynamic_cast<CDigitanksEntity*>(GetUnit(i));
 			if (!pEntity)
 				continue;
 
@@ -983,12 +964,12 @@ void CDigitanksTeam::DownloadComplete(class CNetworkParameters* p)
 	m_flUpdateDownloaded = 0;
 }
 
-bool CDigitanksTeam::HasDownloadedUpdate(int iX, int iY) const
+bool CDigitanksPlayer::HasDownloadedUpdate(int iX, int iY) const
 {
 	return m_abUpdates.Get2D(UPDATE_GRID_SIZE, iX, iY);
 }
 
-bool CDigitanksTeam::CanDownloadUpdate(int iX, int iY) const
+bool CDigitanksPlayer::CanDownloadUpdate(int iX, int iY) const
 {
 	if (HasDownloadedUpdate(iX, iY))
 		return false;
@@ -1016,12 +997,12 @@ bool CDigitanksTeam::CanDownloadUpdate(int iX, int iY) const
 	return false;
 }
 
-bool CDigitanksTeam::IsDownloading(int iX, int iY)
+bool CDigitanksPlayer::IsDownloading(int iX, int iY)
 {
 	return m_iCurrentUpdateX == iX && m_iCurrentUpdateY == iY;
 }
 
-CUpdateItem* CDigitanksTeam::GetUpdateDownloading()
+CUpdateItem* CDigitanksPlayer::GetUpdateDownloading()
 {
 	if (m_iCurrentUpdateX < 0 || m_iCurrentUpdateY < 0)
 		return NULL;
@@ -1029,7 +1010,7 @@ CUpdateItem* CDigitanksTeam::GetUpdateDownloading()
 	return &DigitanksGame()->GetUpdateGrid()->m_aUpdates[m_iCurrentUpdateX][m_iCurrentUpdateY];
 }
 
-size_t CDigitanksTeam::GetTurnsToDownload()
+size_t CDigitanksPlayer::GetTurnsToDownload()
 {
 	if (GetBandwidth() == 0)
 		return 0;
@@ -1042,7 +1023,7 @@ size_t CDigitanksTeam::GetTurnsToDownload()
 	return iTurns;
 }
 
-bool CDigitanksTeam::CanBuildMiniBuffers()
+bool CDigitanksPlayer::CanBuildMiniBuffers()
 {
 	if (!DigitanksGame()->CanBuildMiniBuffers())
 		return false;
@@ -1050,7 +1031,7 @@ bool CDigitanksTeam::CanBuildMiniBuffers()
 	return true;
 }
 
-bool CDigitanksTeam::CanBuildBuffers()
+bool CDigitanksPlayer::CanBuildBuffers()
 {
 	if (!DigitanksGame()->CanBuildBuffers())
 		return false;
@@ -1061,7 +1042,7 @@ bool CDigitanksTeam::CanBuildBuffers()
 	return m_bCanBuildBuffers;
 }
 
-bool CDigitanksTeam::CanBuildBatteries()
+bool CDigitanksPlayer::CanBuildBatteries()
 {
 	if (!DigitanksGame()->CanBuildBatteries())
 		return false;
@@ -1069,7 +1050,7 @@ bool CDigitanksTeam::CanBuildBatteries()
 	return true;
 }
 
-bool CDigitanksTeam::CanBuildPSUs()
+bool CDigitanksPlayer::CanBuildPSUs()
 {
 	if (!DigitanksGame()->CanBuildPSUs())
 		return false;
@@ -1080,7 +1061,7 @@ bool CDigitanksTeam::CanBuildPSUs()
 	return m_bCanBuildPSUs;
 }
 
-bool CDigitanksTeam::CanBuildLoaders()
+bool CDigitanksPlayer::CanBuildLoaders()
 {
 	if (CanBuildInfantryLoaders())
 		return true;
@@ -1094,7 +1075,7 @@ bool CDigitanksTeam::CanBuildLoaders()
 	return false;
 }
 
-bool CDigitanksTeam::CanBuildInfantryLoaders()
+bool CDigitanksPlayer::CanBuildInfantryLoaders()
 {
 	if (!DigitanksGame()->CanBuildInfantryLoaders())
 		return false;
@@ -1105,7 +1086,7 @@ bool CDigitanksTeam::CanBuildInfantryLoaders()
 	return true; //m_bCanBuildInfantryLoaders;
 }
 
-bool CDigitanksTeam::CanBuildTankLoaders()
+bool CDigitanksPlayer::CanBuildTankLoaders()
 {
 	if (!DigitanksGame()->CanBuildTankLoaders())
 		return false;
@@ -1116,7 +1097,7 @@ bool CDigitanksTeam::CanBuildTankLoaders()
 	return m_bCanBuildTankLoaders;
 }
 
-bool CDigitanksTeam::CanBuildArtilleryLoaders()
+bool CDigitanksPlayer::CanBuildArtilleryLoaders()
 {
 	if (!DigitanksGame()->CanBuildArtilleryLoaders())
 		return false;
@@ -1127,10 +1108,74 @@ bool CDigitanksTeam::CanBuildArtilleryLoaders()
 	return m_bCanBuildArtilleryLoaders;
 }
 
-CDigitank* CDigitanksTeam::GetTank(size_t i) const
+CDigitank* CDigitanksPlayer::GetTank(size_t i) const
 {
 	if (!m_ahTanks.size())
 		return NULL;
 
 	return m_ahTanks[i];
+}
+
+void CDigitanksPlayer::AddUnit(CDigitanksEntity* pEntity)
+{
+	if (!pEntity)
+		return;
+
+	for (size_t i = 0; i < m_ahUnits.size(); i++)
+	{
+		// If we're already on this team, forget it.
+		// Calling the OnTeamChange() hooks just to stay on this team can be dangerous.
+		if (pEntity == m_ahUnits[i])
+			return;
+	}
+
+	if (pEntity->GetPlayerOwner())
+		RemoveUnit(pEntity);
+
+	pEntity->SetOwner(this);
+	m_ahUnits.push_back(pEntity);
+
+	OnAddUnit(pEntity);
+}
+
+void CDigitanksPlayer::OnAddUnit(CDigitanksEntity* pEntity)
+{
+	CDigitank* pTank = dynamic_cast<CDigitank*>(pEntity);
+	if (pTank)
+		m_ahTanks.push_back(pTank);
+
+	m_aflVisibilities[pEntity->GetHandle()] = 1;
+
+	const CCPU* pCPU = dynamic_cast<const CCPU*>(pEntity);
+	if (!m_hPrimaryCPU && pCPU)
+		m_hPrimaryCPU = pCPU;
+
+	DigitanksWindow()->GetHUD()->OnAddUnitToTeam(this, pEntity);
+}
+
+void CDigitanksPlayer::RemoveUnit(CDigitanksEntity* pEntity)
+{
+	for (size_t i = 0; i < m_ahUnits.size(); i++)
+	{
+		if (pEntity == m_ahUnits[i])
+		{
+			m_ahUnits.erase(i);
+			pEntity->SetOwner(NULL);
+			OnRemoveUnit(pEntity);
+			return;
+		}
+	}
+}
+
+void CDigitanksPlayer::OnRemoveUnit(CDigitanksEntity* pEntity)
+{
+	DigitanksWindow()->GetHUD()->OnRemoveUnitFromTeam(this, pEntity);
+}
+
+CDigitanksEntity* CDigitanksPlayer::GetUnit(size_t i) const
+{
+	if (i >= m_ahUnits.size())
+		return NULL;
+
+	return m_ahUnits[i];
 }

@@ -5,6 +5,7 @@
 
 #include <models/models.h>
 #include <renderer/renderer.h>
+#include <renderer/game_renderingcontext.h>
 
 #include <units/scout.h>
 #include <units/standardtank.h>
@@ -42,7 +43,6 @@ void CPowerup::Spawn()
 
 	m_bTakeDamage = false;
 
-	SetCollisionGroup(CG_POWERUP);
 	if (RandomInt(0, 2) == 0)
 	{
 		switch (RandomInt(0, 4))
@@ -85,14 +85,14 @@ tstring CPowerup::GetEntityName() const
 
 EAngle CPowerup::GetRenderAngles() const
 {
-	float flRotate = fmod(GameServer()->GetGameTime(), 3.6f)*100.0f;
+	float flRotate = (float)fmod(GameServer()->GetGameTime(), 3.6)*100.0f;
 	return EAngle(0, flRotate, 0);
 }
 
 Vector CPowerup::GetRenderOrigin() const
 {
 	Vector vecOrigin = BaseClass::GetRenderOrigin();
-	vecOrigin.y += RemapValClamped(GameServer()->GetGameTime() - GetSpawnTime(), 0, 3, 100, 0) + RemapVal(Lerp(Oscillate(GameServer()->GetGameTime() + GetSpawnTime(), 3), 0.8f), 0, 1, 3, 4);
+	vecOrigin.z += RemapValClamped((float)(GameServer()->GetGameTime() - GetSpawnTime()), 0.0f, 3.0f, 100.0f, 0.0f) + RemapVal(Bias(Oscillate((float)(GameServer()->GetGameTime() + GetSpawnTime()), 3), 0.8f), 0, 1, 3, 4);
 	return vecOrigin;
 }
 
@@ -103,7 +103,7 @@ void CPowerup::ModifyContext(class CRenderingContext* pContext) const
 	pContext->SetBlend(BLEND_ADDITIVE);
 	pContext->SetDepthMask(false);
 
-	pContext->SetAlpha(RemapValClamped(GameServer()->GetGameTime() - GetSpawnTime(), 0, 3, 0, 1));
+	pContext->SetAlpha((float)RemapValClamped(GameServer()->GetGameTime() - GetSpawnTime(), 0.0, 3.0, 0.0, 1.0));
 }
 
 void CPowerup::SetPowerupType(powerup_type_t eType)
@@ -183,14 +183,14 @@ void CPowerup::Pickup(class CDigitank* pTank)
 			}
 		}
 
-		pTank->GetTeam()->AddEntity(pNewTank);
+		pTank->GetPlayerOwner()->AddUnit(pNewTank);
 
-		Vector vecTank = m_vecOrigin - (GetOrigin().Normalized() * (GetBoundingRadius()*2));
-		vecTank.y = pNewTank->FindHoverHeight(vecTank);
+		Vector vecTank = GetGlobalOrigin() - (GetGlobalOrigin().Normalized() * (GetBoundingRadius()*2));
+		vecTank.z = pNewTank->FindHoverHeight(vecTank);
 		EAngle angTank = VectorAngles(-vecTank.Normalized());
 
-		pNewTank->SetOrigin(vecTank);
-		pNewTank->SetAngles(angTank);
+		pNewTank->SetGlobalOrigin(vecTank);
+		pNewTank->SetGlobalAngles(angTank);
 		pNewTank->StartTurn();
 
 		pNewTank->CalculateVisibility();
@@ -203,5 +203,5 @@ void CPowerup::Pickup(class CDigitank* pTank)
 		break;
 	}
 
-//	DigitanksWindow()->GetInstructor()->FinishedTutorial(CInstructor::TUTORIAL_POWERUP);
+//	DigitanksWindow()->GetInstructor()->FinishedLesson(CInstructor::TUTORIAL_POWERUP);
 }

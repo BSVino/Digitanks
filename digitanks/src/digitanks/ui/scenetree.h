@@ -2,7 +2,7 @@
 #define DT_SCENETREE_H
 
 #include <common.h>
-#include <glgui/glgui.h>
+#include <glgui/tree.h>
 
 #include <dt_common.h>
 #include <selectable.h>
@@ -82,14 +82,14 @@ public:
 
 	virtual void					Paint(float x, float y, float w, float h);
 
-	virtual void					OnAddEntityToTeam(class CDigitanksTeam* pTeam, class CBaseEntity* pEntity);
-	virtual void					OnRemoveEntityFromTeam(class CDigitanksTeam* pTeam, class CBaseEntity* pEntity);
+	virtual void					OnAddUnitToTeam(class CDigitanksPlayer* pTeam, class CBaseEntity* pEntity);
+	virtual void					OnRemoveUnitFromTeam(class CDigitanksPlayer* pTeam, class CBaseEntity* pEntity);
 	virtual void					OnTeamMembersUpdated();
 
 	void							GetUnitDimensions(CDigitanksEntity* pEntity, int& x, int& y, int& w, int& h);
 
 protected:
-	CEntityHandle<CDigitanksTeam>	m_hTeam;
+	CEntityHandle<CDigitanksPlayer>	m_hTeam;
 };
 
 #endif

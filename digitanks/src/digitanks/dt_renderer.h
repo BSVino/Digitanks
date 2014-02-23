@@ -2,7 +2,7 @@
 #define DT_DIGITANKS_RENDERER_H
 
 #include <common.h>
-#include <renderer/renderer.h>
+#include <renderer/game_renderer.h>
 
 #include "structures/structure.h"
 
@@ -18,16 +18,13 @@ public:
 	virtual void	SetupFrame(class CRenderingContext* pContext);
 	virtual void	DrawBackground(class CRenderingContext* pContext) {};	// Skybox instead
 	virtual void	StartRendering(class CRenderingContext* pContext);
-	virtual void	RenderSkybox();
+	virtual void	DrawSkybox(class CRenderingContext* pContext);
 	virtual void	FinishRendering(class CRenderingContext* pContext);
-	virtual void	SetupSceneShader();
 	virtual void	RenderPreviewModes();
 	virtual void	RenderFogOfWar();
 	virtual void	RenderAvailableAreas();
-	virtual void	RenderOffscreenBuffers();
-	virtual void	RenderFullscreenBuffers();
-
-	void			RenderBloomPass(CFrameBuffer* apSources, CFrameBuffer* apTargets, bool bHorizontal);
+	virtual void	RenderOffscreenBuffers(class CRenderingContext* pContext);
+	virtual void	RenderFullscreenBuffers(class CRenderingContext* pContext);
 
 	const CFrameBuffer*	GetExplosionBuffer() { return &m_oExplosionBuffer; }
 	const CFrameBuffer*	GetVisibility1Buffer() { return &m_oVisibility1Buffer; }
@@ -35,6 +32,8 @@ public:
 	const CFrameBuffer*	GetVisibilityMaskedBuffer() { return &m_oVisibilityMaskedBuffer; }
 	const CFrameBuffer*	GetAvailableAreaBuffer() { return &m_oAvailableAreaBuffer; }
 
+	virtual float	BloomBrightnessCutoff() const;
+	virtual float	BloomScale() const;
 	void			BloomPulse();
 
 	void			ClearTendrilBatches();
@@ -48,7 +47,8 @@ protected:
 	CFrameBuffer	m_oVisibilityMaskedBuffer;
 	CFrameBuffer	m_oAvailableAreaBuffer;
 
-	size_t			m_iVignetting;
+	CTextureHandle  m_hNoise;
+	CTextureHandle  m_hVignetting;
 
 	size_t			m_iSkyboxFT;
 	size_t			m_iSkyboxLF;
@@ -71,7 +71,7 @@ protected:
 
 	size_t			m_iFloaters[15];
 
-	float			m_flLastBloomPulse;
+	double			m_flLastBloomPulse;
 
 	tvector<CEntityHandle<CSupplier> > m_ahTendrilBatches;
 };

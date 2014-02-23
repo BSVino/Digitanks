@@ -4,11 +4,13 @@
 #include <mtrand.h>
 #include <strutils.h>
 
-#include <shaders/shaders.h>
+#include <renderer/shaders.h>
 #include <models/models.h>
 #include <network/network.h>
-#include <models/texturelibrary.h>
+#include <textures/texturelibrary.h>
 #include <tinker/cvar.h>
+#include <renderer/game_renderingcontext.h>
+#include <renderer/roperenderer.h>
 
 #include <dt_renderer.h>
 #include <digitanksgame.h>
@@ -20,8 +22,6 @@
 
 #include "collector.h"
 #include "loader.h"
-
-#include <GL/glew.h>
 
 REGISTER_ENTITY(CStructure);
 
@@ -72,8 +72,6 @@ CStructure::CStructure()
 
 	m_bUpgrading = false;
 	m_iTurnsToUpgrade = 0;
-
-	SetCollisionGroup(CG_ENTITY);
 
 	m_bConstructing = true;
 }
@@ -132,20 +130,20 @@ void CStructure::StartTurn()
 
 	if (!GetSupplier() && !dynamic_cast<CCPU*>(this))
 	{
-		if (GetTeam())
-			GetTeam()->RemoveEntity(this);
+		if (GetPlayerOwner())
+			GetPlayerOwner()->RemoveUnit(this);
 		SetSupplier(NULL);
 	}
 
-	if (GetSupplier() && !GetSupplier()->GetTeam())
+	if (GetSupplier() && !GetSupplier()->GetPlayerOwner())
 	{
 		GetSupplier()->RemoveChild(this);
-		if (GetTeam())
-			GetTeam()->RemoveEntity(this);
+		if (GetPlayerOwner())
+			GetPlayerOwner()->RemoveUnit(this);
 		SetSupplier(NULL);
 	}
 
-	if (GetTeam() == NULL)
+	if (GetPlayerOwner() == NULL)
 		return;
 
 	if (IsConstructing())
@@ -154,13 +152,13 @@ void CStructure::StartTurn()
 
 		if (m_iTurnsToConstruct == (size_t)0)
 		{
-			GetDigitanksTeam()->AppendTurnInfo(tstring("Construction finished on ") + GetEntityName());
+			GetDigitanksPlayer()->AppendTurnInfo(tstring("Construction finished on ") + GetEntityName());
 			CompleteConstruction();
 
-			GetDigitanksTeam()->AddActionItem(this, ACTIONTYPE_NEWSTRUCTURE);
+			GetDigitanksPlayer()->AddActionItem(this, ACTIONTYPE_NEWSTRUCTURE);
 		}
 		else
-			GetDigitanksTeam()->AppendTurnInfo(sprintf(tstring("Constructing ") + GetEntityName() + " (%d turns left)", m_iTurnsToConstruct.Get()));
+			GetDigitanksPlayer()->AppendTurnInfo(sprintf(tstring("Constructing ") + GetEntityName() + " (%d turns left)", m_iTurnsToConstruct.Get()));
 	}
 
 	if (IsUpgrading())
@@ -169,50 +167,50 @@ void CStructure::StartTurn()
 
 		if (m_iTurnsToUpgrade == (size_t)0)
 		{
-			GetDigitanksTeam()->AppendTurnInfo(GetEntityName() + " finished upgrading.");
+			GetDigitanksPlayer()->AppendTurnInfo(GetEntityName() + " finished upgrading.");
 
 			UpgradeComplete();
 		}
 		else
-			GetDigitanksTeam()->AppendTurnInfo(sprintf(tstring("Upgrading ") + GetEntityName() + " (%d turns left)", GetTurnsToUpgrade()));
+			GetDigitanksPlayer()->AppendTurnInfo(sprintf(tstring("Upgrading ") + GetEntityName() + " (%d turns left)", GetTurnsToUpgrade()));
 	}
 }
 
 void CStructure::FindGround()
 {
-	float flHeight = DigitanksGame()->GetTerrain()->GetHeight(GetOrigin().x, GetOrigin().z);
+	float flHeight = DigitanksGame()->GetTerrain()->GetHeight(GetGlobalOrigin().x, GetGlobalOrigin().y);
 	float flCornerHeight;
 
-	flCornerHeight = DigitanksGame()->GetTerrain()->GetHeight(GetOrigin().x + GetBoundingRadius(), GetOrigin().z + GetBoundingRadius());
+	flCornerHeight = DigitanksGame()->GetTerrain()->GetHeight(GetGlobalOrigin().x + GetBoundingRadius(), GetGlobalOrigin().y + GetBoundingRadius());
 	if (flCornerHeight > flHeight)
 		flHeight = flCornerHeight;
 
-	flCornerHeight = DigitanksGame()->GetTerrain()->GetHeight(GetOrigin().x + GetBoundingRadius(), GetOrigin().z - GetBoundingRadius());
+	flCornerHeight = DigitanksGame()->GetTerrain()->GetHeight(GetGlobalOrigin().x + GetBoundingRadius(), GetGlobalOrigin().y - GetBoundingRadius());
 	if (flCornerHeight > flHeight)
 		flHeight = flCornerHeight;
 
-	flCornerHeight = DigitanksGame()->GetTerrain()->GetHeight(GetOrigin().x - GetBoundingRadius(), GetOrigin().z + GetBoundingRadius());
+	flCornerHeight = DigitanksGame()->GetTerrain()->GetHeight(GetGlobalOrigin().x - GetBoundingRadius(), GetGlobalOrigin().y + GetBoundingRadius());
 	if (flCornerHeight > flHeight)
 		flHeight = flCornerHeight;
 
-	flCornerHeight = DigitanksGame()->GetTerrain()->GetHeight(GetOrigin().x - GetBoundingRadius(), GetOrigin().z - GetBoundingRadius());
+	flCornerHeight = DigitanksGame()->GetTerrain()->GetHeight(GetGlobalOrigin().x - GetBoundingRadius(), GetGlobalOrigin().y - GetBoundingRadius());
 	if (flCornerHeight > flHeight)
 		flHeight = flCornerHeight;
 
-	SetOrigin(Vector(GetOrigin().x, flHeight + GetBoundingRadius()/2 + 2, GetOrigin().z));
+	SetGlobalOrigin(Vector(GetGlobalOrigin().x, GetGlobalOrigin().y, flHeight + GetBoundingRadius()/2 + 2));
 }
 
-void CStructure::PostRender(bool bTransparent) const
+void CStructure::PostRender() const
 {
-	BaseClass::PostRender(bTransparent);
+	BaseClass::PostRender();
 
-	if (bTransparent && (m_flConstructionStartTime > 0) && GetVisibility() > 0)
+	if (GameServer()->GetRenderer()->IsRenderingTransparent() && (m_flConstructionStartTime > 0) && GetVisibility() > 0)
 	{
-		CRenderingContext c(GameServer()->GetRenderer());
-		c.Translate(GetOrigin());
+		CGameRenderingContext c(GameServer()->GetRenderer());
+		c.Translate(GetGlobalOrigin());
 		c.Scale(m_flScaffoldingSize, m_flScaffoldingSize, m_flScaffoldingSize);
 		c.SetBlend(BLEND_ADDITIVE);
-		c.SetAlpha(GetVisibility() * 0.2f * RemapValClamped(GameServer()->GetGameTime() - m_flConstructionStartTime, 0, 3, 0, 1));
+		c.SetAlpha(GetVisibility() * 0.2f * RemapValClamped((float)(GameServer()->GetGameTime() - m_flConstructionStartTime), 0.0f, 3.0f, 0.0f, 1.0f));
 		c.SetDepthMask(false);
 		c.SetBackCulling(false);
 		c.RenderModel(m_iScaffolding);
@@ -229,30 +227,30 @@ bool CStructure::IsAvailableAreaActive(int iArea) const
 	if (iArea != 0)
 		return BaseClass::IsAvailableAreaActive(iArea);
 
-	if (!GetDigitanksTeam())
+	if (!GetDigitanksPlayer())
 		return false;
 
-	if (!GetDigitanksTeam()->GetPrimaryCPU())
+	if (!GetDigitanksPlayer()->GetPrimaryCPU())
 		return false;
 
-	if (DigitanksGame()->GetCurrentLocalDigitanksTeam() == GetDigitanksTeam())
+	if (DigitanksGame()->GetCurrentLocalDigitanksPlayer() == GetDigitanksPlayer())
 		return false;
 
 	if (DigitanksGame()->GetControlMode() != MODE_AIM)
 		return false;
 
-	CDigitank* pTank = DigitanksGame()->GetCurrentLocalDigitanksTeam()->GetPrimarySelectionTank();
+	CDigitank* pTank = DigitanksGame()->GetCurrentLocalDigitanksPlayer()->GetPrimarySelectionTank();
 
 	if (!pTank)
 		return false;
 
-	if (!pTank->IsInsideMaxRange(GetOrigin()))
+	if (!pTank->IsInsideMaxRange(GetGlobalOrigin()))
 		return false;
 
-	if (GetVisibility(pTank->GetDigitanksTeam()) < 0.1f)
+	if (GetVisibility(pTank->GetDigitanksPlayer()) < 0.1f)
 		return false;
 
-	if (pTank->FiringCone() < 360 && fabs(AngleDifference(pTank->GetAngles().y, VectorAngles((GetOrigin()-pTank->GetOrigin()).Normalized()).y)) > pTank->FiringCone())
+	if (pTank->FiringCone() < 360 && fabs(AngleDifference(pTank->GetAngles().y, VectorAngles((GetGlobalOrigin()-pTank->GetGlobalOrigin()).Normalized()).y)) > pTank->FiringCone())
 		return false;
 
 	if (pTank->GetCurrentWeapon() == PROJECTILE_TREECUTTER)
@@ -324,7 +322,7 @@ void CStructure::DrawSchema(int x, int y, int w, int h)
 		tstring sBandwidth = sprintf(tstring(": %.1f"), Bandwidth());
 		float flWidth = glgui::CLabel::GetTextWidth(sBandwidth, sBandwidth.length(), sFont, iIconFontSize);
 
-		DigitanksWindow()->GetHUD()->PaintHUDSheet("BandwidthIcon", (int)(flXPosition - flWidth - flIconFontHeight), (int)(flYPosition - flIconFontHeight) + 5, (int)flIconFontHeight, (int)flIconFontHeight);
+		DigitanksWindow()->GetHUD()->PaintHUDSheet("BandwidthIcon", flXPosition - flWidth - flIconFontHeight, flYPosition - flIconFontHeight + 5, flIconFontHeight, flIconFontHeight);
 
 		glgui::CLabel::PaintText(sBandwidth, sBandwidth.length(), sFont, iIconFontSize, flXPosition - flWidth, flYPosition);
 
@@ -336,7 +334,7 @@ void CStructure::DrawSchema(int x, int y, int w, int h)
 		tstring sFleetPoints = sprintf(tstring(": %d"), FleetPoints());
 		float flWidth = glgui::CLabel::GetTextWidth(sFleetPoints, sFleetPoints.length(), sFont, iIconFontSize);
 
-		DigitanksWindow()->GetHUD()->PaintHUDSheet("FleetPointsIcon", (int)(flXPosition - flWidth - flIconFontHeight), (int)(flYPosition - flIconFontHeight) + 5, (int)flIconFontHeight, (int)flIconFontHeight);
+		DigitanksWindow()->GetHUD()->PaintHUDSheet("FleetPointsIcon", flXPosition - flWidth - flIconFontHeight, flYPosition - flIconFontHeight + 5, flIconFontHeight, flIconFontHeight);
 
 		glgui::CLabel::PaintText(sFleetPoints, sFleetPoints.length(), sFont, iIconFontSize, flXPosition - flWidth, flYPosition);
 
@@ -348,7 +346,7 @@ void CStructure::DrawSchema(int x, int y, int w, int h)
 		tstring sPower = sprintf(tstring(": %.1f"), Power());
 		float flWidth = glgui::CLabel::GetTextWidth(sPower, sPower.length(), sFont, iIconFontSize);
 
-		DigitanksWindow()->GetHUD()->PaintHUDSheet("PowerIcon", (int)(flXPosition - flWidth - flIconFontHeight), (int)(flYPosition - flIconFontHeight) + 5, (int)flIconFontHeight, (int)flIconFontHeight);
+		DigitanksWindow()->GetHUD()->PaintHUDSheet("PowerIcon", (flXPosition - flWidth - flIconFontHeight), (flYPosition - flIconFontHeight) + 5, flIconFontHeight, flIconFontHeight);
 
 		glgui::CLabel::PaintText(sPower, sPower.length(), sFont, iIconFontSize, flXPosition - flWidth, flYPosition);
 
@@ -364,9 +362,9 @@ void CStructure::BeginConstruction(Vector vecConstructionOrigin)
 
 	FindGround();
 
-	if (GetModel() != ~0)
+	if (GetModel())
 	{
-		Vector vecScaffoldingSize = CModelLibrary::Get()->GetModel(GetModel())->m_pScene->m_oExtends.Size();
+		Vector vecScaffoldingSize = GetModel()->m_aabbVisBoundingBox.Size();
 		m_flScaffoldingSize = vecScaffoldingSize.Length()/2;
 	}
 
@@ -390,7 +388,7 @@ void CStructure::CompleteConstruction()
 		{
 			for (size_t y = 0; y < UPDATE_GRID_SIZE; y++)
 			{
-				if (GetDigitanksTeam()->HasDownloadedUpdate(x, y))
+				if (GetDigitanksPlayer()->HasDownloadedUpdate(x, y))
 					DownloadComplete(x, y);
 			}
 		}
@@ -489,7 +487,7 @@ void CStructure::BeginUpgrade()
 	if (!CanStructureUpgrade())
 		return;
 
-	if (GetDigitanksTeam()->GetPower() < UpgradeCost())
+	if (GetDigitanksPlayer()->GetPower() < UpgradeCost())
 		return;
 
 	CNetworkParameters p;
@@ -503,15 +501,15 @@ void CStructure::BeginUpgrade()
 
 void CStructure::BeginUpgrade(CNetworkParameters* p)
 {
-	if (GetDigitanksTeam()->GetPower() < UpgradeCost())
+	if (GetDigitanksPlayer()->GetPower() < UpgradeCost())
 		return;
 
 	m_bUpgrading = true;
 
 	m_iTurnsToUpgrade = GetTurnsToUpgrade();
-	GetDigitanksTeam()->ConsumePower(UpgradeCost());
+	GetDigitanksPlayer()->ConsumePower(UpgradeCost());
 
-	GetDigitanksTeam()->CountProducers();
+	GetDigitanksPlayer()->CountProducers();
 }
 
 size_t CStructure::GetTurnsToUpgrade()
@@ -525,11 +523,11 @@ size_t CStructure::GetTurnsToUpgrade()
 		iTurns = 1;
 
 	// Location location location!
-	if (DigitanksGame()->GetTerrain()->IsPointInTrees(GetOrigin()))
+	if (DigitanksGame()->GetTerrain()->IsPointInTrees(GetGlobalOrigin()))
 		iTurns = (size_t)(iTurns*1.5f);
-	else if (DigitanksGame()->GetTerrain()->IsPointOverWater(GetOrigin()))
+	else if (DigitanksGame()->GetTerrain()->IsPointOverWater(GetGlobalOrigin()))
 		iTurns = (size_t)(iTurns*2.0f);
-	else if (DigitanksGame()->GetTerrain()->IsPointOverLava(GetOrigin()))
+	else if (DigitanksGame()->GetTerrain()->IsPointOverLava(GetGlobalOrigin()))
 		iTurns = (size_t)(iTurns*2.5f);
 
 	return iTurns;
@@ -587,12 +585,15 @@ void CStructure::ModifyContext(class CRenderingContext* pContext) const
 	{
 		pContext->SetBlend(BLEND_ALPHA);
 		pContext->SetColor(Color(255, 255, 255));
-		pContext->SetAlpha(GetVisibility() * RemapValClamped(GameServer()->GetGameTime() - m_flConstructionStartTime, 0, 2, 0, 1));
-		pContext->Translate(Vector(0, RemapValClamped(GameServer()->GetGameTime() - m_flConstructionStartTime, 0, 3, -3, 0), 0));
+		pContext->SetAlpha(GetVisibility() * RemapValClamped((float)(GameServer()->GetGameTime() - m_flConstructionStartTime), 0.0f, 2.0f, 0.0f, 1.0f));
+		pContext->Translate(Vector(0, 0, RemapValClamped((float)(GameServer()->GetGameTime() - m_flConstructionStartTime), 0.0f, 3.0f, -3.0f, 0.0f)));
 	}
 
-	if (GetTeam())
-		pContext->SetColorSwap(GetTeam()->GetColor());
+	if (GetPlayerOwner())
+	{
+		pContext->SetUniform("bColorSwapInAlpha", true);
+		pContext->SetUniform("vecColorSwap", GetPlayerOwner()->GetColor());
+	}
 }
 
 void CStructure::OnDeleted()
@@ -637,7 +638,7 @@ float CStructure::UpgradeCost() const
 	return flPowerToUpgrade;
 }
 
-size_t CSupplier::s_iTendrilBeam = 0;
+CMaterialHandle CSupplier::s_hTendrilBeam = 0;
 
 REGISTER_ENTITY(CSupplier);
 
@@ -652,7 +653,7 @@ SAVEDATA_TABLE_BEGIN(CSupplier);
 	SAVEDATA_DEFINE(CSaveData::DATA_OMIT, CTendril, m_aTendrils);	// Generated
 	SAVEDATA_DEFINE(CSaveData::DATA_COPYVECTOR, CEntityHandle<CStructure>, m_ahChildren);
 	SAVEDATA_DEFINE(CSaveData::DATA_OMIT, size_t, m_iTendrilsCallList);	// Generated
-	SAVEDATA_DEFINE(CSaveData::DATA_COPYTYPE, float, m_flTendrilGrowthStartTime);
+	SAVEDATA_DEFINE(CSaveData::DATA_COPYTYPE, double, m_flTendrilGrowthStartTime);
 	SAVEDATA_DEFINE(CSaveData::DATA_COPYTYPE, bool, m_bShouldRender);
 SAVEDATA_TABLE_END();
 
@@ -663,7 +664,7 @@ void CSupplier::Precache()
 {
 	BaseClass::Precache();
 
-	s_iTendrilBeam = CTextureLibrary::AddTextureID("textures/tendril.png");
+	s_hTendrilBeam = CMaterialLibrary::AddMaterial("textures/tendril.mat");
 }
 
 void CSupplier::Spawn()
@@ -693,7 +694,7 @@ void CSupplier::Think()
 {
 	BaseClass::Think();
 
-	float flGrowthTime = GameServer()->GetGameTime() - m_flTendrilGrowthStartTime;
+	float flGrowthTime = (float)(GameServer()->GetGameTime() - m_flTendrilGrowthStartTime);
 	if (flGrowthTime >= GROWTH_TIME)
 		m_flTendrilGrowthStartTime = 0;
 }
@@ -719,19 +720,19 @@ float CSupplier::GetDataFlowRadius() const
 
 float CSupplier::GetDataFlow(Vector vecPoint) const
 {
-	return RemapValClamped((vecPoint - GetOrigin()).Length(), GetBoundingRadius(), GetDataFlowRadius()+GetBoundingRadius(), (float)m_iDataStrength, 0);
+	return RemapValClamped((vecPoint - GetGlobalOrigin()).Length(), GetBoundingRadius(), GetDataFlowRadius()+GetBoundingRadius(), (float)m_iDataStrength, 0);
 }
 
-float CSupplier::GetDataFlow(Vector vecPoint, const CTeam* pTeam, const CSupplier* pIgnore)
+float CSupplier::GetDataFlow(Vector vecPoint, const CDigitanksPlayer* pPlayer, const CSupplier* pIgnore)
 {
-	if (!pTeam)
+	if (!pPlayer)
 		return 0;
 
 	float flDataStrength = 0;
-	size_t iNumMembers = pTeam->GetNumMembers();
+	size_t iNumMembers = pPlayer->GetNumUnits();
 	for (size_t i = 0; i < iNumMembers; i++)
 	{
-		const CBaseEntity* pEntity = pTeam->GetMember(i);
+		const CBaseEntity* pEntity = pPlayer->GetUnit(i);
 		if (!pEntity)
 			continue;
 
@@ -760,7 +761,7 @@ void CSupplier::CalculateDataFlow()
 	{
 		// Use the radius of a circle with the area of the given data flow
 		// so the flow doesn't get huge when you're close to a source.
-		m_flBonusDataFlow = sqrt(m_hSupplier->GetDataFlow(GetOrigin())/M_PI);
+		m_flBonusDataFlow = sqrt(m_hSupplier->GetDataFlow(GetGlobalOrigin())/M_PI);
 	}
 	else
 		m_flBonusDataFlow = 0;
@@ -783,7 +784,7 @@ float CSupplier::GetChildEfficiency() const
 	size_t iConsumingChildren = 0;
 	for (size_t i = 0; i < m_ahChildren.size(); i++)
 	{
-		if (m_ahChildren[i] == NULL)
+		if (!m_ahChildren[i])
 			continue;
 
 		if (!dynamic_cast<CStructure*>(m_ahChildren[i].GetPointer()))
@@ -804,11 +805,11 @@ float CSupplier::GetChildEfficiency() const
 
 void CSupplier::OnTeamChange()
 {
-	if (!GetTeam())
+	if (!GetPlayerOwner())
 	{
 		for (size_t i = 0; i < m_ahChildren.size(); i++)
 		{
-			if (m_ahChildren[i] == NULL)
+			if (!m_ahChildren[i])
 				continue;
 
 			m_ahChildren[i]->SetSupplier(NULL);
@@ -817,9 +818,9 @@ void CSupplier::OnTeamChange()
 			if (!pStructure)
 				continue;
 
-			if (pStructure->GetTeam())
+			if (pStructure->GetPlayerOwner())
 			{
-				pStructure->GetTeam()->RemoveEntity(pStructure);
+				pStructure->GetPlayerOwner()->RemoveUnit(pStructure);
 				DigitanksGame()->OnDisabled(pStructure, NULL, NULL);
 			}
 		}
@@ -829,7 +830,7 @@ void CSupplier::OnTeamChange()
 	UpdateTendrils();
 
 	// This happens in UpdateTendrils() but do it again here anyway because UpdateTendrils only does it if there's a new tendril created.
-	DigitanksGame()->GetTerrain()->DirtyChunkTexturesWithinDistance(GetOrigin(), GetDataFlowRadius() + GetBoundingRadius());
+	DigitanksGame()->GetTerrain()->DirtyChunkTexturesWithinDistance(GetGlobalOrigin(), GetDataFlowRadius() + GetBoundingRadius());
 }
 
 void CSupplier::StartTurn()
@@ -845,27 +846,27 @@ void CSupplier::StartTurn()
 	}
 
 	// Figure out whether we're too far to bother rendering.
-	CDigitanksTeam* pLocalTeam = DigitanksGame()->GetCurrentLocalDigitanksTeam();
-	if (!DigitanksGame()->ShouldRenderFogOfWar() || pLocalTeam == GetDigitanksTeam())
+	CDigitanksPlayer* pLocalPlayer = DigitanksGame()->GetCurrentLocalDigitanksPlayer();
+	if (!DigitanksGame()->ShouldRenderFogOfWar() || pLocalPlayer == GetDigitanksPlayer())
 		m_bShouldRender = true;
-	else if (!GetTeam())
+	else if (!GetPlayerOwner())
 		// Let regular culling happen
 		m_bShouldRender = true;
-	else if (pLocalTeam)
+	else if (pLocalPlayer)
 	{
 		float flVisibleDistance = GetDataFlowRadius();
 
 		m_bShouldRender = false;
-		for (size_t i = 0; i < pLocalTeam->GetNumMembers(); i++)
+		for (size_t i = 0; i < pLocalPlayer->GetNumUnits(); i++)
 		{
-			const CBaseEntity* pEntity = pLocalTeam->GetMember(i);
+			const CBaseEntity* pEntity = pLocalPlayer->GetUnit(i);
 			if (!pEntity)
 				continue;
 
 			const CDigitank* pDigitank = dynamic_cast<const CDigitank*>(pEntity);
 			if (pDigitank)
 			{
-				float flDistanceSqr = pDigitank->GetOrigin().DistanceSqr(GetOrigin());
+				float flDistanceSqr = pDigitank->GetGlobalOrigin().DistanceSqr(GetGlobalOrigin());
 
 				// Look at the maximum that the tank could ever go in his next turn.
 				float flTankVisibleDistance = pDigitank->GetMaxMovementEnergy() * pDigitank->GetTankSpeed() + pDigitank->VisibleRange();
@@ -884,7 +885,7 @@ void CSupplier::StartTurn()
 			const CDigitanksEntity* pDTEnt = dynamic_cast<const CDigitanksEntity*>(pEntity);
 			if (pDTEnt)
 			{
-				float flDistanceSqr = pDTEnt->GetOrigin().DistanceSqr(GetOrigin());
+				float flDistanceSqr = pDTEnt->GetGlobalOrigin().DistanceSqr(GetGlobalOrigin());
 
 				float flTotalVisibleDistance = pDTEnt->VisibleRange() + flVisibleDistance;
 
@@ -897,11 +898,11 @@ void CSupplier::StartTurn()
 		}
 	}
 
-	if (GetDigitanksTeam() && !IsDataFlowSource())
+	if (GetDigitanksPlayer() && !IsDataFlowSource())
 	{
 		if (!GetSupplyLine() || GetSupplyLine()->GetIntegrity() <= CSupplyLine::MinimumIntegrity())
 		{
-			GetDigitanksTeam()->RemoveEntity(this);
+			GetDigitanksPlayer()->RemoveUnit(this);
 			return;
 		}
 	}
@@ -909,7 +910,7 @@ void CSupplier::StartTurn()
 	UpdateTendrils();
 
 	// This can happen if it was removed this same turn by lack of supplier.
-	if (!GetDigitanksTeam())
+	if (!GetDigitanksPlayer())
 		return;
 
 	if (IsConstructing())
@@ -926,7 +927,7 @@ void CSupplier::StartTurn()
 			CDigitanksEntity* pDTEnt = dynamic_cast<CDigitanksEntity*>(pEntity);
 			if (pDTEnt && pDTEnt->IsImprisoned())
 			{
-				float flFlow = GetDataFlow(pDTEnt->GetOrigin());
+				float flFlow = GetDataFlow(pDTEnt->GetGlobalOrigin());
 				if (flFlow > 0)
 					pDTEnt->Rescue(this);
 			}
@@ -939,19 +940,19 @@ void CSupplier::StartTurn()
 			if (this == pStructure)
 				continue;
 
-			if (dynamic_cast<CResource*>(pStructure))
+			if (dynamic_cast<CResourceNode*>(pStructure))
 				continue;
 
-			if (pStructure->GetTeam())
+			if (pStructure->GetPlayerOwner())
 				continue;
 
-			float flFlow = GetDataFlow(pStructure->GetOrigin());
+			float flFlow = GetDataFlow(pStructure->GetGlobalOrigin());
 
 			if (flFlow < 10)
 				continue;
 
 			// You will join us... OR DIE
-			GetDigitanksTeam()->AddEntity(pStructure);
+			GetDigitanksPlayer()->AddUnit(pStructure);
 			pStructure->SetSupplier(this);
 			pStructure->GetSupplyLine()->SetIntegrity(0.5f);
 
@@ -969,14 +970,14 @@ void CSupplier::CompleteConstruction()
 
 CVar tendril_fade_distance("perf_tendril_fade_distance", "200");
 
-void CSupplier::PostRender(bool bTransparent) const
+void CSupplier::PostRender() const
 {
-	BaseClass::PostRender(bTransparent);
+	BaseClass::PostRender();
 
-	if (!bTransparent)
+	if (!GameServer()->GetRenderer()->IsRenderingTransparent())
 		return;
 
-	float flGrowthTime = GameServer()->GetGameTime() - m_flTendrilGrowthStartTime;
+	float flGrowthTime = (float)(GameServer()->GetGameTime() - m_flTendrilGrowthStartTime);
 
 	if (flGrowthTime < 0)
 		return;
@@ -989,41 +990,29 @@ void CSupplier::PostRender(bool bTransparent) const
 
 	CDigitanksCamera* pCamera = DigitanksGame()->GetDigitanksCamera();
 	Vector vecCamera = pCamera->GetCameraPosition();
-	float flDistanceSqr = GetOrigin().DistanceSqr(vecCamera);
+	float flDistanceSqr = GetGlobalOrigin().DistanceSqr(vecCamera);
 	float flFadeDistance = tendril_fade_distance.GetFloat();
 
-	float flFadeAlpha = RemapValClamped(flDistanceSqr, flFadeDistance*flFadeDistance, (flFadeDistance+20)*(flFadeDistance+20), 1, 0);
+	float flFadeAlpha = RemapValClamped(flDistanceSqr, flFadeDistance*flFadeDistance, (flFadeDistance+20)*(flFadeDistance+20), 1.0f, 0.0f);
 
 	if (flFadeAlpha <= 0)
 		return;
 
 	float flTreeAlpha = 1.0f;
-	if (DigitanksGame()->GetTerrain()->GetBit(CTerrain::WorldToArraySpace(GetOrigin().x), CTerrain::WorldToArraySpace(GetOrigin().z), TB_TREE))
+	if (DigitanksGame()->GetTerrain()->GetBit(CTerrain::WorldToArraySpace(GetGlobalOrigin().x), CTerrain::WorldToArraySpace(GetGlobalOrigin().y), TB_TREE))
 		flTreeAlpha = 0.3f;
 
 	CRenderingContext r(GameServer()->GetRenderer());
-	if (DigitanksGame()->ShouldRenderFogOfWar() && DigitanksGame()->GetDigitanksRenderer()->ShouldUseFramebuffers())
+	if (DigitanksGame()->ShouldRenderFogOfWar())
 		r.UseFrameBuffer(DigitanksGame()->GetDigitanksRenderer()->GetVisibilityMaskedBuffer());
 	r.SetDepthMask(false);
-	r.BindTexture(s_iTendrilBeam);
+	r.UseMaterial(s_hTendrilBeam);
 
-	GLuint iScrollingTextureProgram = (GLuint)CShaderLibrary::GetScrollingTextureProgram();
+	r.SetUniform("flTime", (float)GameServer()->GetGameTime());
+	r.SetUniform("iTexture", 0);
+	r.SetUniform("flAlpha", flFadeAlpha * flTreeAlpha);
 
-	if (GameServer()->GetRenderer()->ShouldUseShaders())
-	{
-		GameServer()->GetRenderer()->UseProgram(iScrollingTextureProgram);
-
-		GLuint flTime = glGetUniformLocation(iScrollingTextureProgram, "flTime");
-		glUniform1f(flTime, GameServer()->GetGameTime());
-
-		GLuint iTexture = glGetUniformLocation(iScrollingTextureProgram, "iTexture");
-		glUniform1f(iTexture, 0);
-
-		GLuint flAlpha = glGetUniformLocation(iScrollingTextureProgram, "flAlpha");
-		glUniform1f(flAlpha, flFadeAlpha * flTreeAlpha);
-	}
-
-	Color clrTeam = GetTeam()?GetTeam()->GetColor():Color(255,255,255,255);
+	Color clrTeam = GetPlayerOwner()?GetPlayerOwner()->GetColor():Color(255,255,255,255);
 	clrTeam = (Vector(clrTeam) + Vector(1,1,1))/2;
 
 	if (m_flTendrilGrowthStartTime > 0)
@@ -1042,28 +1031,24 @@ void CSupplier::PostRender(bool bTransparent) const
 			if (flGrowthLength < 0)
 				continue;
 
-			Vector vecDestination = GetOrigin() + (pTendril->m_vecEndPoint - GetOrigin()).Normalized() * flGrowthLength;
+			Vector vecDestination = GetGlobalOrigin() + (pTendril->m_vecEndPoint - GetGlobalOrigin()).Normalized() * flGrowthLength;
 
-			Vector vecPath = vecDestination - GetOrigin();
+			Vector vecPath = vecDestination - GetGlobalOrigin();
 			vecPath.y = 0;
 
 			float flDistance = vecPath.Length2D();
 			Vector vecDirection = vecPath.Normalized();
 			size_t iSegments = (size_t)(flDistance/3);
 
-			if (GameServer()->GetRenderer()->ShouldUseShaders())
-			{
-				GLuint flSpeed = glGetUniformLocation(iScrollingTextureProgram, "flSpeed");
-				glUniform1f(flSpeed, pTendril->m_flSpeed);
-			}
+			r.SetUniform("flSpeed", pTendril->m_flSpeed);
 
 			clrTeam.SetAlpha(105);
 
-			CRopeRenderer oRope(GameServer()->GetRenderer(), s_iTendrilBeam, DigitanksGame()->GetTerrain()->GetPointHeight(GetOrigin()) + Vector(0, 1, 0), 1.0f);
+			CRopeRenderer oRope(GameServer()->GetRenderer(), s_hTendrilBeam, DigitanksGame()->GetTerrain()->GetPointHeight(GetGlobalOrigin()) + Vector(0, 0, 1), 1.0f);
 			oRope.SetColor(clrTeam);
 			oRope.SetTextureScale(pTendril->m_flScale);
 			oRope.SetTextureOffset(pTendril->m_flOffset);
-			oRope.SetForward(Vector(0, -1, 0));
+			oRope.SetForward(Vector(0, 0, -1));
 
 			for (size_t i = 1; i < iSegments; i++)
 			{
@@ -1071,15 +1056,12 @@ void CSupplier::PostRender(bool bTransparent) const
 				oRope.SetColor(clrTeam);
 
 				float flCurrentDistance = ((float)i*flDistance)/iSegments;
-				oRope.AddLink(DigitanksGame()->GetTerrain()->GetPointHeight(GetOrigin() + vecDirection*flCurrentDistance) + Vector(0, 1, 0));
+				oRope.AddLink(DigitanksGame()->GetTerrain()->GetPointHeight(GetGlobalOrigin() + vecDirection*flCurrentDistance) + Vector(0, 0, 1));
 			}
 
-			oRope.Finish(DigitanksGame()->GetTerrain()->GetPointHeight(vecDestination) + Vector(0, 1, 0));
+			oRope.Finish(DigitanksGame()->GetTerrain()->GetPointHeight(vecDestination) + Vector(0, 0, 1));
 		}
 	}
-
-	if (GameServer()->GetRenderer()->ShouldUseShaders())
-		GameServer()->GetRenderer()->ClearProgram();
 }
 
 void CSupplier::UpdateTendrils()
@@ -1087,14 +1069,15 @@ void CSupplier::UpdateTendrils()
 	if (IsConstructing())
 		return;
 
-	if (!GetTeam())
+#if 0
+	if (!GetPlayerOwner())
 	{
 		if (m_iTendrilsCallList)
 			glDeleteLists((GLuint)m_iTendrilsCallList, 1);
 
 		m_iTendrilsCallList = 0;
 
-		DigitanksGame()->GetTerrain()->DirtyChunkTexturesWithinDistance(GetOrigin(), GetDataFlowRadius() + GetBoundingRadius());
+		DigitanksGame()->GetTerrain()->DirtyChunkTexturesWithinDistance(GetGlobalOrigin(), GetDataFlowRadius() + GetBoundingRadius());
 		return;
 	}
 
@@ -1108,7 +1091,7 @@ void CSupplier::UpdateTendrils()
 		m_aTendrils.push_back(CTendril());
 		CTendril* pTendril = &m_aTendrils[m_aTendrils.size()-1];
 		pTendril->m_flLength = (float)m_aTendrils.size() + GetBoundingRadius();
-		pTendril->m_vecEndPoint = DigitanksGame()->GetTerrain()->GetPointHeight(GetOrigin() + AngleVector(EAngle(0, RandomFloat(0, 360), 0)) * pTendril->m_flLength);
+		pTendril->m_vecEndPoint = DigitanksGame()->GetTerrain()->GetPointHeight(GetGlobalOrigin() + AngleVector(EAngle(0, RandomFloat(0, 360), 0)) * pTendril->m_flLength);
 		pTendril->m_flScale = RandomFloat(3, 7);
 		pTendril->m_flOffset = RandomFloat(0, 1);
 		pTendril->m_flSpeed = RandomFloat(0.5f, 2);
@@ -1117,14 +1100,14 @@ void CSupplier::UpdateTendrils()
 	}
 
 	if (bUpdateTerrain)
-		DigitanksGame()->GetTerrain()->DirtyChunkTexturesWithinDistance(GetOrigin(), GetDataFlowRadius() + GetBoundingRadius());
+		DigitanksGame()->GetTerrain()->DirtyChunkTexturesWithinDistance(GetGlobalOrigin(), GetDataFlowRadius() + GetBoundingRadius());
 
 	if (m_iTendrilsCallList)
 		glDeleteLists((GLuint)m_iTendrilsCallList, 1);
 
 	m_iTendrilsCallList = glGenLists(1);
 
-	Color clrTeam = GetTeam()->GetColor();
+	Color clrTeam = GetPlayerOwner()->GetColor();
 	clrTeam = (Vector(clrTeam) + Vector(1,1,1))/2;
 
 	glNewList((GLuint)m_iTendrilsCallList, GL_COMPILE);
@@ -1138,7 +1121,7 @@ void CSupplier::UpdateTendrils()
 
 		Vector vecDestination = pTendril->m_vecEndPoint;
 
-		Vector vecPath = vecDestination - GetOrigin();
+		Vector vecPath = vecDestination - GetGlobalOrigin();
 		vecPath.y = 0;
 
 		float flDistance = vecPath.Length2D();
@@ -1152,11 +1135,11 @@ void CSupplier::UpdateTendrils()
 
 		clrTeam.SetAlpha(105);
 
-		CRopeRenderer oRope(GameServer()->GetRenderer(), s_iTendrilBeam, DigitanksGame()->GetTerrain()->GetPointHeight(GetOrigin()) + Vector(0, 1, 0), 1.0f);
+		CRopeRenderer oRope(GameServer()->GetRenderer(), s_iTendrilBeam, DigitanksGame()->GetTerrain()->GetPointHeight(GetGlobalOrigin()) + Vector(0, 0, 1), 1.0f);
 		oRope.SetColor(clrTeam);
 		oRope.SetTextureScale(pTendril->m_flScale);
 		oRope.SetTextureOffset(pTendril->m_flOffset);
-		oRope.SetForward(Vector(0, -1, 0));
+		oRope.SetForward(Vector(0, 0, -1));
 
 		for (size_t i = 1; i < iSegments; i++)
 		{
@@ -1164,12 +1147,13 @@ void CSupplier::UpdateTendrils()
 			oRope.SetColor(clrTeam);
 
 			float flCurrentDistance = ((float)i*flDistance)/iSegments;
-			oRope.AddLink(DigitanksGame()->GetTerrain()->GetPointHeight(GetOrigin() + vecDirection*flCurrentDistance) + Vector(0, 1, 0));
+			oRope.AddLink(DigitanksGame()->GetTerrain()->GetPointHeight(GetGlobalOrigin() + vecDirection*flCurrentDistance) + Vector(0, 0, 1));
 		}
 
-		oRope.Finish(DigitanksGame()->GetTerrain()->GetPointHeight(vecDestination) + Vector(0, 1, 0));
+		oRope.Finish(DigitanksGame()->GetTerrain()->GetPointHeight(vecDestination) + Vector(0, 0, 1));
 	}
 	glEndList();
+#endif
 }
 
 void CSupplier::BeginTendrilGrowth()
@@ -1225,12 +1209,12 @@ void CSupplier::RemoveChild(CNetworkParameters* p)
 {
 	CEntityHandle<CStructure> hChild(p->ui2);
 
-	if (hChild == NULL)
+	if (!hChild)
 		return;
 
 	for (size_t i = 0; i < m_ahChildren.size(); i++)
 	{
-		if (m_ahChildren[i] == NULL)
+		if (!m_ahChildren[i])
 			continue;
 
 		if (m_ahChildren[i] == hChild)
@@ -1267,7 +1251,7 @@ CSupplier* CSupplier::FindClosestSupplier(CBaseEntity* pUnit)
 		if (!pSupplier)
 			continue;
 
-		if (pSupplier->GetTeam() != pUnit->GetTeam())
+		if (pSupplier->GetPlayerOwner() != pUnit->GetOwner())
 			continue;
 
 		if (pSupplier->IsConstructing())
@@ -1279,14 +1263,14 @@ CSupplier* CSupplier::FindClosestSupplier(CBaseEntity* pUnit)
 			continue;
 		}
 
-		if ((pSupplier->GetOrigin() - pUnit->GetOrigin()).Length() < (pClosest->GetOrigin() - pUnit->GetOrigin()).Length())
+		if ((pSupplier->GetGlobalOrigin() - pUnit->GetGlobalOrigin()).Length() < (pClosest->GetGlobalOrigin() - pUnit->GetGlobalOrigin()).Length())
 			pClosest = pSupplier;
 	}
 
 	return pClosest;
 }
 
-CSupplier* CSupplier::FindClosestSupplier(Vector vecPoint, const CTeam* pTeam)
+CSupplier* CSupplier::FindClosestSupplier(Vector vecPoint, const CDigitanksPlayer* pTeam)
 {
 	CSupplier* pClosest = NULL;
 	CSupplier* pClosestInNetwork = NULL;
@@ -1301,7 +1285,7 @@ CSupplier* CSupplier::FindClosestSupplier(Vector vecPoint, const CTeam* pTeam)
 		if (!pSupplier)
 			continue;
 
-		if (pSupplier->GetTeam() != pTeam)
+		if (pSupplier->GetPlayerOwner() != pTeam)
 			continue;
 
 		if (pSupplier->IsConstructing())
@@ -1309,7 +1293,7 @@ CSupplier* CSupplier::FindClosestSupplier(Vector vecPoint, const CTeam* pTeam)
 
 		if (pSupplier->GetDataFlow(vecPoint) > 0)
 		{
-			if (!pClosestInNetwork || (pSupplier->GetOrigin() - vecPoint).Length() < (pClosestInNetwork->GetOrigin() - vecPoint).Length())
+			if (!pClosestInNetwork || (pSupplier->GetGlobalOrigin() - vecPoint).Length() < (pClosestInNetwork->GetGlobalOrigin() - vecPoint).Length())
 				pClosestInNetwork = pSupplier;
 		}
 
@@ -1319,7 +1303,7 @@ CSupplier* CSupplier::FindClosestSupplier(Vector vecPoint, const CTeam* pTeam)
 			continue;
 		}
 
-		if ((pSupplier->GetOrigin() - vecPoint).Length() < (pClosest->GetOrigin() - vecPoint).Length())
+		if ((pSupplier->GetGlobalOrigin() - vecPoint).Length() < (pClosest->GetGlobalOrigin() - vecPoint).Length())
 			pClosest = pSupplier;
 	}
 
@@ -1347,24 +1331,24 @@ bool CSupplier::IsAvailableAreaActive(int iArea) const
 	if (iArea != 1)
 		return BaseClass::IsAvailableAreaActive(iArea);
 
-	if (!GetDigitanksTeam())
+	if (!GetDigitanksPlayer())
 		return false;
 
-	if (!GetDigitanksTeam()->GetPrimaryCPU())
+	if (!GetDigitanksPlayer()->GetPrimaryCPU())
 		return false;
 
-	unittype_t ePreviewStructure = GetDigitanksTeam()->GetPrimaryCPU()->GetPreviewStructure();
+	unittype_t ePreviewStructure = GetDigitanksPlayer()->GetPrimaryCPU()->GetPreviewStructure();
 	if (ePreviewStructure == STRUCTURE_PSU || ePreviewStructure == STRUCTURE_BATTERY)
 		return false;
 
-	if (GetTeam() != DigitanksGame()->GetCurrentLocalDigitanksTeam())
+	if (GetPlayerOwner() != DigitanksGame()->GetCurrentLocalDigitanksPlayer())
 		return false;
 
 	if (IsConstructing())
 		return false;
 
 	// In build mode show everybody, otherwise only show the selected structure.
-	if (DigitanksGame()->GetControlMode() == MODE_BUILD || GetDigitanksTeam()->IsSelected(this))
+	if (DigitanksGame()->GetControlMode() == MODE_BUILD || GetDigitanksPlayer()->IsSelected(this))
 		return true;
 
 	return false;

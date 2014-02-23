@@ -7,18 +7,14 @@
 REGISTER_ENTITY(CTeam);
 
 NETVAR_TABLE_BEGIN(CTeam);
-	NETVAR_DEFINE(bool, m_bHumanPlayable);
 	NETVAR_DEFINE(Color, m_clrTeam);
 	NETVAR_DEFINE(CEntityHandle<CBaseEntity>, m_ahMembers);
-	NETVAR_DEFINE(bool, m_bClientControlled);
 	NETVAR_DEFINE(tstring, m_sName);
 NETVAR_TABLE_END();
 
 SAVEDATA_TABLE_BEGIN(CTeam);
-	SAVEDATA_DEFINE(CSaveData::DATA_NETVAR, bool, m_bHumanPlayable);
 	SAVEDATA_DEFINE(CSaveData::DATA_NETVAR, Color, m_clrTeam);
 	SAVEDATA_DEFINE(CSaveData::DATA_NETVAR, CEntityHandle<CBaseEntity>, m_ahMembers);
-	SAVEDATA_DEFINE(CSaveData::DATA_NETVAR, bool, m_bClientControlled);
 	SAVEDATA_DEFINE(CSaveData::DATA_NETVAR, tstring, m_sName);
 SAVEDATA_TABLE_END();
 
@@ -27,8 +23,6 @@ INPUTS_TABLE_END();
 
 CTeam::CTeam()
 {
-	m_bClientControlled = false;
-	m_bHumanPlayable = true;
 }
 
 CTeam::~CTeam()

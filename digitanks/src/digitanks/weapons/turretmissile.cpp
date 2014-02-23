@@ -2,6 +2,8 @@
 
 #include <maths.h>
 
+#include <renderer/game_renderingcontext.h>
+
 #include <digitanksgame.h>
 #include <dt_renderer.h>
 #include <weapons/projectile.h>
@@ -19,11 +21,13 @@ SAVEDATA_TABLE_END();
 INPUTS_TABLE_BEGIN(CTurretMissile);
 INPUTS_TABLE_END();
 
+#define _T(x) x
+
 void CTurretMissile::Spawn()
 {
 	BaseClass::Spawn();
 
-	m_hTrailParticles.SetSystem(_T("shell-trail"), GetOrigin());
+	m_hTrailParticles.SetSystem(_T("shell-trail"), GetGlobalOrigin());
 	m_hTrailParticles.FollowEntity(this);
 	m_hTrailParticles.SetActive(true);
 }
@@ -33,17 +37,17 @@ void CTurretMissile::SetTarget(CBaseEntity* pTarget)
 	m_hTarget = pTarget;
 }
 
-Vector CTurretMissile::GetOrigin() const
+Vector CTurretMissile::GetGlobalOrigin() const
 {
 	if (!m_hOwner)
-		return BaseClass::GetOrigin();
+		return BaseClass::GetGlobalOrigin();
 
 	float flTimeSinceFire = GameServer()->GetGameTime() - GetSpawnTime();
 
-	Vector vecMissileAcceleration = Vector(0, 100, 0);
+	Vector vecMissileAcceleration = Vector(0, 0, 100);
 
 	// Standard constant acceleration formula.
-	Vector vecMissilePosition = m_hOwner->GetOrigin() + 0.5f*vecMissileAcceleration*flTimeSinceFire*flTimeSinceFire;
+	Vector vecMissilePosition = m_hOwner->GetGlobalOrigin() + 0.5f*vecMissileAcceleration*flTimeSinceFire*flTimeSinceFire;
 
 	if (!m_hTarget)
 		return vecMissilePosition;
@@ -51,9 +55,9 @@ Vector CTurretMissile::GetOrigin() const
 	float flTimeUntilIntercept = (GetSpawnTime() + InterceptTime()) - GameServer()->GetGameTime();
 
 	// Standard constant acceleration formula.
-	Vector vecInterceptLocation = m_hTarget->GetOrigin() + m_hTarget->GetVelocity() * flTimeUntilIntercept + 0.5f * m_hTarget->GetGravity() * flTimeUntilIntercept * flTimeUntilIntercept;
+	Vector vecInterceptLocation = m_hTarget->GetGlobalOrigin() + m_hTarget->GetGlobalVelocity() * flTimeUntilIntercept + 0.5f * m_hTarget->GetGlobalGravity() * flTimeUntilIntercept * flTimeUntilIntercept;
 
-	float flLerp = Lerp(RemapVal(flTimeSinceFire, 0, InterceptTime(), 0, 1), 0.2f);
+	float flLerp = Bias(RemapVal(flTimeSinceFire, 0, InterceptTime(), 0, 1), 0.2f);
 
 	Vector vecPosition = LerpValue<Vector>(vecMissilePosition, vecInterceptLocation, flLerp);
 
@@ -75,14 +79,14 @@ void CTurretMissile::Think()
 	{
 		m_hTarget->TakeDamage(GetOwner(), this, DAMAGE_EXPLOSION, m_flDamage, true);
 		DigitanksGame()->Explode(GetOwner(), this, ExplosionRadius(), m_flDamage, m_hTarget, GetOwner()?GetOwner()->GetTeam():NULL);
-		CParticleSystemLibrary::AddInstance(_T("bolt-explosion"), GetOrigin());
+		CParticleSystemLibrary::AddInstance(_T("bolt-explosion"), GetGlobalOrigin());
 		Delete();
 	}
 }
 
-void CTurretMissile::OnRender(class CRenderingContext* pContext, bool bTransparent) const
+void CTurretMissile::OnRender(class CGameRenderingContext* pContext) const
 {
-	if (bTransparent)
+	if (GameServer()->GetRenderer()->IsRenderingTransparent())
 		return;
 
 	CRenderingContext r(DigitanksGame()->GetDigitanksRenderer());

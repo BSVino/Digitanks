@@ -1,19 +1,15 @@
 #include "terrain.h"
 
-#include <EASTL/list.h>
-#include <EASTL/heap.h>
-
 #include <simplex.h>
 #include <maths.h>
 #include <time.h>
 #include <strutils.h>
 
-#include <GL/glew.h>
-
 #include <tinker/cvar.h>
 #include <raytracer/raytracer.h>
-#include <models/texturelibrary.h>
-#include <shaders/shaders.h>
+#include <textures/texturelibrary.h>
+#include <renderer/shaders.h>
+#include <renderer/game_renderingcontext.h>
 
 #include "dt_renderer.h"
 #include "digitanksgame.h"
@@ -62,8 +58,8 @@ SAVEDATA_TABLE_END();
 INPUTS_TABLE_BEGIN(CTerrain);
 INPUTS_TABLE_END();
 
-size_t CTerrain::s_iTreeTexture = 0;
-size_t CTerrain::s_iBeamTexture = 0;
+CTextureHandle CTerrain::s_hTreeTexture = 0;
+CTextureHandle CTerrain::s_hBeamTexture = 0;
 
 CVar terrain_debug("terrain_debug", "off");
 
@@ -71,8 +67,6 @@ CTerrain::CTerrain()
 {
 	if (terrain_debug.GetBool())
 		TMsg("CTerrain::CTerrain()\n");
-
-	SetCollisionGroup(CG_TERRAIN);
 
 	for (size_t x = 0; x < TERRAIN_CHUNKS; x++)
 	{
@@ -98,8 +92,8 @@ CTerrain::~CTerrain()
 void CTerrain::Precache()
 {
 	BaseClass::Spawn();
-	s_iTreeTexture = CTextureLibrary::AddTextureID("textures/tree.png", 1);
-	s_iBeamTexture = CTextureLibrary::AddTextureID("textures/beam.png");
+	s_hTreeTexture = CTextureLibrary::AddTexture("textures/tree.png", 1);
+	s_hBeamTexture = CTextureLibrary::AddTexture("textures/beam.png");
 }
 
 void CTerrain::Spawn()
@@ -172,7 +166,7 @@ void CTerrain::Think()
 
 		pChunk->Think();
 
-		m_flNextThink = GameServer()->GetGameTime() + 0.03f;
+		m_flNextThink = GameServer()->GetGameTime() + 0.03;
 	}
 
 	if (GameServer()->GetGameTime() > m_flNextRunner)
@@ -181,14 +175,14 @@ void CTerrain::Think()
 		{
 			Vector(1, 0, 0),
 			Vector(-1, 0, 0),
-			Vector(0, 0, 1),
-			Vector(0, 0, -1),
+			Vector(0, 1, 0),
+			Vector(0, -1, 0),
 		};
 
 		Vector aEdgeSpread[] =
 		{
-			Vector(0, 0, 1),
-			Vector(0, 0, 1),
+			Vector(0, 1, 0),
+			Vector(0, 1, 0),
 			Vector(1, 0, 0),
 			Vector(1, 0, 0),
 		};
@@ -249,7 +243,7 @@ void CTerrain::Think()
 
 			if (IsPointOnMap(vecPoint) && !IsPointOverHole(vecPoint))
 			{
-				pRunner->avecPoints.push_front(GetPointHeight(vecPoint) + Vector(0, 1, 0));
+				pRunner->avecPoints.push_front(GetPointHeight(vecPoint) + Vector(0, 0, 1));
 
 				if (pRunner->avecPoints.size() > 20)
 					pRunner->avecPoints.pop_back();
@@ -273,9 +267,9 @@ void CTerrain::GenerateTerrain(float flHeight)
 		TMsg("CTerrain::GenerateTerrain()\n");
 
 	CDigitanksLevel* pLevel = NULL;
-	size_t iTerrainHeight = 0;
+	CTextureHandle hTerrainHeight;
 	Color* pclrTerrainHeight = NULL;
-	size_t iTerrainData = 0;
+	CTextureHandle hTerrainData;
 	Color* pclrTerrainData = NULL;
 
 	if (GameServer()->GetWorkListener())
@@ -284,21 +278,29 @@ void CTerrain::GenerateTerrain(float flHeight)
 	pLevel = DigitanksGame()->GetCurrentLevel();
 	if (pLevel)
 	{
-		iTerrainHeight = pLevel->GetTerrainHeightImage();
-		iTerrainData = pLevel->GetTerrainDataImage();
+		hTerrainHeight = pLevel->GetTerrainHeightImage();
+		hTerrainData = pLevel->GetTerrainDataImage();
 
-		if (iTerrainHeight)
-			pclrTerrainHeight = CRenderer::GetTextureData(iTerrainHeight);
+		int w, h;
 
-		if (iTerrainData)
-			pclrTerrainData = CRenderer::GetTextureData(iTerrainData);
+		if (hTerrainHeight)
+			pclrTerrainHeight = CRenderer::LoadTextureData(hTerrainHeight.GetName(), w, h);
+
+		TAssert(w == TERRAIN_SIZE);
+		TAssert(h == TERRAIN_SIZE);
+
+		if (hTerrainData)
+			pclrTerrainData = CRenderer::LoadTextureData(hTerrainData.GetName(), w, h);
+
+		TAssert(w == TERRAIN_SIZE);
+		TAssert(h == TERRAIN_SIZE);
 	}
 
-	CSimplexNoise n1(m_iSpawnSeed);
-	CSimplexNoise n2(m_iSpawnSeed+1);
-	CSimplexNoise n3(m_iSpawnSeed+2);
-	CSimplexNoise n4(m_iSpawnSeed+3);
-	CSimplexNoise n5(m_iSpawnSeed+4);
+	CSimplexNoise<float> n1(m_iSpawnSeed);
+	CSimplexNoise<float> n2(m_iSpawnSeed+1);
+	CSimplexNoise<float> n3(m_iSpawnSeed+2);
+	CSimplexNoise<float> n4(m_iSpawnSeed+3);
+	CSimplexNoise<float> n5(m_iSpawnSeed+4);
 
 	float flSpaceFactor1 = 0.01f;
 	float flHeightFactor1 = flHeight;
@@ -311,14 +313,14 @@ void CTerrain::GenerateTerrain(float flHeight)
 	float flSpaceFactor5 = flSpaceFactor4*3;
 	float flHeightFactor5 = flHeightFactor4/3;
 
-	CSimplexNoise h1(m_iSpawnSeed+5);
-	CSimplexNoise h2(m_iSpawnSeed+6);
+	CSimplexNoise<float> h1(m_iSpawnSeed+5);
+	CSimplexNoise<float> h2(m_iSpawnSeed+6);
 
-	CSimplexNoise t1(m_iSpawnSeed+7);
-	CSimplexNoise t2(m_iSpawnSeed+8);
+	CSimplexNoise<float> t1(m_iSpawnSeed+7);
+	CSimplexNoise<float> t2(m_iSpawnSeed+8);
 
-	CSimplexNoise w1(m_iSpawnSeed+9);
-	CSimplexNoise w2(m_iSpawnSeed+10);
+	CSimplexNoise<float> w1(m_iSpawnSeed+9);
+	CSimplexNoise<float> w2(m_iSpawnSeed+10);
 
 	float aflHoles[TERRAIN_SIZE][TERRAIN_SIZE];
 	float flHoleHighest, flHoleLowest;
@@ -581,8 +583,9 @@ void CTerrain::GenerateCollision()
 						Vector v3 = Vector(flX1, GetRealHeight(ax1, ay1), flY1);
 						Vector v4 = Vector(flX1, GetRealHeight(ax1, ay), flY);
 
-						pChunk->m_pTracer->AddTriangle(v1, v2, v3);
-						pChunk->m_pTracer->AddTriangle(v1, v3, v4);
+						TUnimplemented();
+						//pChunk->m_pTracer->AddTriangle(v1, v2, v3);
+						//pChunk->m_pTracer->AddTriangle(v1, v3, v4);
 					}
 				}
 
@@ -631,29 +634,13 @@ void CTerrain::GenerateTerrainCallList(int i, int j)
 	if (terrain_debug.GetBool())
 		TMsg(sprintf(tstring("CTerrain::GenerateTerrainCallList(%d, %d)\n"), i, j));
 
-	// What a hack!
-	GLuint iSlowMovement;
-	if (GameServer()->GetRenderer()->ShouldUseShaders())
-	{
-		GameServer()->GetRenderer()->UseProgram(CShaderLibrary::GetTerrainProgram());
-		iSlowMovement = glGetAttribLocation((GLuint)CShaderLibrary::GetTerrainProgram(), "flSlowMovement");
-		GameServer()->GetRenderer()->UseProgram(0);
-	}
-
-	glNewList((GLuint)pChunk->m_iCallList, GL_COMPILE);
-	glPushAttrib(GL_CURRENT_BIT);
-	glBegin(GL_QUADS);
+	tvector<CTerrainTriangle> avecPoints;
+	avecPoints.reserve(TERRAIN_CHUNK_SIZE*TERRAIN_CHUNK_SIZE);
 
 	for (int x = TERRAIN_CHUNK_SIZE*i; x < TERRAIN_CHUNK_SIZE*(i+1); x++)
 	{
-		if (x >= TERRAIN_SIZE-1)
-			continue;
-
-		float flUVY0 = RemapVal((float)x, (float)TERRAIN_CHUNK_SIZE*i, (float)TERRAIN_CHUNK_SIZE*(i+1), 0, 1);
-		float flUVY1 = RemapVal((float)x+1, (float)TERRAIN_CHUNK_SIZE*i, (float)TERRAIN_CHUNK_SIZE*(i+1), 0, 1);
-
 		float flX = ArrayToWorldSpace((int)x);
-		float flX1 = ArrayToWorldSpace((int)x+1);
+		float flUVY0 = RemapVal((float)x, (float)TERRAIN_CHUNK_SIZE*i, (float)TERRAIN_CHUNK_SIZE*(i+1), 0, 1);
 
 		float flVisibilityX0 = RemapValClamped((float)x, (float)TERRAIN_CHUNK_SIZE*i, (float)TERRAIN_CHUNK_SIZE*(i+1), pChunk->m_aflTerrainVisibility[0][0], pChunk->m_aflTerrainVisibility[1][0]);
 		float flVisibilityX1 = RemapValClamped((float)x, (float)TERRAIN_CHUNK_SIZE*i, (float)TERRAIN_CHUNK_SIZE*(i+1), pChunk->m_aflTerrainVisibility[0][1], pChunk->m_aflTerrainVisibility[1][1]);
@@ -667,57 +654,61 @@ void CTerrain::GenerateTerrainCallList(int i, int j)
 
 			int ybit = y%TERRAIN_CHUNK_SIZE;
 
-			if (pChunk->GetBit(xbit, ybit, TB_HOLE))
-				continue;
-
-			bool bWater = pChunk->GetBit(xbit, ybit, TB_WATER);
-			bool bLava = pChunk->GetBit(xbit, ybit, TB_LAVA);
-			bool bTree = pChunk->GetBit(xbit, ybit, TB_TREE);
-
-			float flColor = RemapVal(GetRealHeight(x, y), m_flLowest, m_flHighest, 0.0f, 0.98f);
-
 			float flY = ArrayToWorldSpace((int)y);
-			float flY1 = ArrayToWorldSpace((int)y+1);
-
 			float flUVX0 = RemapVal((float)y, (float)TERRAIN_CHUNK_SIZE*j, (float)TERRAIN_CHUNK_SIZE*(j+1), 0, 1);
-			float flUVX1 = RemapVal((float)y+1, (float)TERRAIN_CHUNK_SIZE*j, (float)TERRAIN_CHUNK_SIZE*(j+1), 0, 1);
-
-			Vector vecColor;
-
-			if (bLava)
-				vecColor = Vector(1,1,1);
-			else if (bWater)
-				vecColor = Vector(flColor + 0.15f, flColor + 0.15f, flColor + 0.15f);
-			else
-				vecColor = Vector(flColor, flColor, flColor);
 
 			float flVisibility = RemapValClamped((float)y, (float)TERRAIN_CHUNK_SIZE*j, (float)TERRAIN_CHUNK_SIZE*(j+1), flVisibilityX0, flVisibilityX1);
 
-			if (GameServer()->GetRenderer()->ShouldUseShaders())
-				glVertexAttrib1f(iSlowMovement, (bTree||bWater)?1.0f:0.0f);
+			float flColor = RemapVal(GetRealHeight(x, y), m_flLowest, m_flHighest, 0.0f, 0.98f);
+			Vector vecColor(flColor, flColor, flColor);
 
-			glColor3fv((vecColor + m_avecQuadMods[0]) * flVisibility * GetAOValue(x, y));
-			glTexCoord2f(flUVX0, flUVY0);
-			glVertex3f(flX, GetRealHeight(x, y), flY);
-
-			glColor3fv((vecColor + m_avecQuadMods[1]) * flVisibility * GetAOValue(x, y+1));
-			glTexCoord2f(flUVX1, flUVY0);
-			glVertex3f(flX, GetRealHeight(x, y+1), flY1);
-
-			glColor3fv((vecColor + m_avecQuadMods[2]) * flVisibility * GetAOValue(x+1, y+1));
-			glTexCoord2f(flUVX1, flUVY1);
-			glVertex3f(flX1, GetRealHeight(x+1, y+1), flY1);
-
-			glColor3fv((vecColor + m_avecQuadMods[3]) * flVisibility * GetAOValue(x+1, y));
-			glTexCoord2f(flUVX0, flUVY1);
-			glVertex3f(flX1, GetRealHeight(x+1, y), flY);
+			avecPoints.push_back();
+			avecPoints.back().vecPosition = Vector(flX, flY, GetRealHeight(x, y));
+			avecPoints.back().vecColor = (vecColor + m_avecQuadMods[0]) * flVisibility * GetAOValue(x, y);
+			avecPoints.back().vecUV = Vector2D(flUVX0, flUVY0);
+			avecPoints.back().iCoordX = xbit;
+			avecPoints.back().iCoordY = ybit;
 		}
 	}
 
-	glEnd();
-	glPopAttrib();
-	glEndList();
+	tvector<unsigned int> aiTris;
+	aiTris.reserve(TERRAIN_CHUNK_SIZE*TERRAIN_CHUNK_SIZE*6);
 
+	for (int x = TERRAIN_CHUNK_SIZE*i; x < TERRAIN_CHUNK_SIZE*(i+1); x++)
+	{
+		if (x >= TERRAIN_SIZE-1)
+			continue;
+
+		int xbit = x%TERRAIN_CHUNK_SIZE;
+
+		for (int y = TERRAIN_CHUNK_SIZE*j; y < TERRAIN_CHUNK_SIZE*(j+1); y++)
+		{
+			if (y >= TERRAIN_SIZE-1)
+				continue;
+
+			int ybit = y%TERRAIN_CHUNK_SIZE;
+
+			if (pChunk->GetBit(xbit, ybit, TB_HOLE))
+				continue;
+
+			aiTris.push_back((x+0)*TERRAIN_CHUNK_SIZE + y);
+			aiTris.push_back((x+0)*TERRAIN_CHUNK_SIZE + y+1);
+			aiTris.push_back((x+1)*TERRAIN_CHUNK_SIZE + y+1);
+
+			aiTris.push_back((x+0)*TERRAIN_CHUNK_SIZE + y);
+			aiTris.push_back((x+1)*TERRAIN_CHUNK_SIZE + y+1);
+			aiTris.push_back((x+1)*TERRAIN_CHUNK_SIZE + y);
+		}
+	}
+
+	pChunk->m_iTerrainVerts = CRenderer::LoadVertexDataIntoGL(avecPoints.size() * sizeof(CTerrainTriangle), (float*)avecPoints.data());
+	avecPoints.clear();
+
+	pChunk->m_iOpaqueIndices = CRenderer::LoadIndexDataIntoGL(aiTris.size() * sizeof(CTerrainTriangle), aiTris.data());
+	pChunk->m_iOpaqueIndicesVerts = aiTris.size();
+	aiTris.clear();
+
+#if 0
 	Vector vecTopX = (Vector(0.1f, 0.1f, 0.1f) + Vector(GetPrimaryTerrainColor()))/4;
 	Vector vecTopY = (Vector(0.05f, 0.05f, 0.05f) + Vector(GetPrimaryTerrainColor()))/4;
 	Vector vecBottom = Vector(0.96f, 0.44f, 0)/2;
@@ -932,6 +923,7 @@ void CTerrain::GenerateTerrainCallList(int i, int j)
 
 	glEnd();
 	glEndList();
+#endif
 
 	GenerateTerrainTexture(i, j);
 
@@ -964,10 +956,10 @@ void CTerrain::GenerateTerrainTexture(int i, int j)
 
 				float flRealHeight = GetRealHeight(x, y);
 				float flLavaHeight = RemapVal(LavaHeight(), 0, 1, m_flLowest, m_flHighest);
-				float flLerp = RemapValClamped(flRealHeight, m_flLowest, flLavaHeight, 1.0f, 0.0f);
+				float flBias = RemapValClamped(flRealHeight, m_flLowest, flLavaHeight, 1.0f, 0.0f);
 
-				float flRamp = Lerp(RandomFloat(0, 1), flLerp);
-				pChunk->m_aclrTexture[a][b] = Color((int)(clrLava.r()*flRamp + clrLava2.r()*(1-flRamp)), (int)(clrLava.g()*flRamp + clrLava2.g()*(1-flRamp)), (int)(clrLava.b()*flRamp + clrLava2.b()*(1-flRamp)));
+				float flRamp = Bias(RandomFloat(0, 1), flBias);
+				pChunk->m_aclrTexture[a][b] = LerpValue(clrLava, clrLava2, flRamp);
 			}
 			else if (pChunk->GetBit(xbit, ybit, TB_WATER))
 			{
@@ -1013,7 +1005,7 @@ void CTerrain::GenerateTerrainTexture(int i, int j)
 			if (flDataFlowRadius == 0)
 				continue;
 
-			Vector vecSupplierOrigin = GetPointHeight(pSupplier->GetOrigin());
+			Vector vecSupplierOrigin = GetPointHeight(pSupplier->GetGlobalOrigin());
 
 			int iAMin = (int)RemapVal(vecSupplierOrigin.x - flDataFlowRadius, flXMin, flXMax, 0, TERRAIN_CHUNK_TEXTURE_SIZE);
 			int iAMax = (int)RemapVal(vecSupplierOrigin.x + flDataFlowRadius, flXMin, flXMax, 0, TERRAIN_CHUNK_TEXTURE_SIZE);
@@ -1060,21 +1052,14 @@ void CTerrain::GenerateTerrainTexture(int i, int j)
 					if (flDistanceSqr > flDataFlowRadius*flDataFlowRadius)
 						continue;
 
-					float flWeight = Lerp(RemapVal(flDistanceSqr, 0, flDataFlowRadius*flDataFlowRadius, RemapValClamped(pSupplier->GetDataFlowRate(), 3000, 5000, 0.2f, 1.0f), 0), 0.65f);
-					pChunk->m_aclrTexture[a][b] = Vector(pSupplier->GetTeam()->GetColor())*flWeight + Vector(pChunk->m_aclrTexture[a][b])*(1-flWeight);
+					float flWeight = Bias(RemapVal(flDistanceSqr, 0, flDataFlowRadius*flDataFlowRadius, RemapValClamped(pSupplier->GetDataFlowRate(), 3000, 5000, 0.2f, 1.0f), 0), 0.65f);
+					pChunk->m_aclrTexture[a][b] = LerpValue(pSupplier->GetPlayerOwner()->GetColor(), pChunk->m_aclrTexture[a][b], flWeight);
 				}
 			}
 		}
 	}
 
-	if (pChunk->m_iChunkTexture)
-		glDeleteTextures(1, &pChunk->m_iChunkTexture);
-	glGenTextures(1, &pChunk->m_iChunkTexture);
-	glBindTexture(GL_TEXTURE_2D, (GLuint)pChunk->m_iChunkTexture);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, TERRAIN_CHUNK_TEXTURE_SIZE, TERRAIN_CHUNK_TEXTURE_SIZE, 0, GL_RGBA, GL_UNSIGNED_BYTE, (unsigned char*)pChunk->m_aclrTexture[0][0]);
-	glBindTexture(GL_TEXTURE_2D, 0);
+	pChunk->m_hChunkTexture = CTextureLibrary::AddTexture(&pChunk->m_aclrTexture[0][0], TERRAIN_CHUNK_TEXTURE_SIZE, TERRAIN_CHUNK_TEXTURE_SIZE);
 
 	pChunk->m_bNeedsRegenerateTexture = false;
 }
@@ -1092,17 +1077,15 @@ void CTerrain::GenerateCallLists()
 		{
 			CTerrainChunk* pChunk = &m_aTerrainChunks[i][j];
 
-			if (pChunk->m_iCallList)
-				glDeleteLists((GLuint)pChunk->m_iCallList, 1);
-			pChunk->m_iCallList = glGenLists(1);
+			pChunk->ClearGLData(false);
 
-			if (pChunk->m_iTransparentCallList)
-				glDeleteLists((GLuint)pChunk->m_iTransparentCallList, 1);
-			pChunk->m_iTransparentCallList = glGenLists(1);
-
+#if 0
 			if (pChunk->m_iWallList)
 				glDeleteLists((GLuint)pChunk->m_iWallList, 1);
 			pChunk->m_iWallList = glGenLists(1);
+#endif
+
+			pChunk->m_iTerrainVerts = pChunk->m_iOpaqueIndices = pChunk->m_iTransparentIndices = 0;
 		}
 	}
 
@@ -1160,7 +1143,7 @@ void CTerrain::ClearArea(Vector vecCenter, float flRadius)
 	int iRadius = WorldToArraySpace(flRadius)-WorldToArraySpace(0)+1;
 
 	int iX = WorldToArraySpace(vecCenter.x);
-	int iZ = WorldToArraySpace(vecCenter.z);
+	int iZ = WorldToArraySpace(vecCenter.y);
 
 	Vector vecOriginFlat = vecCenter;
 	vecOriginFlat.y = 0;
@@ -1247,7 +1230,7 @@ void CTerrain::CalculateVisibility()
 		return;
 	}
 
-	CDigitanksTeam* pTeam = DigitanksGame()->GetCurrentLocalDigitanksTeam();
+	CDigitanksPlayer* pTeam = DigitanksGame()->GetCurrentLocalDigitanksPlayer();
 
 	if (!pTeam)
 		return;
@@ -1299,20 +1282,17 @@ void CTerrain::CalculateVisibility()
 	GenerateTerrainCallLists();
 }
 
-void CTerrain::OnRender(CRenderingContext* pContext, bool bTransparent) const
+void CTerrain::OnRender(CGameRenderingContext* pContext) const
 {
-	if (bTransparent)
+	if (GameServer()->GetRenderer()->IsRenderingTransparent())
 	{
 		RenderTransparentTerrain();
 		return;
 	}
 
-	BaseClass::OnRender(pContext, bTransparent);
+	BaseClass::OnRender(pContext);
 
-	if (GameServer()->GetRenderer()->ShouldUseShaders())
-		RenderWithShaders();
-	else
-		RenderWithoutShaders();
+	RenderWithShaders();
 
 #ifdef DEBUG_RENDERQUADTREE
 	if (!bTransparent)
@@ -1326,7 +1306,7 @@ void CTerrain::OnRender(CRenderingContext* pContext, bool bTransparent) const
 
 		if (DigitanksGame()->GetPrimarySelectionTank())
 		{
-			FindPath(DigitanksGame()->GetPrimarySelectionTank()->GetOrigin(), vecPoint, DigitanksGame()->GetPrimarySelectionTank());
+			FindPath(DigitanksGame()->GetPrimarySelectionTank()->GetGlobalOrigin(), vecPoint, DigitanksGame()->GetPrimarySelectionTank());
 		}
 	}
 #endif
@@ -1334,6 +1314,7 @@ void CTerrain::OnRender(CRenderingContext* pContext, bool bTransparent) const
 
 void CTerrain::RenderTransparentTerrain() const
 {
+#if 0
 	glPushAttrib(GL_ENABLE_BIT|GL_CURRENT_BIT);
 	glDisable(GL_CULL_FACE);
 	glEnable(GL_BLEND);
@@ -1381,51 +1362,36 @@ void CTerrain::RenderTransparentTerrain() const
 	}
 
 	glPopAttrib();
+#endif
 }
 
 void CTerrain::RenderWithShaders() const
 {
-	glPushAttrib(GL_ENABLE_BIT);
+	CGameRenderingContext c(GameServer()->GetRenderer(), true);
 
-	GLuint iTerrainProgram = (GLuint)CShaderLibrary::GetTerrainProgram();
-	GameServer()->GetRenderer()->UseProgram(iTerrainProgram);
+	c.UseProgram("terrain");
 
 	CDigitank* pCurrentTank = DigitanksGame()->GetPrimarySelectionTank();
 
 	bool bIsCurrentTeam = false;
-	if (pCurrentTank && pCurrentTank->GetTeam() == DigitanksGame()->GetCurrentLocalDigitanksTeam())
+	if (pCurrentTank && pCurrentTank->GetPlayerOwner() == DigitanksGame()->GetCurrentLocalDigitanksPlayer())
 		bIsCurrentTeam = true;
 
 	if (bIsCurrentTeam && pCurrentTank && !pCurrentTank->IsFortified() && DigitanksGame()->GetControlMode() == MODE_MOVE)
 	{
-		GLuint vecTankOrigin = glGetUniformLocation(iTerrainProgram, "vecTankOrigin");
-		glUniform3fv(vecTankOrigin, 1, pCurrentTank->GetOrigin());
-
-		GLuint flMoveDistance = glGetUniformLocation(iTerrainProgram, "flMoveDistance");
-		glUniform1f(flMoveDistance, pCurrentTank->GetRemainingMovementDistance());
-
-		GLuint bMovement = glGetUniformLocation(iTerrainProgram, "bMovement");
-		glUniform1i(bMovement, true);
-
-		GLuint flSlowMovementFactor = glGetUniformLocation(iTerrainProgram, "flSlowMovementFactor");
-		glUniform1f(flSlowMovementFactor, pCurrentTank->SlowMovementFactor());
+		c.SetUniform("vecTankOrigin", pCurrentTank->GetGlobalOrigin());
+		c.SetUniform("flMoveDistance", pCurrentTank->GetRemainingMovementDistance());
+		c.SetUniform("bMovement", true);
+		c.SetUniform("flSlowMovementFactor", pCurrentTank->SlowMovementFactor());
 	}
 	else if (bIsCurrentTeam && pCurrentTank && !pCurrentTank->IsFortified() && DigitanksGame()->GetControlMode() == MODE_AIM && DigitanksGame()->GetAimType() == AIM_MOVEMENT)
 	{
-		GLuint vecTankOrigin = glGetUniformLocation(iTerrainProgram, "vecTankOrigin");
-		glUniform3fv(vecTankOrigin, 1, pCurrentTank->GetOrigin());
-
-		GLuint flMoveDistance = glGetUniformLocation(iTerrainProgram, "flMoveDistance");
-		glUniform1f(flMoveDistance, pCurrentTank->ChargeRadius());
-
-		GLuint bMovement = glGetUniformLocation(iTerrainProgram, "bMovement");
-		glUniform1i(bMovement, true);
+		c.SetUniform("vecTankOrigin", pCurrentTank->GetGlobalOrigin());
+		c.SetUniform("flMoveDistance", pCurrentTank->ChargeRadius());
+		c.SetUniform("bMovement", true);
 	}
 	else
-	{
-		GLuint bMovement = glGetUniformLocation(iTerrainProgram, "bMovement");
-		glUniform1i(bMovement, false);
-	}
+		c.SetUniform("bMovement", false);
 
 	if (bIsCurrentTeam && pCurrentTank && !pCurrentTank->IsFortified() && DigitanksGame()->GetControlMode() == MODE_TURN)
 	{
@@ -1434,97 +1400,61 @@ void CTerrain::RenderWithShaders() const
 
 		if (bMouseOnGrid)
 		{
-			GLuint vecTankOrigin = glGetUniformLocation(iTerrainProgram, "vecTankOrigin");
-			glUniform3fv(vecTankOrigin, 1, pCurrentTank->GetOrigin());
+			c.SetUniform("vecTankOrigin", pCurrentTank->GetGlobalOrigin());
+			c.SetUniform("vecTurnPosition", vecPoint);
+			c.SetUniform("flTankYaw", pCurrentTank->GetAngles().y);
+			c.SetUniform("flTankMaxYaw", pCurrentTank->GetRemainingTurningDistance());
 
-			GLuint vecTurnPosition = glGetUniformLocation(iTerrainProgram, "vecTurnPosition");
-			glUniform3fv(vecTurnPosition, 1, vecPoint);
-
-			GLuint bTurnValid = glGetUniformLocation(iTerrainProgram, "bTurnValid");
-
-			GLuint flTankYaw = glGetUniformLocation(iTerrainProgram, "flTankYaw");
-			glUniform1f(flTankYaw, pCurrentTank->GetAngles().y);
-
-			float flMaxTurnWithLeftoverPower = pCurrentTank->GetRemainingTurningDistance();
-
-			GLuint flTankMaxYaw = glGetUniformLocation(iTerrainProgram, "flTankMaxYaw");
-			glUniform1f(flTankMaxYaw, flMaxTurnWithLeftoverPower);
-
-			Vector vecDirection = (vecPoint - pCurrentTank->GetOrigin()).Normalized();
+			Vector vecDirection = (vecPoint - pCurrentTank->GetGlobalOrigin()).Normalized();
 			float flYaw = atan2(vecDirection.z, vecDirection.x) * 180/M_PI;
 
 			float flTankTurn = AngleDifference(flYaw, pCurrentTank->GetAngles().y);
 
 			if (!pCurrentTank->IsPreviewMoveValid())
-				glUniform1i(bTurnValid, true);
+				c.SetUniform("bTurnValid", true);
 			else if (fabs(flTankTurn)/pCurrentTank->TurnPerPower() > pCurrentTank->GetRemainingMovementEnergy())
-				glUniform1i(bTurnValid, false);
+				c.SetUniform("bTurnValid", false);
 			else
-				glUniform1i(bTurnValid, true);
+				c.SetUniform("bTurnValid", false);
 		}
 
-		GLuint bTurning = glGetUniformLocation(iTerrainProgram, "bTurning");
-		glUniform1i(bTurning, bMouseOnGrid);
+		c.SetUniform("bTurning", bMouseOnGrid);
 	}
 	else
 	{
-		GLuint bTurning = glGetUniformLocation(iTerrainProgram, "bTurning");
-		glUniform1i(bTurning, false);
+		c.SetUniform("bTurning", false);
 	}
 
 	if (pCurrentTank && DigitanksGame()->GetAimType() == AIM_NORMAL)
 	{
-		GLuint bShowRanges = glGetUniformLocation(iTerrainProgram, "bShowRanges");
-		glUniform1i(bShowRanges, true);
+		c.SetUniform("bShowRanges", true);
+		c.SetUniform("bFocusRanges", false);
 
-		GLuint bFocusRanges = glGetUniformLocation(iTerrainProgram, "bFocusRanges");
-		glUniform1i(bFocusRanges, false);
-
-		Vector vecRangeOrigin = pCurrentTank->GetOrigin();
+		Vector vecRangeOrigin = pCurrentTank->GetGlobalOrigin();
 		if (bIsCurrentTeam && DigitanksGame()->GetControlMode() == MODE_MOVE && pCurrentTank->GetPreviewMovePower() <= pCurrentTank->GetRemainingMovementEnergy())
 			vecRangeOrigin = pCurrentTank->GetPreviewMove();
 
-		GLuint vecTankPreviewOrigin = glGetUniformLocation(iTerrainProgram, "vecTankPreviewOrigin");
-		glUniform3fv(vecTankPreviewOrigin, 1, vecRangeOrigin);
+		c.SetUniform("vecTankPreviewOrigin", vecRangeOrigin);
+		c.SetUniform("flTankMaxRange", pCurrentTank->GetMaxRange());
+		c.SetUniform("flTankEffRange", pCurrentTank->GetEffRange());
+		c.SetUniform("flTankMinRange", pCurrentTank->GetMinRange());
 
-		GLuint flTankMaxRange = glGetUniformLocation(iTerrainProgram, "flTankMaxRange");
-		glUniform1f(flTankMaxRange, pCurrentTank->GetMaxRange());
-
-		GLuint flTankEffRange = glGetUniformLocation(iTerrainProgram, "flTankEffRange");
-		glUniform1f(flTankEffRange, pCurrentTank->GetEffRange());
-
-		GLuint flTankMinRange = glGetUniformLocation(iTerrainProgram, "flTankMinRange");
-		glUniform1f(flTankMinRange, pCurrentTank->GetMinRange());
-
-		GLuint flTankYaw = glGetUniformLocation(iTerrainProgram, "flTankYaw");
 		if (bIsCurrentTeam && DigitanksGame()->GetControlMode() == MODE_TURN)
-			glUniform1f(flTankYaw, pCurrentTank->GetPreviewTurn());
+			c.SetUniform("flTankYaw", pCurrentTank->GetPreviewTurn());
 		else
-			glUniform1f(flTankYaw, pCurrentTank->GetAngles().y);
+			c.SetUniform("flTankYaw", pCurrentTank->GetAngles().y);
 
-		GLuint flTankFiringCone = glGetUniformLocation(iTerrainProgram, "flTankFiringCone");
-		glUniform1f(flTankFiringCone, pCurrentTank->FiringCone());
+		c.SetUniform("flTankFiringCone", pCurrentTank->FiringCone());
 	}
 	else
-	{
-		GLuint bShowRanges = glGetUniformLocation(iTerrainProgram, "bShowRanges");
-		glUniform1i(bShowRanges, false);
-	}
+		c.SetUniform("bShowRanges", false);
 
 	if (DigitanksGame()->GetAimType() == AIM_NORANGE)
 	{
-		GLuint iAimTargets = glGetUniformLocation(iTerrainProgram, "iAimTargets");
-		glUniform1i(iAimTargets, 1);
-
-		GLuint avecAimTargets = glGetUniformLocation(iTerrainProgram, "avecAimTargets");
-		GLuint aflAimTargetRadius = glGetUniformLocation(iTerrainProgram, "aflAimTargetRadius");
-		GLuint iFocusTarget = glGetUniformLocation(iTerrainProgram, "iFocusTarget");
-
-		float flRadius = 50;
-		glUniform3fv(avecAimTargets, 1, (float*)pCurrentTank->GetPreviewAim());
-		glUniform1fv(aflAimTargetRadius, 1, &flRadius);
-
-		glUniform1i(iFocusTarget, 0);
+		c.SetUniform("iAimTargets", 1);
+		c.SetUniform("avecAimTargets", pCurrentTank->GetPreviewAim());
+		c.SetUniform("aflAimTargetRadius", 50);
+		c.SetUniform("iFocusTarget", 0);
 	}
 	else if (DigitanksGame()->GetAimType() == AIM_NORMAL)
 	{
@@ -1535,55 +1465,42 @@ void CTerrain::RenderWithShaders() const
 		DigitanksGame()->GetTankAims(avecTankAims, aflTankAimRadius, iTankAimFocus);
 		DigitanksGame()->ClearTankAims();
 
-		GLuint iAimTargets = glGetUniformLocation(iTerrainProgram, "iAimTargets");
-		glUniform1i(iAimTargets, (GLint)avecTankAims.size());
+		c.SetUniform("iAimTargets", (int)avecTankAims.size());
 
 		if (avecTankAims.size())
 		{
-			GLuint avecAimTargets = glGetUniformLocation(iTerrainProgram, "avecAimTargets");
-			GLuint aflAimTargetRadius = glGetUniformLocation(iTerrainProgram, "aflAimTargetRadius");
-			GLuint iFocusTarget = glGetUniformLocation(iTerrainProgram, "iFocusTarget");
-
-			glUniform3fv(avecAimTargets, (GLint)avecTankAims.size(), avecTankAims[0]);
-			glUniform1fv(aflAimTargetRadius, (GLint)aflTankAimRadius.size(), &aflTankAimRadius[0]);
+			c.SetUniform("avecAimTargets", (int)avecTankAims.size(), avecTankAims.data());
+			c.SetUniform("aflAimTargetRadius", (int)aflTankAimRadius.size(), aflTankAimRadius.data());
 
 			if (DigitanksGame()->GetControlMode() == MODE_AIM)
-				glUniform1i(iFocusTarget, (GLint)iTankAimFocus);
+				c.SetUniform("iFocusTarget", (int)iTankAimFocus);
 			else
-				glUniform1i(iFocusTarget, -1);
+				c.SetUniform("iFocusTarget", -1);
 		}
 	}
 	else
-	{
-		GLuint iAimTargets = glGetUniformLocation(iTerrainProgram, "iAimTargets");
-		GLuint avecAimTargets = glGetUniformLocation(iTerrainProgram, "avecAimTargets");
-		GLuint aflAimTargetRadius = glGetUniformLocation(iTerrainProgram, "aflAimTargetRadius");
-		GLuint iFocusTarget = glGetUniformLocation(iTerrainProgram, "iFocusTarget");
+		c.SetUniform("iAimTargets", 0);
 
-		glUniform1i(iAimTargets, 0);
-		glUniform3fv(avecAimTargets, 1, Vector(0,0,0));
-		glUniform1f(aflAimTargetRadius, 1.0f);
-		glUniform1i(iFocusTarget, 0);
-	}
+	c.SetUniform("iDiffuse", 0);
+
+	CTerrainTriangle t;
+	int iCoordXOffset = ((int)&t.iCoordX) - ((int)&t);
+	int iCoordYOffset = ((int)&t.iCoordY) - ((int)&t);
 
 	for (size_t i = 0; i < TERRAIN_CHUNKS; i++)
 	{
 		for (size_t j = 0; j < TERRAIN_CHUNKS; j++)
 		{
-			if (GLEW_ARB_multitexture || GLEW_VERSION_1_3)
-				glActiveTexture(GL_TEXTURE0);
-
-			glBindTexture(GL_TEXTURE_2D, m_aTerrainChunks[i][j].m_iChunkTexture);
-			GLuint iDiffuse = glGetUniformLocation(iTerrainProgram, "iDiffuse");
-			glUniform1i(iDiffuse, 0);
-			glCallList((GLuint)m_aTerrainChunks[i][j].m_iCallList);
+			c.BindTexture(m_aTerrainChunks[i][j].m_hChunkTexture->m_iGLID);
+			c.BeginRenderVertexArray(m_aTerrainChunks[i][j].m_iTerrainVerts);
+				c.SetPositionBuffer(0u, sizeof(CTerrainTriangle));
+				c.SetCustomIntBuffer("iCoordX", sizeof(t.iCoordX), iCoordXOffset, sizeof(CTerrainTriangle));
+				c.SetCustomIntBuffer("iCoordY", sizeof(t.iCoordY), iCoordYOffset, sizeof(CTerrainTriangle));
+			c.EndRenderVertexArrayIndexed(m_aTerrainChunks[i][j].m_iOpaqueIndices, m_aTerrainChunks[i][j].m_iOpaqueIndicesVerts);
 		}
 	}
 
-	glBindTexture(GL_TEXTURE_2D, 0);
-
-	GameServer()->GetRenderer()->ClearProgram();
-
+#if 0
 	for (size_t i = 0; i < TERRAIN_CHUNKS; i++)
 	{
 		for (size_t j = 0; j < TERRAIN_CHUNKS; j++)
@@ -1591,30 +1508,7 @@ void CTerrain::RenderWithShaders() const
 			glCallList((GLuint)m_aTerrainChunks[i][j].m_iWallList);
 		}
 	}
-
-	glPopAttrib();
-}
-
-void CTerrain::RenderWithoutShaders() const
-{
-	for (size_t i = 0; i < TERRAIN_CHUNKS; i++)
-	{
-		for (size_t j = 0; j < TERRAIN_CHUNKS; j++)
-		{
-			glBindTexture(GL_TEXTURE_2D, (GLuint)m_aTerrainChunks[i][j].m_iChunkTexture);
-			glCallList((GLuint)m_aTerrainChunks[i][j].m_iCallList);
-		}
-	}
-
-	glBindTexture(GL_TEXTURE_2D, 0);
-
-	for (size_t i = 0; i < TERRAIN_CHUNKS; i++)
-	{
-		for (size_t j = 0; j < TERRAIN_CHUNKS; j++)
-		{
-			glCallList((GLuint)m_aTerrainChunks[i][j].m_iWallList);
-		}
-	}
+#endif
 }
 
 void CTerrain::DebugRenderQuadTree() const
@@ -1702,7 +1596,7 @@ float CTerrain::GetHeight(float flX, float flY)
 
 Vector CTerrain::GetPointHeight(Vector vecPoint)
 {
-	vecPoint.y = GetHeight(vecPoint.x, vecPoint.z);
+	vecPoint.z = GetHeight(vecPoint.x, vecPoint.y);
 	return vecPoint;
 }
 
@@ -1780,7 +1674,7 @@ bool CTerrain::IsPointOnMap(Vector vecPoint)
 
 bool CTerrain::IsPointOverLava(Vector vecPoint)
 {
-	return GetBit(WorldToArraySpace(vecPoint.x), WorldToArraySpace(vecPoint.z), TB_LAVA);
+	return GetBit(WorldToArraySpace(vecPoint.x), WorldToArraySpace(vecPoint.y), TB_LAVA);
 }
 
 bool CTerrain::IsPointOverHole(Vector vecPoint)
@@ -1797,17 +1691,17 @@ bool CTerrain::IsPointOverHole(Vector vecPoint)
 	if (vecPoint.z > GetMapSize())
 		return true;
 
-	return GetBit(WorldToArraySpace(vecPoint.x), WorldToArraySpace(vecPoint.z), TB_HOLE);
+	return GetBit(WorldToArraySpace(vecPoint.x), WorldToArraySpace(vecPoint.y), TB_HOLE);
 }
 
 bool CTerrain::IsPointOverWater(Vector vecPoint)
 {
-	return GetBit(WorldToArraySpace(vecPoint.x), WorldToArraySpace(vecPoint.z), TB_WATER);
+	return GetBit(WorldToArraySpace(vecPoint.x), WorldToArraySpace(vecPoint.y), TB_WATER);
 }
 
 bool CTerrain::IsPointInTrees(Vector vecPoint)
 {
-	return GetBit(WorldToArraySpace(vecPoint.x), WorldToArraySpace(vecPoint.z), TB_TREE);
+	return GetBit(WorldToArraySpace(vecPoint.x), WorldToArraySpace(vecPoint.y), TB_TREE);
 }
 
 float CTerrain::GetMinX()
@@ -1892,9 +1786,9 @@ terrainbit_t CTerrain::GetBits(int x, int y)
 
 Vector CTerrain::GetNormalAtPoint(Vector vecPoint)
 {
-	Vector vecA = Vector(vecPoint.x, GetHeight(vecPoint.x, vecPoint.z), vecPoint.z);
-	Vector vecB = Vector(vecPoint.x+1, GetHeight(vecPoint.x+1, vecPoint.z), vecPoint.z);
-	Vector vecC = Vector(vecPoint.x, GetHeight(vecPoint.x, vecPoint.z+1), vecPoint.z+1);
+	Vector vecA = Vector(vecPoint.x, vecPoint.y, GetHeight(vecPoint.x, vecPoint.y));
+	Vector vecB = Vector(vecPoint.x+1, vecPoint.y, GetHeight(vecPoint.x+1, vecPoint.y));
+	Vector vecC = Vector(vecPoint.x, vecPoint.y+1, GetHeight(vecPoint.x, vecPoint.y+1));
 
 	return (vecA-vecC).Normalized().Cross((vecA-vecB).Normalized()).Normalized();
 }
@@ -1910,12 +1804,12 @@ bool CTerrain::Collide(const Vector& v1, const Vector& v2, Vector& vecPoint)
 			CTerrainChunk* pChunk = GetChunk(i, j);
 			if (pChunk->m_pTracer)
 			{
-				raytrace::CTraceResult tr;
-				bool bHit = pChunk->m_pTracer->Raytrace(v1, v2, &tr);
+				CCollisionResult tr;
+				bool bHit = pChunk->m_pTracer->Raytrace(v1, v2, tr);
 				if (bHit)
 				{
-					if ((v1-tr.m_vecHit).LengthSqr() < (v1-vecPoint).LengthSqr())
-						vecPoint = tr.m_vecHit;
+					if ((v1-tr.vecHit).LengthSqr() < (v1-vecPoint).LengthSqr())
+						vecPoint = tr.vecHit;
 					bReturn = true;
 				}
 			}
@@ -1942,16 +1836,16 @@ void CTerrain::TakeDamage(CBaseEntity* pAttacker, CBaseEntity* pInflictor, damag
 
 	int iRadius = WorldToArraySpace(flRadius)-WorldToArraySpace(0)+1;
 
-	Vector vecOrigin = pInflictor->GetOrigin();
+	Vector vecOrigin = pInflictor->GetGlobalOrigin();
 
 	if (!GameNetwork()->IsHost())
 		return;
 
 	int iX = WorldToArraySpace(vecOrigin.x);
-	int iZ = WorldToArraySpace(vecOrigin.z);
+	int iY = WorldToArraySpace(vecOrigin.y);
 
 	Vector vecOriginFlat = vecOrigin;
-	vecOriginFlat.y = 0;
+	vecOriginFlat.z = 0;
 
 	for (int x = iX-iRadius; x <= iX+iRadius; x++)
 	{
@@ -1961,56 +1855,56 @@ void CTerrain::TakeDamage(CBaseEntity* pAttacker, CBaseEntity* pInflictor, damag
 		if (x >= TERRAIN_SIZE)
 			continue;
 
-		for (int z = iZ-iRadius; z <= iZ+iRadius; z++)
+		for (int y = iY-iRadius; y <= iY+iRadius; y++)
 		{
-			if (z < 0)
+			if (y < 0)
 				continue;
 
-			if (z >= TERRAIN_SIZE)
+			if (y >= TERRAIN_SIZE)
 				continue;
 
 			float flX = ArrayToWorldSpace(x);
-			float flZ = ArrayToWorldSpace(z);
+			float flY = ArrayToWorldSpace(y);
 
 			float flX1 = ArrayToWorldSpace((int)x+1);
-			float flZ1 = ArrayToWorldSpace((int)z+1);
+			float flY1 = ArrayToWorldSpace((int)y+1);
 
-			if ((Vector(flX, 0, flZ) - vecOriginFlat).LengthSqr() < flRadius*flRadius)
+			if ((Vector(flX, 0, flY) - vecOriginFlat).LengthSqr() < flRadius*flRadius)
 			{
 				float flXDistance = (flX - vecOriginFlat.x);
-				float flZDistance = (flZ - vecOriginFlat.z);
+				float flZDistance = (flY - vecOriginFlat.y);
 
 				float flSqrt = sqrt(flRadius*flRadius - flXDistance*flXDistance - flZDistance*flZDistance);
-				float flNewY = -flSqrt + vecOrigin.y;
+				float flNewZ = -flSqrt + vecOrigin.z;
 
-				float flCurrentY = GetRealHeight(x, z);
+				float flCurrentZ = GetRealHeight(x, y);
 
 				// As if the dirt from above drops down into the hole.
-				float flAbove = flCurrentY - (flSqrt + vecOrigin.y);
+				float flAbove = flCurrentZ - (flSqrt + vecOrigin.z);
 				if (flAbove > 0)
-					flNewY += flAbove;
+					flNewZ += flAbove;
 
-				if (flNewY > flCurrentY)
+				if (flNewZ > flCurrentZ)
 					continue;
 
 				if (DigitanksGame()->SoftCraters())
-					flNewY = flCurrentY - (flCurrentY - flNewY)/5;
+					flNewZ = flCurrentZ - (flCurrentZ - flNewZ)/5;
 
-				SetRealHeight(x, z, flNewY);
+				SetRealHeight(x, y, flNewZ);
 
 				int iIndex;
 				int iChunkX = ArrayToChunkSpace(x, iIndex);
-				int iChunkY = ArrayToChunkSpace(z, iIndex);
+				int iChunkY = ArrayToChunkSpace(y, iIndex);
 
 				if (pTreeCutter)
 				{
 					if (RandomFloat(0, 1) > 0.2f)
-						SetBit(x, z, TB_TREE, false);
+						SetBit(x, y, TB_TREE, false);
 				}
 				else
 				{
 					if (RandomInt(0, 5) == 0)
-						SetBit(x, z, TB_TREE, false);
+						SetBit(x, y, TB_TREE, false);
 				}
 
 				CTerrainChunk* pChunk = GetChunk(iChunkX, iChunkY);
@@ -2019,19 +1913,19 @@ void CTerrain::TakeDamage(CBaseEntity* pAttacker, CBaseEntity* pInflictor, damag
 
 				// Also regenerate nearby chunks which may have been affected.
 				iChunkX = ArrayToChunkSpace(x-1, iIndex);
-				iChunkY = ArrayToChunkSpace(z, iIndex);
+				iChunkY = ArrayToChunkSpace(y, iIndex);
 				pChunk = GetChunk(iChunkX, iChunkY);
 				if (pChunk && !pChunk->m_bNeedsRegenerate)
 					pChunk->m_bNeedsRegenerate = true;
 
 				iChunkX = ArrayToChunkSpace(x, iIndex);
-				iChunkY = ArrayToChunkSpace(z-1, iIndex);
+				iChunkY = ArrayToChunkSpace(y-1, iIndex);
 				pChunk = GetChunk(iChunkX, iChunkY);
 				if (pChunk && !pChunk->m_bNeedsRegenerate)
 					pChunk->m_bNeedsRegenerate = true;
 
 				iChunkX = ArrayToChunkSpace(x-1, iIndex);
-				iChunkY = ArrayToChunkSpace(z-1, iIndex);
+				iChunkY = ArrayToChunkSpace(y-1, iIndex);
 				pChunk = GetChunk(iChunkX, iChunkY);
 				if (pChunk && !pChunk->m_bNeedsRegenerate)
 					pChunk->m_bNeedsRegenerate = true;
@@ -2066,14 +1960,14 @@ void CTerrain::AddRunner(Vector vecPosition, Color clrColor, float flFade)
 {
 	Vector avecPrimaryDirections[] =
 	{
-		Vector(0, 0, 1),
-		Vector(1, 0, 1),
+		Vector(0, 1, 0),
+		Vector(1, 1, 0),
 		Vector(1, 0, 0),
-		Vector(1, 0, -1),
-		Vector(0, 0, -1),
-		Vector(-1, 0, -1),
+		Vector(1, -1, 0),
+		Vector(0, -1, 0),
+		Vector(-1, -1, 0),
 		Vector(-1, 0, 0),
-		Vector(-1, 0, 1),
+		Vector(-1, 1, 0),
 	};
 
 	AddRunner(vecPosition, avecPrimaryDirections[RandomInt(0, 7)], clrColor, flFade);
@@ -2244,7 +2138,7 @@ Vector CTerrain::FindPath(const Vector& vecStart, const Vector& vecEnd, CDigitan
 		}
 	}
 
-	tvector<CQuadBranch*> apRoute;
+	tlist<CQuadBranch*> apRoute;
 	CQuadBranch* pPath = pEnd;
 	while (pPath->m_pPathParent)
 	{
@@ -2266,7 +2160,7 @@ Vector CTerrain::FindPath(const Vector& vecStart, const Vector& vecEnd, CDigitan
 
 	if (!pUnit)
 	{
-		tvector<CQuadBranch*>::iterator it = apRoute.begin();
+		tlist<CQuadBranch*>::iterator it = apRoute.begin();
 		it++;
 
 		if (*it)
@@ -2280,11 +2174,11 @@ Vector CTerrain::FindPath(const Vector& vecStart, const Vector& vecEnd, CDigitan
 
 	float flMoveDistance = pUnit->GetRemainingMovementDistance();
 	Vector vecLastCenter;
-	for (tvector<CQuadBranch*>::iterator it = apRoute.begin(); it != apRoute.end(); it++)
+	for (tlist<CQuadBranch*>::iterator it = apRoute.begin(); it != apRoute.end(); it++)
 	{
 		if (it == apRoute.begin())
 		{
-			vecLastCenter = pUnit->GetOrigin();
+			vecLastCenter = pUnit->GetGlobalOrigin();
 			continue;
 		}
 
@@ -2393,7 +2287,7 @@ float CTerrain::WeightedLeafDistance(CQuadBranch* pStart, CQuadBranch* pEnd, boo
 		flSectionDistance = vecLocation.Distance(vecLastLocation);
 		flWeightedDistance += flSectionDistance;
 
-		terrainbit_t eBits = GetBits(WorldToArraySpace(vecLocation.x), WorldToArraySpace(vecLocation.z));
+		terrainbit_t eBits = GetBits(WorldToArraySpace(vecLocation.x), WorldToArraySpace(vecLocation.y));
 		if (eBits & TB_TREE)
 		{
 			// Trees aren't so bad because we get camoflauge moving through them.
@@ -2586,8 +2480,9 @@ void CTerrain::TerrainData(class CNetworkParameters* p)
 			Vector v3 = Vector(flX1, GetRealHeight(x+1, z+1), flZ1);
 			Vector v4 = Vector(flX1, GetRealHeight(x+1, z), flZ);
 
-			pChunk->m_pTracer->AddTriangle(v1, v2, v3);
-			pChunk->m_pTracer->AddTriangle(v1, v3, v4);
+			TUnimplemented();
+			//pChunk->m_pTracer->AddTriangle(v1, v2, v3);
+			//pChunk->m_pTracer->AddTriangle(v1, v3, v4);
 		}
 	}
 
@@ -2680,12 +2575,12 @@ void CTerrain::ClientEnterGame()
 CTerrainChunk::CTerrainChunk()
 {
 	m_pTracer = NULL;
-	m_iCallList = 0;
-	m_iTransparentCallList = 0;
+	m_iTerrainVerts = 0;
+	m_iOpaqueIndices = 0;
+	m_iTransparentIndices = 0;
 	m_iWallList = 0;
 	m_bNeedsRegenerate = true;
 	m_bNeedsRegenerateTexture = true;
-	m_iChunkTexture = 0;
 
 	memset(m_aiSpecialData, 0, sizeof(m_aiSpecialData));
 	memset(m_aflTerrainVisibility, 0, sizeof(m_aflTerrainVisibility));
@@ -2694,14 +2589,27 @@ CTerrainChunk::CTerrainChunk()
 
 CTerrainChunk::~CTerrainChunk()
 {
-	if (m_iCallList)
-		glDeleteLists((GLuint)m_iCallList, 1);
-	if (m_iTransparentCallList)
-		glDeleteLists((GLuint)m_iTransparentCallList, 1);
+	ClearGLData(true);
+}
+
+void CTerrainChunk::ClearGLData(bool bTexture)
+{
+	if (m_iTerrainVerts)
+		CRenderer::UnloadVertexDataFromGL(m_iTerrainVerts);
+
+	if (m_iOpaqueIndices)
+		CRenderer::UnloadVertexDataFromGL(m_iOpaqueIndices);
+
+	if (m_iTransparentIndices)
+		CRenderer::UnloadVertexDataFromGL(m_iTransparentIndices);
+
+#if 0
 	if (m_iWallList)
 		glDeleteLists((GLuint)m_iWallList, 1);
-	if (m_iChunkTexture)
-		glDeleteTextures(1, &m_iChunkTexture);
+#endif
+
+	if (bTexture)
+		m_hChunkTexture.Reset();
 }
 
 void CTerrainChunk::Think()
@@ -3007,10 +2915,12 @@ void CQuadBranch::DebugRender()
 	}
 	else
 	{
-		glBegin(GL_LINE_STRIP);
-			glVertex3f(m_pTerrain->ArrayToWorldSpace(m_vecMin.x), m_pTerrain->GetRealHeight(m_vecMin.x, m_vecMin.y)+1, m_pTerrain->ArrayToWorldSpace(m_vecMin.y));
-			glVertex3f(m_pTerrain->ArrayToWorldSpace(m_vecMax.x), m_pTerrain->GetRealHeight(m_vecMax.x, m_vecMin.y)+1, m_pTerrain->ArrayToWorldSpace(m_vecMin.y));
-			glVertex3f(m_pTerrain->ArrayToWorldSpace(m_vecMax.x), m_pTerrain->GetRealHeight(m_vecMax.x, m_vecMax.y)+1, m_pTerrain->ArrayToWorldSpace(m_vecMax.y));
-		glEnd();
+		CRenderingContext c(GameServer()->GetRenderer(), true);
+
+		c.BeginRenderLineStrip();
+			c.Vertex(Vector(m_pTerrain->ArrayToWorldSpace(m_vecMin.x), m_pTerrain->GetRealHeight(m_vecMin.x, m_vecMin.y)+1, m_pTerrain->ArrayToWorldSpace(m_vecMin.y)));
+			c.Vertex(Vector(m_pTerrain->ArrayToWorldSpace(m_vecMax.x), m_pTerrain->GetRealHeight(m_vecMax.x, m_vecMin.y)+1, m_pTerrain->ArrayToWorldSpace(m_vecMin.y)));
+			c.Vertex(Vector(m_pTerrain->ArrayToWorldSpace(m_vecMax.x), m_pTerrain->GetRealHeight(m_vecMax.x, m_vecMax.y)+1, m_pTerrain->ArrayToWorldSpace(m_vecMax.y)));
+		c.EndRender();
 	}
 }

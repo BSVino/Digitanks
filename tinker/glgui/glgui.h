@@ -51,6 +51,8 @@ namespace glgui
 	class CTextField;
 	class CTree;
 	class CTreeNode;
+	template<typename T>
+	class CScrollSelector;
 
 	extern Color g_clrPanel;
 	extern Color g_clrBox;

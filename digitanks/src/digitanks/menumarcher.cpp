@@ -3,8 +3,9 @@
 #include <maths.h>
 #include <mtrand.h>
 #include <models/models.h>
-#include <renderer/renderer.h>
+#include <renderer/game_renderer.h>
 #include <glgui/glgui.h>
+#include <renderer/game_renderingcontext.h>
 
 #include "digitanksgame.h"
 
@@ -25,8 +26,8 @@ INPUTS_TABLE_END();
 
 void CMenuMarcher::Precache()
 {
-	PrecacheModel("models/digitanks/digitank-body.toy", true);
-	PrecacheModel("models/digitanks/digitank-turret.toy", true);
+	PrecacheModel("models/digitanks/digitank-body.toy");
+	PrecacheModel("models/digitanks/digitank-turret.toy");
 	PrecacheParticleSystem("tank-hover");
 }
 
@@ -58,35 +59,36 @@ void CMenuMarcher::Think()
 
 	Speak();
 
-	Vector vecNewOrigin = GetOrigin() + Vector(0, 0, 5) * GameServer()->GetFrameTime();
-	vecNewOrigin.y = FindHoverHeight(vecNewOrigin);
-	if (vecNewOrigin.z > 80)
-		vecNewOrigin.z -= 160;
-	SetOrigin(vecNewOrigin);
+	Vector vecNewOrigin = GetGlobalOrigin() + Vector(0, -5, 0) * (float)GameServer()->GetFrameTime();
+	vecNewOrigin.z = FindHoverHeight(vecNewOrigin);
+	if (vecNewOrigin.y > 80)
+		vecNewOrigin.y -= 160;
+	SetGlobalOrigin(vecNewOrigin);
 }
 
 Vector CMenuMarcher::GetRenderOrigin() const
 {
 	float flLerp = 0;
 	
-	float flOscillate = Oscillate(GameServer()->GetGameTime()+m_flBobOffset, 4);
-	flLerp = SLerp(flOscillate, 0.2f);
+	float flOscillate = Oscillate((float)GameServer()->GetGameTime()+m_flBobOffset, 4);
+	flLerp = Gain(flOscillate, 0.2f);
 
-	return GetOrigin() + Vector(0, 1 + flLerp*0.5f, 0);
+	return GetGlobalOrigin() + Vector(0, 0, 1 + flLerp*0.5f);
 }
 
 void CMenuMarcher::ModifyContext(CRenderingContext* pContext) const
 {
 	BaseClass::ModifyContext(pContext);
 
-	pContext->SetColorSwap(Color(0, 0, 255));
+	pContext->SetUniform("bColorSwapInAlpha", true);
+	pContext->SetUniform("vecColorSwap", Color(0, 0, 255));
 }
 
-void CMenuMarcher::OnRender(CRenderingContext* pContext) const
+void CMenuMarcher::OnRender(CGameRenderingContext* pContext) const
 {
 	BaseClass::OnRender(pContext);
 
-	if (!Renderer()->IsRenderingTransparent())
+	if (!GameServer()->GetRenderer()->IsRenderingTransparent())
 		RenderTurret();
 }
 
@@ -95,13 +97,14 @@ void CMenuMarcher::RenderTurret() const
 	if (m_iTurretModel == ~0)
 		return;
 
-	CRenderingContext r(GameServer()->GetRenderer());
+	CGameRenderingContext r(GameServer()->GetRenderer(), true);
 	r.Translate(Vector(-0.527677f, 0.810368f, 0));
 
 	float flScale = 1.3f;
 	r.Scale(flScale, flScale, flScale);
 
-	r.SetColorSwap(Color(0, 0, 255));
+	r.SetUniform("bColorSwapInAlpha", true);
+	r.SetUniform("vecColorSwap", Color(0, 0, 255));
 
 	r.RenderModel(m_iTurretModel);
 }
@@ -134,23 +137,23 @@ float CMenuMarcher::FindHoverHeight(Vector vecPosition) const
 {
 	CTerrain* pTerrain = DigitanksGame()->GetTerrain();
 
-	float flHighestTerrain = pTerrain->GetHeight(vecPosition.x, vecPosition.z);
+	float flHighestTerrain = pTerrain->GetHeight(vecPosition.x, vecPosition.y);
 
 	float flTerrain;
 
-	flTerrain = pTerrain->GetHeight(vecPosition.x+2, vecPosition.z+2);
+	flTerrain = pTerrain->GetHeight(vecPosition.x+2, vecPosition.y+2);
 	if (flTerrain > flHighestTerrain)
 		flHighestTerrain = flTerrain;
 
-	flTerrain = pTerrain->GetHeight(vecPosition.x+2, vecPosition.z-2);
+	flTerrain = pTerrain->GetHeight(vecPosition.x+2, vecPosition.y-2);
 	if (flTerrain > flHighestTerrain)
 		flHighestTerrain = flTerrain;
 
-	flTerrain = pTerrain->GetHeight(vecPosition.x-2, vecPosition.z+2);
+	flTerrain = pTerrain->GetHeight(vecPosition.x-2, vecPosition.y+2);
 	if (flTerrain > flHighestTerrain)
 		flHighestTerrain = flTerrain;
 
-	flTerrain = pTerrain->GetHeight(vecPosition.x-2, vecPosition.z-2);
+	flTerrain = pTerrain->GetHeight(vecPosition.x-2, vecPosition.y-2);
 	if (flTerrain > flHighestTerrain)
 		flHighestTerrain = flTerrain;
 

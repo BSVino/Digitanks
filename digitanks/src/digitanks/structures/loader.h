@@ -15,7 +15,7 @@ public:
 
 	virtual void				StartTurn();
 
-	virtual void				PostRender(bool bTransparent) const;
+	virtual void				PostRender() const;
 
 	virtual void				SetupMenu(menumode_t eMenuMode);
 
@@ -23,7 +23,7 @@ public:
 
 	virtual void				UpdateInfo(tstring& sInfo);
 
-	virtual void				DrawQueue(int x, int y, int w, int h);
+	virtual void				DrawQueue(float x, float y, float w, float h);
 
 	void						BeginProduction();
 	void						BeginProduction(class CNetworkParameters* p);

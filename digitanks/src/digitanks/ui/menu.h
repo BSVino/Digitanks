@@ -285,12 +285,6 @@ protected:
 	glgui::CCheckBox*				m_pWindowed;
 	glgui::CLabel*					m_pWindowedLabel;
 
-	glgui::CCheckBox*				m_pFramebuffers;
-	glgui::CLabel*					m_pFramebuffersLabel;
-
-	glgui::CCheckBox*				m_pShaders;
-	glgui::CLabel*					m_pShadersLabel;
-
 	glgui::CCheckBox*				m_pConstrain;
 	glgui::CLabel*					m_pConstrainLabel;
 

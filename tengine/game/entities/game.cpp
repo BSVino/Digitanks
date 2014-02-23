@@ -150,17 +150,17 @@ CPlayer* CGame::GetPlayer(size_t i) const
 	return m_ahPlayers[i];
 }
 
-bool CGame::IsTeamControlledByMe(const CTeam* pTeam)
+bool CGame::IsTeamControlledByMe(const class CPlayer* pPlayer)
 {
-	if (!pTeam)
+	if (!pPlayer)
 		return false;
 
-	if (!pTeam->IsPlayerControlled())
+	if (!pPlayer->IsHumanControlled())
 		return false;
 
 	for (size_t i = 0; i < GetNumLocalPlayers(); i++)
 	{
-		if (GetLocalPlayer(i)->GetTeam() == pTeam)
+		if (GetLocalPlayer(i) == pPlayer)
 			return true;
 	}
 

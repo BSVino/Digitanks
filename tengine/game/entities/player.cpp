@@ -9,12 +9,16 @@
 REGISTER_ENTITY(CPlayer);
 
 NETVAR_TABLE_BEGIN(CPlayer);
+	NETVAR_DEFINE(Color, m_clrTeam);
+	NETVAR_DEFINE(bool, m_bHumanPlayable);
 	NETVAR_DEFINE(CEntityHandle, m_hCharacter);
 	NETVAR_DEFINE_CALLBACK(int, m_iClient, &CGame::ClearLocalPlayers);
 	NETVAR_DEFINE(tstring, m_sPlayerName);
 NETVAR_TABLE_END();
 
 SAVEDATA_TABLE_BEGIN(CPlayer);
+	SAVEDATA_DEFINE(CSaveData::DATA_NETVAR, Color, m_clrTeam);
+	SAVEDATA_DEFINE(CSaveData::DATA_NETVAR, bool, m_bHumanPlayable);
 	SAVEDATA_DEFINE(CSaveData::DATA_NETVAR, CEntityHandle<CCharacter>, m_hCharacter);
 	SAVEDATA_DEFINE(CSaveData::DATA_NETVAR, int, m_iClient);
 	SAVEDATA_DEFINE(CSaveData::DATA_COPYTYPE, size_t, m_iInstallID);
@@ -26,6 +30,7 @@ INPUTS_TABLE_END();
 
 CPlayer::CPlayer()
 {
+	m_bHumanPlayable = true;
 	m_iClient = NETWORK_LOCAL;
 
 	m_flLastLesson = -1;

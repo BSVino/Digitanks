@@ -24,7 +24,7 @@ public:
 
 	virtual void				SpecialCommand();
 	virtual bool				UsesSpecialCommand() { return true; };
-	virtual tstring		SpecialCommandHint() { return _T("Space Bar For\nDamage Bonus"); };
+	virtual tstring				SpecialCommandHint() { return "Space Bar For\nDamage Bonus"; };
 	virtual Color				GetBonusDamageColor() const;
 	virtual float				GetBonusDamage();
 	virtual float				DamageBonus() const { return 30; };
@@ -48,7 +48,7 @@ public:
 	virtual bool				ShouldPlayExplosionSound();
 	virtual bool				HasFragmented() { return m_bFragmented; };
 
-	virtual void				OnSetOwner(CDigitanksEntity* pOwner);
+	virtual void				OnSetOwner(CBaseEntity* pOwner);
 	virtual bool				ShouldBeVisible();
 
 	virtual void				SetLandingSpot(Vector vecLandingSpot) { m_vecLandingSpot = vecLandingSpot; };
@@ -165,7 +165,7 @@ class CICBM : public CProjectile
 	REGISTER_ENTITY_CLASS(CICBM, CProjectile);
 
 public:
-	virtual tstring		SpecialCommandHint() { return _T("Space Bar\nTo Fragment"); };
+	virtual tstring				SpecialCommandHint() { return "Space Bar\nTo Fragment"; };
 
 	virtual weapon_t			GetWeaponType() { return PROJECTILE_ICBM; }
 	virtual float				ShellRadius() { return 1.2f; };
@@ -186,7 +186,7 @@ public:
 	virtual EAngle				GetRenderAngles() const;
 
 	virtual void				SpecialCommand();
-	virtual tstring		SpecialCommandHint() { return _T("Space Bar To\nDetonate"); };
+	virtual tstring				SpecialCommandHint() { return "Space Bar To\nDetonate"; };
 
 	virtual void				OnExplode(CBaseEntity* pInstigator);
 
@@ -212,7 +212,7 @@ public:
 	virtual void				Spawn();
 
 	virtual void				SpecialCommand();
-	virtual tstring		SpecialCommandHint() { return _T("Space Bar To\nDetonate"); };
+	virtual tstring				SpecialCommandHint() { return "Space Bar To\nDetonate"; };
 
 	virtual void				OnExplode(CBaseEntity* pInstigator);
 
@@ -234,7 +234,7 @@ public:
 	virtual void				Spawn();
 
 	virtual void				SpecialCommand();
-	virtual tstring		SpecialCommandHint() { return _T("Space Bar To\nDetonate"); };
+	virtual tstring				SpecialCommandHint() { return "Space Bar To\nDetonate"; };
 
 	virtual void				OnExplode(CBaseEntity* pInstigator);
 
@@ -294,7 +294,7 @@ public:
 	virtual void				Precache();
 
 	virtual void				SpecialCommand();
-	virtual tstring		SpecialCommandHint() { return _T("Space Bar To\nDetonate"); };
+	virtual tstring				SpecialCommandHint() { return "Space Bar To\nDetonate"; };
 
 	virtual void				CreateExplosionSystem();
 	virtual size_t				CreateTrailSystem();

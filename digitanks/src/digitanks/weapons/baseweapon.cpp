@@ -22,6 +22,8 @@ SAVEDATA_TABLE_END();
 INPUTS_TABLE_BEGIN(CBaseWeapon);
 INPUTS_TABLE_END();
 
+#define _T(x) x
+
 void CBaseWeapon::Precache()
 {
 	PrecacheSound(_T("sound/explosion.wav"));
@@ -40,21 +42,26 @@ void CBaseWeapon::ClientSpawn()
 {
 	BaseClass::ClientSpawn();
 
-	Vector vecOrigin = GetOrigin();
+	Vector vecOrigin = GetGlobalOrigin();
 	if (m_hOwner != NULL)
-		vecOrigin = m_hOwner->GetOrigin();
+		vecOrigin = m_hOwner->GetGlobalOrigin();
 
-	if (ShouldBeVisible() || DigitanksGame()->GetVisibilityAtPoint(DigitanksGame()->GetCurrentLocalDigitanksTeam(), vecOrigin) > 0)
+	if (ShouldBeVisible() || DigitanksGame()->GetVisibilityAtPoint(DigitanksGame()->GetCurrentLocalDigitanksPlayer(), vecOrigin) > 0)
 		m_bShouldRender = true;
 	else
 		m_bShouldRender = false;
 }
 
-void CBaseWeapon::SetOwner(CDigitanksEntity* pOwner)
+CDigitanksEntity* CBaseWeapon::GetOwner() const
+{
+	return dynamic_cast<CDigitanksEntity*>(m_hOwner.GetPointer());
+}
+
+void CBaseWeapon::OnSetOwner(CBaseEntity* pOwner)
 {
 	m_hOwner = pOwner;
 	if (pOwner)
-		SetOrigin(pOwner->GetOrigin() + Vector(0, 1, 0));
+		SetGlobalOrigin(pOwner->GetGlobalOrigin() + Vector(0, 0, 1));
 
 	float flBonusDamage = 0;
 	CDigitank* pTank = dynamic_cast<CDigitank*>(pOwner);
@@ -63,7 +70,7 @@ void CBaseWeapon::SetOwner(CDigitanksEntity* pOwner)
 
 	m_flDamage = (GetWeaponDamage(GetWeaponType()) + flBonusDamage)/(float)GetWeaponShells(GetWeaponType());
 
-	OnSetOwner(pOwner);
+	BaseClass::OnSetOwner(pOwner);
 }
 
 void CBaseWeapon::Think()
@@ -73,7 +80,7 @@ void CBaseWeapon::Think()
 	if (!GameNetwork()->IsHost())
 		return;
 
-	if (m_flTimeExploded != 0.0f && GameServer()->GetGameTime() - m_flTimeExploded > 2.0f)
+	if (m_flTimeExploded != 0.0 && GameServer()->GetGameTime() - m_flTimeExploded > 2.0)
 		Delete();
 }
 
@@ -81,20 +88,20 @@ void CBaseWeapon::Explode(CBaseEntity* pInstigator)
 {
 	bool bHit = false;
 	if (m_flDamage > 0)
-		bHit = DigitanksGame()->Explode(m_hOwner, this, ExplosionRadius(), m_flDamage + GetBonusDamage(), pInstigator, (!m_hOwner)?NULL:m_hOwner->GetTeam());
+		bHit = DigitanksGame()->Explode(m_hOwner, this, ExplosionRadius(), m_flDamage + GetBonusDamage(), pInstigator, ToDigitanksPlayer(m_hOwner.GetPointer()));
 
 	OnExplode(pInstigator);
 
-	SetVelocity(Vector());
-	SetGravity(Vector());
+	SetGlobalVelocity(Vector());
+	SetGlobalGravity(Vector());
 
 	m_flTimeExploded = GameServer()->GetGameTime();
 
 	if (m_bShouldRender)
-		DigitanksGame()->GetDigitanksCamera()->Shake(GetOrigin(), ShakeCamera());
+		DigitanksGame()->GetDigitanksCamera()->Shake(GetGlobalOrigin(), ShakeCamera());
 
 	bool bCanSeeOwner;
-	if (m_hOwner != NULL && DigitanksGame()->GetVisibilityAtPoint(DigitanksGame()->GetCurrentLocalDigitanksTeam(), m_hOwner->GetOrigin()) > 0)
+	if (m_hOwner != NULL && DigitanksGame()->GetVisibilityAtPoint(DigitanksGame()->GetCurrentLocalDigitanksPlayer(), m_hOwner->GetGlobalOrigin()) > 0)
 		bCanSeeOwner = true;
 	else
 		bCanSeeOwner = false;
@@ -109,7 +116,7 @@ void CBaseWeapon::Explode(CBaseEntity* pInstigator)
 			pOwner->Speak(TANKSPEECH_MISSED);
 	}
 
-	if (DigitanksGame()->GetVisibilityAtPoint(DigitanksGame()->GetCurrentLocalDigitanksTeam(), GetOrigin()) > 0.5f)
+	if (DigitanksGame()->GetVisibilityAtPoint(DigitanksGame()->GetCurrentLocalDigitanksPlayer(), GetGlobalOrigin()) > 0.5f)
 		DigitanksGame()->GetDigitanksRenderer()->BloomPulse();
 }
 

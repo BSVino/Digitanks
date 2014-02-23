@@ -5,6 +5,8 @@
 
 #include <strutils.h>
 
+#include <shell.h>
+
 #include <datamanager/dataserializer.h>
 
 CCampaignInfo::CCampaignInfo(tstring sScript)

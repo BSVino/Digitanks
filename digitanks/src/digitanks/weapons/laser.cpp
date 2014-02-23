@@ -2,13 +2,15 @@
 
 #include <geometry.h>
 
-#include <models/texturelibrary.h>
+#include <textures/materiallibrary.h>
+#include <renderer/game_renderingcontext.h>
+#include <renderer/roperenderer.h>
 
 #include <units/digitank.h>
 #include <digitanksgame.h>
 #include <dt_renderer.h>
 
-size_t CLaser::s_iBeam = 0;
+CMaterialHandle CLaser::s_hBeam;
 
 REGISTER_ENTITY(CLaser);
 
@@ -21,23 +23,25 @@ SAVEDATA_TABLE_END();
 INPUTS_TABLE_BEGIN(CLaser);
 INPUTS_TABLE_END();
 
+#define _T(x) x
+
 void CLaser::Precache()
 {
-	s_iBeam = CTextureLibrary::AddTextureID(_T("textures/beam-pulse.png"));
+	s_hBeam = CMaterialLibrary::AddMaterial(_T("textures/beam-pulse.mat"));
 }
 
 void CLaser::ClientSpawn()
 {
 	BaseClass::ClientSpawn();
 
-	if (DigitanksGame()->GetCurrentLocalDigitanksTeam()->GetVisibilityAtPoint(GetOrigin()) < 0.1f)
+	if (DigitanksGame()->GetCurrentLocalDigitanksPlayer()->GetVisibilityAtPoint(GetGlobalOrigin()) < 0.1f)
 	{
-		if (DigitanksGame()->GetCurrentLocalDigitanksTeam()->GetVisibilityAtPoint(GetOrigin() + AngleVector(GetAngles())*LaserLength()) < 0.1f)
+		if (DigitanksGame()->GetCurrentLocalDigitanksPlayer()->GetVisibilityAtPoint(GetGlobalOrigin() + AngleVector(GetGlobalAngles())*LaserLength()) < 0.1f)
 			m_bShouldRender = false;
 	}
 }
 
-void CLaser::OnSetOwner(CDigitanksEntity* pOwner)
+void CLaser::OnSetOwner(CBaseEntity* pOwner)
 {
 	BaseClass::OnSetOwner(pOwner);
 
@@ -45,16 +49,15 @@ void CLaser::OnSetOwner(CDigitanksEntity* pOwner)
 	if (!pTank)
 		return;
 
-	SetAngles(VectorAngles((pTank->GetLastAim() - GetOrigin()).Normalized()));
-	SetOrigin(pOwner->GetOrigin());
-	SetSimulated(false);
-	SetVelocity(Vector(0,0,0));
-	SetGravity(Vector(0,0,0));
+	SetGlobalAngles(VectorAngles((pTank->GetLastAim() - GetGlobalOrigin()).Normalized()));
+	SetGlobalOrigin(pOwner->GetGlobalOrigin());
+	SetGlobalVelocity(Vector(0,0,0));
+	SetGlobalGravity(Vector(0,0,0));
 
 	m_flTimeExploded = GameServer()->GetGameTime();
 
 	Vector vecForward, vecRight;
-	AngleVectors(GetAngles(), &vecForward, &vecRight, NULL);
+	AngleVectors(GetGlobalAngles(), &vecForward, &vecRight, NULL);
 
 	for (size_t i = 0; i < GameServer()->GetMaxEntities(); i++)
 	{
@@ -68,15 +71,15 @@ void CLaser::OnSetOwner(CDigitanksEntity* pOwner)
 		if (pEntity->GetTeam() == pOwner->GetTeam())
 			continue;
 
-		float flDistance = DistanceToPlane(pEntity->GetOrigin(), GetOrigin(), vecRight);
+		float flDistance = DistanceToPlane(pEntity->GetGlobalOrigin(), GetGlobalOrigin(), vecRight);
 		if (flDistance > 4 + pEntity->GetBoundingRadius())
 			continue;
 
 		// Cull objects behind
-		if (vecForward.Dot(pEntity->GetOrigin() - GetOrigin()) < 0)
+		if (vecForward.Dot(pEntity->GetGlobalOrigin() - GetGlobalOrigin()) < 0)
 			continue;
 
-		if (pEntity->Distance(GetOrigin()) > LaserLength())
+		if (pEntity->Distance(GetGlobalOrigin()) > LaserLength())
 			continue;
 
 		pEntity->TakeDamage(pOwner, this, DAMAGE_LASER, m_flDamage, flDistance < pEntity->GetBoundingRadius()-2);
@@ -85,16 +88,16 @@ void CLaser::OnSetOwner(CDigitanksEntity* pOwner)
 		if (pTank)
 		{
 			float flRockIntensity = 0.5f;
-			Vector vecDirection = (pTank->GetOrigin() - pOwner->GetOrigin()).Normalized();
+			Vector vecDirection = (pTank->GetGlobalOrigin() - pOwner->GetGlobalOrigin()).Normalized();
 			pTank->RockTheBoat(flRockIntensity, vecDirection);
 		}
 	}
 
-	CDigitanksTeam* pCurrentTeam = DigitanksGame()->GetCurrentLocalDigitanksTeam();
+	CDigitanksPlayer* pCurrentTeam = DigitanksGame()->GetCurrentLocalDigitanksPlayer();
 
-	if (pCurrentTeam && pCurrentTeam->GetVisibilityAtPoint(GetOrigin()) < 0.1f)
+	if (pCurrentTeam && pCurrentTeam->GetVisibilityAtPoint(GetGlobalOrigin()) < 0.1f)
 	{
-		if (pCurrentTeam->GetVisibilityAtPoint(GetOrigin() + AngleVector(GetAngles())*LaserLength()) < 0.1f)
+		if (pCurrentTeam->GetVisibilityAtPoint(GetGlobalOrigin() + AngleVector(GetGlobalAngles())*LaserLength()) < 0.1f)
 		{
 			// If the start and end points are both in the fog of war, delete it now that we've aready done the damage so it doesn't get rendered later.
 			if (GameNetwork()->IsHost())
@@ -103,11 +106,11 @@ void CLaser::OnSetOwner(CDigitanksEntity* pOwner)
 	}
 }
 
-void CLaser::PostRender(bool bTransparent) const
+void CLaser::PostRender() const
 {
-	BaseClass::PostRender(bTransparent);
+	BaseClass::PostRender();
 
-	if (!bTransparent)
+	if (!GameServer()->GetRenderer()->IsRenderingTransparent())
 		return;
 
 	if (!m_bShouldRender)
@@ -125,14 +128,14 @@ void CLaser::PostRender(bool bTransparent) const
 	float flLength = LaserLength();
 
 	CDigitank* pOwner = dynamic_cast<CDigitank*>(GetOwner());
-	Vector vecMuzzle = m_hOwner->GetOrigin();
-	Vector vecTarget = vecMuzzle + AngleVector(GetAngles()) * flLength;
+	Vector vecMuzzle = m_hOwner->GetGlobalOrigin();
+	Vector vecTarget = vecMuzzle + AngleVector(GetGlobalAngles()) * flLength;
 	if (pOwner)
 	{
-		Vector vecDirection = (pOwner->GetLastAim() - pOwner->GetOrigin()).Normalized();
+		Vector vecDirection = (pOwner->GetLastAim() - pOwner->GetGlobalOrigin()).Normalized();
 		vecTarget = vecMuzzle + vecDirection * flLength;
 		AngleVectors(VectorAngles(vecDirection), &vecForward, &vecRight, &vecUp);
-		vecMuzzle = pOwner->GetOrigin() + vecDirection * 3 + Vector(0, 3, 0);
+		vecMuzzle = pOwner->GetGlobalOrigin() + vecDirection * 3 + Vector(0, 0, 3);
 	}
 
 	float flBeamWidth = 1.5;
@@ -144,8 +147,8 @@ void CLaser::PostRender(bool bTransparent) const
 		Vector(0, 0, 1),
 	};
 
-	float flRayRamp = RemapValClamped(GameServer()->GetGameTime() - GetSpawnTime(), 0.5, 1.5, 0, 1);
-	float flAlphaRamp = RemapValClamped(GameServer()->GetGameTime() - GetSpawnTime(), 1, 2, 1, 0);
+	float flRayRamp = RemapValClamped((float)(GameServer()->GetGameTime() - GetSpawnTime()), 0.5f, 1.5f, 0.0f, 1);
+	float flAlphaRamp = RemapValClamped((float)(GameServer()->GetGameTime() - GetSpawnTime()), 1, 2, 1.0f, 0);
 
 	size_t iBeams = 21;
 	for (size_t i = 0; i < iBeams; i++)
@@ -158,7 +161,7 @@ void CLaser::PostRender(bool bTransparent) const
 
 		r.SetColor(clrRay);
 
-		CRopeRenderer rope(DigitanksGame()->GetDigitanksRenderer(), s_iBeam, vecMuzzle, flBeamWidth);
+		CRopeRenderer rope(DigitanksGame()->GetDigitanksRenderer(), s_hBeam, vecMuzzle, flBeamWidth);
 		rope.SetTextureOffset(((float)i/20) - GameServer()->GetGameTime() - GetSpawnTime());
 		rope.Finish(vecTarget + vecUp*flUp);
 	}

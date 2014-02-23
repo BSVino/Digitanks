@@ -10,11 +10,11 @@
 REGISTER_ENTITY(CCollector);
 
 NETVAR_TABLE_BEGIN(CCollector);
-	NETVAR_DEFINE(CEntityHandle<CResource>, m_hResource);
+	NETVAR_DEFINE(CEntityHandle<CResourceNode>, m_hResource);
 NETVAR_TABLE_END();
 
 SAVEDATA_TABLE_BEGIN(CCollector);
-	SAVEDATA_DEFINE(CSaveData::DATA_NETVAR, CEntityHandle<CResource>, m_hResource);
+	SAVEDATA_DEFINE(CSaveData::DATA_NETVAR, CEntityHandle<CResourceNode>, m_hResource);
 SAVEDATA_TABLE_END();
 
 INPUTS_TABLE_BEGIN(CCollector);
@@ -40,7 +40,7 @@ void CCollector::ClientSpawn()
 
 	if (GameNetwork()->IsHost() && !GetResource())
 	{
-		SetResource(CResource::FindClosestResource(GetOrigin(), GetResourceType()));
+		SetResource(CResourceNode::FindClosestResource(GetGlobalOrigin(), GetResourceType()));
 		if (GetResource())
 			GetResource()->SetCollector(this);
 		else
@@ -59,7 +59,7 @@ void CCollector::UpdateInfo(tstring& s)
 	if (GetTeam())
 	{
 		s += "Team: " + GetTeam()->GetTeamName() + "\n";
-		if (GetDigitanksTeam() == DigitanksGame()->GetCurrentLocalDigitanksTeam())
+		if (GetDigitanksPlayer() == DigitanksGame()->GetCurrentLocalDigitanksPlayer())
 			s += " Friendly\n \n";
 		else
 			s += " Hostile\n \n";
@@ -126,7 +126,7 @@ void CBattery::SetupMenu(menumode_t eMenuMode)
 	{
 		pHUD->SetButtonTexture(0, "PSU");
 
-		if (UpgradeCost() <= GetDigitanksTeam()->GetPower())
+		if (UpgradeCost() <= GetDigitanksPlayer()->GetPower())
 		{
 			pHUD->SetButtonListener(0, CHUD::BeginUpgrade);
 			pHUD->SetButtonColor(0, Color(50, 50, 50));
@@ -153,7 +153,7 @@ void CBattery::UpdateInfo(tstring& s)
 	if (GetTeam())
 	{
 		s += "Team: " + GetTeam()->GetTeamName() + "\n";
-		if (GetDigitanksTeam() == DigitanksGame()->GetCurrentLocalDigitanksTeam())
+		if (GetDigitanksPlayer() == DigitanksGame()->GetCurrentLocalDigitanksPlayer())
 			s += " Friendly\n \n";
 		else
 			s += " Hostile\n \n";
@@ -187,10 +187,10 @@ void CBattery::UpdateInfo(tstring& s)
 
 bool CBattery::CanStructureUpgrade()
 {
-	if (!GetDigitanksTeam())
+	if (!GetDigitanksPlayer())
 		return false;
 
-	return GetDigitanksTeam()->CanBuildPSUs();
+	return GetDigitanksPlayer()->CanBuildPSUs();
 }
 
 void CBattery::UpgradeComplete()
@@ -200,8 +200,8 @@ void CBattery::UpgradeComplete()
 
 	CCollector* pCollector = GameServer()->Create<CCollector>("CCollector");
 	pCollector->SetConstructing(false);
-	pCollector->SetOrigin(GetOrigin());
-	GetTeam()->AddEntity(pCollector);
+	pCollector->SetGlobalOrigin(GetGlobalOrigin());
+	GetPlayerOwner()->AddUnit(pCollector);
 	pCollector->SetSupplier(GetSupplier());
 	if (GetSupplier())
 		GetSupplier()->AddChild(pCollector);
@@ -211,7 +211,7 @@ void CBattery::UpgradeComplete()
 
 	Delete();
 
-	GetDigitanksTeam()->AddActionItem(pCollector, ACTIONTYPE_UPGRADE);
+	GetDigitanksPlayer()->AddActionItem(pCollector, ACTIONTYPE_UPGRADE);
 }
 
 float CBattery::GetPowerProduced() const

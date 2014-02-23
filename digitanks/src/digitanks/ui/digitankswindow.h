@@ -37,6 +37,8 @@ public:
 	virtual tstring				WindowTitle() { return "Digitanks!"; }
 	virtual tstring				AppDirectory() { return "Digitanks"; }
 
+	virtual class CRenderer*    CreateRenderer();
+
 	void						InitUI();
 
 	void						SetServerType(servertype_t eServerType) { m_eServerType = eServerType; };
@@ -97,12 +99,6 @@ public:
 	void						SetReverseSpacebar(bool b) { m_bReverseSpacebar = b; };
 	bool						ShouldReverseSpacebar() { return m_bReverseSpacebar; };
 
-	void						SetWantsFramebuffers(bool bWantsFramebuffers) { m_bWantsFramebuffers = bWantsFramebuffers; }
-	bool						WantsFramebuffers() { return m_bWantsFramebuffers; }
-
-	void						SetWantsShaders(bool bWantsShaders) { m_bWantsShaders = bWantsShaders; }
-	bool						WantsShaders() { return m_bWantsShaders; }
-
 	void						SetPlayerNickname(tstring sNickname) { m_sNickname = sNickname; }
 	tstring						GetPlayerNickname() { return m_sNickname; }
 
@@ -132,7 +128,7 @@ public:
 
 	int							GetInstallID() { return m_iInstallID; };
 
-	size_t						GetLunarWorkshopLogo() { return m_iLunarWorkshop; }
+	CMaterialHandle             GetLunarWorkshopLogo() { return m_hLunarWorkshop; }
 
 	virtual class CChatBox*		GetChatBox();
 
@@ -146,7 +142,7 @@ protected:
 	int							m_iMouseLastX;
 	int							m_iMouseLastY;
 
-	size_t						m_iLoading;
+	CMaterialHandle				m_hLoading;
 
 	class CMainMenu*			m_pMainMenu;
 	class CDigitanksMenu*		m_pMenu;
@@ -177,7 +173,7 @@ protected:
 
 	float						m_flLastClick;
 
-	size_t						m_iCursors;
+	CMaterialHandle				m_hCursors;
 	mousecursor_t				m_eMouseCursor;
 
 	bool						m_bCfgFullscreen;
@@ -187,8 +183,6 @@ protected:
 	bool						m_bContextualCommands;
 	bool						m_bContextualCommandsOverride;
 	bool						m_bReverseSpacebar;
-	bool						m_bWantsFramebuffers;
-	bool						m_bWantsShaders;
 	tstring						m_sNickname;
 
 	float						m_flSoundVolume;
@@ -196,7 +190,7 @@ protected:
 
 	int							m_iInstallID;
 
-	size_t						m_iLunarWorkshop;
+	CMaterialHandle				m_hLunarWorkshop;
 
 	tstring						m_sAction;
 	size_t						m_iTotalProgress;

@@ -24,8 +24,8 @@ public:
 	void							SetTurretModel(size_t iTurret) { m_iTurretModel = iTurret; };
 	void							SetColorSwap(Color clrSwap);
 
-	void							SetOldTeam(CDigitanksTeam* pOldTeam) { m_hOldTeam = pOldTeam; };
-	CDigitanksTeam*					GetOldTeam() { return m_hOldTeam; };
+	void							SetOldPlayer(CDigitanksPlayer* hOldPlayer) { m_hOldPlayer = hOldPlayer; };
+	CDigitanksPlayer*				GetOldPlayer() { return m_hOldPlayer; };
 
 	void							SetScale(float flScale) { m_flScale = flScale; }
 
@@ -45,7 +45,7 @@ protected:
 
 	CNetworkedVariable<bool>		m_bCrashed;
 
-	CNetworkedHandle<CDigitanksTeam> m_hOldTeam;
+	CNetworkedHandle<CDigitanksPlayer> m_hOldPlayer;
 };
 
 class CDebris : public CDigitanksEntity

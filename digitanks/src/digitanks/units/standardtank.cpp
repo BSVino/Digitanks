@@ -4,7 +4,8 @@
 
 #include <models/models.h>
 #include <tinker/application.h>
-#include <renderer/renderer.h>
+#include <renderer/game_renderer.h>
+#include <renderer/game_renderingcontext.h>
 
 #include "digitanksgame.h"
 
@@ -19,11 +20,13 @@ SAVEDATA_TABLE_END();
 INPUTS_TABLE_BEGIN(CStandardTank);
 INPUTS_TABLE_END();
 
+#define _T(x) x
+
 void CStandardTank::Precache()
 {
-	PrecacheModel(_T("models/digitanks/digitank-body.toy"), true);
-	PrecacheModel(_T("models/digitanks/digitank-turret.toy"), true);
-	PrecacheModel(_T("models/digitanks/digitank-shield.toy"), true);
+	PrecacheModel(_T("models/digitanks/digitank-body.toy"));
+	PrecacheModel(_T("models/digitanks/digitank-turret.toy"));
+	PrecacheModel(_T("models/digitanks/digitank-shield.toy"));
 }
 
 void CStandardTank::Spawn()
@@ -65,10 +68,10 @@ void CStandardTank::ModifyContext(CRenderingContext* pContext) const
 float CStandardTank::ProjectileCurve() const
 {
 	Vector vecAim;
-	if (DigitanksGame()->GetControlMode() == MODE_AIM && GetDigitanksTeam()->IsSelected(this))
+	if (DigitanksGame()->GetControlMode() == MODE_AIM && GetDigitanksPlayer()->IsSelected(this))
 		vecAim = GetPreviewAim();
 	else
 		vecAim = GetLastAim();
 
-	return RemapValClamped((vecAim - GetOrigin()).Length(), 60, 100, -0.03f, -0.006f);
+	return RemapValClamped((vecAim - GetGlobalOrigin()).Length(), 60, 100, -0.03f, -0.006f);
 }

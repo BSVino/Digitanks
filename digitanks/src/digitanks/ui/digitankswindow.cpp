@@ -4,9 +4,7 @@
 #include <Windows.h>
 #endif
 
-#include <GL/glew.h>
 #include <time.h>
-#include <IL/il.h>
 
 #include <common.h>
 #include <vector.h>
@@ -21,23 +19,23 @@
 #include <tinker/cvar.h>
 #include <tinker/profiler.h>
 #include <tinker/portals/portal.h>
-#include <models/texturelibrary.h>
-#include <tinker/lobby/lobby_client.h>
-#include <tinker/lobby/lobby_server.h>
+#include <textures/texturelibrary.h>
+#include <tengine/lobby/lobby_client.h>
+#include <tengine/lobby/lobby_server.h>
 #include <tinker/console.h>
 #include <renderer/renderer.h>
-#include <shaders/shaders.h>
+#include <renderer/shaders.h>
 
 #include "glgui/glgui.h"
 #include "digitanksgame.h"
 #include "digitankslevel.h"
 #include "hud.h"
-#include "instructor.h"
-#include "game/camera.h"
+#include "game/entities/camera.h"
 #include "menu.h"
 #include "ui.h"
 #include "campaign/campaigndata.h"
 #include "lobbyui.h"
+#include "dt_renderer.h"
 
 #ifdef __linux__
 // Put this last so it doesn't interfere with any other headers
@@ -54,8 +52,6 @@ ConfigFile c( GetAppDataDirectory("Digitanks", "options.cfg") );
 CDigitanksWindow::CDigitanksWindow(int argc, char** argv)
 	: CGameWindow(argc, argv)
 {
-	ilInit();
-
 	m_pGameServer = NULL;
 	m_pRenderer = NULL;
 	m_pHUD = NULL;
@@ -88,9 +84,6 @@ CDigitanksWindow::CDigitanksWindow(int argc, char** argv)
 		m_bContextualCommands = c.read<bool>("contextualcommands", false);
 		m_bReverseSpacebar = c.read<bool>("reversespacebar", false);
 
-		m_bWantsFramebuffers = c.read<bool>("useframebuffers", true);
-		m_bWantsShaders = c.read<bool>("useshaders", true);
-
 		SetSoundVolume(c.read<float>("soundvolume", 0.8f));
 		SetMusicVolume(c.read<float>("musicvolume", 0.8f));
 
@@ -109,9 +102,6 @@ CDigitanksWindow::CDigitanksWindow(int argc, char** argv)
 
 		m_bContextualCommands = false;
 		m_bReverseSpacebar = false;
-
-		m_bWantsFramebuffers = true;
-		m_bWantsShaders = true;
 
 		SetSoundVolume(0.8f);
 		SetMusicVolume(0.8f);
@@ -147,9 +137,9 @@ void CDigitanksWindow::OpenWindow()
 
 	CApplication::OpenWindow(m_iWindowWidth, m_iWindowHeight, m_bCfgFullscreen, false);
 
-	m_iCursors = CTextureLibrary::AddTextureID("textures/cursors.png");
-	m_iLoading = CTextureLibrary::AddTextureID("textures/loading.png");
-	m_iLunarWorkshop = CTextureLibrary::AddTextureID("textures/lunar-workshop.png");
+	m_hCursors = CMaterialLibrary::AddMaterial("textures/cursors.mat");
+	m_hLoading = CMaterialLibrary::AddMaterial("textures/loading.mat");
+	m_hLunarWorkshop = CMaterialLibrary::AddMaterial("textures/lunar-workshop.mat");
 
 	RenderLoading();
 
@@ -191,6 +181,11 @@ CDigitanksWindow::~CDigitanksWindow()
 #ifdef __linux__
 	XCloseDisplay(g_pDisplay);
 #endif
+}
+
+CRenderer* CDigitanksWindow::CreateRenderer()
+{
+	return new CDigitanksRenderer();
 }
 
 void CDigitanksWindow::RenderLoading()
@@ -800,8 +795,6 @@ void CDigitanksWindow::SaveConfig()
 	c.add<bool>("constrainmouse", m_bConstrainMouse);
 	c.add<bool>("contextualcommands", m_bContextualCommands);
 	c.add<bool>("reversespacebar", m_bReverseSpacebar);
-	c.add<bool>("useframebuffers", m_bWantsFramebuffers);
-	c.add<bool>("useshaders", m_bWantsShaders);
 	c.add<int>("width", m_iCfgWidth);
 	c.add<int>("height", m_iCfgHeight);
 	c.add<int>("installid", m_iInstallID);

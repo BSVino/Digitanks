@@ -3,11 +3,10 @@
 #include <sound/sound.h>
 #include <glgui/glgui.h>
 #include <renderer/renderer.h>
-#include <renderer/dissolver.h>
 #include <tinker/keys.h>
 
+#include "dissolver.h"
 #include "digitanksgame.h"
-#include "instructor.h"
 #include "hud.h"
 #include "ui.h"
 #include <structures/cpu.h>
@@ -56,7 +55,7 @@ void CDigitanksWindow::MouseInput(int iButton, int iState)
 	if (GameServer() && GameServer()->GetCamera())
 	{
 		// MouseButton enables camera rotation, so don't send the signal if the feature is disabled.
-		if (!m_pInstructor->IsFeatureDisabled(DISABLE_VIEW_ROTATE))
+		if (!DigitanksGame()->IsFeatureDisabled(DISABLE_VIEW_ROTATE))
 			GameServer()->GetCamera()->MouseButton(iButton, iState);
 	}
 
@@ -111,7 +110,7 @@ void CDigitanksWindow::MouseInput(int iButton, int iState)
 		else if (DigitanksGame()->GetControlMode() == MODE_AIM)
 		{
 			DigitanksGame()->FireTanks();
-			GetInstructor()->FinishedTutorial("mission-1-fire-away");
+			GetInstructor()->FinishedLesson("mission-1-fire-away");
 		}
 		else if (DigitanksGame()->GetControlMode() == MODE_BUILD)
 		{
@@ -119,9 +118,9 @@ void CDigitanksWindow::MouseInput(int iButton, int iState)
 			{
 				DigitanksGame()->SetControlMode(MODE_NONE);
 			}
-			else if (DigitanksGame()->GetCurrentLocalDigitanksTeam())
+			else if (DigitanksGame()->GetCurrentLocalDigitanksPlayer())
 			{
-				CCPU* pCPU = DigitanksGame()->GetCurrentLocalDigitanksTeam()->GetPrimaryCPU();
+				CCPU* pCPU = DigitanksGame()->GetCurrentLocalDigitanksPlayer()->GetPrimaryCPU();
 				if (pCPU && pCPU->IsPreviewBuildValid())
 				{
 					pCPU->BeginConstruction();
@@ -146,13 +145,13 @@ void CDigitanksWindow::MouseInput(int iButton, int iState)
 		else
 		{
 			if (m_iMouseMoved > 30)
-				GetInstructor()->FinishedTutorial("mission-1-rotateview");
+				GetInstructor()->FinishedLesson("mission-1-rotateview");
 		}
 	}
 
 	if (iButton == TINKER_KEY_MOUSE_LEFT)
 	{
-		if (iState == 1 && !m_pInstructor->IsFeatureDisabled(DISABLE_SELECT))
+		if (iState == 1 && !DigitanksGame()->IsFeatureDisabled(DISABLE_SELECT))
 		{
 			// Prevent UI interactions from affecting the camera target.
 			// If the mouse was used no the UI, this will remain false.
@@ -162,13 +161,13 @@ void CDigitanksWindow::MouseInput(int iButton, int iState)
 		}
 	}
 
-	if (bDoubleClick && pClickedEntity && DigitanksGame()->GetCurrentLocalDigitanksTeam() && !m_pInstructor->IsFeatureDisabled(DISABLE_SELECT))
+	if (bDoubleClick && pClickedEntity && DigitanksGame()->GetCurrentLocalDigitanksPlayer() && !DigitanksGame()->IsFeatureDisabled(DISABLE_SELECT))
 	{
 		CSelectable* pClickedSelectable = dynamic_cast<CSelectable*>(pClickedEntity);
 
 		if (pClickedSelectable)
 		{
-			DigitanksGame()->GetCurrentLocalDigitanksTeam()->SetPrimarySelection(pClickedSelectable);
+			DigitanksGame()->GetCurrentLocalDigitanksPlayer()->SetPrimarySelection(pClickedSelectable);
 
 			for (size_t i = 0; i < GameServer()->GetMaxEntities(); i++)
 			{
@@ -189,16 +188,16 @@ void CDigitanksWindow::MouseInput(int iButton, int iState)
 				if (pSelectable->GetUnitType() != pClickedSelectable->GetUnitType())
 					continue;
 
-				if (pSelectable->Distance(pClickedEntity->GetOrigin()) > 25)
+				if (pSelectable->Distance(pClickedEntity->GetGlobalOrigin()) > 25)
 					continue;
 
-				Vector vecScreen = GameServer()->GetRenderer()->ScreenPosition(pSelectable->GetOrigin());
+				Vector vecScreen = GameServer()->GetRenderer()->ScreenPosition(pSelectable->GetGlobalOrigin());
 
 				if (vecScreen.x < 0 || vecScreen.y < 0 || vecScreen.x > GetWindowWidth() || vecScreen.y > GetWindowHeight())
 					continue;
 
-				if (DigitanksGame()->GetCurrentLocalDigitanksTeam())
-					DigitanksGame()->GetCurrentLocalDigitanksTeam()->AddToSelection(pSelectable);
+				if (DigitanksGame()->GetCurrentLocalDigitanksPlayer())
+					DigitanksGame()->GetCurrentLocalDigitanksPlayer()->AddToSelection(pSelectable);
 			}
 		}
 	}
@@ -206,8 +205,8 @@ void CDigitanksWindow::MouseInput(int iButton, int iState)
 	{
 		if (m_bBoxSelect && IsMouseDragging() && !bDoubleClick)
 		{
-			if (!IsShiftDown() && DigitanksGame()->GetCurrentLocalDigitanksTeam())
-				DigitanksGame()->GetCurrentLocalDigitanksTeam()->SetPrimarySelection(NULL);
+			if (!IsShiftDown() && DigitanksGame()->GetCurrentLocalDigitanksPlayer())
+				DigitanksGame()->GetCurrentLocalDigitanksPlayer()->SetPrimarySelection(NULL);
 
 			size_t iLowerX = (m_iMouseInitialX < m_iMouseCurrentX) ? m_iMouseInitialX : m_iMouseCurrentX;
 			size_t iLowerY = (m_iMouseInitialY < m_iMouseCurrentY) ? m_iMouseInitialY : m_iMouseCurrentY;
@@ -227,37 +226,37 @@ void CDigitanksWindow::MouseInput(int iButton, int iState)
 				if (pSelectable->GetVisibility() == 0)
 					continue;
 
-				Vector vecScreen = GameServer()->GetRenderer()->ScreenPosition(pSelectable->GetOrigin());
+				Vector vecScreen = GameServer()->GetRenderer()->ScreenPosition(pSelectable->GetGlobalOrigin());
 
 				if (vecScreen.x < iLowerX || vecScreen.y < iLowerY || vecScreen.x > iHigherX || vecScreen.y > iHigherY)
 					continue;
 
-				if (DigitanksGame()->GetCurrentLocalDigitanksTeam())
-					DigitanksGame()->GetCurrentLocalDigitanksTeam()->AddToSelection(pSelectable);
+				if (DigitanksGame()->GetCurrentLocalDigitanksPlayer())
+					DigitanksGame()->GetCurrentLocalDigitanksPlayer()->AddToSelection(pSelectable);
 			}
 
-//			if (DigitanksGame()->GetCurrentLocalDigitanksTeam() && DigitanksGame()->GetCurrentLocalDigitanksTeam()->GetNumSelected() == 3)
-//				GetInstructor()->FinishedTutorial(CInstructor::TUTORIAL_BOXSELECT);
+//			if (DigitanksGame()->GetCurrentLocalDigitanksPlayer() && DigitanksGame()->GetCurrentLocalDigitanksPlayer()->GetNumSelected() == 3)
+//				GetInstructor()->FinishedLesson(CInstructor::TUTORIAL_BOXSELECT);
 		}
-		else if (pClickedEntity && DigitanksGame()->GetCurrentLocalDigitanksTeam())
+		else if (pClickedEntity && DigitanksGame()->GetCurrentLocalDigitanksPlayer())
 		{
 			CSelectable* pSelectable = dynamic_cast<CSelectable*>(pClickedEntity);
 
 			if (pSelectable)
 			{
 				if (IsShiftDown())
-					DigitanksGame()->GetCurrentLocalDigitanksTeam()->AddToSelection(pSelectable);
+					DigitanksGame()->GetCurrentLocalDigitanksPlayer()->AddToSelection(pSelectable);
 				else
-					DigitanksGame()->GetCurrentLocalDigitanksTeam()->SetPrimarySelection(pSelectable);
+					DigitanksGame()->GetCurrentLocalDigitanksPlayer()->SetPrimarySelection(pSelectable);
 			}
 			else if (!IsShiftDown())
 			{
-				DigitanksGame()->GetCurrentLocalDigitanksTeam()->SetPrimarySelection(NULL);
+				DigitanksGame()->GetCurrentLocalDigitanksPlayer()->SetPrimarySelection(NULL);
 				GetHUD()->CloseWeaponPanel();
 			}
 
-//			if (DigitanksGame()->GetCurrentLocalDigitanksTeam()->GetNumSelected() == 3)
-//				GetInstructor()->FinishedTutorial(CInstructor::TUTORIAL_SHIFTSELECT);
+//			if (DigitanksGame()->GetCurrentLocalDigitanksPlayer()->GetNumSelected() == 3)
+//				GetInstructor()->FinishedLesson(CInstructor::TUTORIAL_SHIFTSELECT);
 		}
 
 		m_bBoxSelect = false;
@@ -297,7 +296,7 @@ void CDigitanksWindow::KeyPress(int c)
 
 	if (DigitanksGame() && (c == TINKER_KEY_ENTER || c == TINKER_KEY_KP_ENTER))
 	{
-		if (!m_pInstructor->IsFeatureDisabled(DISABLE_ENTER) && DigitanksGame()->GetCurrentLocalDigitanksTeam() == DigitanksGame()->GetCurrentTeam())
+		if (!DigitanksGame()->IsFeatureDisabled(DISABLE_ENTER) && DigitanksGame()->GetCurrentLocalDigitanksPlayer() == DigitanksGame()->GetCurrentPlayer())
 		{
 			CSoundLibrary::PlaySound(NULL, "sound/turn.wav");
 			DigitanksGame()->EndTurn();
@@ -332,15 +331,15 @@ void CDigitanksWindow::KeyPress(int c)
 
 	if (c == 'H')
 	{
-		if (DigitanksGame()->GetCurrentLocalDigitanksTeam())
+		if (DigitanksGame()->GetCurrentLocalDigitanksPlayer())
 		{
-			for (size_t i = 0; i < DigitanksGame()->GetCurrentLocalDigitanksTeam()->GetNumMembers(); i++)
+			for (size_t i = 0; i < DigitanksGame()->GetCurrentLocalDigitanksPlayer()->GetNumMembers(); i++)
 			{
-				const CBaseEntity* pMember = DigitanksGame()->GetCurrentLocalDigitanksTeam()->GetMember(i);
+				const CBaseEntity* pMember = DigitanksGame()->GetCurrentLocalDigitanksPlayer()->GetMember(i);
 				const CCPU* pCPU = dynamic_cast<const CCPU*>(pMember);
 				if (pCPU)
 				{
-					DigitanksGame()->GetCurrentLocalDigitanksTeam()->SetPrimarySelection(pCPU);
+					DigitanksGame()->GetCurrentLocalDigitanksPlayer()->SetPrimarySelection(pCPU);
 					break;
 				}
 			}
@@ -401,7 +400,7 @@ void CDigitanksWindow::KeyPress(int c)
 
 	if (c == 'B')
 	{
-		CDigitanksTeam* pTeam = DigitanksGame()->GetCurrentTeam();
+		CDigitanksPlayer* pTeam = DigitanksGame()->GetCurrentPlayer();
 		for (size_t x = 0; x < UPDATE_GRID_SIZE; x++)
 		{
 			for (size_t y = 0; y < UPDATE_GRID_SIZE; y++)

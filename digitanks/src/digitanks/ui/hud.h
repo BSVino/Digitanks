@@ -3,9 +3,9 @@
 
 #include <common.h>
 
-#include <glgui/glgui.h>
-#include <models/texturesheet.h>
-#include <models/texturelibrary.h>
+#include <glgui/picturebutton.h>
+#include <textures/texturesheet.h>
+#include <textures/texturelibrary.h>
 
 #include "digitanksgame.h"
 #include "updatespanel.h"
@@ -175,14 +175,14 @@ public:
 
 	class CUpdatesPanel*		GetUpdatesPanel() { return m_pUpdatesPanel; }
 
-	static void					PaintSheet(size_t iTexture, int x, int y, int w, int h, int sx, int sy, int sw, int sh, int tw, int th, const Color& c = Color(255,255,255));
-	static void					PaintSheet(const CTextureSheet* pSheet, const tstring& sArea, int x, int y, int w, int h, const Color& c = Color(255,255,255));
-	static void					PaintHUDSheet(const tstring& sArea, int x, int y, int w, int h, const Color& c = Color(255,255,255));
+	static void					PaintSheet(size_t iTexture, float x, float y, float w, float h, int sx, int sy, int sw, int sh, int tw, int th, const Color& c = Color(255,255,255));
+	static void					PaintSheet(const CTextureSheet* pSheet, const tstring& sArea, float x, float y, float w, float h, const Color& c = Color(255,255,255));
+	static void					PaintHUDSheet(const tstring& sArea, float x, float y, float w, float h, const Color& c = Color(255,255,255));
 	static const CTextureSheet&	GetHUDSheet();
 	static void					GetUnitSheet(unittype_t eUnit, size_t& iSheet, int& sx, int& sy, int& sw, int& sh, int& tw, int& th);
-	static void					PaintUnitSheet(unittype_t eUnit, int x, int y, int w, int h, const Color& c = Color(255,255,255));
+	static void					PaintUnitSheet(unittype_t eUnit, float x, float y, float w, float h, const Color& c = Color(255,255,255));
 	static void					GetWeaponSheet(weapon_t eWeapon, size_t& iSheet, int& sx, int& sy, int& sw, int& sh, int& tw, int& th);
-	static void					PaintWeaponSheet(weapon_t eWeapon, int x, int y, int w, int h, const Color& c = Color(255,255,255));
+	static void					PaintWeaponSheet(weapon_t eWeapon, float x, float y, float w, float h, const Color& c = Color(255,255,255));
 	static const CTextureSheet&	GetWeaponSheet();
 	static const CTextureSheet&	GetButtonSheet();
 	static const CTextureSheet&	GetDownloadSheet();
@@ -233,8 +233,8 @@ public:
 	virtual void				OnMiss(CBaseEntity* pVictim, CBaseEntity* pAttacker, CBaseEntity* pInflictor);
 	virtual void				OnCritical(class CBaseEntity* pVictim, class CBaseEntity* pAttacker, class CBaseEntity* pInflictor);
 
-	virtual void				OnAddEntityToTeam(class CDigitanksTeam* pTeam, class CBaseEntity* pEntity);
-	virtual void				OnRemoveEntityFromTeam(class CDigitanksTeam* pTeam, class CBaseEntity* pEntity);
+	virtual void				OnAddUnitToTeam(class CDigitanksPlayer* pTeam, class CBaseEntity* pEntity);
+	virtual void				OnRemoveUnitFromTeam(class CDigitanksPlayer* pTeam, class CBaseEntity* pEntity);
 
 	virtual void				TankSpeak(class CBaseEntity* pTank, const tstring& sSpeech);
 

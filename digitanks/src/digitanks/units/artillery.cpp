@@ -24,15 +24,15 @@ INPUTS_TABLE_END();
 
 void CArtillery::Precache()
 {
-	PrecacheModel(_T("models/digitanks/artillery.toy"), true);
-	PrecacheModel(_T("models/digitanks/artillery-move.toy"), true);
+	PrecacheModel("models/digitanks/artillery.toy");
+	PrecacheModel("models/digitanks/artillery-move.toy");
 }
 
 void CArtillery::Spawn()
 {
 	BaseClass::Spawn();
 
-	SetModel(_T("models/digitanks/artillery-move.toy"));
+	SetModel("models/digitanks/artillery-move.toy");
 
 	m_flMaxShieldStrength = m_flShieldStrength = 0;
 
@@ -54,9 +54,9 @@ void CArtillery::OnFortify()
 	BaseClass::OnFortify();
 
 	if (IsFortified() || IsFortifying())
-		SetModel(_T("models/digitanks/artillery.toy"));
+		SetModel("models/digitanks/artillery.toy");
 	else
-		SetModel(_T("models/digitanks/artillery-move.toy"));
+		SetModel("models/digitanks/artillery-move.toy");
 }
 
 float CArtillery::BaseShieldRechargeRate() const
@@ -69,7 +69,7 @@ float CArtillery::BaseHealthRechargeRate() const
 	return 2.0f;
 }
 
-float CArtillery::FirstProjectileTime() const
+double CArtillery::FirstProjectileTime() const
 {
 	return RandomFloat(0.1f, 0.15f);
 }

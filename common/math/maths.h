@@ -25,16 +25,16 @@ LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON A
 #include <math.h>
 #include <string.h>
 
-inline float Bias(float x, float flLerp)
+inline float Bias(float x, float flAmount)
 {
-	static float flLastLerp = -1;
+	static float flLastAmount = -1;
 	static float flLastExp = -1;
 
-	if (flLerp == 0.5f)
+	if (flAmount == 0.5f)
 		return x;
 
-	if (flLastLerp != flLerp)
-		flLastExp = log(flLerp) * -1.4427f;	// 1/log(0.5f)
+	if (flLastAmount != flAmount)
+		flLastExp = log(flAmount) * -1.4427f;	// 1/log(0.5f)
 
 	if (x < 0)
 		return 0;
@@ -42,12 +42,12 @@ inline float Bias(float x, float flLerp)
 	return pow(x, flLastExp);
 }
 
-inline float Gain(float x, float flLerp)
+inline float Gain(float x, float flAmount)
 {
 	if(x < 0.5f)
-		return Bias(2*x, flLerp)/2;
+		return Bias(2*x, flAmount)/2;
 	else
-		return 1-Bias(2-2*x, flLerp)/2;
+		return 1-Bias(2-2*x, flAmount)/2;
 }
 
 template <class T>

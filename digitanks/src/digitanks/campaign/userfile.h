@@ -27,10 +27,10 @@ public:
 	void							SetFile(const tstring& sFile);
 
 protected:
-	size_t							m_iImage;
+	CTextureHandle                  m_hImage;
 	tstring							m_sFilename;
 
-	float							m_flPickupTime;
+	double							m_flPickupTime;
 };
 
 #endif

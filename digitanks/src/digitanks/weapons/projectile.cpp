@@ -1,10 +1,10 @@
 #include "projectile.h"
 
-#include <GL/glew.h>
 #include <maths.h>
 #include <mtrand.h>
 
 #include <renderer/particles.h>
+#include <renderer/game_renderingcontext.h>
 
 #include <digitanksgame.h>
 #include <dt_renderer.h>
@@ -36,6 +36,8 @@ SAVEDATA_TABLE_END();
 INPUTS_TABLE_BEGIN(CProjectile);
 INPUTS_TABLE_END();
 
+#define _T(x) x
+
 CProjectile::CProjectile()
 {
 	m_bFallSoundPlayed = false;
@@ -60,7 +62,7 @@ void CProjectile::Spawn()
 {
 	BaseClass::Spawn();
 
-	m_hTrailParticles.SetSystem(CreateTrailSystem(), GetOrigin());
+	m_hTrailParticles.SetSystem(CreateTrailSystem(), GetGlobalOrigin());
 	m_hTrailParticles.FollowEntity(this);
 }
 
@@ -75,15 +77,15 @@ void CProjectile::Think()
 	if (pInstance)
 		pInstance->SetColor(GetBonusDamageColor());
 
-	if (MakesSounds() && BombDropNoise() && GetVelocity().y < 10.0f && !m_bFallSoundPlayed && m_flTimeExploded == 0.0f)
+	if (MakesSounds() && BombDropNoise() && GetGlobalVelocity().z < 10.0f && !m_bFallSoundPlayed && m_flTimeExploded == 0.0)
 	{
 		bool bCanSeeOwner;
-		if (m_hOwner != NULL && DigitanksGame()->GetVisibilityAtPoint(DigitanksGame()->GetCurrentLocalDigitanksTeam(), m_hOwner->GetOrigin()) > 0)
+		if (m_hOwner != NULL && DigitanksGame()->GetVisibilityAtPoint(DigitanksGame()->GetCurrentLocalDigitanksPlayer(), m_hOwner->GetGlobalOrigin()) > 0)
 			bCanSeeOwner = true;
 		else
 			bCanSeeOwner = false;
 
-		if (DigitanksGame()->GetVisibilityAtPoint(DigitanksGame()->GetCurrentLocalDigitanksTeam(), m_vecLandingSpot) > 0 || bCanSeeOwner)
+		if (DigitanksGame()->GetVisibilityAtPoint(DigitanksGame()->GetCurrentLocalDigitanksPlayer(), m_vecLandingSpot) > 0 || bCanSeeOwner)
 		{
 			EmitSound(_T("sound/bomb-drop.wav"));
 			SetSoundVolume(_T("sound/bomb-drop.wav"), 0.5f);
@@ -92,15 +94,15 @@ void CProjectile::Think()
 		m_bFallSoundPlayed = true;
 	}
 
-	if (Fragments() && !m_bFragmented && m_flTimeExploded == 0.0f)
+	if (Fragments() && !m_bFragmented && m_flTimeExploded == 0.0)
 	{
-		if (GetOwner() && GetOwner()->GetDigitanksTeam() && !GetOwner()->GetDigitanksTeam()->IsPlayerControlled() && GameServer()->GetGameTime() - GetSpawnTime() > 2.0f)
+		if (GetOwner() && GetOwner()->GetDigitanksPlayer() && !GetOwner()->GetDigitanksPlayer()->IsHumanControlled() && GameServer()->GetGameTime() - GetSpawnTime() > 2.0f)
 			Fragment();
 		else if (DigitanksGame()->GetGameType() != GAMETYPE_ARTILLERY && GameServer()->GetGameTime() - GetSpawnTime() > 2.0f)
 			Fragment();
 	}
 
-	if (!m_bMissileDefensesNotified && !IsDeleted() && GetVelocity().y < 10.0f && m_flTimeExploded == 0.0f)
+	if (!m_bMissileDefensesNotified && !IsDeleted() && GetGlobalVelocity().z < 10.0f && m_flTimeExploded == 0.0)
 	{
 		// Now that we're falling and we've already fragmented (or maybe we are a fragment)
 		// notify any tanks on the ground in our landing spot that we're incoming.
@@ -128,12 +130,12 @@ void CProjectile::Think()
 		m_bMissileDefensesNotified = true;
 	}
 
-	m_hTrailParticles.SetActive(m_bShouldRender && m_flTimeExploded == 0.0f);
+	m_hTrailParticles.SetActive(m_bShouldRender && m_flTimeExploded == 0.0);
 
 	if (!GameNetwork()->IsHost())
 		return;
 
-	if (GetOrigin().y < DigitanksGame()->GetTerrain()->GetHeight(GetOrigin().x, GetOrigin().z) - 20 || GetOrigin().y < -100)
+	if (GetGlobalOrigin().z < DigitanksGame()->GetTerrain()->GetHeight(GetGlobalOrigin().x, GetGlobalOrigin().y) - 20 || GetGlobalOrigin().z < -100)
 		Delete();
 
 	if (GameServer()->GetGameTime() - GetSpawnTime() > 20.0f)
@@ -156,7 +158,7 @@ void CProjectile::SpecialCommand()
 
 	m_flDamageBonusTime = GameServer()->GetGameTime();
 
-	size_t iPulse = CParticleSystemLibrary::AddInstance(_T("dmg-boost"), GetOrigin());
+	size_t iPulse = CParticleSystemLibrary::AddInstance(_T("dmg-boost"), GetGlobalOrigin());
 	if (iPulse != ~0)
 		CParticleSystemLibrary::GetInstance(iPulse)->FollowEntity(this);
 }
@@ -166,7 +168,7 @@ Color CProjectile::GetBonusDamageColor() const
 	if (m_flDamageBonusTime == 0.0f)
 		return Color(255, 255, 255);
 
-	float flRamp = RemapValClamped(GameServer()->GetGameTime() - m_flDamageBonusTime, 0, DamageBonusTime(), 1, 0);
+	float flRamp = RemapValClamped((float)GameServer()->GetGameTime() - m_flDamageBonusTime, 0, DamageBonusTime(), 1, 0);
 
 	if (m_flDamageBonusFreeze > 0)
 		flRamp = m_flDamageBonusFreeze;
@@ -179,7 +181,7 @@ float CProjectile::GetBonusDamage()
 	if (m_flDamageBonusTime == 0.0f)
 		return 0;
 
-	return RemapVal(GameServer()->GetGameTime() - m_flDamageBonusTime, 0, DamageBonusTime(), DamageBonus(), 0);
+	return RemapVal((float)GameServer()->GetGameTime() - m_flDamageBonusTime, 0, DamageBonusTime(), DamageBonus(), 0);
 }
 
 void CProjectile::Fragment()
@@ -191,10 +193,10 @@ void CProjectile::Fragment()
 	{
 		CProjectile* pProjectile = GameServer()->Create<CProjectile>(GetClassName());
 		pProjectile->SetOwner(m_hOwner);
-		pProjectile->SetVelocity(GetVelocity() + Vector(RandomFloat(-10, 10), RandomFloat(-10, 10), RandomFloat(-10, 10)));
-		pProjectile->SetGravity(Vector(0, DigitanksGame()->GetGravity(), 0));
+		pProjectile->SetGlobalVelocity(GetGlobalVelocity() + Vector(RandomFloat(-10, 10), RandomFloat(-10, 10), RandomFloat(-10, 10)));
+		pProjectile->SetGlobalGravity(Vector(0, 0, DigitanksGame()->GetGravity()));
 		pProjectile->SetLandingSpot(m_vecLandingSpot);
-		pProjectile->SetOrigin(GetOrigin());
+		pProjectile->SetGlobalOrigin(GetGlobalOrigin());
 		pProjectile->m_bFragmented = true;
 		pProjectile->m_flDamage = m_flDamage;
 		DigitanksGame()->AddProjectileToWaitFor();
@@ -206,16 +208,16 @@ void CProjectile::Fragment()
 	Delete();
 }
 
-void CProjectile::OnRender(class CRenderingContext* pContext, bool bTransparent) const
+void CProjectile::OnRender(class CGameRenderingContext* pContext) const
 {
 	if (!m_bShouldRender)
 		return;
 
-	BaseClass::OnRender(pContext, bTransparent);
+	BaseClass::OnRender(pContext);
 
-	if (UsesStandardShell() && m_flTimeExploded == 0.0f)
+	if (UsesStandardShell() && m_flTimeExploded == 0.0)
 	{
-		if (!bTransparent)
+		if (!GameServer()->GetRenderer()->IsRenderingTransparent())
 		{
 			CRenderingContext c(GameServer()->GetRenderer());
 			c.Scale(ShellRadius(), ShellRadius(), ShellRadius());
@@ -225,14 +227,11 @@ void CProjectile::OnRender(class CRenderingContext* pContext, bool bTransparent)
 	}
 	else if (UsesStandardExplosion())
 	{
-		float flAlpha = RemapValClamped(GameServer()->GetGameTime()-m_flTimeExploded, 0.2f, 1.2f, 1, 0);
-		if (flAlpha > 0 && bTransparent)
+		float flAlpha = RemapValClamped((float)(GameServer()->GetGameTime()-m_flTimeExploded), 0.2f, 1.2f, 1, 0);
+		if (flAlpha > 0 && GameServer()->GetRenderer()->IsRenderingTransparent())
 		{
 			CRenderingContext c(GameServer()->GetRenderer());
-			if (DigitanksGame()->GetDigitanksRenderer()->ShouldUseFramebuffers())
-				c.UseFrameBuffer(DigitanksGame()->GetDigitanksRenderer()->GetExplosionBuffer());
-			else
-				c.SetBlend(BLEND_ADDITIVE);
+			c.UseFrameBuffer(DigitanksGame()->GetDigitanksRenderer()->GetExplosionBuffer());
 			c.Scale(ExplosionRadius(), ExplosionRadius(), ExplosionRadius());
 			c.SetAlpha(flAlpha);
 			c.SetColor(GetBonusDamageColor());
@@ -243,7 +242,7 @@ void CProjectile::OnRender(class CRenderingContext* pContext, bool bTransparent)
 
 bool CProjectile::ShouldTouch(CBaseEntity* pOther) const
 {
-	if (m_flTimeExploded != 0.0f)
+	if (m_flTimeExploded != 0.0)
 		return false;
 
 	if (!pOther)
@@ -275,23 +274,23 @@ bool CProjectile::IsTouching(CBaseEntity* pOther, Vector& vecPoint) const
 	{
 	case CG_ENTITY:
 	{
-		vecPoint = GetOrigin();
+		vecPoint = GetGlobalOrigin();
 
 		CDigitank* pTank = dynamic_cast<CDigitank*>(pOther);
 		float flBoundingRadius = pOther->GetBoundingRadius();
 		if (pTank)
 			flBoundingRadius = pTank->GetShieldBlockRadius();
 
-		if ((pOther->GetOrigin() - GetOrigin()).LengthSqr() < flBoundingRadius*flBoundingRadius)
+		if ((pOther->GetGlobalOrigin() - GetGlobalOrigin()).LengthSqr() < flBoundingRadius*flBoundingRadius)
 			return true;
 		break;
 	}
 
 	case CG_TERRAIN:
-		return DigitanksGame()->GetTerrain()->Collide(GetLastOrigin(), GetOrigin(), vecPoint);
+		return DigitanksGame()->GetTerrain()->Collide(GetGlobalOrigin(), GetGlobalOrigin(), vecPoint);
 
-	case CG_PROP:
-		return pOther->Collide(GetLastOrigin(), GetOrigin(), vecPoint);
+	case CG_PROP:;
+		//return pOther->Collide(GetGlobalOrigin(), GetGlobalOrigin(), vecPoint);
 	}
 
 	return false;
@@ -306,15 +305,15 @@ void CProjectile::Touching(CBaseEntity* pOther)
 		{
 			Matrix4x4 mReflect;
 
-			Vector vecProjectileOrigin = GetOrigin();
+			Vector vecProjectileOrigin = GetGlobalOrigin();
 			vecProjectileOrigin = DigitanksGame()->GetTerrain()->GetPointHeight(vecProjectileOrigin);
-			vecProjectileOrigin.y += 0.5f;
+			vecProjectileOrigin.z += 0.5f;
 
 			mReflect.SetReflection(dynamic_cast<CTerrain*>(pOther)->GetNormalAtPoint(vecProjectileOrigin));
 
-			SetVelocity((mReflect*GetVelocity())*0.6f);
+			SetGlobalVelocity((mReflect*GetGlobalVelocity())*0.6f);
 
-			SetOrigin(vecProjectileOrigin);
+			SetGlobalOrigin(vecProjectileOrigin);
 
 			m_iBounces++;
 			return;
@@ -339,12 +338,12 @@ void CProjectile::Touching(CBaseEntity* pOther)
 		StopSound(_T("sound/bomb-drop.wav"));
 
 		bool bCanSeeOwner;
-		if (m_hOwner != NULL && DigitanksGame()->GetVisibilityAtPoint(DigitanksGame()->GetCurrentLocalDigitanksTeam(), m_hOwner->GetOrigin()) > 0)
+		if (m_hOwner != NULL && DigitanksGame()->GetVisibilityAtPoint(DigitanksGame()->GetCurrentLocalDigitanksPlayer(), m_hOwner->GetGlobalOrigin()) > 0)
 			bCanSeeOwner = true;
 		else
 			bCanSeeOwner = false;
 
-		if (DigitanksGame()->GetVisibilityAtPoint(DigitanksGame()->GetCurrentLocalDigitanksTeam(), m_vecLandingSpot) > 0 || bCanSeeOwner)
+		if (DigitanksGame()->GetVisibilityAtPoint(DigitanksGame()->GetCurrentLocalDigitanksPlayer(), m_vecLandingSpot) > 0 || bCanSeeOwner)
 			EmitSound(_T("sound/explosion.wav"));
 	}
 }
@@ -361,33 +360,30 @@ void CProjectile::OnExplode(CBaseEntity* pInstigator)
 
 	m_hTrailParticles.SetActive(false);
 
-	if (!DigitanksGame()->GetCurrentLocalDigitanksTeam() || DigitanksGame()->GetCurrentLocalDigitanksTeam()->GetVisibilityAtPoint(GetOrigin()) > 0.1f)
+	if (!DigitanksGame()->GetCurrentLocalDigitanksPlayer() || DigitanksGame()->GetCurrentLocalDigitanksPlayer()->GetVisibilityAtPoint(GetGlobalOrigin()) > 0.1f)
 		CreateExplosionSystem();
 
 	if (m_flDamageBonusTime > 0)
-		m_flDamageBonusFreeze = RemapValClamped(GameServer()->GetGameTime() - m_flDamageBonusTime, 0, DamageBonusTime(), 1, 0);
+		m_flDamageBonusFreeze = RemapValClamped((float)GameServer()->GetGameTime() - m_flDamageBonusTime, 0, DamageBonusTime(), 1, 0);
 
 	DigitanksWindow()->GetHUD()->ClearHintWeapon();
 }
 
 bool CProjectile::ShouldPlayExplosionSound()
 {
-	return DigitanksGame()->GetVisibilityAtPoint(DigitanksGame()->GetCurrentLocalDigitanksTeam(), m_vecLandingSpot) > 0;
+	return DigitanksGame()->GetVisibilityAtPoint(DigitanksGame()->GetCurrentLocalDigitanksPlayer(), m_vecLandingSpot) > 0;
 }
 
-void CProjectile::OnSetOwner(CDigitanksEntity* pOwner)
+void CProjectile::OnSetOwner(CBaseEntity* pOwner)
 {
 	BaseClass::OnSetOwner(pOwner);
-
-	SetSimulated(true);
-	SetCollisionGroup(CG_PROJECTILE);
 
 	m_hTrailParticles.SetActive(m_bShouldRender);
 }
 
 bool CProjectile::ShouldBeVisible()
 {
-	return DigitanksGame()->GetVisibilityAtPoint(DigitanksGame()->GetCurrentLocalDigitanksTeam(), m_vecLandingSpot) > 0;
+	return DigitanksGame()->GetVisibilityAtPoint(DigitanksGame()->GetCurrentLocalDigitanksPlayer(), m_vecLandingSpot) > 0;
 }
 
 size_t CProjectile::CreateTrailSystem()
@@ -484,10 +480,10 @@ void CAOEShell::Precache()
 void CAOEShell::CreateExplosionSystem()
 {
 	if (DigitanksGame()->GetGameType() == GAMETYPE_STANDARD)
-		CParticleSystemLibrary::AddInstance(_T("aoe-explosion-strategy"), GetOrigin());
+		CParticleSystemLibrary::AddInstance(_T("aoe-explosion-strategy"), GetGlobalOrigin());
 	else
 	{
-		size_t iInstance = CParticleSystemLibrary::AddInstance(_T("aoe-explosion-artillery"), GetOrigin());
+		size_t iInstance = CParticleSystemLibrary::AddInstance(_T("aoe-explosion-artillery"), GetGlobalOrigin());
 		CSystemInstance* pInstance = CParticleSystemLibrary::GetInstance(iInstance);
 		if (pInstance)
 			pInstance->SetColor(GetBonusDamageColor());
@@ -526,7 +522,7 @@ void CEMP::Precache()
 
 void CEMP::CreateExplosionSystem()
 {
-	size_t iInstance = CParticleSystemLibrary::AddInstance(_T("emp-explosion"), GetOrigin());
+	size_t iInstance = CParticleSystemLibrary::AddInstance(_T("emp-explosion"), GetGlobalOrigin());
 	CSystemInstance* pInstance = CParticleSystemLibrary::GetInstance(iInstance);
 	if (pInstance)
 		pInstance->SetColor(GetBonusDamageColor());
@@ -563,7 +559,7 @@ INPUTS_TABLE_END();
 
 void CGrenade::Precache()
 {
-	PrecacheModel(_T("models/weapons/grenade.toy"), true);
+	PrecacheModel(_T("models/weapons/grenade.toy"));
 }
 
 void CGrenade::Spawn()
@@ -583,7 +579,7 @@ EAngle CGrenade::GetRenderAngles() const
 
 void CGrenade::SpecialCommand()
 {
-	if (ShouldExplode() && m_flTimeExploded == 0.0f && !m_bFragmented)
+	if (ShouldExplode() && m_flTimeExploded == 0.0 && !m_bFragmented)
 		Explode();
 }
 
@@ -615,7 +611,7 @@ void CDaisyChain::Spawn()
 
 void CDaisyChain::SpecialCommand()
 {
-	if (ShouldExplode() && m_flTimeExploded == 0.0f && !m_bFragmented)
+	if (ShouldExplode() && m_flTimeExploded == 0.0 && !m_bFragmented)
 		Explode();
 }
 
@@ -633,10 +629,10 @@ void CDaisyChain::OnExplode(CBaseEntity* pInstigator)
 
 	CDaisyChain* pProjectile = GameServer()->Create<CDaisyChain>(GetClassName());
 	pProjectile->SetOwner(m_hOwner);
-	pProjectile->SetVelocity(GetVelocity());
-	pProjectile->SetGravity(GetGravity());
+	pProjectile->SetGlobalVelocity(GetGlobalVelocity());
+	pProjectile->SetGlobalGravity(GetGlobalGravity());
 	pProjectile->SetLandingSpot(m_vecLandingSpot);
-	pProjectile->SetOrigin(GetOrigin());
+	pProjectile->SetGlobalOrigin(GetGlobalOrigin());
 	pProjectile->m_flExplosionRadius = m_flExplosionRadius - 4;
 	pProjectile->m_flDamage = m_flDamage - 1.0f;
 	DigitanksGame()->AddProjectileToWaitFor();
@@ -686,10 +682,10 @@ void CClusterBomb::OnExplode(CBaseEntity* pInstigator)
 	{
 		CClusterBomb* pProjectile = GameServer()->Create<CClusterBomb>(GetClassName());
 		pProjectile->SetOwner(m_hOwner);
-		pProjectile->SetVelocity(Vector(RandomFloat(-10, 10), RandomFloat(10, 30), RandomFloat(-10, 10)));
-		pProjectile->SetGravity(Vector(0, DigitanksGame()->GetGravity(), 0));
+		pProjectile->SetGlobalVelocity(Vector(RandomFloat(-10, 10), RandomFloat(10, 30), RandomFloat(-10, 10)));
+		pProjectile->SetGlobalGravity(Vector(0, 0, DigitanksGame()->GetGravity()));
 		pProjectile->SetLandingSpot(m_vecLandingSpot);
-		pProjectile->SetOrigin(GetOrigin());
+		pProjectile->SetGlobalOrigin(GetGlobalOrigin());
 		pProjectile->m_flExplosionRadius = 10;
 		pProjectile->m_flDamage = m_flDamage/2;
 		DigitanksGame()->AddProjectileToWaitFor();
@@ -720,7 +716,7 @@ INPUTS_TABLE_END();
 
 void CSploogeShell::Precache()
 {
-	PrecacheModel(_T("models/weapons/bolt.toy"), true);
+	PrecacheModel(_T("models/weapons/bolt.toy"));
 	PrecacheParticleSystem(_T("bolt-trail"));
 	PrecacheParticleSystem(_T("bolt-explosion"));
 }
@@ -734,10 +730,10 @@ void CSploogeShell::Spawn()
 
 EAngle CSploogeShell::GetRenderAngles() const
 {
-	if (GetVelocity().LengthSqr() == 0)
+	if (GetGlobalVelocity().LengthSqr() == 0)
 		return EAngle(-90, 0, 0);
 
-	return VectorAngles(GetVelocity());
+	return VectorAngles(GetGlobalVelocity());
 }
 
 size_t CSploogeShell::CreateTrailSystem()
@@ -747,7 +743,7 @@ size_t CSploogeShell::CreateTrailSystem()
 
 void CSploogeShell::CreateExplosionSystem()
 {
-	CParticleSystemLibrary::AddInstance(_T("bolt-explosion"), GetOrigin());
+	CParticleSystemLibrary::AddInstance(_T("bolt-explosion"), GetGlobalOrigin());
 }
 
 REGISTER_ENTITY(CTractorBomb);
@@ -780,7 +776,7 @@ size_t CTractorBomb::CreateTrailSystem()
 
 void CTractorBomb::CreateExplosionSystem()
 {
-	CParticleSystemLibrary::AddInstance(_T("tractor-bomb-explosion"), GetOrigin());
+	CParticleSystemLibrary::AddInstance(_T("tractor-bomb-explosion"), GetGlobalOrigin());
 }
 
 REGISTER_ENTITY(CArtilleryShell);
@@ -802,7 +798,7 @@ void CArtilleryShell::Precache()
 
 void CArtilleryShell::CreateExplosionSystem()
 {
-	CParticleSystemLibrary::AddInstance(_T("emp-explosion"), GetOrigin());
+	CParticleSystemLibrary::AddInstance(_T("emp-explosion"), GetGlobalOrigin());
 }
 
 size_t CArtilleryShell::CreateTrailSystem()
@@ -829,7 +825,7 @@ void CArtilleryAoE::Precache()
 
 void CArtilleryAoE::CreateExplosionSystem()
 {
-	CParticleSystemLibrary::AddInstance(_T("aoe-explosion-strategy"), GetOrigin());
+	CParticleSystemLibrary::AddInstance(_T("aoe-explosion-strategy"), GetGlobalOrigin());
 }
 
 size_t CArtilleryAoE::CreateTrailSystem()
@@ -874,7 +870,7 @@ INPUTS_TABLE_END();
 
 void CInfantryFlak::Precache()
 {
-	PrecacheModel(_T("models/weapons/bolt.toy"), true);
+	PrecacheModel(_T("models/weapons/bolt.toy"));
 	PrecacheParticleSystem(_T("bolt-trail"));
 	PrecacheParticleSystem(_T("bolt-explosion"));
 
@@ -890,10 +886,10 @@ void CInfantryFlak::Spawn()
 
 EAngle CInfantryFlak::GetRenderAngles() const
 {
-	if (GetVelocity().LengthSqr() == 0)
+	if (GetGlobalVelocity().LengthSqr() == 0)
 		return EAngle(-90, 0, 0);
 
-	return VectorAngles(GetVelocity());
+	return VectorAngles(GetGlobalVelocity());
 }
 
 size_t CInfantryFlak::CreateTrailSystem()
@@ -903,7 +899,7 @@ size_t CInfantryFlak::CreateTrailSystem()
 
 void CInfantryFlak::CreateExplosionSystem()
 {
-	CParticleSystemLibrary::AddInstance(_T("bolt-explosion"), GetOrigin());
+	CParticleSystemLibrary::AddInstance(_T("bolt-explosion"), GetGlobalOrigin());
 }
 
 REGISTER_ENTITY(CTorpedo);
@@ -952,8 +948,8 @@ void CTorpedo::Think()
 		{
 			float flDistance = GameServer()->GetFrameTime() * 10;
 
-			Vector vecDirection = m_vecLandingSpot - GetOrigin();
-			vecDirection.y = 0;
+			Vector vecDirection = m_vecLandingSpot - GetGlobalOrigin();
+			vecDirection.z = 0;
 
 			if (vecDirection.LengthSqr() < flDistance*flDistance*2)
 			{
@@ -971,17 +967,17 @@ void CTorpedo::Think()
 
 		bool bSpeedTorpedo = false;
 
-		if (DigitanksGame()->GetCurrentLocalDigitanksTeam()->GetVisibilityAtPoint(GetOrigin()) < 0.3f)
+		if (DigitanksGame()->GetCurrentLocalDigitanksPlayer()->GetVisibilityAtPoint(GetGlobalOrigin()) < 0.3f)
 			bSpeedTorpedo = true;
 
-		if (GetOwner() && GetOwner()->GetTeam() && GetOwner()->GetTeam()->IsPlayerControlled())
+		if (GetOwner() && GetOwner()->GetPlayerOwner() && GetOwner()->GetPlayerOwner()->IsHumanControlled())
 			bSpeedTorpedo = false;
 
 		if (bSpeedTorpedo)
 			flDistance *= 2;
 
-		Vector vecDirection = m_vecLandingSpot - GetOrigin();
-		vecDirection.y = 0;
+		Vector vecDirection = m_vecLandingSpot - GetGlobalOrigin();
+		vecDirection.z = 0;
 
 		if (vecDirection.LengthSqr() < flDistance*flDistance*2)
 		{
@@ -990,13 +986,13 @@ void CTorpedo::Think()
 		}
 
 		// Insert Jaws theme here.
-		Vector vecPosition = GetOrigin() + vecDirection.Normalized() * flDistance;
-		SetOrigin(DigitanksGame()->GetTerrain()->GetPointHeight(vecPosition));
+		Vector vecPosition = GetGlobalOrigin() + vecDirection.Normalized() * flDistance;
+		SetGlobalOrigin(DigitanksGame()->GetTerrain()->GetPointHeight(vecPosition));
 	}
 	else
 	{
 		// Sometimes the collide raytrace fails. Fuck that jazz.
-		if (GetOrigin().y < DigitanksGame()->GetTerrain()->GetHeight(GetOrigin().x, GetOrigin().z))
+		if (GetGlobalOrigin().z < DigitanksGame()->GetTerrain()->GetHeight(GetGlobalOrigin().x, GetGlobalOrigin().y))
 			Touching(DigitanksGame()->GetTerrain());
 	}
 
@@ -1017,8 +1013,8 @@ void CTorpedo::Touching(CBaseEntity* pOther)
 	if (pOther->GetCollisionGroup() == CG_TERRAIN)
 	{
 		m_bBurrowing = true;
-		SetVelocity(Vector());
-		SetGravity(Vector());
+		SetGlobalVelocity(Vector());
+		SetGlobalGravity(Vector());
 	}
 
 	// Don't call superclass!
@@ -1029,7 +1025,7 @@ void CTorpedo::Explode(CBaseEntity* pInstigator)
 	CSupplyLine* pClosest = NULL;
 	while (true)
 	{
-		pClosest = CBaseEntity::FindClosest<CSupplyLine>(GetOrigin(), pClosest);
+		pClosest = CBaseEntity::FindClosest<CSupplyLine>(GetGlobalOrigin(), pClosest);
 
 		if (!pClosest)
 			break;
@@ -1040,7 +1036,7 @@ void CTorpedo::Explode(CBaseEntity* pInstigator)
 		if (!pClosest->GetSupplier() || !pClosest->GetEntity())
 			continue;
 
-		if (pClosest->Distance(GetOrigin()) > ExplosionRadius())
+		if (pClosest->Distance(GetGlobalOrigin()) > ExplosionRadius())
 			break;
 
 		pClosest->Intercept(0.5f);
@@ -1055,7 +1051,7 @@ void CTorpedo::Explode(CBaseEntity* pInstigator)
 	CDigitank* pClosestTank = NULL;
 	while (true)
 	{
-		pClosestTank = CBaseEntity::FindClosest<CDigitank>(GetOrigin(), pClosestTank);
+		pClosestTank = CBaseEntity::FindClosest<CDigitank>(GetGlobalOrigin(), pClosestTank);
 
 		if (!pClosestTank)
 			break;
@@ -1063,16 +1059,16 @@ void CTorpedo::Explode(CBaseEntity* pInstigator)
 		if (pClosestTank->GetTeam() == GetTeam())
 			continue;
 
-		if (pClosestTank->Distance(GetOrigin()) > ExplosionRadius())
+		if (pClosestTank->Distance(GetGlobalOrigin()) > ExplosionRadius())
 			break;
 
 		pClosestTank->Disable(1);
 	}
 
-	if (DigitanksGame()->GetVisibilityAtPoint(DigitanksGame()->GetCurrentLocalDigitanksTeam(), GetOrigin()) > 0.5f)
+	if (DigitanksGame()->GetVisibilityAtPoint(DigitanksGame()->GetCurrentLocalDigitanksPlayer(), GetGlobalOrigin()) > 0.5f)
 	{
 		DigitanksGame()->GetDigitanksRenderer()->BloomPulse();
-		CParticleSystemLibrary::AddInstance(_T("torpedo-explosion"), GetOrigin());
+		CParticleSystemLibrary::AddInstance(_T("torpedo-explosion"), GetGlobalOrigin());
 	}
 }
 

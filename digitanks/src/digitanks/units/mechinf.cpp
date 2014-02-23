@@ -5,6 +5,7 @@
 
 #include <models/models.h>
 #include <network/network.h>
+#include <renderer/game_renderingcontext.h>
 
 #include <dt_renderer.h>
 #include "ui/digitankswindow.h"
@@ -25,14 +26,16 @@ SAVEDATA_TABLE_END();
 INPUTS_TABLE_BEGIN(CMechInfantry);
 INPUTS_TABLE_END();
 
+#define _T(x) x
+
 void CMechInfantry::Precache()
 {
 	BaseClass::Precache();
 
-	PrecacheModel(_T("models/digitanks/infantry-body.toy"), true);
-	PrecacheModel(_T("models/digitanks/digitank-shield.toy"), true);
-	PrecacheModel(_T("models/digitanks/infantry-fortify-base.toy"), true);
-	PrecacheModel(_T("models/digitanks/infantry-fortify-shield.toy"), true);
+	PrecacheModel(_T("models/digitanks/infantry-body.toy"));
+	PrecacheModel(_T("models/digitanks/digitank-shield.toy"));
+	PrecacheModel(_T("models/digitanks/infantry-fortify-base.toy"));
+	PrecacheModel(_T("models/digitanks/infantry-fortify-shield.toy"));
 }
 
 void CMechInfantry::Spawn()
@@ -54,39 +57,41 @@ void CMechInfantry::Spawn()
 	m_eWeapon = WEAPON_INFANTRYLASER;
 }
 
-void CMechInfantry::PostRender(bool bTransparent) const
+void CMechInfantry::PostRender() const
 {
-	BaseClass::PostRender(bTransparent);
+	BaseClass::PostRender();
 
-	if (bTransparent && (IsFortifying() || IsFortified()) && GetVisibility() > 0)
+	if (GameServer()->GetRenderer()->IsRenderingTransparent() && (IsFortifying() || IsFortified()) && GetVisibility() > 0)
 	{
-		float flTimeSinceFortify = GameServer()->GetGameTime() - m_flFortifyTime;
-		CRenderingContext c(GameServer()->GetRenderer());
-		c.Translate(GetOrigin() - Vector(0, RemapValClamped(flTimeSinceFortify, 0, 1, 5, 0), 0));
-		c.Rotate(-GetAngles().y, Vector(0, 1, 0));
+		float flTimeSinceFortify = (float)(GameServer()->GetGameTime() - m_flFortifyTime);
+		CGameRenderingContext c(GameServer()->GetRenderer());
+		c.Translate(GetGlobalOrigin() - Vector(0, 0, RemapValClamped(flTimeSinceFortify, 0, 1, 5.0f, 0)));
+		c.Rotate(-GetAngles().y, Vector(0, 0, 1));
 		float flAlpha = GetVisibility() * RemapValClamped(flTimeSinceFortify, 0, 2, 0.5f, 1);
-		flAlpha *= RemapValClamped(GetShieldStrength(), 0, 1, 0.5, 1);
+		flAlpha *= RemapValClamped(GetShieldStrength(), 0.0f, 1.0f, 0.5f, 1);
 		if (flAlpha < 1.0f)
 		{
 			c.SetBlend(BLEND_ALPHA);
 			c.SetAlpha(flAlpha);
 		}
 
-		if (GetTeam())
-			c.SetColorSwap(GetTeam()->GetColor());
+		c.SetUniform("bColorSwapInAlpha", true);
+
+		if (GetDigitanksPlayer())
+			c.SetUniform("vecColorSwap", GetPlayerOwner()->GetColor());
 		else
-			c.SetColorSwap(Color(150, 150, 150));
+			c.SetUniform("vecColorSwap", Color(150, 150, 150));
 
 		c.RenderModel(m_iFortifyWallModel);
 	}
 
-	if (bTransparent && (IsFortifying() || IsFortified()) && GetVisibility() > 0)
+	if (GameServer()->GetRenderer()->IsRenderingTransparent() && (IsFortifying() || IsFortified()) && GetVisibility() > 0)
 	{
-		float flTimeSinceFortify = GameServer()->GetGameTime() - m_flFortifyTime;
-		float flShieldScale = RemapValClamped(flTimeSinceFortify, 0, 1, 0, 1);
-		CRenderingContext c(GameServer()->GetRenderer());
-		c.Translate(GetOrigin());
-		c.Rotate(-GetAngles().y, Vector(0, 1, 0));
+		float flTimeSinceFortify = (float)(GameServer()->GetGameTime() - m_flFortifyTime);
+		float flShieldScale = RemapValClamped(flTimeSinceFortify, 0, 1, 0.0f, 1);
+		CGameRenderingContext c(GameServer()->GetRenderer());
+		c.Translate(GetGlobalOrigin());
+		c.Rotate(-GetAngles().y, Vector(0, 0, 1));
 		c.Scale(flShieldScale, flShieldScale, flShieldScale);
 		c.SetBlend(BLEND_ADDITIVE);
 		c.SetAlpha(GetVisibility() * RemapValClamped(flTimeSinceFortify, 0, 2, 0.5f, 1) * GetShieldStrength());
@@ -98,7 +103,7 @@ void CMechInfantry::PostRender(bool bTransparent) const
 
 bool CMechInfantry::CanFortify()
 {
-	if (DigitanksGame()->GetGameType() == GAMETYPE_CAMPAIGN && GetDigitanksTeam() == DigitanksGame()->GetCurrentLocalDigitanksTeam())
+	if (DigitanksGame()->GetGameType() == GAMETYPE_CAMPAIGN && GetDigitanksPlayer() == DigitanksGame()->GetCurrentLocalDigitanksPlayer())
 		return DigitanksGame()->IsInfantryFortifyAllowed();
 
 	else
@@ -133,7 +138,7 @@ float CMechInfantry::ProjectileCurve() const
 		return -0.025f;
 }
 
-float CMechInfantry::FirstProjectileTime() const
+double CMechInfantry::FirstProjectileTime() const
 {
 	return RandomFloat(0.1f, 0.15f);
 }

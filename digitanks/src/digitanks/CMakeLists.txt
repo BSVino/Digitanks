@@ -39,11 +39,17 @@ set (DIGITANKS_SOURCES
 	updates.cpp
 	wreckage.cpp
 
+	${CMAKE_SOURCE_DIR}/tengine/renderer/systems.cpp
+)
+
+set (DIGITANKS_CAMPAIGN_SOURCES
 	campaign/campaigndata.cpp
 	campaign/campaignentity.cpp
 	campaign/campaigninfo.cpp
 	campaign/userfile.cpp
+)
 
+set (DIGITANKS_STRUCTURES_SOURCES
 	structures/autoturret.cpp
 	structures/buffer.cpp
 	structures/collector.cpp
@@ -52,7 +58,9 @@ set (DIGITANKS_SOURCES
 	structures/props.cpp
 	structures/resource.cpp
 	structures/structure.cpp
+)
 
+set (DIGITANKS_UNITS_SOURCES
 	units/artillery.cpp
 	units/barbarians.cpp
 	units/digitank.cpp
@@ -61,7 +69,9 @@ set (DIGITANKS_SOURCES
 	units/mobilecpu.cpp
 	units/scout.cpp
 	units/standardtank.cpp
+)
 
+set (DIGITANKS_WEAPONS_SOURCES
 	weapons/baseweapon.cpp
 	weapons/cameraguided.cpp
 	weapons/laser.cpp
@@ -69,19 +79,18 @@ set (DIGITANKS_SOURCES
 	weapons/projectile.cpp
 	weapons/specialshells.cpp
 	weapons/turretmissile.cpp
+)
 
+set (DIGITANKS_UI_SOURCES
 	ui/digitankswindow.cpp
 	ui/digitankswindow_input.cpp
 	ui/hud.cpp
-	ui/instructor.cpp
 	ui/lobbyui.cpp
 	ui/menu.cpp
 	ui/scenetree.cpp
 	ui/ui.cpp
 	ui/updatespanel.cpp
 	ui/weaponpanel.cpp
-
-	${CMAKE_SOURCE_DIR}/tengine/renderer/systems.cpp
 )
 
 if (WIN32)
@@ -90,12 +99,18 @@ if (WIN32)
 	)
 endif (WIN32)
 
+source_group(Campaign FILES ${DIGITANKS_CAMPAIGN_SOURCES})
+source_group(Structures FILES ${DIGITANKS_STRUCTURES_SOURCES})
+source_group(Units FILES ${DIGITANKS_UNITS_SOURCES})
+source_group(Weapons FILES ${DIGITANKS_WEAPONS_SOURCES})
+source_group(UI FILES ${DIGITANKS_UI_SOURCES})
+
 set (DIGITANKS_EXECUTABLE digitanks)
 if (DEMO)
 	set (DIGITANKS_EXECUTABLE digitanksdemo)
 endif (DEMO)
 
-add_executable (${DIGITANKS_EXECUTABLE} WIN32 ${DIGITANKS_SOURCES})
+add_executable (${DIGITANKS_EXECUTABLE} WIN32 ${DIGITANKS_SOURCES} ${DIGITANKS_CAMPAIGN_SOURCES} ${DIGITANKS_STRUCTURES_SOURCES} ${DIGITANKS_UNITS_SOURCES} ${DIGITANKS_WEAPONS_SOURCES} ${DIGITANKS_UI_SOURCES})
 target_link_libraries (${DIGITANKS_EXECUTABLE} tinker tengine)
 
 install(TARGETS ${DIGITANKS_EXECUTABLE} RUNTIME DESTINATION .)

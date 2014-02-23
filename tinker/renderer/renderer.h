@@ -40,6 +40,7 @@ typedef enum
 	FB_MULTISAMPLE = (1<<4),
 	FB_DEPTH_TEXTURE = (1<<5),
 	FB_TEXTURE_HALF_FLOAT = (1<<6),
+	FB_SCENE_DEPTH = (1<<7),
 } fb_options_e;
 
 class CFrameBuffer
@@ -118,6 +119,7 @@ public:
 	virtual void	RenderFullscreenBuffers(class CRenderingContext* pContext);
 
 	virtual float	BloomBrightnessCutoff() const { return 0.6f; }
+	virtual float	BloomScale() const { return 1.0f; }
 	void			RenderBloomPass(CFrameBuffer* apSources, CFrameBuffer* apTargets, bool bHorizontal);
 
 	void			RenderFrameBufferFullscreen(CFrameBuffer* pBuffer);

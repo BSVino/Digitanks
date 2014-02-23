@@ -16,7 +16,7 @@ public:
 	virtual float				GetFortifyAttackPowerBonus();
 	virtual float				GetFortifyDefensePowerBonus();
 
-	virtual tstring				GetEntityName() const { return _T("Bug Turret"); };
+	virtual tstring				GetEntityName() const { return "Bug Turret"; };
 
 	virtual bool				CanFortify() { return true; };
 
@@ -44,7 +44,7 @@ public:
 
 	virtual void				ModifyContext(class CRenderingContext* pContext) const;
 
-	virtual tstring				GetEntityName() const { return _T("Grid Bug"); };
+	virtual tstring				GetEntityName() const { return "Grid Bug"; };
 
 	virtual float				BaseVisibleRange() const { return 60.0f; };
 	virtual float				TotalHealth() const { return 40; };

@@ -28,7 +28,7 @@ void CSceneTree::BuildTree(bool bForce)
 	if (!DigitanksGame())
 		return;
 
-	CDigitanksTeam* pCurrentLocalTeam = DigitanksGame()->GetCurrentLocalDigitanksTeam();
+	CDigitanksPlayer* pCurrentLocalTeam = DigitanksGame()->GetCurrentLocalDigitanksPlayer();
 
 	if (!pCurrentLocalTeam)
 		return;
@@ -46,7 +46,7 @@ void CSceneTree::BuildTree(bool bForce)
 		if (!pEntity)
 			continue;
 
-		if (pEntity->GetDigitanksTeam() != pCurrentLocalTeam)
+		if (pEntity->GetDigitanksPlayer() != pCurrentLocalTeam)
 			continue;
 
 		unittype_t eUnit = pEntity->GetUnitType();
@@ -134,7 +134,7 @@ void CSceneTree::Paint(int x, int y, int w, int h)
 	CPanel::Paint(x, y, w, h);
 }
 
-void CSceneTree::OnAddEntityToTeam(CDigitanksTeam* pTeam, CBaseEntity* pEntity)
+void CSceneTree::OnAddUnitToTeam(CDigitanksPlayer* pTeam, CBaseEntity* pEntity)
 {
 	CSelectable* pSelectable = dynamic_cast<CSelectable*>(pEntity);
 	if (!pSelectable)
@@ -174,7 +174,7 @@ void CSceneTree::OnAddEntityToTeam(CDigitanksTeam* pTeam, CBaseEntity* pEntity)
 	Layout();
 }
 
-void CSceneTree::OnRemoveEntityFromTeam(CDigitanksTeam* pTeam, CBaseEntity* pEntity)
+void CSceneTree::OnRemoveUnitFromTeam(CDigitanksPlayer* pTeam, CBaseEntity* pEntity)
 {
 	CSelectable* pSelectable = dynamic_cast<CSelectable*>(pEntity);
 	if (!pSelectable)
@@ -254,7 +254,7 @@ void CSceneTreeGroup::Paint(int x, int y, int w, int h, bool bFloating)
 	if (!IsVisible())
 		return;
 
-	CDigitanksTeam* pCurrentLocalTeam = DigitanksGame()->GetCurrentLocalDigitanksTeam();
+	CDigitanksPlayer* pCurrentLocalTeam = DigitanksGame()->GetCurrentLocalDigitanksPlayer();
 
 	CRenderingContext c(GameServer()->GetRenderer());
 	c.SetBlend(BLEND_ALPHA);
@@ -293,7 +293,7 @@ void CSceneTreeUnit::Paint(int x, int y, int w, int h, bool bFloating)
 	if (!IsVisible())
 		return;
 
-	if (m_hEntity == NULL)
+	if (!m_hEntity)
 		return;
 
 	CRenderingContext c(GameServer()->GetRenderer());
@@ -308,7 +308,7 @@ void CSceneTreeUnit::Paint(int x, int y, int w, int h, bool bFloating)
 		clrTeam.SetAlpha(100);
 	}
 
-	CDigitanksTeam* pCurrentLocalTeam = DigitanksGame()->GetCurrentLocalDigitanksTeam();
+	CDigitanksPlayer* pCurrentLocalTeam = DigitanksGame()->GetCurrentLocalDigitanksPlayer();
 
 	if (pCurrentLocalTeam && pCurrentLocalTeam->IsSelected(m_hEntity))
 	{
@@ -400,7 +400,7 @@ void CSceneTreeUnit::Paint(int x, int y, int w, int h, bool bFloating)
 		int iTotalTurns = 0;
 		if (pStructure->IsConstructing())
 		{
-			iTotalTurns = pStructure->GetTurnsToConstruct(pStructure->GetOrigin());
+			iTotalTurns = pStructure->GetTurnsToConstruct(pStructure->GetGlobalOrigin());
 			iTurnsProgressed = iTotalTurns-pStructure->GetTurnsRemainingToConstruct();
 		}
 		else if (pStructure->IsUpgrading())
@@ -420,10 +420,10 @@ void CSceneTreeUnit::Paint(int x, int y, int w, int h, bool bFloating)
 
 void CSceneTreeUnit::Selected()
 {
-	if (DigitanksWindow()->GetInstructor()->IsFeatureDisabled(DISABLE_SELECT))
+	if (DigitanksGame()->IsFeatureDisabled(DISABLE_SELECT))
 		return;
 
-	CDigitanksTeam* pCurrentLocalTeam = DigitanksGame()->GetCurrentLocalDigitanksTeam();
+	CDigitanksPlayer* pCurrentLocalTeam = DigitanksGame()->GetCurrentLocalDigitanksPlayer();
 
 	if (m_hEntity != NULL && pCurrentLocalTeam)
 	{
@@ -433,7 +433,7 @@ void CSceneTreeUnit::Selected()
 		else
 		{
 			pCurrentLocalTeam->SetPrimarySelection(m_hEntity);
-			DigitanksGame()->GetDigitanksCamera()->SetTarget(m_hEntity->GetOrigin());
+			DigitanksGame()->GetDigitanksCamera()->SetTarget(m_hEntity->GetGlobalOrigin());
 		}
 
 		DigitanksWindow()->GetInstructor()->FinishedTutorial("artillery-select", true);

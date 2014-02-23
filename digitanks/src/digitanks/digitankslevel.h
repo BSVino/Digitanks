@@ -65,7 +65,7 @@ public:
 	virtual					~CDigitanksLevel();
 
 public:
-	virtual void			OnReadData(const class CData* pData);
+	virtual void			OnReadInfo(const class CData* pData);
 	void					ReadProp(const class CData* pData);
 	void					ReadUnit(const class CData* pData);
 	void					ReadUnitOutput(const class CData* pData, CLevelUnit* pUnit);
@@ -74,9 +74,9 @@ public:
 	tstring					GetObjective() { return m_sObjective; }
 	gametype_t				GetGameType() { return m_eGameType; }
 	tstring					GetTerrainHeight() { return m_sTerrainHeight; }
-	size_t					GetTerrainHeightImage() { return m_iTerrainHeight; }
+	CTextureHandle          GetTerrainHeightImage() { return m_hTerrainHeight; }
 	tstring					GetTerrainData() { return m_sTerrainData; }
-	size_t					GetTerrainDataImage() { return m_iTerrainData; }
+	CTextureHandle          GetTerrainDataImage() { return m_hTerrainData; }
 	float					GetMaxHeight() { return m_flMaxHeight; }
 
 	size_t					GetNumProps() { return m_aProps.size(); }
@@ -107,9 +107,9 @@ protected:
 	gametype_t				m_eGameType;
 	tstring					m_sObjective;
 	tstring					m_sTerrainHeight;
-	size_t					m_iTerrainHeight;
+	CTextureHandle			m_hTerrainHeight;
 	tstring					m_sTerrainData;
-	size_t					m_iTerrainData;
+	CTextureHandle			m_hTerrainData;
 	float					m_flMaxHeight;
 	tvector<CLevelProp>		m_aProps;
 

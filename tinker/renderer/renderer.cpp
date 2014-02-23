@@ -247,6 +247,11 @@ CFrameBuffer CRenderer::CreateFrameBuffer(const tstring& sName, size_t iWidth, s
 		glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT24, (GLsizei)iWidth, (GLsizei)iHeight, 0, GL_DEPTH_COMPONENT, GL_UNSIGNED_BYTE, NULL);
 		glBindTexture(GL_TEXTURE_2D, 0);
 	}
+	else if (eOptions&FB_SCENE_DEPTH)
+	{
+		glBindFramebuffer(GL_FRAMEBUFFER, (GLuint)oBuffer.m_iFB);
+		glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, (GLuint)m_oSceneBuffer.m_iDepth);
+	}
 
 	glGenFramebuffers(1, &oBuffer.m_iFB);
 	glBindFramebuffer(GL_FRAMEBUFFER, (GLuint)oBuffer.m_iFB);
@@ -446,7 +451,7 @@ void CRenderer::RenderOffscreenBuffers(class CRenderingContext* pContext)
 		c.UseProgram("brightpass");
 
 		c.SetUniform("iSource", 0);
-		c.SetUniform("flScale", (float)r_bloom.GetFloat()/BLOOM_FILTERS);
+		c.SetUniform("flScale", (float)1/BLOOM_FILTERS);
 
 		for (size_t i = 0; i < BLOOM_FILTERS; i++)
 		{
@@ -489,8 +494,14 @@ void CRenderer::RenderFullscreenBuffers(class CRenderingContext* pContext)
 		}
 		else
 		{
+			float flScale = r_bloom.GetFloat() * BloomScale();
+
 			CRenderingContext c(this);
+
+			c.UseProgram("quad");
+			c.SetUniform("vecColor", Vector4D(flScale, flScale, flScale, flScale));
 			c.SetBlend(BLEND_ADDITIVE);
+
 			for (size_t i = 0; i < BLOOM_FILTERS; i++)
 				RenderFrameBufferFullscreen(&m_oBloom1Buffers[i]);
 		}

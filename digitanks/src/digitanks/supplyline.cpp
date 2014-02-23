@@ -2,16 +2,15 @@
 
 #include <geometry.h>
 
-#include <models/texturelibrary.h>
-#include <game/team.h>
+#include <textures/texturelibrary.h>
+#include <renderer/game_renderingcontext.h>
+#include <renderer/roperenderer.h>
 
 #include "dt_renderer.h"
 #include "structures/structure.h"
 #include "digitanksgame.h"
 
-#include <GL/glew.h>
-
-size_t CSupplyLine::s_iSupplyBeam = 0;
+CMaterialHandle CSupplyLine::s_hSupplyBeam;
 
 REGISTER_ENTITY(CSupplyLine);
 
@@ -35,7 +34,7 @@ void CSupplyLine::Precache()
 {
 	BaseClass::Precache();
 
-	s_iSupplyBeam = CTextureLibrary::AddTextureID("textures/tendril.png");
+	s_hSupplyBeam = CMaterialLibrary::AddMaterial("textures/tendril.mat");
 }
 
 void CSupplyLine::Spawn()
@@ -46,7 +45,7 @@ void CSupplyLine::Spawn()
 	BaseClass::Spawn();
 
 	m_flIntegrity = 1.0f;
-	m_bDelayRecharge= false;
+	m_bDelayRecharge = false;
 }
 
 void CSupplyLine::SetEntities(CSupplier* pSupplier, CBaseEntity* pEntity)
@@ -54,21 +53,21 @@ void CSupplyLine::SetEntities(CSupplier* pSupplier, CBaseEntity* pEntity)
 	if (pSupplier == m_hSupplier && pEntity == m_hEntity)
 		return;
 
-	pSupplier->GetTeam()->AddEntity(this);
+	pSupplier->GetPlayerOwner()->AddUnit(this);
 
 	m_hSupplier = pSupplier;
 	m_hEntity = pEntity;
 }
 
-Vector CSupplyLine::GetOrigin() const
+const TVector CSupplyLine::GetGlobalOrigin() const
 {
 	if (!m_hSupplier)
-		return BaseClass::GetOrigin();
+		return BaseClass::GetGlobalOrigin();
 
-	return m_hSupplier->GetOrigin();
+	return m_hSupplier->GetGlobalOrigin();
 }
 
-float CSupplyLine::GetRenderRadius() const
+const TFloat CSupplyLine::GetRenderRadius() const
 {
 	if (!m_hSupplier || !m_hEntity)
 		return 0;
@@ -85,16 +84,16 @@ float CSupplyLine::Distance(Vector vecSpot) const
 	if (!m_hSupplier || !m_hEntity)
 		return BaseClass::Distance(vecSpot);
 
-	Vector vecSupplier = m_hSupplier->GetOrigin();
-	Vector vecEntity = m_hEntity->GetOrigin();
+	Vector vecSupplier = m_hSupplier->GetGlobalOrigin();
+	Vector vecEntity = m_hEntity->GetGlobalOrigin();
 
 	Vector vecSupplierFlat = vecSupplier;
 	Vector vecEntityFlat = vecEntity;
 	Vector vecSpotFlat = vecSpot;
 
-	vecSupplierFlat.y = 0;
-	vecEntityFlat.y = 0;
-	vecSpotFlat.y = 0;
+	vecSupplierFlat.z = 0;
+	vecEntityFlat.z = 0;
+	vecSpotFlat.z = 0;
 
 	Vector vecIntersection;
 	float flDistance = DistanceToLineSegment(vecSpotFlat, vecSupplierFlat, vecEntityFlat, &vecIntersection);
@@ -141,32 +140,32 @@ void CSupplyLine::Intercept(float flIntercept)
 
 	if (GetEntity() && m_flIntegrity < MinimumIntegrity() && dynamic_cast<CStructure*>(GetEntity()) && GetEntity()->GetTeam())
 	{
-		GetEntity()->GetTeam()->RemoveEntity(GetEntity());
+		ToDigitanksPlayer(GetEntity()->GetOwner())->RemoveUnit(static_cast<CStructure*>(GetEntity()));
 		DigitanksGame()->OnDisabled(GetEntity(), NULL, NULL);
 	}
 }
 
-void CSupplyLine::PostRender(bool bTransparent) const
+void CSupplyLine::PostRender() const
 {
-	BaseClass::PostRender(bTransparent);
+	BaseClass::PostRender();
 
-	if (!bTransparent)
+	if (!GameServer()->GetRenderer()->IsRenderingTransparent())
 		return;
 
 	if (!m_hSupplier || !m_hEntity)
 		return;
 
-	Vector vecDestination = m_hEntity->GetOrigin();
+	Vector vecDestination = m_hEntity->GetGlobalOrigin();
 
-	Vector vecPath = vecDestination - m_hSupplier->GetOrigin();
-	vecPath.y = 0;
+	Vector vecPath = vecDestination - m_hSupplier->GetGlobalOrigin();
+	vecPath.z = 0;
 
 	float flDistance = vecPath.Length2D();
 	Vector vecDirection = vecPath.Normalized();
 	size_t iSegments = (size_t)(flDistance/3);
 
-	CRenderingContext r(GameServer()->GetRenderer());
-	if (DigitanksGame()->ShouldRenderFogOfWar() && DigitanksGame()->GetDigitanksRenderer()->ShouldUseFramebuffers())
+	CRenderingContext r(GameServer()->GetRenderer(), true);
+	if (DigitanksGame()->ShouldRenderFogOfWar())
 		r.UseFrameBuffer(DigitanksGame()->GetDigitanksRenderer()->GetVisibilityMaskedBuffer());
 
 	Color clrTeam(255, 255, 255, 255);
@@ -174,16 +173,16 @@ void CSupplyLine::PostRender(bool bTransparent) const
 		clrTeam = GetTeam()->GetColor();
 	clrTeam = (Vector(clrTeam) + Vector(1,1,1))/2;
 
-	CRopeRenderer oRope(GameServer()->GetRenderer(), s_iSupplyBeam, DigitanksGame()->GetTerrain()->GetPointHeight(m_hSupplier->GetOrigin()) + Vector(0, 2, 0), 2.5f);
+	CRopeRenderer oRope(GameServer()->GetRenderer(), s_hSupplyBeam, DigitanksGame()->GetTerrain()->GetPointHeight(m_hSupplier->GetGlobalOrigin()) + Vector(0, 0, 2), 2.5f);
 	if (dynamic_cast<CStructure*>(m_hEntity.GetPointer()))
 	{
 		oRope.SetTextureScale(500000);
-		oRope.SetTextureOffset(-fmod(GameServer()->GetGameTime(), 1));
+		oRope.SetTextureOffset(-(float)fmod(GameServer()->GetGameTime(), 1));
 	}
 	else
 	{
 		oRope.SetTextureScale(5);
-		oRope.SetTextureOffset(-fmod(GameServer()->GetGameTime(), 1)*2);
+		oRope.SetTextureOffset(-(float)fmod(GameServer()->GetGameTime(), 1)*2);
 	}
 
 	float flVisibility = 1;
@@ -201,12 +200,10 @@ void CSupplyLine::PostRender(bool bTransparent) const
 		oRope.SetColor(clrTeam);
 
 		float flCurrentDistance = ((float)i*flDistance)/iSegments;
-		oRope.AddLink(DigitanksGame()->GetTerrain()->GetPointHeight(m_hSupplier->GetOrigin() + vecDirection*flCurrentDistance) + Vector(0, 2, 0));
+		oRope.AddLink(DigitanksGame()->GetTerrain()->GetPointHeight(m_hSupplier->GetGlobalOrigin() + vecDirection*flCurrentDistance) + Vector(0, 0, 2));
 	}
 
-	oRope.Finish(DigitanksGame()->GetTerrain()->GetPointHeight(vecDestination) + Vector(0, 2, 0));
-
-	glEnd();
+	oRope.Finish(DigitanksGame()->GetTerrain()->GetPointHeight(vecDestination) + Vector(0, 0, 2));
 }
 
 CSupplier* CSupplyLine::GetSupplier()

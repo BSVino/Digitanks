@@ -9,14 +9,14 @@
 REGISTER_ENTITY(CCameraGuidedMissile);
 
 NETVAR_TABLE_BEGIN(CCameraGuidedMissile);
-	NETVAR_DEFINE(float, m_flBoostTime);
+	NETVAR_DEFINE(double, m_flBoostTime);
 	NETVAR_DEFINE(float, m_flBoostVelocityGoal);
 	NETVAR_DEFINE(float, m_flBoostVelocity);
 NETVAR_TABLE_END();
 
 SAVEDATA_TABLE_BEGIN(CCameraGuidedMissile);
 	SAVEDATA_DEFINE(CSaveData::DATA_COPYTYPE, bool, m_bLaunched);
-	SAVEDATA_DEFINE(CSaveData::DATA_NETVAR, float, m_flBoostTime);
+	SAVEDATA_DEFINE(CSaveData::DATA_NETVAR, double, m_flBoostTime);
 	SAVEDATA_DEFINE(CSaveData::DATA_NETVAR, float, m_flBoostVelocityGoal);
 	SAVEDATA_DEFINE(CSaveData::DATA_NETVAR, float, m_flBoostVelocity);
 	SAVEDATA_DEFINE(CSaveData::DATA_OMIT, CParticleSystemInstanceHandle, m_hTrailParticles);
@@ -25,6 +25,8 @@ SAVEDATA_TABLE_END();
 
 INPUTS_TABLE_BEGIN(CCameraGuidedMissile);
 INPUTS_TABLE_END();
+
+#define _T(x) x
 
 void CCameraGuidedMissile::Precache()
 {
@@ -41,7 +43,7 @@ void CCameraGuidedMissile::Spawn()
 	m_flBoostTime = 0;
 	m_bLaunched = false;
 
-	m_hTrailParticles.SetSystem(_T("shell-trail"), GetOrigin());
+	m_hTrailParticles.SetSystem("shell-trail", GetGlobalOrigin());
 	m_hTrailParticles.FollowEntity(this);
 }
 
@@ -70,16 +72,16 @@ void CCameraGuidedMissile::Think()
 			EmitSound(_T("sound/missile-flight.wav"), 1.0f, true);
 		}
 
-		SetVelocity(AngleVector(GetViewAngles()) * (VelocityPerSecond() + m_flBoostVelocity));
+		SetGlobalVelocity(AngleVector(GetViewAngles()) * (VelocityPerSecond() + m_flBoostVelocity));
 	}
 
-	if (m_flTimeExploded == 0.0f && GameServer()->GetGameTime() - GetSpawnTime() > 13.0f)
+	if (m_flTimeExploded == 0.0 && GameServer()->GetGameTime() - GetSpawnTime() > 13.0)
 		Explode();
 
-	m_hTrailParticles.SetActive(m_flTimeExploded == 0.0f && GetOwner() && GetOwner()->GetDigitanksTeam() != DigitanksGame()->GetCurrentLocalDigitanksTeam());
+	m_hTrailParticles.SetActive(m_flTimeExploded == 0.0 && GetOwner() && GetOwner()->GetDigitanksPlayer() != DigitanksGame()->GetCurrentLocalDigitanksPlayer());
 }
 
-void CCameraGuidedMissile::OnSetOwner(CDigitanksEntity* pOwner)
+void CCameraGuidedMissile::OnSetOwner(CBaseEntity* pOwner)
 {
 	BaseClass::OnSetOwner(pOwner);
 
@@ -87,19 +89,16 @@ void CCameraGuidedMissile::OnSetOwner(CDigitanksEntity* pOwner)
 
 	if (pTank)
 	{
-		SetOrigin(pOwner->GetOrigin() + Vector(0, 5, 0));
-		EAngle angMissile = VectorAngles((pTank->GetLastAim() - pOwner->GetOrigin()).Normalized());
+		SetGlobalOrigin(pOwner->GetGlobalOrigin() + Vector(0, 0, 5));
+		EAngle angMissile = VectorAngles((pTank->GetLastAim() - pOwner->GetGlobalOrigin()).Normalized());
 		angMissile.p = 30;
 		SetViewAngles(angMissile);
-		SetAngles(angMissile);
-		SetVelocity(Vector());
-		SetGravity(Vector());
+		SetGlobalAngles(angMissile);
+		SetGlobalVelocity(Vector());
+		SetGlobalGravity(Vector());
 	}
 
-	SetSimulated(true);
-	SetCollisionGroup(CG_PROJECTILE);
-
-	if (pOwner && pOwner->GetDigitanksTeam() == DigitanksGame()->GetCurrentLocalDigitanksTeam())
+	if (pTank && pTank->GetDigitanksPlayer() == DigitanksGame()->GetCurrentLocalDigitanksPlayer())
 	{
 		DigitanksGame()->GetDigitanksCamera()->SetCameraGuidedMissile(this);
 		DigitanksWindow()->SetMouseCursorEnabled(false);
@@ -147,23 +146,23 @@ bool CCameraGuidedMissile::IsTouching(CBaseEntity* pOther, Vector& vecPoint) con
 	{
 	case CG_ENTITY:
 	{
-		vecPoint = GetOrigin();
+		vecPoint = GetGlobalOrigin();
 
 		CDigitank* pTank = dynamic_cast<CDigitank*>(pOther);
 		float flBoundingRadius = pOther->GetBoundingRadius();
 		if (pTank)
 			flBoundingRadius = pTank->GetShieldBlockRadius();
 
-		if ((pOther->GetOrigin() - GetOrigin()).LengthSqr() < flBoundingRadius*flBoundingRadius)
+		if ((pOther->GetGlobalOrigin() - GetGlobalOrigin()).LengthSqr() < flBoundingRadius*flBoundingRadius)
 			return true;
 		break;
 	}
 
 	case CG_TERRAIN:
-		return DigitanksGame()->GetTerrain()->Collide(GetLastOrigin(), GetOrigin(), vecPoint);
+		return DigitanksGame()->GetTerrain()->Collide(GetGlobalOrigin(), GetGlobalOrigin(), vecPoint);
 
-	case CG_PROP:
-		return pOther->Collide(GetLastOrigin(), GetOrigin(), vecPoint);
+	case CG_PROP:;
+		//return pOther->Collide(GetGlobalOrigin(), GetGlobalOrigin(), vecPoint);
 	}
 
 	return false;
@@ -171,7 +170,7 @@ bool CCameraGuidedMissile::IsTouching(CBaseEntity* pOther, Vector& vecPoint) con
 
 void CCameraGuidedMissile::Touching(CBaseEntity* pOther)
 {
-	if (m_flTimeExploded != 0.0f)
+	if (m_flTimeExploded != 0.0)
 		return;
 
 	pOther->TakeDamage(m_hOwner, this, DAMAGE_EXPLOSION, m_flDamage + BoostDamage()*(m_flBoostVelocity/BoostVelocity()));
@@ -179,12 +178,12 @@ void CCameraGuidedMissile::Touching(CBaseEntity* pOther)
 	Explode(pOther);
 
 	bool bCanSeeOwner;
-	if (m_hOwner != NULL && DigitanksGame()->GetVisibilityAtPoint(DigitanksGame()->GetCurrentLocalDigitanksTeam(), m_hOwner->GetOrigin()) > 0)
+	if (m_hOwner != NULL && DigitanksGame()->GetVisibilityAtPoint(DigitanksGame()->GetCurrentLocalDigitanksPlayer(), m_hOwner->GetGlobalOrigin()) > 0)
 		bCanSeeOwner = true;
 	else
 		bCanSeeOwner = false;
 
-	if (DigitanksGame()->GetVisibilityAtPoint(DigitanksGame()->GetCurrentLocalDigitanksTeam(), GetOrigin()) > 0 || bCanSeeOwner)
+	if (DigitanksGame()->GetVisibilityAtPoint(DigitanksGame()->GetCurrentLocalDigitanksPlayer(), GetGlobalOrigin()) > 0 || bCanSeeOwner)
 		EmitSound(_T("sound/explosion.wav"));
 }
 
@@ -192,10 +191,10 @@ void CCameraGuidedMissile::OnExplode(CBaseEntity* pInstigator)
 {
 	BaseClass::OnExplode(pInstigator);
 
-	if (m_hOwner && m_hOwner->GetDigitanksTeam() == DigitanksGame()->GetCurrentLocalDigitanksTeam())
+	if (GetOwner() && GetOwner()->GetDigitanksPlayer() == DigitanksGame()->GetCurrentLocalDigitanksPlayer())
 	{
 		DigitanksGame()->GetDigitanksCamera()->SetCameraGuidedMissile(NULL);
-		DigitanksGame()->GetDigitanksCamera()->SnapTarget(GetOrigin());
+		DigitanksGame()->GetDigitanksCamera()->SnapTarget(GetGlobalOrigin());
 		DigitanksWindow()->SetMouseCursorEnabled(true);
 	}
 

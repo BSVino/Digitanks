@@ -2,39 +2,39 @@
 
 #include <sstream>
 
-#include <renderer/renderer.h>
-#include <game/game.h>
+#include <renderer/game_renderer.h>
+#include <renderer/game_renderingcontext.h>
+#include <game/entities/game.h>
 #include <renderer/particles.h>
 #include <models/models.h>
-
-#include <GL/glew.h>
+#include <game/gameserver.h>
 
 #include <digitanksgame.h>
 #include "structure.h"
 
-REGISTER_ENTITY(CResource);
+REGISTER_ENTITY(CResourceNode);
 
-NETVAR_TABLE_BEGIN(CResource);
+NETVAR_TABLE_BEGIN(CResourceNode);
 	NETVAR_DEFINE(CEntityHandle<CCollector>, m_hCollector);
 NETVAR_TABLE_END();
 
-SAVEDATA_TABLE_BEGIN(CResource);
+SAVEDATA_TABLE_BEGIN(CResourceNode);
 	SAVEDATA_DEFINE(CSaveData::DATA_NETVAR, CEntityHandle<CCollector>, m_hCollector);
 	SAVEDATA_DEFINE(CSaveData::DATA_OMIT, CParticleSystemInstanceHandle, m_hSparkParticles);
 SAVEDATA_TABLE_END();
 
-INPUTS_TABLE_BEGIN(CResource);
+INPUTS_TABLE_BEGIN(CResourceNode);
 INPUTS_TABLE_END();
 
-void CResource::Precache()
+void CResourceNode::Precache()
 {
 	BaseClass::Precache();
 
 	PrecacheParticleSystem("electronode-spark");
-	PrecacheModel("models/structures/electronode.toy", true);
+	PrecacheModel("models/structures/electronode.toy");
 }
 
-void CResource::Spawn()
+void CResourceNode::Spawn()
 {
 	BaseClass::Spawn();
 
@@ -42,12 +42,12 @@ void CResource::Spawn()
 
 	SetModel("models/structures/electronode.toy");
 
-	m_hSparkParticles.SetSystem("electronode-spark", GetOrigin());
+	m_hSparkParticles.SetSystem("electronode-spark", GetGlobalOrigin());
 
 	m_bConstructing = false;
 }
 
-void CResource::Think()
+void CResourceNode::Think()
 {
 	BaseClass::Think();
 
@@ -56,7 +56,7 @@ void CResource::Think()
 	CSystemInstance* pInstance = CParticleSystemLibrary::Get()->GetInstance(m_hSparkParticles.GetInstance());
 	if (pInstance)
 	{
-		pInstance->SetOrigin(GetOrigin());
+		pInstance->SetOrigin(GetGlobalOrigin());
 
 		if (HasCollector() && GetCollector()->GetTeam())
 			pInstance->SetColor(GetCollector()->GetTeam()->GetColor());
@@ -65,7 +65,7 @@ void CResource::Think()
 	}
 }
 
-void CResource::UpdateInfo(tstring& s)
+void CResourceNode::UpdateInfo(tstring& s)
 {
 	s = "ELECTRONODE\n";
 	s += "Digital resource\n \n";
@@ -75,30 +75,33 @@ void CResource::UpdateInfo(tstring& s)
 	s += "Build a Capacitor or Power Supply Unit to harness this Electronode's Power resource\n";
 }
 
-void CResource::ModifyContext(class CRenderingContext* pContext) const
+void CResourceNode::ModifyContext(class CRenderingContext* pContext) const
 {
 	BaseClass::ModifyContext(pContext);
 
-	if (HasCollector() && GetCollector()->GetTeam())
-		pContext->SetColorSwap(GetCollector()->GetTeam()->GetColor());
+	if (HasCollector() && GetCollector()->GetPlayerOwner())
+	{
+		pContext->SetUniform("bColorSwapInAlpha", true);
+		pContext->SetUniform("vecColorSwap", GetCollector()->GetPlayerOwner()->GetColor());
+	}
 }
 
-void CResource::PostRender(bool bTransparent) const
+void CResourceNode::PostRender() const
 {
-	BaseClass::PostRender(bTransparent);
+	BaseClass::PostRender();
 
-	if (bTransparent && DigitanksGame()->GetControlMode() == MODE_BUILD)
+	if (GameServer()->GetRenderer()->IsRenderingTransparent() && DigitanksGame()->GetControlMode() == MODE_BUILD)
 	{
 		bool bShowPreview = false;
 
-		CDigitanksTeam* pTeam = DigitanksGame()->GetCurrentLocalDigitanksTeam();
+		CDigitanksPlayer* pTeam = DigitanksGame()->GetCurrentLocalDigitanksPlayer();
 
 		if (pTeam && pTeam->GetPrimaryCPU())
 		{
 			unittype_t ePreviewStructure = pTeam->GetPrimaryCPU()->GetPreviewStructure();
 			if (ePreviewStructure == STRUCTURE_PSU || ePreviewStructure == STRUCTURE_BATTERY)
 			{
-				if (CSupplier::GetDataFlow(GetOrigin(), pTeam) > 0)
+				if (CSupplier::GetDataFlow(GetGlobalOrigin(), pTeam) > 0)
 					bShowPreview = true;
 			}
 
@@ -106,7 +109,7 @@ void CResource::PostRender(bool bTransparent) const
 			{
 				CCollector* pCollector = GetCollector();
 
-				if (pCollector->GetTeam() != pTeam)
+				if (pCollector->GetPlayerOwner() != pTeam)
 					bShowPreview = false;
 
 				if (ePreviewStructure == STRUCTURE_BATTERY)
@@ -121,10 +124,11 @@ void CResource::PostRender(bool bTransparent) const
 
 		if (bShowPreview)
 		{
-			CRenderingContext r(GameServer()->GetRenderer());
-			r.Translate(GetOrigin());
+			CGameRenderingContext r(GameServer()->GetRenderer());
+			r.Translate(GetGlobalOrigin());
 
-			r.SetColorSwap(Color(255, 255, 255));
+			r.SetUniform("bColorSwapInAlpha", true);
+			r.SetUniform("vecColorSwap", Color(255, 255, 255));
 			r.SetAlpha(0.5f);
 			r.SetBlend(BLEND_ALPHA);
 
@@ -145,17 +149,17 @@ void CResource::PostRender(bool bTransparent) const
 	}
 }
 
-float CResource::AvailableArea(int iArea) const
+float CResourceNode::AvailableArea(int iArea) const
 {
 	return 5;
 }
 
-bool CResource::IsAvailableAreaActive(int iArea) const
+bool CResourceNode::IsAvailableAreaActive(int iArea) const
 {
 	if (DigitanksGame()->GetControlMode() != MODE_BUILD)
 		return false;
 
-	CDigitanksTeam* pTeam = DigitanksGame()->GetCurrentLocalDigitanksTeam();
+	CDigitanksPlayer* pTeam = DigitanksGame()->GetCurrentLocalDigitanksPlayer();
 	if (!pTeam)
 		return false;
 
@@ -168,7 +172,7 @@ bool CResource::IsAvailableAreaActive(int iArea) const
 	{
 		CCollector* pCollector = GetCollector();
 
-		if (pCollector->GetTeam() != pTeam)
+		if (pCollector->GetPlayerOwner() != pTeam)
 			return false;
 
 		if (ePreviewStructure == STRUCTURE_BATTERY)
@@ -183,15 +187,15 @@ bool CResource::IsAvailableAreaActive(int iArea) const
 	if (ePreviewStructure != STRUCTURE_PSU && ePreviewStructure != STRUCTURE_BATTERY)
 		return false;
 
-	if (CSupplier::GetDataFlow(GetOrigin(), pTeam) <= 0)
+	if (CSupplier::GetDataFlow(GetGlobalOrigin(), pTeam) <= 0)
 		return false;
 
 	return true;
 }
 
-CResource* CResource::FindClosestResource(Vector vecPoint, resource_t eResource)
+CResourceNode* CResourceNode::FindClosestResource(Vector vecPoint, resource_t eResource)
 {
-	CResource* pClosest = NULL;
+	CResourceNode* pClosest = NULL;
 
 	for (size_t i = 0; i < GameServer()->GetMaxEntities(); i++)
 	{
@@ -199,7 +203,7 @@ CResource* CResource::FindClosestResource(Vector vecPoint, resource_t eResource)
 		if (!pEntity)
 			continue;
 
-		CResource* pResource = dynamic_cast<CResource*>(pEntity);
+		CResourceNode* pResource = dynamic_cast<CResourceNode*>(pEntity);
 		if (!pResource)
 			continue;
 
@@ -212,7 +216,7 @@ CResource* CResource::FindClosestResource(Vector vecPoint, resource_t eResource)
 			continue;
 		}
 
-		if ((pResource->GetOrigin() - vecPoint).Length() < (pClosest->GetOrigin() - vecPoint).Length())
+		if ((pResource->GetGlobalOrigin() - vecPoint).Length() < (pClosest->GetGlobalOrigin() - vecPoint).Length())
 			pClosest = pResource;
 	}
 

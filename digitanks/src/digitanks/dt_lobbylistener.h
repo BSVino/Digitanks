@@ -1,7 +1,7 @@
 #ifndef _DT_LOBBY_LISTENER_H
 #define _DT_LOBBY_LISTENER_H
 
-#include <tinker/lobby/lobby_server.h>
+#include <tengine/lobby/lobby_server.h>
 
 class CDigitanksLobbyListener : public ILobbyListener
 {

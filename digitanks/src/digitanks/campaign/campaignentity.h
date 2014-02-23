@@ -1,7 +1,7 @@
 #ifndef DT_CAMPAIGNENTITY_H
 #define DT_CAMPAIGNENTITY_H
 
-#include <game/baseentity.h>
+#include <game/entities/baseentity.h>
 
 // A file of the user's that the user has to rescue
 class CCampaignEntity : public CBaseEntity

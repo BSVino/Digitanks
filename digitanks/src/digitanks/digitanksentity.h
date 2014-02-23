@@ -25,14 +25,15 @@ public:
 
 	virtual void					InterceptSupplyLines();
 
-	class CDigitanksTeam*			GetDigitanksTeam() const;
+	class CDigitanksPlayer*			GetDigitanksPlayer() const;
+	virtual class CTeam*			GetTeam() const { TAssert(false); return nullptr; } // Use GetDigitanksPlayer instead.
 
 	virtual bool					ShouldRender() const;
 	virtual void					RenderVisibleArea();
 
-	virtual void					OnSetOrigin(const Vector& vecOrigin);
+	virtual void					OnSetLocalTransform(TMatrix& m);
 
-	virtual float					GetVisibility(CDigitanksTeam* pTeam) const;
+	virtual float					GetVisibility(CDigitanksPlayer* pTeam) const;
 	virtual float					GetVisibility() const;
 	virtual float					GetVisibility();
 	virtual void					CalculateVisibility();
@@ -72,6 +73,9 @@ public:
 	bool							IsObjective() { return m_bObjective; }
 	DECLARE_ENTITY_INPUT(MakeObjective);
 	DECLARE_ENTITY_INPUT(ClearObjective);
+
+	void              SetOwner(CDigitanksPlayer* pOwner);
+	CDigitanksPlayer* GetPlayerOwner() const;
 
 	virtual float					HealthRechargeRate() const { return 0.2f; };
 	virtual float					BaseVisibleRange() const { return 0; };

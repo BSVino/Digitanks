@@ -1,11 +1,14 @@
 #ifndef DT_TERRAIN_H
 #define DT_TERRAIN_H
 
-#include <EASTL/list.h>
+#include <tlist.h>
 
 #include <color.h>
 
-#include <game/baseentity.h>
+#include <raytracer/raytracer.h>
+#include <textures/texturehandle.h>
+
+#include <game/entities/baseentity.h>
 
 #define TERRAIN_SIZE 256
 #define TERRAIN_CHUNKS 16
@@ -13,6 +16,16 @@
 
 #define TERRAIN_CHUNK_TEXTURE_SIZE 256
 #define TERRAIN_CHUNK_TEXELS_PER (TERRAIN_CHUNK_TEXTURE_SIZE/TERRAIN_CHUNK_SIZE)
+
+class CTerrainTriangle
+{
+public:
+	Vector   vecPosition;
+	Vector   vecColor;
+	Vector2D vecUV;
+	int      iCoordX;
+	int      iCoordY;
+};
 
 typedef enum
 {
@@ -28,10 +41,10 @@ typedef struct
 {
 	Vector					vecPrimaryDirection;
 	Vector					vecCurrentDirection;
-	tvector<Vector>			avecPoints;
+	tlist<Vector>			avecPoints;
 	Color					clrColor;
-	float					flNextTurn;
-	float					flNextPoint;
+	double					flNextTurn;
+	double					flNextPoint;
 	bool					bActive;
 	float					flAlpha;
 	float					flFadeRate;
@@ -47,6 +60,8 @@ public:
 	virtual							~CTerrainChunk();
 
 public:
+	void ClearGLData(bool bTexture);
+
 	void							Think();
 
 	bool							GetBit(int x, int y, terrainbit_t b);
@@ -62,10 +77,14 @@ protected:
 	unsigned char					m_aiSpecialData[TERRAIN_CHUNK_SIZE][TERRAIN_CHUNK_SIZE];
 
 	Color							m_aclrTexture[TERRAIN_CHUNK_TEXTURE_SIZE][TERRAIN_CHUNK_TEXTURE_SIZE];
-	unsigned int					m_iChunkTexture;
+	CTextureHandle					m_hChunkTexture;
 
-	size_t							m_iCallList;
-	size_t							m_iTransparentCallList;
+	size_t							m_iTerrainVerts;
+	size_t							m_iOpaqueIndices;
+	size_t							m_iOpaqueIndicesVerts;
+	size_t							m_iTransparentIndices;
+	size_t							m_iTransparentIndicesVerts;
+
 	size_t							m_iWallList;
 
 	bool							m_bNeedsRegenerate;
@@ -113,7 +132,6 @@ public:
 	virtual void			OnRender(class CGameRenderingContext* pContext) const;
 	void					RenderTransparentTerrain() const;
 	void					RenderWithShaders() const;
-	void					RenderWithoutShaders() const;
 	void					DebugRenderQuadTree() const;
 
 	void					GetChunk(float x, float y, int& i, int& j);
@@ -192,15 +210,15 @@ protected:
 	CNetworkedVariable<size_t> m_iMinY;
 	CNetworkedVariable<size_t> m_iMaxY;
 
-	float					m_flNextThink;
+	double					m_flNextThink;
 	int						m_iThinkChunkX;
 	int						m_iThinkChunkY;
 
-	tvector<runner_t>	m_aRunners;
-	float					m_flNextRunner;
+	tvector<runner_t>		m_aRunners;
+	double					m_flNextRunner;
 
-	static size_t			s_iTreeTexture;
-	static size_t			s_iBeamTexture;
+	static CTextureHandle   s_hTreeTexture;
+	static CTextureHandle   s_hBeamTexture;
 
 	// Pathfinding stuff
 	class CQuadBranch*		m_pQuadTreeHead;

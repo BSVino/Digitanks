@@ -49,7 +49,7 @@ CLIENT_COMMAND(CONNECTION_UNDEFINED, ClientChatSay)
 		{
 			for (size_t i = 0; i < Game()->GetNumPlayers(); i++)
 			{
-				if (iIntClient < 0 && !Game()->GetPlayer(i)->GetTeam()->IsPlayerControlled())
+				if (iIntClient < 0 && !Game()->GetPlayer(i)->IsHumanControlled())
 					continue;
 
 				if (Game()->GetPlayer(i)->GetClient() == iIntClient)

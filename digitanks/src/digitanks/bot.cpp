@@ -21,7 +21,7 @@ typedef struct
 	size_t y;
 } update_coordinate_t;
 
-void CDigitanksTeam::Bot_DownloadUpdates()
+void CDigitanksPlayer::Bot_DownloadUpdates()
 {
 	CUpdateGrid* pGrid = DigitanksGame()->GetUpdateGrid();
 	if (!pGrid)
@@ -88,17 +88,17 @@ void CDigitanksTeam::Bot_DownloadUpdates()
 	DownloadUpdate(x, y);
 }
 
-bool CDigitanksTeam::Bot_BuildFirstPriority()
+bool CDigitanksPlayer::Bot_BuildFirstPriority()
 {
 	CTerrain* pTerrain = DigitanksGame()->GetTerrain();
 
 	if (!m_hPrimaryCPU)
 		return false;
 
-	if (m_aeBuildPriorities.size() == 0)
+	if (m_aeBuildPriorities.size() == m_iBuildPrioritiesHead)
 		return false;
 
-	builditem_t* pNextBuild = &m_aeBuildPriorities.front();
+	builditem_t* pNextBuild = &m_aeBuildPriorities[m_iBuildPrioritiesHead];
 
 	if (DigitanksGame()->GetConstructionCost(pNextBuild->m_eUnit) > GetPower())
 		return false;
@@ -112,7 +112,7 @@ bool CDigitanksTeam::Bot_BuildFirstPriority()
 
 	if (pNextBuild->m_eUnit == UNIT_INFANTRY)
 	{
-		if (m_hInfantryLoader == NULL)
+		if (!m_hInfantryLoader)
 			return false;
 
 		m_hInfantryLoader->BeginProduction();
@@ -121,7 +121,7 @@ bool CDigitanksTeam::Bot_BuildFirstPriority()
 
 	if (pNextBuild->m_eUnit == UNIT_TANK)
 	{
-		if (m_hTankLoader == NULL)
+		if (!m_hTankLoader)
 			return false;
 
 		m_hTankLoader->BeginProduction();
@@ -130,7 +130,7 @@ bool CDigitanksTeam::Bot_BuildFirstPriority()
 
 	if (pNextBuild->m_eUnit == UNIT_ARTILLERY)
 	{
-		if (m_hArtilleryLoader == NULL)
+		if (!m_hArtilleryLoader)
 			return false;
 
 		m_hArtilleryLoader->BeginProduction();
@@ -163,17 +163,17 @@ bool CDigitanksTeam::Bot_BuildFirstPriority()
 
 	if (pNextBuild->m_eUnit == STRUCTURE_PSU || pNextBuild->m_eUnit == STRUCTURE_BATTERY)
 	{
-		return Bot_BuildCollector(dynamic_cast<CResource*>(pNextBuild->m_hTarget.GetPointer()));
+		return Bot_BuildCollector(dynamic_cast<CResourceNode*>(pNextBuild->m_hTarget.GetPointer()));
 	}
 
 	if (pNextBuild->m_eUnit == STRUCTURE_BUFFER || pNextBuild->m_eUnit == STRUCTURE_MINIBUFFER)
 	{
-		CResource* pTargetResource = NULL;
+		CResourceNode* pTargetResource = NULL;
 		CSupplier* pClosestSupplier = NULL;
 
 		while (true)
 		{
-			pTargetResource = CBaseEntity::FindClosest<CResource>(m_hPrimaryCPU->GetOrigin(), pTargetResource);
+			pTargetResource = CBaseEntity::FindClosest<CResourceNode>(m_hPrimaryCPU->GetGlobalOrigin(), pTargetResource);
 
 			if (!pTargetResource)
 				break;
@@ -181,7 +181,7 @@ bool CDigitanksTeam::Bot_BuildFirstPriority()
 			if (pTargetResource->HasCollector())
 				continue;
 
-			if (GetVisibilityAtPoint(pTargetResource->GetOrigin()) < 0.2f)
+			if (GetVisibilityAtPoint(pTargetResource->GetGlobalOrigin()) < 0.2f)
 				continue;
 
 			break;
@@ -191,25 +191,25 @@ bool CDigitanksTeam::Bot_BuildFirstPriority()
 		{
 			while (true)
 			{
-				pClosestSupplier = CBaseEntity::FindClosest<CSupplier>(pTargetResource->GetOrigin(), pClosestSupplier);
+				pClosestSupplier = CBaseEntity::FindClosest<CSupplier>(pTargetResource->GetGlobalOrigin(), pClosestSupplier);
 
 				if (!pClosestSupplier)
 					break;
 
-				if (pClosestSupplier->GetDigitanksTeam() != this)
+				if (pClosestSupplier->GetDigitanksPlayer() != this)
 					continue;
 
 				break;
 			}
 		}
 
-		if (pTargetResource && CSupplier::GetDataFlow(pTargetResource->GetOrigin(), this) > 0)
+		if (pTargetResource && CSupplier::GetDataFlow(pTargetResource->GetGlobalOrigin(), this) > 0)
 		{
 			return Bot_BuildCollector(pTargetResource);
 		}
 		else if (pTargetResource && pClosestSupplier)
 		{
-			Vector vecStructurePath = pTerrain->FindPath(pClosestSupplier->GetOrigin(), pTargetResource->GetOrigin(), NULL);
+			Vector vecStructurePath = pTerrain->FindPath(pClosestSupplier->GetGlobalOrigin(), pTargetResource->GetGlobalOrigin(), NULL);
 
 			size_t iTries = 0;
 			do
@@ -217,10 +217,10 @@ bool CDigitanksTeam::Bot_BuildFirstPriority()
 				// Try slightly different stuff to get around structures that may be in the way.
 				Vector vecWobble(RandomFloat(-5, 5), 0, RandomFloat(-5, 5));
 
-				Vector vecStructureDirection = (vecStructurePath + vecWobble - pClosestSupplier->GetOrigin()).Normalized();
-				Vector vecStructure = pClosestSupplier->GetOrigin() + vecStructureDirection * pClosestSupplier->GetDataFlowRadius()*9/10;
+				Vector vecStructureDirection = (vecStructurePath + vecWobble - pClosestSupplier->GetGlobalOrigin()).Normalized();
+				Vector vecStructure = pClosestSupplier->GetGlobalOrigin() + vecStructureDirection * pClosestSupplier->GetDataFlowRadius()*9/10;
 				if (CSupplier::GetDataFlow(vecStructure, this) <= 0)
-					vecStructure = pClosestSupplier->GetOrigin() + vecStructureDirection * pClosestSupplier->GetDataFlowRadius()*2/3;
+					vecStructure = pClosestSupplier->GetGlobalOrigin() + vecStructureDirection * pClosestSupplier->GetDataFlowRadius()*2/3;
 
 				vecStructure = pTerrain->GetPointHeight(vecStructure);
 
@@ -272,13 +272,13 @@ bool CDigitanksTeam::Bot_BuildFirstPriority()
 			flYaw = RandomFloat(0, 360);
 		else
 		{
-			flYaw = VectorAngles(pUnused->GetOrigin() - m_hPrimaryCPU->GetOrigin()).y;
+			flYaw = VectorAngles(pUnused->GetGlobalOrigin() - m_hPrimaryCPU->GetGlobalOrigin()).y;
 			flYaw = RandomFloat(flYaw-90, flYaw+90);
 		}
 
 		// Pick a random direction facing more or less away from the CPU so that we spread outwards.
 		Vector vecStructureDirection = AngleVector(EAngle(0, flYaw, 0));
-		vecStructure = pUnused->GetOrigin();
+		vecStructure = pUnused->GetGlobalOrigin();
 		if (eBuild == STRUCTURE_BUFFER || eBuild == STRUCTURE_MINIBUFFER)
 		{
 			Vector vecPreview = vecStructure + vecStructureDirection.Normalized() * pUnused->GetDataFlowRadius()*9/10;
@@ -344,12 +344,12 @@ bool CDigitanksTeam::Bot_BuildFirstPriority()
 	return m_hPrimaryCPU->BeginConstruction();
 }
 
-void CDigitanksTeam::Bot_AssignDefenders()
+void CDigitanksPlayer::Bot_AssignDefenders()
 {
 	tvector<CStructure*> apDefend;
-	for (size_t i = 0; i < m_ahMembers.size(); i++)
+	for (size_t i = 0; i < m_ahUnits.size(); i++)
 	{
-		CBaseEntity* pEntity = m_ahMembers[i];
+		CBaseEntity* pEntity = m_ahUnits[i];
 		if (!pEntity)
 			continue;
 
@@ -360,8 +360,8 @@ void CDigitanksTeam::Bot_AssignDefenders()
 		if (pStructure != m_hPrimaryCPU)
 		{
 			// Don't defend structures that face the back wall.
-			Vector vecStructure = pStructure->GetOrigin() - m_hPrimaryCPU->GetOrigin();
-			float flDot = -m_hPrimaryCPU->GetOrigin().Normalized().Dot(vecStructure.Normalized());
+			Vector vecStructure = pStructure->GetGlobalOrigin() - m_hPrimaryCPU->GetGlobalOrigin();
+			float flDot = -m_hPrimaryCPU->GetGlobalOrigin().Normalized().Dot(vecStructure.Normalized());
 			if (flDot < 0)
 				continue;
 		}
@@ -412,7 +412,7 @@ void CDigitanksTeam::Bot_AssignDefenders()
 	}
 }
 
-void CDigitanksTeam::Bot_ExecuteTurn()
+void CDigitanksPlayer::Bot_ExecuteTurn()
 {
 	if (DigitanksGame()->GetGameType() == GAMETYPE_CAMPAIGN)
 	{
@@ -431,12 +431,13 @@ void CDigitanksTeam::Bot_ExecuteTurn()
 	{
 		for (size_t i = m_ahAttackTeam.size()-1; i < m_ahAttackTeam.size(); i--)
 		{
-			if (m_ahAttackTeam[i] == NULL)
+			if (!m_ahAttackTeam[i])
 				m_ahAttackTeam.erase(m_ahAttackTeam.begin()+i);
 		}
 	}
 
 	m_aeBuildPriorities.clear();
+	m_iBuildPrioritiesHead = 0;
 
 	if (m_hPrimaryCPU != NULL)
 	{
@@ -454,9 +455,9 @@ void CDigitanksTeam::Bot_ExecuteTurn()
 		tvector<CEntityHandle<CMiniBuffer> > ahMinibufferUpgrades;
 		tvector<CEntityHandle<CBattery> > ahBatteryUpgrades;
 
-		for (size_t i = 0; i < GetNumMembers(); i++)
+		for (size_t i = 0; i < GetNumUnits(); i++)
 		{
-			CBaseEntity* pEntity = GetMember(i);
+			CBaseEntity* pEntity = GetUnit(i);
 			if (!pEntity)
 				continue;
 
@@ -533,24 +534,24 @@ void CDigitanksTeam::Bot_ExecuteTurn()
 
 			if (pDTEnt->GetUnitType() == STRUCTURE_ELECTRONODE)
 			{
-				CResource* pElectronode = static_cast<CResource*>(pDTEnt);
+				CResourceNode* pElectronode = static_cast<CResourceNode*>(pDTEnt);
 				if (pElectronode->HasCollector())
 					continue;
 
-				if (CSupplier::GetDataFlow(pElectronode->GetOrigin(), this) <= 0)
+				if (CSupplier::GetDataFlow(pElectronode->GetGlobalOrigin(), this) <= 0)
 					continue;
 
 				Bot_AddBuildPriority(CanBuildPSUs()?STRUCTURE_PSU:STRUCTURE_BATTERY, pElectronode);
 			}
 		}
 
-		if (m_hInfantryLoader == NULL)
+		if (!m_hInfantryLoader)
 			Bot_AddBuildPriority(STRUCTURE_INFANTRYLOADER);
 
-		if (m_hTankLoader == NULL && CanBuildTankLoaders())
+		if (!m_hTankLoader && CanBuildTankLoaders())
 			Bot_AddBuildPriority(STRUCTURE_TANKLOADER);
 
-		if (m_hArtilleryLoader == NULL && CanBuildArtilleryLoaders())
+		if (!m_hArtilleryLoader && CanBuildArtilleryLoaders())
 			Bot_AddBuildPriority(STRUCTURE_ARTILLERYLOADER);
 
 		if (m_ahAttackTeam.size() && ((float)iAutoTurrets/(float)iStructures) < 0.6f)
@@ -633,7 +634,7 @@ void CDigitanksTeam::Bot_ExecuteTurn()
 		{
 			bSuccess = Bot_BuildFirstPriority();
 			if (bSuccess)
-				m_aeBuildPriorities.pop_front();
+				m_iBuildPrioritiesHead++;
 		} while (bSuccess);
 
 		Bot_AssignDefenders();
@@ -726,8 +727,12 @@ void CDigitanksTeam::Bot_ExecuteTurn()
 		if (!pEntity)
 			continue;
 
-		CDigitank* pTank = dynamic_cast<CDigitank*>(pEntity);
-		CStructure* pStructure = dynamic_cast<CStructure*>(pEntity);
+		CDigitanksEntity* pDTEntity = dynamic_cast<CDigitanksEntity*>(pEntity);
+		if (!pDTEntity)
+			continue;
+
+		CDigitank* pTank = dynamic_cast<CDigitank*>(pDTEntity);
+		CStructure* pStructure = dynamic_cast<CStructure*>(pDTEntity);
 		if (!pTank && !pStructure)
 			continue;
 
@@ -739,13 +744,11 @@ void CDigitanksTeam::Bot_ExecuteTurn()
 			continue;
 
 		// Don't make targets out of barbarians or we'll spend the whole game fighting them.
-		if (pEntity->GetTeam() == Game()->GetTeam(0))
+		if (pDTEntity->GetOwner() == Game()->GetPlayer(0))
 			continue;
 
 		if (GetEntityVisibility(pEntity->GetHandle()) == 0)
 			continue;
-
-		CDigitanksEntity* pDTEntity = dynamic_cast<CDigitanksEntity*>(pEntity);
 
 		if (pDTEntity->GetUnitType() == UNIT_SCOUT)
 			continue;
@@ -760,14 +763,14 @@ void CDigitanksTeam::Bot_ExecuteTurn()
 			continue;
 		}
 
-		if ((pHeadTank->GetOrigin() - pDTEntity->GetOrigin()).Length2DSqr() < (pHeadTank->GetOrigin() - pTarget->GetOrigin()).Length2DSqr())
+		if ((pHeadTank->GetGlobalOrigin() - pDTEntity->GetGlobalOrigin()).Length2DSqr() < (pHeadTank->GetGlobalOrigin() - pTarget->GetGlobalOrigin()).Length2DSqr())
 			pTarget = pDTEntity;
 	}
 
 	Vector vecTargetOrigin;
 	if (pTarget)
 	{
-		vecTargetOrigin = pTarget->GetOrigin();
+		vecTargetOrigin = pTarget->GetGlobalOrigin();
 		m_bLKV = true;
 		m_vecLKV = vecTargetOrigin;
 	}
@@ -779,7 +782,7 @@ void CDigitanksTeam::Bot_ExecuteTurn()
 			if (GetTank(i)->GetUnitType() == UNIT_ARTILLERY)
 				continue;
 
-			if ((GetTank(i)->GetOrigin() - m_vecLKV).Length() < (GetTank(i)->GetEffRange()+GetTank(i)->GetMaxRange())/2)
+			if ((GetTank(i)->GetGlobalOrigin() - m_vecLKV).Length() < (GetTank(i)->GetEffRange()+GetTank(i)->GetMaxRange())/2)
 			{
 				bCloseToLKV = true;
 				break;
@@ -796,7 +799,7 @@ void CDigitanksTeam::Bot_ExecuteTurn()
 	bool bCloseToExplorePoint = false;
 	for (size_t i = 0; i < GetNumTanks(); i++)
 	{
-		if ((GetTank(i)->GetOrigin() - m_vecExplore).Length() < (GetTank(i)->GetEffRange()+GetTank(i)->GetMaxRange())/2)
+		if ((GetTank(i)->GetGlobalOrigin() - m_vecExplore).Length() < (GetTank(i)->GetEffRange()+GetTank(i)->GetMaxRange())/2)
 		{
 			bCloseToExplorePoint = true;
 			break;
@@ -848,22 +851,22 @@ void CDigitanksTeam::Bot_ExecuteTurn()
 		if (pTank->IsMobileCPU())
 		{
 			// Move halfway to the closest available resource and put down.
-			CResource* pResource = CBaseEntity::FindClosest<CResource>(pTank->GetOrigin(), NULL);
+			CResourceNode* pResource = CBaseEntity::FindClosest<CResourceNode>(pTank->GetGlobalOrigin(), NULL);
 
 			if (pResource)
 			{
-				float flDistance = pResource->Distance(pTank->GetOrigin())/2;
+				float flDistance = pResource->Distance(pTank->GetGlobalOrigin())/2;
 
 				float flMovementDistance = pTank->GetRemainingMovementDistance() * 0.9f;
 
 				if (flMovementDistance < flDistance)
 					flDistance = flMovementDistance;
 
-				Vector vecDirection = pResource->GetOrigin() - pTank->GetOrigin();
+				Vector vecDirection = pResource->GetGlobalOrigin() - pTank->GetGlobalOrigin();
 				vecDirection = vecDirection.Normalized() * flDistance;
 
-				Vector vecDesiredMove = pTank->GetOrigin() + vecDirection;
-				vecDesiredMove.y = pTank->FindHoverHeight(vecDesiredMove);
+				Vector vecDesiredMove = pTank->GetGlobalOrigin() + vecDirection;
+				vecDesiredMove.z = pTank->FindHoverHeight(vecDesiredMove);
 
 				pTank->SetPreviewMove(vecDesiredMove);
 				pTank->Move();
@@ -877,7 +880,7 @@ void CDigitanksTeam::Bot_ExecuteTurn()
 			CMechInfantry* pClosestInfantry = NULL;
 			while (true)
 			{
-				pClosestInfantry = CBaseEntity::FindClosest<CMechInfantry>(pTank->GetOrigin(), pClosestInfantry);
+				pClosestInfantry = CBaseEntity::FindClosest<CMechInfantry>(pTank->GetGlobalOrigin(), pClosestInfantry);
 
 				if (!pClosestInfantry)
 					break;
@@ -885,7 +888,7 @@ void CDigitanksTeam::Bot_ExecuteTurn()
 				if (pClosestInfantry->GetTeam() == pTank->GetTeam())
 					continue;
 
-				if (!pClosestInfantry->IsInsideMaxRange(pTank->GetOrigin()))
+				if (!pClosestInfantry->IsInsideMaxRange(pTank->GetGlobalOrigin()))
 				{
 					pClosestInfantry = NULL;
 					break;
@@ -899,7 +902,7 @@ void CDigitanksTeam::Bot_ExecuteTurn()
 			CSupplyLine* pClosestSupply = NULL;
 			while (true)
 			{
-				pClosestSupply = CBaseEntity::FindClosest<CSupplyLine>(pTank->GetOrigin(), pClosestSupply);
+				pClosestSupply = CBaseEntity::FindClosest<CSupplyLine>(pTank->GetGlobalOrigin(), pClosestSupply);
 
 				if (!pClosestSupply)
 					break;
@@ -926,7 +929,7 @@ void CDigitanksTeam::Bot_ExecuteTurn()
 				if (pClosestSupply->GetIntegrity() < 0.3f)
 					continue;
 
-				if (pClosestSupply->Distance(pTank->GetOrigin()) > pTank->VisibleRange())
+				if (pClosestSupply->Distance(pTank->GetGlobalOrigin()) > pTank->VisibleRange())
 				{
 					pClosestSupply = NULL;
 					break;
@@ -940,7 +943,7 @@ void CDigitanksTeam::Bot_ExecuteTurn()
 
 			Vector vecPoint;
 			if (pClosestSupply)
-				DistanceToLineSegment(pTank->GetOrigin(), pClosestSupply->GetEntity()->GetOrigin(), pClosestSupply->GetSupplier()->GetOrigin(), &vecPoint);
+				DistanceToLineSegment(pTank->GetGlobalOrigin(), pClosestSupply->GetEntity()->GetGlobalOrigin(), pClosestSupply->GetSupplier()->GetGlobalOrigin(), &vecPoint);
 
 			// Bomb it until it's below 1/3 and then our job is done, move to the next one.
 			if (pClosestSupply && pTank->IsInsideMaxRange(vecPoint))
@@ -955,7 +958,7 @@ void CDigitanksTeam::Bot_ExecuteTurn()
 				// Otherwise look for the closest enemy and fire on them.
 				while (true)
 				{
-					pClosestEnemy = CBaseEntity::FindClosest<CDigitank>(pTank->GetOrigin(), pClosestEnemy);
+					pClosestEnemy = CBaseEntity::FindClosest<CDigitank>(pTank->GetGlobalOrigin(), pClosestEnemy);
 
 					if (!pClosestEnemy)
 						break;
@@ -966,7 +969,7 @@ void CDigitanksTeam::Bot_ExecuteTurn()
 					if (pClosestEnemy->GetTeam() == pTank->GetTeam())
 						continue;
 
-					if (!pTank->IsInsideMaxRange(pClosestEnemy->GetOrigin()))
+					if (!pTank->IsInsideMaxRange(pClosestEnemy->GetGlobalOrigin()))
 					{
 						pClosestEnemy = NULL;
 						break;
@@ -978,9 +981,9 @@ void CDigitanksTeam::Bot_ExecuteTurn()
 				if (pClosestEnemy)
 				{
 					// If we are within the max range, try to fire.
-					if (pTank->IsInsideMaxRange(pClosestEnemy->GetOrigin()))
+					if (pTank->IsInsideMaxRange(pClosestEnemy->GetGlobalOrigin()))
 					{
-						pTank->SetPreviewAim(DigitanksGame()->GetTerrain()->GetPointHeight(pClosestEnemy->GetOrigin()));
+						pTank->SetPreviewAim(DigitanksGame()->GetTerrain()->GetPointHeight(pClosestEnemy->GetGlobalOrigin()));
 						pTank->Fire();
 					}
 				}
@@ -992,26 +995,26 @@ void CDigitanksTeam::Bot_ExecuteTurn()
 			{
 				// Scouts hate infantry! Move directly away from them.
 				float flMovementDistance = pTank->GetRemainingMovementDistance();
-				Vector vecDirection = pTank->GetOrigin() - pClosestInfantry->GetOrigin();
+				Vector vecDirection = pTank->GetGlobalOrigin() - pClosestInfantry->GetGlobalOrigin();
 				vecDirection = vecDirection.Normalized() * (flMovementDistance*flMovementPower);
 
-				vecDesiredMove = pTank->GetOrigin() + vecDirection;
-				vecDesiredMove.y = pTank->FindHoverHeight(vecDesiredMove);
+				vecDesiredMove = pTank->GetGlobalOrigin() + vecDirection;
+				vecDesiredMove.z = pTank->FindHoverHeight(vecDesiredMove);
 				bMove = true;
 			}
 			else if (pClosestSupply)
 			{
-				if (!pTank->IsInsideMaxRange(pClosestSupply->GetOrigin()))
+				if (!pTank->IsInsideMaxRange(pClosestSupply->GetGlobalOrigin()))
 				{
 					if (!pTank->HasFiredWeapon())
 						flMovementPower = 0.69f;
 
 					float flMovementDistance = pTank->GetRemainingMovementDistance();
-					Vector vecDirection = vecPoint - pTank->GetOrigin();
+					Vector vecDirection = vecPoint - pTank->GetGlobalOrigin();
 					vecDirection = vecDirection.Normalized() * (flMovementDistance*flMovementPower);
 
-					vecDesiredMove = pTank->GetOrigin() + vecDirection;
-					vecDesiredMove.y = pTank->FindHoverHeight(vecDesiredMove);
+					vecDesiredMove = pTank->GetGlobalOrigin() + vecDirection;
+					vecDesiredMove.z = pTank->FindHoverHeight(vecDesiredMove);
 					bMove = true;
 				}
 
@@ -1021,7 +1024,7 @@ void CDigitanksTeam::Bot_ExecuteTurn()
 			{
 				float flMovementDistance = pTank->GetRemainingMovementDistance();
 
-				vecDesiredMove = DigitanksGame()->GetTerrain()->FindPath(pTank->GetOrigin(), m_vecExplore, pTank);
+				vecDesiredMove = DigitanksGame()->GetTerrain()->FindPath(pTank->GetGlobalOrigin(), m_vecExplore, pTank);
 				bMove = true;
 			}
 
@@ -1032,7 +1035,7 @@ void CDigitanksTeam::Bot_ExecuteTurn()
 			}
 
 			if (pClosestSupply)
-				DistanceToLineSegment(pTank->GetOrigin(), pClosestSupply->GetEntity()->GetOrigin(), pClosestSupply->GetSupplier()->GetOrigin(), &vecPoint);
+				DistanceToLineSegment(pTank->GetGlobalOrigin(), pClosestSupply->GetEntity()->GetGlobalOrigin(), pClosestSupply->GetSupplier()->GetGlobalOrigin(), &vecPoint);
 
 			// Maybe now that we've moved closer we can try to fire again.
 			if (pClosestSupply && pClosestSupply->GetIntegrity() > 0.3f && pTank->IsInsideMaxRange(vecPoint))
@@ -1044,9 +1047,9 @@ void CDigitanksTeam::Bot_ExecuteTurn()
 			else if (pClosestEnemy)
 			{
 				// If we are within the max range, try to fire.
-				if (pTank->IsInsideMaxRange(pClosestEnemy->GetOrigin()))
+				if (pTank->IsInsideMaxRange(pClosestEnemy->GetGlobalOrigin()))
 				{
-					pTank->SetPreviewAim(DigitanksGame()->GetTerrain()->GetPointHeight(pClosestEnemy->GetOrigin()));
+					pTank->SetPreviewAim(DigitanksGame()->GetTerrain()->GetPointHeight(pClosestEnemy->GetGlobalOrigin()));
 					pTank->Fire();
 				}
 			}
@@ -1062,18 +1065,18 @@ void CDigitanksTeam::Bot_ExecuteTurn()
 
 			// WE WILL ATTACK ALL NIGHT, AND WE WILL ATTACK THROUGH THE MORNING, AND IF WE ARE NOT VICTORIOUS THEN LET NO MAN COME BACK ALIVE
 			// I've been watching too much of the movie Patton. It's research!
-			if ((vecTargetOrigin - pTank->GetOrigin()).LengthSqr() > pTank->GetEffRange()*pTank->GetEffRange())
+			if ((vecTargetOrigin - pTank->GetGlobalOrigin()).LengthSqr() > pTank->GetEffRange()*pTank->GetEffRange())
 			{
-				Vector vecDesiredMove = DigitanksGame()->GetTerrain()->FindPath(pTank->GetOrigin(), vecTargetOrigin + Vector(RandomFloat(-4, 4), 0, RandomFloat(-4, 4)), pTank);
+				Vector vecDesiredMove = DigitanksGame()->GetTerrain()->FindPath(pTank->GetGlobalOrigin(), vecTargetOrigin + Vector(RandomFloat(-4, 4), 0, RandomFloat(-4, 4)), pTank);
 
 				if (pTank->GetUnitType() == UNIT_INFANTRY)
 				{
-					Vector vecMove = vecDesiredMove - pTank->GetOrigin();
+					Vector vecMove = vecDesiredMove - pTank->GetGlobalOrigin();
 
 					// Don't let resistors get ahead of their tank complements.
 					vecMove *= 0.7f;
 
-					vecDesiredMove = pTank->GetOrigin() + vecMove;
+					vecDesiredMove = pTank->GetGlobalOrigin() + vecMove;
 				}
 
 				pTank->SetPreviewMove(vecDesiredMove);
@@ -1100,7 +1103,7 @@ void CDigitanksTeam::Bot_ExecuteTurn()
 				CDigitank* pClosestEnemy = NULL;
 				while (true)
 				{
-					pClosestEnemy = CBaseEntity::FindClosest<CDigitank>(pTank->GetOrigin(), pClosestEnemy);
+					pClosestEnemy = CBaseEntity::FindClosest<CDigitank>(pTank->GetGlobalOrigin(), pClosestEnemy);
 
 					if (!pClosestEnemy)
 						break;
@@ -1108,7 +1111,7 @@ void CDigitanksTeam::Bot_ExecuteTurn()
 					if (pClosestEnemy->GetTeam() == pTank->GetTeam())
 						continue;
 
-					if (!pTank->IsInsideMaxRange(pClosestEnemy->GetOrigin()))
+					if (!pTank->IsInsideMaxRange(pClosestEnemy->GetGlobalOrigin()))
 					{
 						pClosestEnemy = NULL;
 						break;
@@ -1120,7 +1123,7 @@ void CDigitanksTeam::Bot_ExecuteTurn()
 				if (pClosestEnemy)
 				{
 					// If we are within the max range, try to fire.
-					if (pTank->IsInsideMaxRange(pClosestEnemy->GetOrigin()))
+					if (pTank->IsInsideMaxRange(pClosestEnemy->GetGlobalOrigin()))
 					{
 						if (pTank->IsInfantry())
 						{
@@ -1130,7 +1133,7 @@ void CDigitanksTeam::Bot_ExecuteTurn()
 								pTank->SetCurrentWeapon(PROJECTILE_FLAK, false);
 						}
 
-						pTank->SetPreviewAim(DigitanksGame()->GetTerrain()->GetPointHeight(pClosestEnemy->GetOrigin()));
+						pTank->SetPreviewAim(DigitanksGame()->GetTerrain()->GetPointHeight(pClosestEnemy->GetGlobalOrigin()));
 						pTank->Fire();
 					}
 				}
@@ -1138,12 +1141,12 @@ void CDigitanksTeam::Bot_ExecuteTurn()
 		}
 		else if (pTank->HasFortifyPoint() && !pTank->IsFortified())
 		{
-			if (!pTank->IsFortified() && (pTank->GetOrigin() - pTank->GetFortifyPoint()).Length2D() < pTank->GetBoundingRadius()*2)
+			if (!pTank->IsFortified() && (pTank->GetGlobalOrigin() - pTank->GetFortifyPoint()).Length2D() < pTank->GetBoundingRadius()*2)
 			{
 				CCPU* pDefend = m_hPrimaryCPU;
 				if (pDefend)
 				{
-					pTank->SetPreviewTurn(VectorAngles(pTank->GetOrigin() - pDefend->GetOrigin()).y);
+					pTank->SetPreviewTurn(VectorAngles(pTank->GetGlobalOrigin() - pDefend->GetGlobalOrigin()).y);
 					pTank->Turn();
 				}
 
@@ -1152,12 +1155,12 @@ void CDigitanksTeam::Bot_ExecuteTurn()
 			else
 			{
 				// Head to the fortify point
-				Vector vecDesiredMove = DigitanksGame()->GetTerrain()->FindPath(pTank->GetOrigin(), pTank->GetFortifyPoint(), pTank);
+				Vector vecDesiredMove = DigitanksGame()->GetTerrain()->FindPath(pTank->GetGlobalOrigin(), pTank->GetFortifyPoint(), pTank);
 
 				pTank->SetPreviewMove(vecDesiredMove);
 				pTank->Move();
 
-				pTank->SetPreviewTurn(VectorAngles(vecTargetOrigin - pTank->GetOrigin()).y);
+				pTank->SetPreviewTurn(VectorAngles(vecTargetOrigin - pTank->GetGlobalOrigin()).y);
 				pTank->Turn();
 			}
 		}
@@ -1167,7 +1170,7 @@ void CDigitanksTeam::Bot_ExecuteTurn()
 			CDigitank* pClosestEnemy = NULL;
 			while (true)
 			{
-				pClosestEnemy = CBaseEntity::FindClosest<CDigitank>(pTank->GetOrigin(), pClosestEnemy);
+				pClosestEnemy = CBaseEntity::FindClosest<CDigitank>(pTank->GetGlobalOrigin(), pClosestEnemy);
 
 				if (!pClosestEnemy)
 					break;
@@ -1185,7 +1188,7 @@ void CDigitanksTeam::Bot_ExecuteTurn()
 				if (flTargetVisibility < 1 && RandomFloat(0, 1) > flTargetVisibility)
 					continue;
 
-				if (!pClosestEnemy->IsInsideMaxRange(pTank->GetOrigin()))
+				if (!pClosestEnemy->IsInsideMaxRange(pTank->GetGlobalOrigin()))
 				{
 					pClosestEnemy = NULL;
 					break;
@@ -1201,11 +1204,11 @@ void CDigitanksTeam::Bot_ExecuteTurn()
 
 				// Head away from enemies at full speed
 				float flMovementDistance = pTank->GetRemainingMovementDistance();
-				Vector vecDirection = vecTargetOrigin - pTank->GetOrigin();
+				Vector vecDirection = vecTargetOrigin - pTank->GetGlobalOrigin();
 				vecDirection = -vecDirection.Normalized() * (flMovementDistance*0.90f);
 
-				Vector vecDesiredMove = pTank->GetOrigin() + vecDirection;
-				vecDesiredMove.y = pTank->FindHoverHeight(vecDesiredMove);
+				Vector vecDesiredMove = pTank->GetGlobalOrigin() + vecDirection;
+				vecDesiredMove.z = pTank->FindHoverHeight(vecDesiredMove);
 
 				pTank->SetPreviewMove(vecDesiredMove);
 				pTank->Move();
@@ -1214,7 +1217,7 @@ void CDigitanksTeam::Bot_ExecuteTurn()
 			{
 				if (pTarget)
 				{
-					float flDistanceToTarget = (pTank->GetOrigin() - pTarget->GetOrigin()).Length();
+					float flDistanceToTarget = (pTank->GetGlobalOrigin() - pTarget->GetGlobalOrigin()).Length();
 
 					if (flDistanceToTarget > pTank->GetMinRange() && flDistanceToTarget < pTank->GetMaxRange())
 					{
@@ -1226,7 +1229,7 @@ void CDigitanksTeam::Bot_ExecuteTurn()
 						else
 						{
 							// Deploy so we can rain some hell down.
-							pTank->SetPreviewTurn(VectorAngles(vecTargetOrigin - pTank->GetOrigin()).y);
+							pTank->SetPreviewTurn(VectorAngles(vecTargetOrigin - pTank->GetGlobalOrigin()).y);
 							pTank->Turn();
 							pTank->Fortify();
 						}
@@ -1238,11 +1241,11 @@ void CDigitanksTeam::Bot_ExecuteTurn()
 
 						// Head towards the target
 						float flMovementDistance = pTank->GetRemainingMovementDistance();
-						Vector vecDirection = pTarget->GetOrigin() - pTank->GetOrigin();
+						Vector vecDirection = pTarget->GetGlobalOrigin() - pTank->GetGlobalOrigin();
 						vecDirection = vecDirection.Normalized() * (flMovementDistance*0.90f);
 
-						Vector vecDesiredMove = pTank->GetOrigin() + vecDirection;
-						vecDesiredMove.y = pTank->FindHoverHeight(vecDesiredMove);
+						Vector vecDesiredMove = pTank->GetGlobalOrigin() + vecDirection;
+						vecDesiredMove.z = pTank->FindHoverHeight(vecDesiredMove);
 
 						pTank->SetPreviewMove(vecDesiredMove);
 						pTank->Move();
@@ -1254,7 +1257,7 @@ void CDigitanksTeam::Bot_ExecuteTurn()
 		else if (pTank->CanFortify())
 		{
 			// If the fortify point has moved, we must move.
-			if (pTank->IsFortified() && (pTank->GetOrigin() - pTank->GetFortifyPoint()).Length2D() > pTank->GetRemainingMovementDistance()*2)
+			if (pTank->IsFortified() && (pTank->GetGlobalOrigin() - pTank->GetFortifyPoint()).Length2D() > pTank->GetRemainingMovementDistance()*2)
 				pTank->Fortify();
 		}
 		else
@@ -1264,7 +1267,7 @@ void CDigitanksTeam::Bot_ExecuteTurn()
 			CDigitank* pClosestEnemy = NULL;
 			while (true)
 			{
-				pClosestEnemy = CBaseEntity::FindClosest<CDigitank>(pTank->GetOrigin(), pClosestEnemy);
+				pClosestEnemy = CBaseEntity::FindClosest<CDigitank>(pTank->GetGlobalOrigin(), pClosestEnemy);
 
 				if (!pClosestEnemy)
 					break;
@@ -1282,9 +1285,9 @@ void CDigitanksTeam::Bot_ExecuteTurn()
 				if (flTargetVisibility < 1 && RandomFloat(0, 1) > flTargetVisibility)
 					continue;
 
-				if (!pTank->IsInsideMaxRange(pClosestEnemy->GetOrigin()))
+				if (!pTank->IsInsideMaxRange(pClosestEnemy->GetGlobalOrigin()))
 				{
-					if (pClosestEnemy->Distance(pTank->GetOrigin()) < pTank->VisibleRange()*1.5f)
+					if (pClosestEnemy->Distance(pTank->GetGlobalOrigin()) < pTank->VisibleRange()*1.5f)
 						break;
 
 					pClosestEnemy = NULL;
@@ -1296,21 +1299,21 @@ void CDigitanksTeam::Bot_ExecuteTurn()
 
 			if (pClosestEnemy)
 			{
-				if (pClosestEnemy->Distance(pTank->GetOrigin()) < pTank->VisibleRange())
+				if (pClosestEnemy->Distance(pTank->GetGlobalOrigin()) < pTank->VisibleRange())
 				{
 					// Jesus we were just hanging out at the base and this asshole came up and started shooting us!
-					if ((pClosestEnemy->GetOrigin() - pTank->GetOrigin()).LengthSqr() > pTank->GetEffRange()*pTank->GetEffRange())
+					if ((pClosestEnemy->GetGlobalOrigin() - pTank->GetGlobalOrigin()).LengthSqr() > pTank->GetEffRange()*pTank->GetEffRange())
 					{
-						Vector vecDesiredMove = pTank->GetOrigin() + (pClosestEnemy->GetOrigin() - pTank->GetOrigin()).Normalized() * (pTank->GetRemainingMovementDistance() * 0.6f);
+						Vector vecDesiredMove = pTank->GetGlobalOrigin() + (pClosestEnemy->GetGlobalOrigin() - pTank->GetGlobalOrigin()).Normalized() * (pTank->GetRemainingMovementDistance() * 0.6f);
 
 						pTank->SetPreviewMove(vecDesiredMove);
 						pTank->Move();
 					}
 
 					// If we are within the max range, try to fire.
-					if (pTank->IsInsideMaxRange(pClosestEnemy->GetOrigin()))
+					if (pTank->IsInsideMaxRange(pClosestEnemy->GetGlobalOrigin()))
 					{
-						pTank->SetPreviewAim(DigitanksGame()->GetTerrain()->GetPointHeight(pClosestEnemy->GetOrigin()));
+						pTank->SetPreviewAim(DigitanksGame()->GetTerrain()->GetPointHeight(pClosestEnemy->GetGlobalOrigin()));
 						pTank->Fire();
 					}
 				}
@@ -1336,7 +1339,7 @@ void CDigitanksTeam::Bot_ExecuteTurn()
 				// Otherwise look for the closest enemy and fire on them.
 				while (true)
 				{
-					pClosestEnemy = CBaseEntity::FindClosest<CDigitank>(pTank->GetOrigin(), pClosestEnemy);
+					pClosestEnemy = CBaseEntity::FindClosest<CDigitank>(pTank->GetGlobalOrigin(), pClosestEnemy);
 
 					if (!pClosestEnemy)
 						break;
@@ -1354,7 +1357,7 @@ void CDigitanksTeam::Bot_ExecuteTurn()
 					if (flTargetVisibility < 1 && RandomFloat(0, 1) > flTargetVisibility)
 						continue;
 
-					if (!pTank->IsInsideMaxRange(pClosestEnemy->GetOrigin()))
+					if (!pTank->IsInsideMaxRange(pClosestEnemy->GetGlobalOrigin()))
 					{
 						pClosestEnemy = NULL;
 						break;
@@ -1370,7 +1373,7 @@ void CDigitanksTeam::Bot_ExecuteTurn()
 					else
 						pTank->SetCurrentWeapon(PROJECTILE_FLAK, false);
 
-					pTank->SetPreviewAim(DigitanksGame()->GetTerrain()->GetPointHeight(pClosestEnemy->GetOrigin()));
+					pTank->SetPreviewAim(DigitanksGame()->GetTerrain()->GetPointHeight(pClosestEnemy->GetGlobalOrigin()));
 					pTank->Fire();
 				}
 			}
@@ -1380,7 +1383,7 @@ void CDigitanksTeam::Bot_ExecuteTurn()
 	DigitanksGame()->EndTurn();
 }
 
-void CDigitanksTeam::Bot_ExecuteTurnArtillery()
+void CDigitanksPlayer::Bot_ExecuteTurnArtillery()
 {
 	// Find the nearest enemy to the head tank, he's our target.
 	for (size_t i = 0; i < GetNumTanks(); i++)
@@ -1428,10 +1431,10 @@ void CDigitanksTeam::Bot_ExecuteTurnArtillery()
 
 			if (!pClosestEnemy)
 				pClosestEnemy = dynamic_cast<CDigitanksEntity*>(pEntity);
-			else if (pClosestEnemy->Distance(pTank->GetOrigin()) > pEntity->Distance(pTank->GetOrigin()))
+			else if (pClosestEnemy->Distance(pTank->GetGlobalOrigin()) > pEntity->Distance(pTank->GetGlobalOrigin()))
 				pClosestEnemy = dynamic_cast<CDigitanksEntity*>(pEntity);
 
-			if (!pTank->IsInsideMaxRange(pEntity->GetOrigin()))
+			if (!pTank->IsInsideMaxRange(pEntity->GetGlobalOrigin()))
 				continue;
 
 			float flTargetVisibility = pTank->GetVisibility(this);
@@ -1441,7 +1444,7 @@ void CDigitanksTeam::Bot_ExecuteTurnArtillery()
 			apTargets.push_back(pEntity);
 		}
 
-		if (pClosestEnemy && pTank->CanCharge() && pClosestEnemy->Distance(pTank->GetOrigin()) < pTank->ChargeRadius() && RandomInt(0, 3) == 0)
+		if (pClosestEnemy && pTank->CanCharge() && pClosestEnemy->Distance(pTank->GetGlobalOrigin()) < pTank->ChargeRadius() && RandomInt(0, 3) == 0)
 		{
 			pTank->SetPreviewCharge(pClosestEnemy);
 			pTank->Charge();
@@ -1457,15 +1460,15 @@ void CDigitanksTeam::Bot_ExecuteTurnArtillery()
 			if (pClosestEnemy)
 			{
 				float flMovementDistance = pTank->GetRemainingMovementDistance();
-				Vector vecDirection = pClosestEnemy->GetOrigin() - pTank->GetOrigin();
+				Vector vecDirection = pClosestEnemy->GetGlobalOrigin() - pTank->GetGlobalOrigin();
 
 				int iTries = 0;
 				do
 				{
 					vecDirection = vecDirection.Normalized() * (flMovementDistance*4/5);
 
-					Vector vecDesiredMove = pTank->GetOrigin() + vecDirection;
-					vecDesiredMove.y = pTank->FindHoverHeight(vecDesiredMove);
+					Vector vecDesiredMove = pTank->GetGlobalOrigin() + vecDirection;
+					vecDesiredMove.z = pTank->FindHoverHeight(vecDesiredMove);
 
 					pTank->SetPreviewMove(vecDesiredMove);
 
@@ -1489,23 +1492,23 @@ void CDigitanksTeam::Bot_ExecuteTurnArtillery()
 		pTank->SetCurrentWeapon(eWeapon, false);
 
 		// If we are not within the effective range, use some of our available movement power to move towards our target.
-		if ((pTarget->GetOrigin() - pTank->GetOrigin()).LengthSqr() > pTank->GetEffRange()*pTank->GetEffRange())
+		if ((pTarget->GetGlobalOrigin() - pTank->GetGlobalOrigin()).LengthSqr() > pTank->GetEffRange()*pTank->GetEffRange())
 		{
 			float flMovementDistance = pTank->GetRemainingMovementDistance();
-			Vector vecDirection = pTarget->GetOrigin() - pTank->GetOrigin();
+			Vector vecDirection = pTarget->GetGlobalOrigin() - pTank->GetGlobalOrigin();
 			vecDirection = vecDirection.Normalized() * (flMovementDistance*2/3);
 
-			Vector vecDesiredMove = pTank->GetOrigin() + vecDirection;
-			vecDesiredMove.y = pTank->FindHoverHeight(vecDesiredMove);
+			Vector vecDesiredMove = pTank->GetGlobalOrigin() + vecDirection;
+			vecDesiredMove.z = pTank->FindHoverHeight(vecDesiredMove);
 
 			pTank->SetPreviewMove(vecDesiredMove);
 			pTank->Move();
 		}
 
 		// If we are within the max range, try to fire.
-		if (pTarget && pTank->IsInsideMaxRange(pTarget->GetOrigin()))
+		if (pTarget && pTank->IsInsideMaxRange(pTarget->GetGlobalOrigin()))
 		{
-			pTank->SetPreviewAim(DigitanksGame()->GetTerrain()->GetPointHeight(pTarget->GetOrigin()));
+			pTank->SetPreviewAim(DigitanksGame()->GetTerrain()->GetPointHeight(pTarget->GetGlobalOrigin()));
 			pTank->Fire();
 		}
 	}
@@ -1513,14 +1516,14 @@ void CDigitanksTeam::Bot_ExecuteTurnArtillery()
 	DigitanksGame()->EndTurn();
 }
 
-CSupplier* CDigitanksTeam::Bot_FindUnusedSupplier(size_t iMaxDependents, bool bNoSuppliers)
+CSupplier* CDigitanksPlayer::Bot_FindUnusedSupplier(size_t iMaxDependents, bool bNoSuppliers)
 {
 	tvector<CSupplier*> apSuppliers;
 
 	// Find an appropriate supplier to build from.
-	for (size_t i = 0; i < GetNumMembers(); i++)
+	for (size_t i = 0; i < GetNumUnits(); i++)
 	{
-		CBaseEntity* pEntity = GetMember(i);
+		CDigitanksEntity* pEntity = GetUnit(i);
 		if (!pEntity)
 			continue;
 
@@ -1556,15 +1559,15 @@ CSupplier* CDigitanksTeam::Bot_FindUnusedSupplier(size_t iMaxDependents, bool bN
 	return apSuppliers[rand()%apSuppliers.size()];
 }
 
-bool CDigitanksTeam::Bot_BuildCollector(CResource* pResource)
+bool CDigitanksPlayer::Bot_BuildCollector(CResourceNode* pResource)
 {
 	if (!pResource)
 		return false;
 
-	if (CSupplier::GetDataFlow(pResource->GetOrigin(), this) < 1)
+	if (CSupplier::GetDataFlow(pResource->GetGlobalOrigin(), this) < 1)
 		return false;
 
-	Vector vecPSU = DigitanksGame()->GetTerrain()->GetPointHeight(pResource->GetOrigin());
+	Vector vecPSU = DigitanksGame()->GetTerrain()->GetPointHeight(pResource->GetGlobalOrigin());
 
 	m_hPrimaryCPU->SetPreviewStructure(CanBuildPSUs()?STRUCTURE_PSU:STRUCTURE_BATTERY);
 	m_hPrimaryCPU->SetPreviewBuild(vecPSU);
@@ -1575,7 +1578,7 @@ bool CDigitanksTeam::Bot_BuildCollector(CResource* pResource)
 	return m_hPrimaryCPU->BeginConstruction();
 }
 
-void CDigitanksTeam::Bot_AddBuildPriority(unittype_t eUnit, CDigitanksEntity* pTarget)
+void CDigitanksPlayer::Bot_AddBuildPriority(unittype_t eUnit, CDigitanksEntity* pTarget)
 {
 	builditem_t eBuildItem;
 	eBuildItem.m_eUnit = eUnit;
@@ -1590,11 +1593,11 @@ void CStructure::AddDefender(CDigitank* pTank)
 
 	for (size_t i = 0; i < m_aoDefenders.size(); i++)
 	{
-		if (m_aoDefenders[i].m_hDefender == NULL)
+		if (!m_aoDefenders[i].m_hDefender)
 		{
 			m_aoDefenders[i].m_hDefender = pTank;
 
-			Vector vecFortify = GetOrigin() + AngleVector(EAngle(0, m_aoDefenders[i].m_flPosition, 0)) * 20;
+			Vector vecFortify = GetGlobalOrigin() + AngleVector(EAngle(0, m_aoDefenders[i].m_flPosition, 0)) * 20;
 			vecFortify = pTerrain->GetPointHeight(vecFortify);
 
 			if (pTerrain->IsPointOverHole(vecFortify) || pTerrain->IsPointOverWater(vecFortify) || pTerrain->IsPointOverLava(vecFortify))
@@ -1608,9 +1611,9 @@ void CStructure::AddDefender(CDigitank* pTank)
 	// Member 0 is typically the CPU.
 	float flYaw;
 	if (dynamic_cast<CCPU*>(this))
-		flYaw = VectorAngles(-GetOrigin()).y;
+		flYaw = VectorAngles(-GetGlobalOrigin()).y;
 	else
-		flYaw = VectorAngles(GetOrigin() - pTank->GetDigitanksTeam()->GetMember(0)->GetOrigin()).y;
+		flYaw = VectorAngles(GetGlobalOrigin() - pTank->GetDigitanksPlayer()->GetUnit(0)->GetGlobalOrigin()).y;
 
 	size_t iFortifies = m_aoDefenders.size();
 
@@ -1628,7 +1631,7 @@ void CStructure::AddDefender(CDigitank* pTank)
 		else
 			flYaw -= 45*(iFortifies/2+1);
 
-		vecFortify = GetOrigin() + AngleVector(EAngle(0, flYaw, 0)) * 20;
+		vecFortify = GetGlobalOrigin() + AngleVector(EAngle(0, flYaw, 0)) * 20;
 		vecFortify = DigitanksGame()->GetTerrain()->GetPointHeight(vecFortify);
 
 		iFortifies++;
@@ -1666,7 +1669,7 @@ size_t CStructure::GetNumLivingDefenders()
 	size_t iDefenders = 0;
 	for (size_t i = 0; i < m_aoDefenders.size(); i++)
 	{
-		if (m_aoDefenders[i].m_hDefender == NULL)
+		if (!m_aoDefenders[i].m_hDefender)
 			continue;
 
 		if (m_aoDefenders[i].m_hDefender->IsAlive())

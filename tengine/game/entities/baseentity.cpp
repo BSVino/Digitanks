@@ -885,6 +885,16 @@ void CBaseEntity::SetTeam(class CTeam* pTeam)
 	OnTeamChange();
 }
 
+CBaseEntity* CBaseEntity::GetOwner() const
+{
+	return m_hOwner;
+}
+
+void CBaseEntity::SetOwner(CBaseEntity* pOwner)
+{
+	m_hOwner = pOwner;
+}
+
 void CBaseEntity::ClientUpdate(int iClient)
 {
 }

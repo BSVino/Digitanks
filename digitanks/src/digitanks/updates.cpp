@@ -429,10 +429,10 @@ void CUpdateGrid::SetupStandardUpdates()
 	m_aUpdates[iCPU+2][iCPU-11].m_flSize = 80;
 
 
-	for (size_t i = 0; i < DigitanksGame()->GetNumTeams(); i++)
+	for (size_t i = 0; i < DigitanksGame()->GetNumPlayers(); i++)
 	{
-		DigitanksGame()->GetDigitanksTeam(i)->DownloadUpdate(iCPU, iCPU, false);
-		DigitanksGame()->GetDigitanksTeam(i)->DownloadComplete(false);
+		DigitanksGame()->GetDigitanksPlayer(i)->DownloadUpdate(iCPU, iCPU, false);
+		DigitanksGame()->GetDigitanksPlayer(i)->DownloadComplete(false);
 	}
 
 	m_iLowestX = UPDATE_GRID_SIZE;

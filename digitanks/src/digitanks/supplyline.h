@@ -13,7 +13,7 @@ public:
 
 	void							SetEntities(class CSupplier* pSupplier, CBaseEntity* pEntity);
 
-	virtual Vector					GetOrigin() const;
+	virtual const TVector			GetGlobalOrigin() const;
 	virtual const TFloat			GetRenderRadius() const;
 	virtual float					Distance(Vector vecSpot) const;
 
@@ -24,7 +24,7 @@ public:
 	void							SetIntegrity(float flIntegrity) { m_flIntegrity = flIntegrity; m_bDelayRecharge = false; };
 
 	virtual bool					ShouldRender() const { return true; };
-	virtual void					PostRender(bool bTransparent) const;
+	virtual void					PostRender() const;
 
 	CSupplier*						GetSupplier();
 	CBaseEntity*					GetEntity();
@@ -38,7 +38,7 @@ protected:
 	CNetworkedVariable<float>		m_flIntegrity;
 	bool							m_bDelayRecharge;
 
-	static size_t					s_iSupplyBeam;
+	static CMaterialHandle           s_hSupplyBeam;
 };
 
 #endif

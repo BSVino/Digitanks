@@ -1,6 +1,7 @@
 #include "missiledefense.h"
 
 #include <maths.h>
+#include <renderer/game_renderingcontext.h>
 
 #include <digitanksgame.h>
 #include <dt_renderer.h>
@@ -23,17 +24,17 @@ void CMissileDefense::SetTarget(CProjectile* pTarget)
 	m_hTarget = pTarget;
 }
 
-Vector CMissileDefense::GetOrigin() const
+const TVector CMissileDefense::GetGlobalOrigin() const
 {
 	if (!m_hOwner)
-		return BaseClass::GetOrigin();
+		return BaseClass::GetGlobalOrigin();
 
 	float flTimeSinceFire = GameServer()->GetGameTime() - GetSpawnTime();
 
-	Vector vecMissileAcceleration = Vector(0, 200, 0);
+	Vector vecMissileAcceleration = Vector(0, 0, 200);
 
 	// Standard constant acceleration formula.
-	Vector vecMissilePosition = m_hOwner->GetOrigin() + 0.5f*vecMissileAcceleration*flTimeSinceFire*flTimeSinceFire;
+	Vector vecMissilePosition = m_hOwner->GetGlobalOrigin() + 0.5f*vecMissileAcceleration*flTimeSinceFire*flTimeSinceFire;
 
 	if (!m_hTarget)
 		return vecMissilePosition;
@@ -41,9 +42,9 @@ Vector CMissileDefense::GetOrigin() const
 	float flTimeUntilIntercept = (GetSpawnTime() + InterceptTime()) - GameServer()->GetGameTime();
 
 	// Standard constant acceleration formula.
-	Vector vecInterceptLocation = m_hTarget->GetOrigin() + m_hTarget->GetVelocity() * flTimeUntilIntercept + 0.5f * m_hTarget->GetGravity() * flTimeUntilIntercept * flTimeUntilIntercept;
+	Vector vecInterceptLocation = m_hTarget->GetGlobalOrigin() + m_hTarget->GetGlobalVelocity() * flTimeUntilIntercept + 0.5f * m_hTarget->GetGlobalGravity() * flTimeUntilIntercept * flTimeUntilIntercept;
 
-	float flLerp = Lerp(RemapVal(flTimeSinceFire, 0, InterceptTime(), 0, 1), 0.2f);
+	float flLerp = Bias(RemapVal(flTimeSinceFire, 0, InterceptTime(), 0, 1), 0.2f);
 
 	Vector vecPosition = LerpValue<Vector>(vecMissilePosition, vecInterceptLocation, flLerp);
 
@@ -68,9 +69,9 @@ void CMissileDefense::Think()
 	}
 }
 
-void CMissileDefense::OnRender(class CRenderingContext* pContext, bool bTransparent)
+void CMissileDefense::OnRender(class CGameRenderingContext* pContext)
 {
-	if (bTransparent)
+	if (GameServer()->GetRenderer()->IsRenderingTransparent())
 		return;
 
 	CRenderingContext r(DigitanksGame()->GetDigitanksRenderer());

@@ -2,8 +2,9 @@
 
 #include <mtrand.h>
 
-#include <renderer/renderer.h>
+#include <renderer/game_renderer.h>
 #include <models/models.h>
+#include <renderer/game_renderingcontext.h>
 
 #include <structures/cpu.h>
 #include <digitanksgame.h>
@@ -24,10 +25,12 @@ SAVEDATA_TABLE_END();
 INPUTS_TABLE_BEGIN(CMobileCPU);
 INPUTS_TABLE_END();
 
+#define _T(x) x
+
 void CMobileCPU::Precache()
 {
-	PrecacheModel(_T("models/digitanks/mobile-cpu.toy"), true);
-	PrecacheModel(_T("models/digitanks/mobile-cpu-fan.toy"), true);
+	PrecacheModel(_T("models/digitanks/mobile-cpu.toy"));
+	PrecacheModel(_T("models/digitanks/mobile-cpu-fan.toy"));
 }
 
 void CMobileCPU::Spawn()
@@ -56,22 +59,22 @@ void CMobileCPU::Think()
 		GameNetwork()->SetRunningClientFunctions(false);
 
 		CCPU* pCPU = GameServer()->Create<CCPU>("CCPU");
-		pCPU->SetOrigin(DigitanksGame()->GetTerrain()->GetPointHeight(GetRealOrigin()));
+		pCPU->SetGlobalOrigin(DigitanksGame()->GetTerrain()->GetPointHeight(GetRealOrigin()));
 		pCPU->CalculateVisibility();
-		GetTeam()->AddEntity(pCPU);
+		GetPlayerOwner()->AddUnit(pCPU);
 		pCPU->FindGround();
 
 		// 8 free power to get the player started.
-		GetDigitanksTeam()->AddPower(8);
+		GetDigitanksPlayer()->AddPower(8);
 
-		GetDigitanksTeam()->CountBandwidth();
-		GetDigitanksTeam()->CountProducers();
-		GetDigitanksTeam()->CountFleetPoints();
-		GetDigitanksTeam()->CountScore();
+		GetDigitanksPlayer()->CountBandwidth();
+		GetDigitanksPlayer()->CountProducers();
+		GetDigitanksPlayer()->CountFleetPoints();
+		GetDigitanksPlayer()->CountScore();
 
 		DigitanksWindow()->GetHUD()->Layout();
 
-		GetDigitanksTeam()->SetPrimarySelection(pCPU);
+		GetDigitanksPlayer()->SetPrimarySelection(pCPU);
 	}
 }
 
@@ -86,11 +89,11 @@ bool CMobileCPU::CanFortify()
 
 void CMobileCPU::OnFortify()
 {
-	DigitanksWindow()->GetInstructor()->FinishedTutorial("strategy-command", true);
-	DigitanksWindow()->GetInstructor()->FinishedTutorial("strategy-deploy", true);
+	DigitanksWindow()->GetInstructor()->FinishedLesson("strategy-command", true);
+	DigitanksWindow()->GetInstructor()->FinishedLesson("strategy-deploy", true);
 
-	if (DigitanksWindow()->GetInstructor()->GetCurrentTutorial() && DigitanksWindow()->GetInstructor()->GetCurrentTutorial()->m_sTutorialName != "strategy-buildbuffer")
-		DigitanksWindow()->GetInstructor()->DisplayTutorial("strategy-buildbuffer");
+	if (DigitanksWindow()->GetInstructor()->GetCurrentLesson() && DigitanksWindow()->GetInstructor()->GetCurrentLesson()->m_sLessonName != "strategy-buildbuffer")
+		DigitanksWindow()->GetInstructor()->DisplayLesson("strategy-buildbuffer");
 }
 
 float CMobileCPU::FindHoverHeight(Vector vecPosition) const
@@ -106,11 +109,11 @@ Vector CMobileCPU::GetRenderOrigin() const
 	float flLerp = 0;
 	float flHoverHeight = 0;
 	
-	float flOscillate = Oscillate(GameServer()->GetGameTime()+m_flBobOffset, 4);
-	flLerp = SLerp(flOscillate, 0.2f);
+	float flOscillate = Oscillate((float)GameServer()->GetGameTime()+m_flBobOffset, 4);
+	flLerp = Gain(flOscillate, 0.2f);
 	flHoverHeight = 1 + flLerp*BobHeight();
 
-	return GetOrigin() + Vector(0, flHoverHeight, 0);
+	return GetGlobalOrigin() + Vector(0, 0, flHoverHeight);
 }
 
 void CMobileCPU::ModifyContext(class CRenderingContext* pContext) const
@@ -121,16 +124,16 @@ void CMobileCPU::ModifyContext(class CRenderingContext* pContext) const
 	{
 		pContext->SetBlend(BLEND_ALPHA);
 
-		float flTimeSinceFortify = GameServer()->GetGameTime() - m_flFortifyTime;
-		pContext->Translate(-Vector(0, RemapValClamped(flTimeSinceFortify, 0, 1, 0, 5), 0));
-		pContext->SetAlpha(GetVisibility() * RemapValClamped(flTimeSinceFortify, 0, 1, 1, 0));
-		pContext->Rotate(flTimeSinceFortify * 90, Vector(0, 1, 0));
+		float flTimeSinceFortify = (float)(GameServer()->GetGameTime() - m_flFortifyTime);
+		pContext->Translate(-Vector(0, 0, RemapValClamped(flTimeSinceFortify, 0, 1, 0.0f, 5)));
+		pContext->SetAlpha(GetVisibility() * RemapValClamped(flTimeSinceFortify, 0, 1, 1.0f, 0));
+		pContext->Rotate(flTimeSinceFortify * 90, Vector(0, 0, 1));
 	}
 }
 
-void CMobileCPU::OnRender(class CRenderingContext* pContext, bool bTransparent) const
+void CMobileCPU::OnRender(class CGameRenderingContext* pContext) const
 {
-	BaseClass::OnRender(pContext, bTransparent);
+	BaseClass::OnRender(pContext);
 
 	if (m_iFanModel == ~0)
 		return;
@@ -138,24 +141,27 @@ void CMobileCPU::OnRender(class CRenderingContext* pContext, bool bTransparent) 
 	if (GetVisibility() == 0)
 		return;
 
-	CRenderingContext r(GameServer()->GetRenderer());
-	if (GetTeam())
-		r.SetColorSwap(GetTeam()->GetColor());
+	CGameRenderingContext r(GameServer()->GetRenderer());
+
+	r.SetUniform("bColorSwapInAlpha", true);
+
+	if (GetDigitanksPlayer())
+		r.SetUniform("vecColorSwap", GetDigitanksPlayer()->GetColor());
 	else
-		r.SetColorSwap(Color(255, 255, 255, 255));
+		r.SetUniform("vecColorSwap", Color(255, 255, 255, 255));
 
 	float flVisibility = GetVisibility();
-	float flTimeSinceFortify = GameServer()->GetGameTime() - m_flFortifyTime;
+	float flTimeSinceFortify = (float)(GameServer()->GetGameTime() - m_flFortifyTime);
 	if (m_flFortifyTime > 0 && GameServer()->GetGameTime() - m_flFortifyTime < 1)
 		flVisibility *= RemapValClamped(flTimeSinceFortify, 0, 1, 1, 0);
 
-	if (flVisibility < 1 && !bTransparent)
+	if (flVisibility < 1 && !GameServer()->GetRenderer()->IsRenderingTransparent())
 		return;
 
-	if (flVisibility == 1 && bTransparent)
+	if (flVisibility == 1 && GameServer()->GetRenderer()->IsRenderingTransparent())
 		return;
 
-	if (bTransparent)
+	if (GameServer()->GetRenderer()->IsRenderingTransparent())
 	{
 		r.SetAlpha(flVisibility);
 		if (r.GetAlpha() < 1)

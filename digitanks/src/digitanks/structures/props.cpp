@@ -1,8 +1,10 @@
 #include "props.h"
 
-#include <renderer/renderer.h>
+#include <renderer/game_renderer.h>
 #include <models/models.h>
-#include <shaders/shaders.h>
+#include <renderer/shaders.h>
+#include <renderer/game_renderingcontext.h>
+#include <game/gameserver.h>
 
 #include <digitanksgame.h>
 
@@ -31,17 +33,15 @@ INPUTS_TABLE_END();
 
 void CStaticProp::Precache()
 {
-	PrecacheModel("models/props/prop01.toy", true);
-	PrecacheModel("models/props/prop02.toy", true);
-	PrecacheModel("models/props/prop03.toy", true);
-	PrecacheModel("models/props/prop04.toy", true);
-	PrecacheModel("models/props/prop05.toy", true);
+	PrecacheModel("models/props/prop01.toy");
+	PrecacheModel("models/props/prop02.toy");
+	PrecacheModel("models/props/prop03.toy");
+	PrecacheModel("models/props/prop04.toy");
+	PrecacheModel("models/props/prop05.toy");
 }
 
 void CStaticProp::Spawn()
 {
-	SetCollisionGroup(CG_PROP);
-
 	m_bAdditive = false;
 	m_bDepthMask = true;
 	m_bBackCulling = true;
@@ -53,61 +53,46 @@ void CStaticProp::Spawn()
 
 void CStaticProp::ModifyContext(CRenderingContext* pContext) const
 {
-	pContext->SetColorSwap(m_clrSwap);
+	pContext->SetUniform("bColorSwapInAlpha", true);
+	pContext->SetUniform("vecColorSwap", m_clrSwap);
 
 	BaseClass::ModifyContext(pContext);
 }
 
-void CStaticProp::OnRender(class CRenderingContext* pContext) const
+void CStaticProp::OnRender(class CGameRenderingContext* pContext) const
 {
-	CModel* pModel = CModelLibrary::Get()->GetModel(GetModel());
-
-	if (!pModel)
+	if (!GetModel())
 		return;
 
-	CRenderer* pRenderer = GameServer()->GetRenderer();
+	CGameRenderer* pRenderer = GameServer()->GetRenderer();
 
 	if (pRenderer->IsRenderingTransparent())
 		return;
 
-	CRenderingContext c(pRenderer);
+	CGameRenderingContext c(pRenderer, true);
 
-	if (pRenderer->ShouldUseShaders())
+	c.UseProgram("prop");
+	c.SetUniform("bDiffuse", true);
+	c.SetUniform("iDiffuse", 0);
+	c.SetUniform("flAlpha", GetVisibility());
+
+	bool bModeMove = DigitanksGame()->GetControlMode() == MODE_MOVE;
+	CDigitank* pCurrentTank = DigitanksGame()->GetPrimarySelectionTank();
+	if (!pCurrentTank)
+		bModeMove = false;
+
+	c.SetUniform("bMovement", bModeMove);
+
+	if (bModeMove)
 	{
-		c.UseProgram(CShaderLibrary::GetPropProgram());
-		c.SetUniform("bDiffuse", true);
-		c.SetUniform("iDiffuse", 0);
-		c.SetUniform("flAlpha", GetVisibility());
-
-		bool bModeMove = DigitanksGame()->GetControlMode() == MODE_MOVE;
-		CDigitank* pCurrentTank = DigitanksGame()->GetPrimarySelectionTank();
-		if (!pCurrentTank)
-			bModeMove = false;
-
-		c.SetUniform("bMovement", bModeMove);
-
-		if (bModeMove)
-		{
-			c.SetUniform("flMoveDistance", pCurrentTank->GetRemainingMovementDistance());
-			c.SetUniform("vecTankOrigin", pCurrentTank->GetOrigin());
-		}
-
-		c.SetUniform("bColorSwapInAlpha", true);
-
-		Color clrSwap = m_clrSwap;
-		c.SetUniform("vecColorSwap", clrSwap);
-
-		c.RenderCallList(pModel->m_iCallList);
-	}
-	else
-	{
-		Color clrSwap = m_clrSwap;
-		clrSwap.SetAlpha((int)(GetVisibility()*255));
-		c.SetColor(clrSwap);
-
-		c.RenderCallList(pModel->m_iCallList);
+		c.SetUniform("flMoveDistance", pCurrentTank->GetRemainingMovementDistance());
+		c.SetUniform("vecTankOrigin", pCurrentTank->GetGlobalOrigin());
 	}
 
-	if (pRenderer->ShouldUseShaders())
-		pRenderer->ClearProgram();
+	c.SetUniform("bColorSwapInAlpha", true);
+
+	Color clrSwap = m_clrSwap;
+	c.SetUniform("vecColorSwap", clrSwap);
+
+	c.RenderModel(GetModelID());
 }

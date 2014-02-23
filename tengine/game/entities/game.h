@@ -51,7 +51,7 @@ public:
 
 	size_t										GetNumPlayers() const { return m_ahPlayers.size(); };
 	CPlayer*									GetPlayer(size_t i) const;
-	bool										IsTeamControlledByMe(const class CTeam* pTeam);
+	bool										IsTeamControlledByMe(const class CPlayer* pPlayer);
 
 	const tvector<CEntityHandle<CPlayer> >&		GetLocalPlayers();
 	size_t										GetNumLocalPlayers();

@@ -32,7 +32,7 @@ public:
 	virtual void				StartTurn();
 	virtual void				FindGround();
 
-	virtual void				PostRender(bool bTransparent) const;
+	virtual void				PostRender() const;
 
 	virtual float				AvailableArea(int iArea) const;
 	virtual int					GetNumAvailableAreas() const { return 1; };
@@ -128,7 +128,7 @@ protected:
 	size_t						m_iScaffolding;
 	CNetworkedVariable<float>	m_flScaffoldingSize;
 
-	float						m_flConstructionStartTime;
+	double						m_flConstructionStartTime;
 
 	typedef struct
 	{
@@ -151,7 +151,7 @@ public:
 
 	virtual void				Think();
 
-	virtual float				GetRenderRadius() const { return GetBoundingRadius() + GetDataFlowRadius() + 5; };
+	const TFloat				GetRenderRadius() const { return GetBoundingRadius() + GetDataFlowRadius() + 5; };
 
 	virtual void				ClientEnterGame();
 
@@ -166,7 +166,7 @@ public:
 	virtual float				GetDataFlowRate();
 	float						GetDataFlowRadius() const;
 	float						GetDataFlow(Vector vecPoint) const;
-	static float				GetDataFlow(Vector vecPoint, const CTeam* pTeam, const CSupplier* pIgnore = NULL);
+	static float				GetDataFlow(Vector vecPoint, const CDigitanksPlayer* pPlayer, const CSupplier* pIgnore = NULL);
 	void						CalculateDataFlow();
 	void						GiveDataStrength(size_t iStrength) { m_iDataStrength += iStrength; };
 	virtual size_t				EfficientChildren() const { return 0; };
@@ -179,7 +179,7 @@ public:
 
 	// Even if we're invisible our tendrils might not be, we should still render those.
 	virtual bool				ShouldRender() const { return m_bShouldRender; };
-	virtual void				PostRender(bool bTransparent) const;
+	virtual void				PostRender() const;
 
 	void						UpdateTendrils();
 	void						BeginTendrilGrowth();
@@ -199,12 +199,12 @@ public:
 	virtual int					GetNumAvailableAreas() const { return 2; };
 	virtual bool				IsAvailableAreaActive(int iArea) const;
 
-	size_t						GetTendrilsCallList() { return m_iTendrilsCallList; }
+	size_t						RenderTendrils(CRenderingContext& r);
 
 	static CSupplier*			FindClosestSupplier(CBaseEntity* pUnit);
-	static CSupplier*			FindClosestSupplier(Vector vecPoint, const class CTeam* pTeam);
+	static CSupplier*			FindClosestSupplier(Vector vecPoint, const class CDigitanksPlayer* pTeam);
 
-	static size_t				GetTendrilBeam() { return s_iTendrilBeam; }
+	static CMaterialHandle      GetTendrilBeam() { return s_hTendrilBeam; }
 
 protected:
 	CNetworkedVariable<size_t>	m_iDataStrength;
@@ -224,11 +224,11 @@ protected:
 	tvector<CEntityHandle<CStructure> >	m_ahChildren;
 
 	size_t						m_iTendrilsCallList;
-	float						m_flTendrilGrowthStartTime;
+	double						m_flTendrilGrowthStartTime;
 
 	bool						m_bShouldRender;
 
-	static size_t				s_iTendrilBeam;
+	static CMaterialHandle s_hTendrilBeam;
 };
 
 #endif

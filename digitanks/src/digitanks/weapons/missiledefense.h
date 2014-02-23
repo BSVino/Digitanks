@@ -10,7 +10,7 @@ class CMissileDefense : public CBaseWeapon
 public:
 	void						SetTarget(class CProjectile* pTarget);
 
-	virtual Vector				GetOrigin() const;
+	virtual const TVector		GetGlobalOrigin() const;
 
 	virtual void				Think();
 

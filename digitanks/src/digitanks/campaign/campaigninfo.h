@@ -1,7 +1,7 @@
 #ifndef DT_CAMPAIGNINFO_H
 #define DT_CAMPAIGNINFO_H
 
-#include <EASTL/vector.h>
+#include <tvector.h>
 
 #include <tstring.h>
 #include <common.h>

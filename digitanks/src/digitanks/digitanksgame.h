@@ -1,7 +1,7 @@
 #ifndef DT_DIGITANKSGAME_H
 #define DT_DIGITANKSGAME_H
 
-#include <EASTL/vector.h>
+#include <tvector.h>
 
 #include <common.h>
 
@@ -28,9 +28,22 @@ typedef enum
 typedef struct
 {
 	size_t			iShells;
-	float			flNextShell;
+	double			flNextShell;
 	Vector			vecLocation;
 } airstrike_t;
+
+typedef enum
+{
+	DISABLE_NOTHING     = 0,
+	DISABLE_VIEW_MOVE   = (1<<0),
+	DISABLE_VIEW_ROTATE = (1<<1),
+	DISABLE_ENTER       = (1<<2),
+	DISABLE_BUFFER      = (1<<3),
+	DISABLE_PSU         = (1<<4),
+	DISABLE_LOADERS     = (1<<5),
+	DISABLE_SELECT      = (1<<6),
+	DISABLE_HOWTOPLAY   = (1<<7),
+} disable_t;
 
 class IDigitanksGameListener
 {
@@ -117,7 +130,7 @@ public:
 
 	virtual void			OnClientEnterGame(int iClient);
 
-	virtual bool			Explode(CBaseEntity* pAttacker, CBaseEntity* pInflictor, float flRadius, float flDamage, CBaseEntity* pIgnore, const CTeam* pTeamIgnore);
+	virtual bool			Explode(CBaseEntity* pAttacker, CBaseEntity* pInflictor, float flRadius, float flDamage, CBaseEntity* pIgnore, const CDigitanksPlayer* pTeamIgnore);
 
 	virtual void			OnTakeShieldDamage(class CDigitank* pVictim, class CBaseEntity* pAttacker, class CBaseEntity* pInflictor, float flDamage, bool bDirectHit, bool bShieldOnly);
 	virtual void			OnCritical(class CDigitank* pVictim, class CBaseEntity* pAttacker, class CBaseEntity* pInflictor);
@@ -138,9 +151,9 @@ public:
 
 	virtual void			TankSpeak(class CBaseEntity* pTank, const tstring& sSpeech);
 
-	CDigitanksTeam*			GetDigitanksTeam(size_t i) const;
+	CDigitanksPlayer*		GetDigitanksPlayer(size_t i) const;
 
-	CDigitanksTeam*			GetCurrentTeam() const;
+	CDigitanksPlayer*		GetCurrentPlayer() const;
 	CSelectable*			GetPrimarySelection();
 	CDigitank*				GetPrimarySelectionTank();
 	CStructure*				GetPrimarySelectionStructure();
@@ -174,8 +187,8 @@ public:
 
 	NET_CALLBACK_ENTITY(CDigitanksGame, CUpdateGrid, UpdatesData);
 
-	NET_CALLBACK_ENTITY(CDigitanksGame, CDigitanksTeam, DownloadUpdate);
-	NET_CALLBACK_ENTITY(CDigitanksGame, CDigitanksTeam, DownloadComplete);
+	NET_CALLBACK_ENTITY(CDigitanksGame, CDigitanksPlayer, DownloadUpdate);
+	NET_CALLBACK_ENTITY(CDigitanksGame, CDigitanksPlayer, DownloadComplete);
 
 	NET_CALLBACK_ENTITY(CDigitanksGame, CCPU, BeginConstruction);
 	NET_CALLBACK_ENTITY(CDigitanksGame, CCPU, BeginRogueProduction);
@@ -197,7 +210,7 @@ public:
 	void					AddProjectileToWaitFor() { m_iWaitingForProjectiles++; };
 	size_t					GetNumProjectilesWaitingFor() { return m_iWaitingForProjectiles; };
 
-	void					WeaponSpecialCommand(CDigitanksTeam* pTeam = NULL);
+	void					WeaponSpecialCommand(CDigitanksPlayer* pTeam = NULL);
 
 	void					AddTankAim(Vector vecAim, float flRadius, bool bFocus);
 	void					GetTankAims(tvector<Vector>& avecAims, tvector<float>& aflAimRadius, size_t& iFocus);
@@ -206,14 +219,14 @@ public:
 	void					SetDifficulty(size_t iDifficulty) { m_iDifficulty = iDifficulty; };
 	size_t					GetDifficulty() { return m_iDifficulty; };
 
-	void					OnDisplayTutorial(tstring sTutorial);
+	void					OnDisplayLesson(tstring sLesson);
 
 	virtual void			ClientEnterGame();
 
 	void					SetRenderFogOfWar(bool bRenderFogOfWar);
 	bool					ShouldRenderFogOfWar();
 
-	float					GetVisibilityAtPoint(CDigitanksTeam* pViewingTeam, Vector vecPoint);
+	float					GetVisibilityAtPoint(CDigitanksPlayer* pViewingTeam, Vector vecPoint);
 
 	bool					ShouldShowScores();
 
@@ -253,13 +266,16 @@ public:
 	// CHEAT!
 	void					CompleteProductions();
 
-	CDigitanksTeam*			GetCurrentLocalDigitanksTeam();
+	CDigitanksPlayer*		GetCurrentLocalDigitanksPlayer();
 
 	void					SetCurrentLevel(tstring sLevel);
 	class CDigitanksLevel*	GetCurrentLevel() { return m_pLevel; };
 
+	disable_t				GetDisabledFeatures();
+	bool					IsFeatureDisabled(disable_t eFeature);
+
 protected:
-	CNetworkedVariable<size_t> m_iCurrentTeam;
+	CNetworkedVariable<size_t> m_iCurrentPlayer;
 
 	controlmode_t			m_eControlMode;
 	aimtype_t				m_eAimType;
@@ -295,8 +311,8 @@ protected:
 	CNetworkedHandle<CUpdateGrid>	m_hUpdates;
 
 	CNetworkedVariable<bool>	m_bPartyMode;
-	float						m_flPartyModeStart;
-	float						m_flLastFireworks;
+	double						m_flPartyModeStart;
+	double						m_flLastFireworks;
 
 	bool					m_bOverrideAllowLasers;
 
@@ -305,10 +321,10 @@ protected:
 	CNetworkedArray<float, MAX_UNITS> m_aflConstructionCosts;
 	CNetworkedArray<float, MAX_UNITS> m_aflUpgradeCosts;
 
-	float						m_flShowFightSign;
-	float						m_flShowArtilleryTutorial;
+	double						m_flShowFightSign;
+	double						m_flShowArtilleryTutorial;
 
-	float						m_flLastHumanMove;
+	double						m_flLastHumanMove;
 
 	class CDigitanksLevel*		m_pLevel;
 

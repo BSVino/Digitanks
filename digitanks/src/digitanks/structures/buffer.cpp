@@ -1,13 +1,13 @@
 #include "buffer.h"
 
-#include <EASTL/string.h>
+#include <tstring.h>
 
 #include <ui/digitankswindow.h>
 #include <ui/hud.h>
-#include <game/team.h>
+#include <game/entities/team.h>
 
 #include <renderer/renderer.h>
-#include <game/game.h>
+#include <game/entities/game.h>
 
 REGISTER_ENTITY(CBuffer);
 
@@ -44,8 +44,8 @@ bool CBuffer::AllowControlMode(controlmode_t eMode) const
 
 void CBuffer::SetupMenu(menumode_t eMenuMode)
 {
-	if (GetDigitanksTeam() && GetDigitanksTeam()->GetPrimaryCPU() != NULL)
-		GetDigitanksTeam()->GetPrimaryCPU()->SetupMenu(eMenuMode);
+	if (GetDigitanksPlayer() && GetDigitanksPlayer()->GetPrimaryCPU() != NULL)
+		GetDigitanksPlayer()->GetPrimaryCPU()->SetupMenu(eMenuMode);
 }
 
 void CBuffer::UpdateInfo(tstring& s)
@@ -59,7 +59,7 @@ void CBuffer::UpdateInfo(tstring& s)
 	if (GetTeam())
 	{
 		s += "Team: " + GetTeam()->GetTeamName() + "\n";
-		if (GetDigitanksTeam() == DigitanksGame()->GetCurrentLocalDigitanksTeam())
+		if (GetDigitanksPlayer() == DigitanksGame()->GetCurrentLocalDigitanksPlayer())
 			s += " Friendly\n \n";
 		else
 			s += " Hostile\n \n";
@@ -117,8 +117,8 @@ bool CMiniBuffer::AllowControlMode(controlmode_t eMode) const
 
 void CMiniBuffer::SetupMenu(menumode_t eMenuMode)
 {
-	if (GetDigitanksTeam()->GetPrimaryCPU() != NULL)
-		GetDigitanksTeam()->GetPrimaryCPU()->SetupMenu(eMenuMode);
+	if (GetDigitanksPlayer()->GetPrimaryCPU() != NULL)
+		GetDigitanksPlayer()->GetPrimaryCPU()->SetupMenu(eMenuMode);
 
 	CHUD* pHUD = DigitanksWindow()->GetHUD();
 	tstring p;
@@ -127,7 +127,7 @@ void CMiniBuffer::SetupMenu(menumode_t eMenuMode)
 	{
 		pHUD->SetButtonListener(0, CHUD::BeginUpgrade);
 
-		if (UpgradeCost() <= GetDigitanksTeam()->GetPower())
+		if (UpgradeCost() <= GetDigitanksPlayer()->GetPower())
 		{
 			pHUD->SetButtonTexture(0, "MacroBuffer");
 			pHUD->SetButtonColor(0, Color(50, 50, 50));
@@ -154,7 +154,7 @@ void CMiniBuffer::UpdateInfo(tstring& s)
 	if (GetTeam())
 	{
 		s += "Team: " + GetTeam()->GetTeamName() + "\n";
-		if (GetDigitanksTeam() == DigitanksGame()->GetCurrentLocalDigitanksTeam())
+		if (GetDigitanksPlayer() == DigitanksGame()->GetCurrentLocalDigitanksPlayer())
 			s += " Friendly\n \n";
 		else
 			s += " Hostile\n \n";
@@ -186,10 +186,10 @@ void CMiniBuffer::UpdateInfo(tstring& s)
 
 bool CMiniBuffer::CanStructureUpgrade()
 {
-	if (!GetDigitanksTeam())
+	if (!GetDigitanksPlayer())
 		return false;
 
-	return GetDigitanksTeam()->CanBuildBuffers();
+	return GetDigitanksPlayer()->CanBuildBuffers();
 }
 
 void CMiniBuffer::UpgradeComplete()
@@ -199,8 +199,8 @@ void CMiniBuffer::UpgradeComplete()
 
 	CBuffer* pBuffer = GameServer()->Create<CBuffer>("CBuffer");
 	pBuffer->SetConstructing(false);
-	pBuffer->SetOrigin(GetOrigin());
-	GetTeam()->AddEntity(pBuffer);
+	pBuffer->SetGlobalOrigin(GetGlobalOrigin());
+	GetPlayerOwner()->AddUnit(pBuffer);
 	pBuffer->SetSupplier(GetSupplier());
 	GetSupplier()->AddChild(pBuffer);
 	pBuffer->GiveDataStrength(pBuffer->InitialDataStrength() - InitialDataStrength());	// Give the difference
@@ -215,7 +215,7 @@ void CMiniBuffer::UpgradeComplete()
 	{
 		for (size_t y = 0; y < UPDATE_GRID_SIZE; y++)
 		{
-			if (GetDigitanksTeam()->HasDownloadedUpdate(x, y))
+			if (GetDigitanksPlayer()->HasDownloadedUpdate(x, y))
 				pBuffer->InstallUpdate(x, y);
 		}
 	}
@@ -228,5 +228,5 @@ void CMiniBuffer::UpgradeComplete()
 
 	Delete();
 
-	GetDigitanksTeam()->AddActionItem(pBuffer, ACTIONTYPE_UPGRADE);
+	GetDigitanksPlayer()->AddActionItem(pBuffer, ACTIONTYPE_UPGRADE);
 }

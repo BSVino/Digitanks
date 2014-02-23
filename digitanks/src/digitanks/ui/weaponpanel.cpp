@@ -36,7 +36,7 @@ void CWeaponPanel::Layout()
 	if (!DigitanksGame())
 		return;
 
-	CDigitanksTeam* pCurrentTeam = DigitanksGame()->GetCurrentLocalDigitanksTeam();
+	CDigitanksPlayer* pCurrentTeam = DigitanksGame()->GetCurrentLocalDigitanksPlayer();
 	if (!pCurrentTeam)
 		return;
 
@@ -218,7 +218,7 @@ void CWeaponButton::CursorIn()
 
 void CWeaponButton::ChooseWeaponCallback()
 {
-	CDigitanksTeam* pTeam = DigitanksGame()->GetCurrentLocalDigitanksTeam();
+	CDigitanksPlayer* pTeam = DigitanksGame()->GetCurrentLocalDigitanksPlayer();
 
 	for (size_t i = 0; i < pTeam->GetNumTanks(); i++)
 	{

@@ -1,10 +1,10 @@
 #include "autoturret.h"
 
-#include <GL/glew.h>
-
 #include <models/models.h>
-#include <renderer/renderer.h>
-#include <shaders/shaders.h>
+#include <renderer/game_renderer.h>
+#include <renderer/shaders.h>
+#include <renderer/game_renderingcontext.h>
+#include <game/gameserver.h>
 
 #include <ui/digitankswindow.h>
 #include <ui/hud.h>
@@ -27,8 +27,8 @@ INPUTS_TABLE_END();
 
 void CAutoTurret::Precache()
 {
-	PrecacheModel("models/structures/firewall.toy", true);
-	PrecacheModel("models/structures/firewall-shield.toy", true);
+	PrecacheModel("models/structures/firewall.toy");
+	PrecacheModel("models/structures/firewall-shield.toy");
 }
 
 void CAutoTurret::Spawn()
@@ -49,10 +49,11 @@ void CAutoTurret::ModifyContext(CRenderingContext* pContext) const
 	if (!GetTeam())
 		return;
 
-	pContext->SetColorSwap(GetTeam()->GetColor());
+	pContext->SetUniform("bColorSwapInAlpha", true);
+	pContext->SetUniform("vecColorSwap", GetPlayerOwner()->GetColor());
 }
 
-void CAutoTurret::OnRender(CRenderingContext* pContext) const
+void CAutoTurret::OnRender(CGameRenderingContext* pContext) const
 {
 	if (m_iShieldModel == ~0)
 		return;
@@ -63,49 +64,39 @@ void CAutoTurret::OnRender(CRenderingContext* pContext) const
 	if (!GetTeam())
 		return;
 
-	if (!bTransparent)
+	if (!GameServer()->GetRenderer()->IsRenderingTransparent())
 		return;
 
 	float flFlicker = 1;
 	
 	if (GetHealth() < GetTotalHealth()/2)
-		flFlicker = Flicker("zzzzmmzzztzzzzzznzzz", GameServer()->GetGameTime() + ((float)GetSpawnSeed()/100), 1.0f);
+		flFlicker = Flicker("zzzzmmzzztzzzzzznzzz", (float)GameServer()->GetGameTime() + ((float)GetSpawnSeed()/100), 1.0f);
 
-	CRenderingContext r(GameServer()->GetRenderer());
+	CGameRenderingContext r(GameServer()->GetRenderer());
 
 	float flFinalAlpha = flFlicker*GetVisibility()*0.4f;
 
 	if (flFinalAlpha <= 0)
 		return;
 
-	if (GameServer()->GetRenderer()->ShouldUseShaders())
-	{
-		r.UseProgram(CShaderLibrary::GetScrollingTextureProgram());
-		r.SetUniform("iTexture", 0);
-		r.SetUniform("flAlpha", flFinalAlpha);
-		r.SetUniform("flTime", GameServer()->GetGameTime());
-		r.SetUniform("flSpeed", 1.0f);
-	}
-	else
-		r.SetAlpha(flFinalAlpha);
+	r.UseProgram("scroll");
+	r.SetUniform("iTexture", 0);
+	r.SetUniform("flAlpha", flFinalAlpha);
+	r.SetUniform("flTime", (float)GameServer()->GetGameTime());
+	r.SetUniform("flSpeed", 1.0f);
 
 	r.SetBlend(BLEND_ADDITIVE);
 	r.SetDepthTest(false);
 	r.SetBackCulling(false);
 
-	// If you just call r.RenderModel() it overrides the shader
-	CModel* pModel = CModelLibrary::Get()->GetModel(m_iShieldModel);
-	if (pModel)
-	{
-		r.BindTexture(pModel->m_iCallListTexture);
-		glCallList((GLuint)pModel->m_iCallList);
 
-		r.Scale(1.1f, 1.1f, 1.1f);
-		r.Rotate(90, Vector(0, 1, 0));
-		r.SetUniform("flTime", GameServer()->GetGameTime()*1.2f);
+	r.RenderModel(m_iShieldModel, this);
 
-		glCallList((GLuint)pModel->m_iCallList);
-	}
+	r.Scale(1.1f, 1.1f, 1.1f);
+	r.Rotate(90, Vector(0, 0, 1));
+	r.SetUniform("flTime", (float)GameServer()->GetGameTime()*1.2f);
+
+	r.RenderModel(m_iShieldModel, this);
 }
 
 void CAutoTurret::StartTurn()
@@ -114,8 +105,8 @@ void CAutoTurret::StartTurn()
 
 	m_bHasFired = false;
 
-	if (GetDigitanksTeam() && GetTargets().size() > 0)
-		GetDigitanksTeam()->AddActionItem(this, ACTIONTYPE_FORTIFIEDENEMY);
+	if (GetDigitanksPlayer() && GetTargets().size() > 0)
+		GetDigitanksPlayer()->AddActionItem(this, ACTIONTYPE_FORTIFIEDENEMY);
 }
 
 void CAutoTurret::EndTurn()
@@ -142,7 +133,7 @@ tvector<CDigitank*> CAutoTurret::GetTargets()
 		if (!pEntity->GetTeam())
 			continue;
 
-		if (pEntity->Distance(GetOrigin()) > VisibleRange())
+		if (pEntity->Distance(GetGlobalOrigin()) > VisibleRange())
 			continue;
 
 		CDigitank* pTank = dynamic_cast<CDigitank*>(pEntity);
@@ -226,7 +217,7 @@ void CAutoTurret::UpdateInfo(tstring& s)
 	if (GetTeam())
 	{
 		s += "Team: " + GetTeam()->GetTeamName() + "\n";
-		if (GetDigitanksTeam() == DigitanksGame()->GetCurrentLocalDigitanksTeam())
+		if (GetDigitanksPlayer() == DigitanksGame()->GetCurrentLocalDigitanksPlayer())
 			s += " Friendly\n \n";
 		else
 			s += " Hostile\n \n";
@@ -257,20 +248,20 @@ bool CAutoTurret::IsAvailableAreaActive(int iArea) const
 	if (iArea != 1)
 		return BaseClass::IsAvailableAreaActive(iArea);
 
-	if (!GetDigitanksTeam())
+	if (!GetDigitanksPlayer())
 		return false;
 
-	if (!GetDigitanksTeam()->GetPrimaryCPU())
+	if (!GetDigitanksPlayer()->GetPrimaryCPU())
 		return false;
 
-	if (GetTeam() != DigitanksGame()->GetCurrentLocalDigitanksTeam())
+	if (GetPlayerOwner() != DigitanksGame()->GetCurrentLocalDigitanksPlayer())
 		return false;
 
-	if (!GetDigitanksTeam()->GetPrimarySelection())
+	if (!GetDigitanksPlayer()->GetPrimarySelection())
 		return false;
 
 	// If we're selecting an auto-turret, show all auto-turret areas. Otherwise don't!
-	if (GetDigitanksTeam()->GetPrimarySelection()->GetUnitType() == STRUCTURE_FIREWALL)
+	if (GetDigitanksPlayer()->GetPrimarySelection()->GetUnitType() == STRUCTURE_FIREWALL)
 		return true;
 
 	return false;

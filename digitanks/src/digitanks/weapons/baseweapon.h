@@ -1,7 +1,7 @@
 #ifndef DT_BASEWEAPON_H
 #define DT_BASEWEAPON_H
 
-#include <game/baseentity.h>
+#include <game/entities/baseentity.h>
 
 #include <dt_common.h>
 
@@ -14,16 +14,16 @@ public:
 	virtual void				Spawn();
 	virtual void				ClientSpawn();
 
-	virtual void				SetOwner(class CDigitanksEntity* pOwner);
-	virtual class CDigitanksEntity*	GetOwner() const { return m_hOwner; }
-	virtual void				OnSetOwner(class CDigitanksEntity* pOwner) {};
+	virtual class CDigitanksEntity*	GetOwner() const;
+	virtual void				OnSetOwner(class CBaseEntity* pOwner);
+
 	virtual bool				ShouldBeVisible() { return true; };
 
 	virtual void				Think();
 
 	virtual void				SpecialCommand() {};
 	virtual bool				UsesSpecialCommand() { return false; };
-	virtual tstring		SpecialCommandHint() { return _T(""); };
+	virtual tstring				SpecialCommandHint() { return ""; };
 	virtual float				GetBonusDamage() { return 0; };
 
 	void						Explode(CBaseEntity* pInstigator = NULL);
@@ -52,11 +52,10 @@ public:
 	static bool					IsWeaponPrimarySelectionOnly(weapon_t eProjectile);
 
 protected:
-	CNetworkedVariable<float>	m_flTimeExploded;
+	CNetworkedVariable<double>	m_flTimeExploded;
 
 	bool						m_bShouldRender;
 
-	CNetworkedHandle<CDigitanksEntity>	m_hOwner;
 	CNetworkedVariable<float>	m_flDamage;
 };
 

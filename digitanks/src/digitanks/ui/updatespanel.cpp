@@ -61,7 +61,7 @@ void CUpdatesPanel::Layout()
 	if (!DigitanksGame() || !DigitanksGame()->GetUpdateGrid())
 		return;
 
-	CDigitanksTeam* pCurrentGame = DigitanksGame()->GetCurrentLocalDigitanksTeam();
+	CDigitanksPlayer* pCurrentGame = DigitanksGame()->GetCurrentLocalDigitanksPlayer();
 	if (!pCurrentGame)
 		return;
 
@@ -258,7 +258,7 @@ void CUpdatesPanel::UpdateInfo(CUpdateItem* pInfo)
 		return;
 	}
 
-	CDigitanksTeam* pTeam = DigitanksGame()->GetCurrentLocalDigitanksTeam();
+	CDigitanksPlayer* pTeam = DigitanksGame()->GetCurrentLocalDigitanksPlayer();
 
 	m_pAvailable->SetText(sprintf(tstring("Available: %dMB"), (int)pTeam->GetMegabytes()));
 
@@ -591,9 +591,9 @@ void CUpdateButton::ChooseDownloadCallback()
 	if (!pUpdates)
 		return;
 
-	DigitanksGame()->GetCurrentLocalDigitanksTeam()->DownloadUpdate(m_iX, m_iY);
+	DigitanksGame()->GetCurrentLocalDigitanksPlayer()->DownloadUpdate(m_iX, m_iY);
 
-	if (DigitanksGame()->GetCurrentLocalDigitanksTeam()->IsDownloading(m_iX, m_iY))
+	if (DigitanksGame()->GetCurrentLocalDigitanksPlayer()->IsDownloading(m_iX, m_iY))
 	{
 		int x, y;
 		GetAbsPos(x, y);
@@ -603,8 +603,8 @@ void CUpdateButton::ChooseDownloadCallback()
 	}
 
 	// Do this very last thing because since it calls Layout() this button will be deleted.
-	DigitanksGame()->GetCurrentLocalDigitanksTeam()->HandledActionItem(ACTIONTYPE_DOWNLOADCOMPLETE);
-	DigitanksGame()->GetCurrentLocalDigitanksTeam()->HandledActionItem(ACTIONTYPE_DOWNLOADUPDATES);
+	DigitanksGame()->GetCurrentLocalDigitanksPlayer()->HandledActionItem(ACTIONTYPE_DOWNLOADCOMPLETE);
+	DigitanksGame()->GetCurrentLocalDigitanksPlayer()->HandledActionItem(ACTIONTYPE_DOWNLOADUPDATES);
 
 	CRootPanel::Get()->Layout();
 }

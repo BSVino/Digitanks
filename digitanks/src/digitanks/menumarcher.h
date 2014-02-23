@@ -1,7 +1,7 @@
 #ifndef DT_MENUMARCHER_H
 #define DT_MENUMARCHER_H
 
-#include <game/baseentity.h>
+#include <game/entities/baseentity.h>
 #include <renderer/particles.h>
 
 class CMenuMarcher : public CBaseEntity
@@ -29,7 +29,7 @@ public:
 	float						FindHoverHeight(Vector vecPosition) const;
 
 protected:
-	float						m_flNextSpeech;
+	double						m_flNextSpeech;
 
 	size_t						m_iTurretModel;
 

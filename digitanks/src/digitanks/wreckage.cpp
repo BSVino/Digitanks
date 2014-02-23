@@ -2,7 +2,8 @@
 
 #include <mtrand.h>
 #include <renderer/particles.h>
-#include <renderer/renderer.h>
+#include <renderer/game_renderer.h>
+#include <renderer/game_renderingcontext.h>
 
 #include <game/networkedeffect.h>
 #include "digitanksgame.h"
@@ -15,7 +16,7 @@ NETVAR_TABLE_BEGIN(CWreckage);
 	NETVAR_DEFINE(float, m_flScale);
 	NETVAR_DEFINE(Vector, m_vecColorSwap);
 	NETVAR_DEFINE(bool, m_bCrashed);
-	NETVAR_DEFINE(CEntityHandle<CDigitanksTeam>, m_hOldTeam);
+	NETVAR_DEFINE(CEntityHandle<CDigitanksPlayer>, m_hOldPlayer);
 NETVAR_TABLE_END();
 
 SAVEDATA_TABLE_BEGIN(CWreckage);
@@ -27,7 +28,7 @@ SAVEDATA_TABLE_BEGIN(CWreckage);
 	SAVEDATA_DEFINE(CSaveData::DATA_COPYTYPE, EAngle, m_angList);
 	SAVEDATA_DEFINE(CSaveData::DATA_OMIT, CParticleSystemInstanceHandle, m_hBurnParticles);
 	SAVEDATA_DEFINE(CSaveData::DATA_NETVAR, bool, m_bCrashed);
-	SAVEDATA_DEFINE(CSaveData::DATA_NETVAR, CEntityHandle<CDigitanksTeam>, m_hOldTeam);
+	SAVEDATA_DEFINE(CSaveData::DATA_NETVAR, CEntityHandle<CDigitanksPlayer>, m_hOldPlayer);
 SAVEDATA_TABLE_END();
 
 INPUTS_TABLE_BEGIN(CWreckage);
@@ -53,36 +54,34 @@ void CWreckage::Spawn()
 
 	m_angList = EAngle(RandomFloat(-90, 90), RandomFloat(-180, 180), RandomFloat(-90, 90));
 
-	m_hBurnParticles.SetSystem("wreckage-burn", GetOrigin());
+	m_hBurnParticles.SetSystem("wreckage-burn", GetGlobalOrigin());
 	m_hBurnParticles.FollowEntity(this);
 	m_iTurretModel = ~0;
 	m_bTakeDamage = false;
-
-	SetSimulated(true);
 }
 
 void CWreckage::Think()
 {
 	BaseClass::Think();
 
-	bool bOverHole = DigitanksGame()->GetTerrain()->IsPointOverHole(GetOrigin());
+	bool bOverHole = DigitanksGame()->GetTerrain()->IsPointOverHole(GetGlobalOrigin());
 
-	if (!m_bCrashed && !bOverHole && GetOrigin().y < DigitanksGame()->GetTerrain()->GetHeight(GetOrigin().x, GetOrigin().z))
+	if (!m_bCrashed && !bOverHole && GetGlobalOrigin().z < DigitanksGame()->GetTerrain()->GetHeight(GetGlobalOrigin().x, GetGlobalOrigin().y))
 	{
 		m_bCrashed = true;
 
-		SetGravity(Vector(0, 0, 0));
-		SetVelocity(Vector(0, 0, 0));
+		SetGlobalGravity(Vector(0, 0, 0));
+		SetGlobalVelocity(Vector(0, 0, 0));
 		m_angList = EAngle(0, 0, 0);
 
 		if (GetVisibility() > 0)
-			CNetworkedEffect::AddInstance("wreckage-crash", GetOrigin());
+			CNetworkedEffect::AddInstance("wreckage-crash", GetGlobalOrigin());
 	}
 
-	SetAngles(GetAngles() + m_angList*GameServer()->GetFrameTime());
+	SetGlobalAngles(GetGlobalAngles() + m_angList*GameServer()->GetFrameTime());
 
 	// Slowly burn to black.
-	Vector vecColorSwap = m_vecColorSwap * RemapValClamped(GameServer()->GetGameTime() - GetSpawnTime(), 0, 30, 1, 0);
+	Vector vecColorSwap = m_vecColorSwap * RemapValClamped((float)(GameServer()->GetGameTime() - GetSpawnTime()), 0.0f, 30.0f, 1.0f, 0.0f);
 	m_clrSwap = vecColorSwap;
 
 	m_hBurnParticles.SetActive(GetVisibility() > 0.1f && !m_bFallingIntoHole);
@@ -102,15 +101,16 @@ void CWreckage::ModifyContext(CRenderingContext* pContext) const
 {
 	BaseClass::ModifyContext(pContext);
 
-	pContext->SetColorSwap(m_clrSwap);
+	pContext->SetUniform("bColorSwapInAlpha", true);
+	pContext->SetUniform("vecColorSwap", m_clrSwap);
 	pContext->Scale(m_flScale, m_flScale, m_flScale);
 	pContext->SetBlend(BLEND_ALPHA);
-	pContext->SetAlpha(Flicker("mmmmmmqtmmmmtfqmmmmmm", GameServer()->GetGameTime() + ((float)GetSpawnSeed()/100), 2.0f) * 0.7f);
+	pContext->SetAlpha(Flicker("mmmmmmqtmmmmtfqmmmmmm", (float)GameServer()->GetGameTime() + ((float)GetSpawnSeed()/100), 2.0f) * 0.7f);
 }
 
-void CWreckage::OnRender(class CRenderingContext* pContext, bool bTransparent) const
+void CWreckage::OnRender(class CGameRenderingContext* pContext) const
 {
-	BaseClass::OnRender(pContext, bTransparent);
+	BaseClass::OnRender(pContext);
 
 	if (m_iTurretModel == ~0)
 		return;
@@ -120,19 +120,20 @@ void CWreckage::OnRender(class CRenderingContext* pContext, bool bTransparent) c
 
 	float flVisibility = GetVisibility();
 
-	if (!bTransparent)
+	if (!GameServer()->GetRenderer()->IsRenderingTransparent())
 		return;
 
-	CRenderingContext r(GameServer()->GetRenderer());
+	CGameRenderingContext r(GameServer()->GetRenderer());
 
 	r.SetAlpha(pContext->GetAlpha() * flVisibility);
 	r.SetBlend(BLEND_ALPHA);
 
 	r.Translate(Vector(-0.0f, 0.810368f, 0));
 
-	r.Rotate(-35, Vector(0, 0, 1));
+	r.Rotate(-35, Vector(0, 1, 0));
 
-	r.SetColorSwap(m_clrSwap);
+	r.SetUniform("bColorSwapInAlpha", true);
+	r.SetUniform("vecColorSwap", m_clrSwap);
 
 	r.RenderModel(m_iTurretModel);
 }
@@ -168,14 +169,13 @@ void CDebris::Spawn()
 {
 	BaseClass::Spawn();
 
-	m_hBurnParticles.SetSystem("debris-burn", GetOrigin());
+	m_hBurnParticles.SetSystem("debris-burn", GetGlobalOrigin());
 	m_hBurnParticles.FollowEntity(this);
 	m_hBurnParticles.SetActive(true);
 	m_bTakeDamage = false;
 
-	SetVelocity(Vector(RandomFloat(-40, 40), RandomFloat(5, 40), RandomFloat(-40, 40)));
-	SetGravity(Vector(0, -50, 0));
-	SetSimulated(true);
+	SetGlobalVelocity(Vector(RandomFloat(-40, 40), RandomFloat(5, 40), RandomFloat(-40, 40)));
+	SetGlobalGravity(Vector(0, 0, -50));
 }
 
 void CDebris::Think()
@@ -185,7 +185,7 @@ void CDebris::Think()
 	if (!GameNetwork()->IsHost())
 		return;
 
-	if (GetOrigin().y < DigitanksGame()->GetTerrain()->GetHeight(GetOrigin().x, GetOrigin().z))
+	if (GetGlobalOrigin().z < DigitanksGame()->GetTerrain()->GetHeight(GetGlobalOrigin().x, GetGlobalOrigin().y))
 		Delete();
 
 	if (GameServer()->GetGameTime() - GetSpawnTime() > 10)

@@ -59,10 +59,22 @@ public:
 	void							SetInstallID(int i) { m_iInstallID = i; };
 	int								GetInstallID() const { return m_iInstallID; };
 
+	bool							IsHumanPlayable() { return m_bHumanPlayable; }
+	void							SetNotHumanPlayable() { m_bHumanPlayable = false; }
+
+	bool							IsHumanControlled() const { return m_iClient != NETWORK_BOT; };
+
 	void							SetPlayerName(const tstring& sName) { m_sPlayerName = sName; }
 	const tstring&					GetPlayerName() const { return m_sPlayerName; }
 
+	void							SetColor(Color clrTeam) { m_clrTeam = clrTeam; };
+	Color							GetColor() const { return m_clrTeam; };
+
 protected:
+	CNetworkedColor					m_clrTeam;
+
+	CNetworkedVariable<bool>		m_bHumanPlayable;
+
 	CNetworkedHandle<CCharacter>	m_hCharacter;
 
 	CNetworkedVariable<int>			m_iClient;

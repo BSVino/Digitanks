@@ -19,9 +19,11 @@ SAVEDATA_TABLE_END();
 INPUTS_TABLE_BEGIN(CScout);
 INPUTS_TABLE_END();
 
+#define _T(x) x
+
 void CScout::Precache()
 {
-	PrecacheModel(_T("models/digitanks/scout.toy"), true);
+	PrecacheModel(_T("models/digitanks/scout.toy"));
 	PrecacheSound(_T("sound/torpedo-drop.wav"));
 }
 
@@ -55,7 +57,7 @@ CSupplyLine* CScout::FindClosestEnemySupplyLine(bool bInRange)
 	CSupplyLine* pClosest = NULL;
 	while (true)
 	{
-		pClosest = CBaseEntity::FindClosest<CSupplyLine>(GetOrigin(), pClosest);
+		pClosest = CBaseEntity::FindClosest<CSupplyLine>(GetGlobalOrigin(), pClosest);
 
 		if (!pClosest)
 			return NULL;
@@ -74,12 +76,12 @@ CSupplyLine* CScout::FindClosestEnemySupplyLine(bool bInRange)
 
 		if (bInRange)
 		{
-			if (!IsInsideMaxRange(pClosest->GetOrigin()))
+			if (!IsInsideMaxRange(pClosest->GetGlobalOrigin()))
 				return NULL;
 		}
 		else
 		{
-			if (pClosest->Distance(GetOrigin()) > VisibleRange())
+			if (pClosest->Distance(GetGlobalOrigin()) > VisibleRange())
 				return NULL;
 		}
 
@@ -105,8 +107,8 @@ void CScout::FireWeapon(CNetworkParameters* p)
 
 	// FIRE PROTON TORPEDO NUMBER ONE NUMBER TWO
 	pTorpedo->SetOwner(this);
-	pTorpedo->SetVelocity(Vector(0,0,0));
-	pTorpedo->SetGravity(Vector(0, flGravity, 0));
+	pTorpedo->SetGlobalVelocity(Vector(0,0,0));
+	pTorpedo->SetGlobalGravity(Vector(0, 0, flGravity));
 	pTorpedo->SetLandingSpot(vecLandingSpot);
 
 	if (GetVisibility() > 0)

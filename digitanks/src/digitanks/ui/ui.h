@@ -2,7 +2,10 @@
 #define DT_UI_H
 
 #include <common.h>
-#include "glgui/glgui.h"
+
+#include <glgui/label.h>
+#include <glgui/button.h>
+#include <glgui/selector.h>
 
 class CDigitanksMenu : public glgui::CPanel, public glgui::IEventListener
 {
@@ -27,19 +30,19 @@ public:
 	EVENT_CALLBACK(CDigitanksMenu, Quit);
 
 protected:
-	glgui::CLabel*					m_pDigitanks;
+	glgui::CControl<glgui::CLabel>  m_pDigitanks;
 
-	glgui::CScrollSelector<int>*	m_pDifficulty;
-	glgui::CLabel*					m_pDifficultyLabel;
+	glgui::CControl<glgui::CScrollSelector<int>> m_pDifficulty;
+	glgui::CControl<glgui::CLabel>  m_pDifficultyLabel;
 
-	glgui::CButton*					m_pReturnToMenu;
-	glgui::CButton*					m_pReturnToGame;
-	glgui::CButton*					m_pSaveGame;
-	glgui::CButton*					m_pLoadGame;
-	glgui::CButton*					m_pOptions;
-	glgui::CButton*					m_pExit;
+	glgui::CControl<glgui::CButton> m_pReturnToMenu;
+	glgui::CControl<glgui::CButton> m_pReturnToGame;
+	glgui::CControl<glgui::CButton> m_pSaveGame;
+	glgui::CControl<glgui::CButton> m_pLoadGame;
+	glgui::CControl<glgui::CButton> m_pOptions;
+	glgui::CControl<glgui::CButton> m_pExit;
 
-	class COptionsPanel*			m_pOptionsPanel;
+	glgui::CControl<class COptionsPanel> m_pOptionsPanel;
 };
 
 class CVictoryPanel : public glgui::CPanel, public glgui::IEventListener
@@ -58,9 +61,9 @@ public:
 	EVENT_CALLBACK(CVictoryPanel, Restart);
 
 protected:
-	glgui::CLabel*					m_pVictory;
+	glgui::CControl<glgui::CLabel>  m_pVictory;
 
-	glgui::CButton*					m_pRestart;
+	glgui::CControl<glgui::CButton> m_pRestart;
 };
 
 class CPurchasePanel : public glgui::CPanel, public glgui::IEventListener
@@ -84,12 +87,12 @@ public:
 	EVENT_CALLBACK(CPurchasePanel, Email);
 
 protected:
-	glgui::CLabel*					m_pPurchase;
-	glgui::CButton*					m_pPurchaseButton;
+	glgui::CControl<glgui::CLabel>     m_pPurchase;
+	glgui::CControl<glgui::CButton>    m_pPurchaseButton;
 
-	glgui::CLabel*					m_pEnterEmail;
-	glgui::CTextField*				m_pEmail;
-	glgui::CButton*					m_pContinueButton;
+	glgui::CControl<glgui::CLabel>     m_pEnterEmail;
+	glgui::CControl<glgui::CTextField> m_pEmail;
+	glgui::CControl<glgui::CButton>    m_pContinueButton;
 
 	bool							m_bClosing;
 
@@ -112,7 +115,7 @@ public:
 	virtual bool					KeyPressed(int iKey, bool bCtrlDown = false);
 
 protected:
-	glgui::CLabel*					m_pStory;
+	glgui::CControl<glgui::CLabel> m_pStory;
 };
 
 #endif

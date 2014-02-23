@@ -113,7 +113,7 @@ public:
 	NET_CALLBACK(CGameServer,					UpdateValue);
 	NET_CALLBACK(CGameServer,					ClientInfo);
 
-	double										GetFrameTime() { return m_flFrameTime; };
+	float										GetFrameTime() { return (float)m_flFrameTime; };
 	double										GetGameTime() { return m_flGameTime; };
 	size_t										GetFrame() { return m_iFrame; }
 	float                                       GetTimeScale() { return m_flTimeScale; }

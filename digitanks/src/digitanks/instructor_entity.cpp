@@ -30,5 +30,5 @@ void CInstructorEntity::DisplayLesson(const tvector<tstring>& sArgs)
 		return;
 	}
 
-	DigitanksWindow()->GetInstructor()->DisplayTutorial(convertstring<tchar, char>(sArgs[0]));
+	DigitanksWindow()->GetInstructor()->DisplayLesson(convertstring<tchar, char>(sArgs[0]));
 }

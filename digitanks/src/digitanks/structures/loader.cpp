@@ -3,8 +3,11 @@
 #include <mtrand.h>
 
 #include <models/models.h>
-#include <renderer/renderer.h>
-#include <game/game.h>
+#include <renderer/game_renderer.h>
+#include <game/entities/game.h>
+#include <game/gameserver.h>
+#include <renderer/game_renderingcontext.h>
+#include <glgui/rootpanel.h>
 
 #include <ui/digitankswindow.h>
 #include <ui/instructor.h>
@@ -13,8 +16,6 @@
 #include <units/mechinf.h>
 #include <units/maintank.h>
 #include <units/artillery.h>
-
-#include <GL/glew.h>
 
 REGISTER_ENTITY(CLoader);
 
@@ -92,23 +93,26 @@ void CLoader::StartTurn()
 				s = sprintf(tstring("Producing Digitank (%d turns left)"), GetTurnsRemainingToProduce());
 			else if (GetBuildUnit() == UNIT_ARTILLERY)
 				s = sprintf(tstring("Producing Artillery (%d turns left)"), GetTurnsRemainingToProduce());
-			GetDigitanksTeam()->AppendTurnInfo(s);
+			GetDigitanksPlayer()->AppendTurnInfo(s);
 		}
 	}
 }
 
-void CLoader::PostRender(bool bTransparent) const
+void CLoader::PostRender() const
 {
-	BaseClass::PostRender(bTransparent);
+	BaseClass::PostRender();
 
-	if (bTransparent && IsProducing() && GetVisibility() > 0)
+	if (GameServer()->GetRenderer()->IsRenderingTransparent() && IsProducing() && GetVisibility() > 0)
 	{
-		CRenderingContext c(GameServer()->GetRenderer());
-		c.Translate(GetOrigin());
+		CGameRenderingContext c(GameServer()->GetRenderer());
+		c.Translate(GetGlobalOrigin());
 		c.SetAlpha(GetVisibility() * 0.3f);
 		c.SetBlend(BLEND_ADDITIVE);
-		if (GetTeam())
-			c.SetColorSwap(GetTeam()->GetColor());
+		if (GetPlayerOwner())
+		{
+			c.SetUniform("bColorSwapInAlpha", true);
+			c.SetUniform("vecColorSwap", GetPlayerOwner()->GetColor());
+		}
 		c.RenderModel(m_iBuildUnitModel);
 	}
 }
@@ -161,10 +165,10 @@ void CLoader::SetupMenu(menumode_t eMenuMode)
 	s += sprintf(tstring("Power required: %d\n"), (int)DigitanksGame()->GetConstructionCost(GetBuildUnit()));
 	s += sprintf(tstring("Turns to produce: %d Turns\n \n"), GetTurnsToProduce());
 
-	if (GetDigitanksTeam()->GetUnusedFleetPoints() < GetFleetPointsRequired())
+	if (GetDigitanksPlayer()->GetUnusedFleetPoints() < GetFleetPointsRequired())
 		s += "NOT ENOUGH FLEET POINTS\n \n";
 
-	if (GetDigitanksTeam()->GetPower() < DigitanksGame()->GetConstructionCost(GetBuildUnit()))
+	if (GetDigitanksPlayer()->GetPower() < DigitanksGame()->GetConstructionCost(GetBuildUnit()))
 		s += "NOT ENOUGH POWER\n \n";
 
 	s += "Shortcut: Q";
@@ -193,7 +197,7 @@ void CLoader::BeginProduction()
 	if (!HasEnoughFleetPoints())
 		return;
 
-	if (GetDigitanksTeam()->GetPower() < GetUnitProductionCost())
+	if (GetDigitanksPlayer()->GetPower() < GetUnitProductionCost())
 		return;
 
 	CNetworkParameters p;
@@ -210,28 +214,28 @@ void CLoader::BeginProduction(class CNetworkParameters* p)
 	if (!GameNetwork()->IsHost())
 		return;
 
-	if (GetDigitanksTeam()->GetPower() < GetUnitProductionCost())
+	if (GetDigitanksPlayer()->GetPower() < GetUnitProductionCost())
 		return;
 
 	m_iTurnsToProduce = GetTurnsToProduce();
 	m_bProducing = true;
 
-	GetDigitanksTeam()->ConsumePower(GetUnitProductionCost());
+	GetDigitanksPlayer()->ConsumePower(GetUnitProductionCost());
 
-	GetDigitanksTeam()->CountFleetPoints();
-	GetDigitanksTeam()->CountProducers();
+	GetDigitanksPlayer()->CountFleetPoints();
+	GetDigitanksPlayer()->CountProducers();
 }
 
 void CLoader::CompleteProduction()
 {
 	if (GetBuildUnit() == UNIT_INFANTRY)
-		GetDigitanksTeam()->AppendTurnInfo("Production finished on Resistor");
+		GetDigitanksPlayer()->AppendTurnInfo("Production finished on Resistor");
 	else if (GetBuildUnit() == UNIT_TANK)
-		GetDigitanksTeam()->AppendTurnInfo("Production finished on Digitank");
+		GetDigitanksPlayer()->AppendTurnInfo("Production finished on Digitank");
 	else if (GetBuildUnit() == UNIT_ARTILLERY)
-		GetDigitanksTeam()->AppendTurnInfo("Production finished on Artillery");
+		GetDigitanksPlayer()->AppendTurnInfo("Production finished on Artillery");
 
-	GetDigitanksTeam()->AddActionItem(this, ACTIONTYPE_UNITREADY);
+	GetDigitanksPlayer()->AddActionItem(this, ACTIONTYPE_UNITREADY);
 
 	if (GameNetwork()->IsHost())
 	{
@@ -243,10 +247,10 @@ void CLoader::CompleteProduction()
 		else if (GetBuildUnit() == UNIT_ARTILLERY)
 			pTank = GameServer()->Create<CArtillery>("CArtillery");
 			
-		pTank->SetOrigin(GetOrigin());
+		pTank->SetGlobalOrigin(GetGlobalOrigin());
 		pTank->CalculateVisibility();
 
-		GetTeam()->AddEntity(pTank);
+		GetPlayerOwner()->AddUnit(pTank);
 
 		for (size_t i = 0; i < m_iTankAttack; i++)
 		{
@@ -273,20 +277,20 @@ void CLoader::CompleteProduction()
 		{
 			for (size_t y = 0; y < UPDATE_GRID_SIZE; y++)
 			{
-				if (GetDigitanksTeam()->HasDownloadedUpdate(x, y))
+				if (GetDigitanksPlayer()->HasDownloadedUpdate(x, y))
 					pTank->DownloadComplete(x, y);
 			}
 		}
 
 		m_bProducing = false;
 
-		pTank->Move(pTank->GetOrigin() + AngleVector(pTank->GetAngles())*9);
-		pTank->Turn(VectorAngles(-GetOrigin().Normalized()));
+		pTank->Move(pTank->GetGlobalOrigin() + AngleVector(pTank->GetAngles())*9);
+		pTank->Turn(VectorAngles(-GetGlobalOrigin().Normalized()));
 
-		if (!GetTeam()->IsPlayerControlled() && GameNetwork()->IsHost())
+		if (!GetPlayerOwner()->IsHumanControlled() && GameNetwork()->IsHost())
 			// It's not a real move but i dun care
 			// We just need to get them spaced out around the loader, like a rally point
-			pTank->Move(pTank->GetOrigin() + AngleVector(pTank->GetAngles())*9 + AngleVector(EAngle(0, RandomFloat(0, 360), 0))*10);
+			pTank->Move(pTank->GetGlobalOrigin() + AngleVector(pTank->GetAngles())*9 + AngleVector(EAngle(0, RandomFloat(0, 360), 0))*10);
 
 		pTank->StartTurn();
 	}
@@ -344,18 +348,18 @@ size_t CLoader::GetFleetPointsRequired()
 
 bool CLoader::HasEnoughFleetPoints()
 {
-	if (!GetDigitanksTeam())
+	if (!GetDigitanksPlayer())
 		return false;
 
-	return GetFleetPointsRequired() <= GetDigitanksTeam()->GetUnusedFleetPoints();
+	return GetFleetPointsRequired() <= GetDigitanksPlayer()->GetUnusedFleetPoints();
 }
 
 bool CLoader::HasEnoughPower()
 {
-	if (!GetDigitanksTeam())
+	if (!GetDigitanksPlayer())
 		return false;
 
-	return DigitanksGame()->GetConstructionCost(GetBuildUnit()) <= GetDigitanksTeam()->GetPower();
+	return DigitanksGame()->GetConstructionCost(GetBuildUnit()) <= GetDigitanksPlayer()->GetPower();
 }
 
 size_t CLoader::InitialTurnsToConstruct()
@@ -415,7 +419,7 @@ void CLoader::UpdateInfo(tstring& s)
 	if (GetTeam())
 	{
 		s += "Team: " + GetTeam()->GetTeamName() + "\n";
-		if (GetDigitanksTeam() == DigitanksGame()->GetCurrentLocalDigitanksTeam())
+		if (GetDigitanksPlayer() == DigitanksGame()->GetCurrentLocalDigitanksPlayer())
 			s += " Friendly\n \n";
 		else
 			s += " Hostile\n \n";
@@ -451,7 +455,7 @@ void CLoader::UpdateInfo(tstring& s)
 		s += sprintf(tstring("Efficiency: %d%\n"), (int)(GetSupplier()->GetChildEfficiency()*m_hSupplyLine->GetIntegrity()*100));
 }
 
-void CLoader::DrawQueue(int x, int y, int w, int h)
+void CLoader::DrawQueue(float x, float y, float w, float h)
 {
 	glgui::CBaseControl::PaintRect(x, y, w, h, Color(0, 0, 0));
 
@@ -461,21 +465,21 @@ void CLoader::DrawQueue(int x, int y, int w, int h)
 	if (!IsProducing())
 		return;
 
-	int iSize = h*2/3;
+	float flSize = h*2/3;
 
-	CHUD::PaintUnitSheet(GetBuildUnit(), x + w/2 - iSize/2, y + h/2 - iSize/2, iSize, iSize, GetTeam()->GetColor());
+	CHUD::PaintUnitSheet(GetBuildUnit(), x + w/2 - flSize/2, y + h/2 - flSize/2, flSize, flSize, GetTeam()->GetColor());
 
 	int iTotalTurns = GetTurnsToProduce();
 	int iTurnsProgressed = iTotalTurns-GetTurnsRemainingToProduce();
 	iTurnsProgressed++;
 	iTotalTurns++;
 
-	glgui::CRootPanel::PaintRect(x + w/2 - iSize/2, y + h/2 + iSize/2, (int)(iSize*iTurnsProgressed/iTotalTurns), 3, Color(255, 255, 0));
+	glgui::CRootPanel::PaintRect(x + w/2 - flSize/2, y + h/2 + flSize/2, flSize*iTurnsProgressed/iTotalTurns, 3, Color(255, 255, 0));
 
 	CRenderingContext c(GameServer()->GetRenderer());
 	c.SetColor(Color(255,255,255));
 	tstring sTurns = sprintf(tstring(":%d"), GetTurnsRemainingToProduce());
-	glgui::CLabel::PaintText(sTurns, sTurns.length(), "text", 10, (float)(x + w/2 + iSize/2), (float)(y + h/2 - iSize/2 - 2));
+	glgui::CLabel::PaintText(sTurns, sTurns.length(), "text", 10, (float)(x + w/2 + flSize/2), (float)(y + h/2 - flSize/2 - 2));
 }
 
 tstring CLoader::GetEntityName() const

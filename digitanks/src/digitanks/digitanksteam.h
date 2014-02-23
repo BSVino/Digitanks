@@ -1,9 +1,7 @@
 #ifndef DT_DIGITANKSTEAM_H
 #define DT_DIGITANKSTEAM_H
 
-#include <EASTL/list.h>
-
-#include <game/entities/team.h>
+#include <game/entities/player.h>
 
 #include "units/digitank.h"
 #include "updates.h"
@@ -35,21 +33,18 @@ typedef struct
 	bool			bHandled;
 } actionitem_t;
 
-class CDigitanksTeam : public CTeam
+class CDigitanksPlayer : public CPlayer
 {
 	friend class CDigitanksGame;
 
-	REGISTER_ENTITY_CLASS(CDigitanksTeam, CTeam);
+	REGISTER_ENTITY_CLASS(CDigitanksPlayer, CPlayer);
 
 public:
-								CDigitanksTeam();
-	virtual						~CDigitanksTeam();
+								CDigitanksPlayer();
+	virtual						~CDigitanksPlayer();
 
 public:
 	virtual void				Spawn();
-
-	virtual void				OnAddEntity(CBaseEntity* pEntity);
-	virtual void				OnRemoveEntity(CBaseEntity* pEntity);
 
 	virtual void				ClientEnterGame();
 
@@ -143,11 +138,20 @@ public:
 	void						Bot_ExecuteTurnCampaign();
 	void						Bot_AddBuildPriority(unittype_t eUnit, CDigitanksEntity* pTarget = NULL);
 	CSupplier*					Bot_FindUnusedSupplier(size_t iDependents = ~0, bool bNoSuppliers = true);
-	bool						Bot_BuildCollector(class CResource* pResource);
+	bool						Bot_BuildCollector(class CResourceNode* pResource);
 	void						Bot_UseArtilleryAI() { m_bUseArtilleryAI = true; }
 
 	size_t						GetNumTanks() const { return m_ahTanks.size(); };
 	class CDigitank*			GetTank(size_t i) const;
+
+	size_t						GetNumUnits() const { return m_ahUnits.size(); };
+	CDigitanksEntity*			GetUnit(size_t i) const;
+
+	void						AddUnit(CDigitanksEntity* pEntity);
+	virtual void				OnAddUnit(CDigitanksEntity* pEntity);
+
+	void						RemoveUnit(CDigitanksEntity* pEntity);
+	virtual void				OnRemoveUnit(CDigitanksEntity* pEntity);
 
 	void						SetLoseCondition(losecondition_t eLose) { m_eLoseCondition = eLose; }
 	losecondition_t				GetLoseCondition() { return m_eLoseCondition; }
@@ -156,7 +160,8 @@ public:
 	bool						ShouldIncludeInScoreboard() const { return m_bIncludeInScoreboard; }
 
 protected:
-	CNetworkedSTLVector<CEntityHandle<CDigitank> >	m_ahTanks;
+	CNetworkedSTLVector<CEntityHandle<CDigitank> >        m_ahTanks;
+	CNetworkedSTLVector<CEntityHandle<CDigitanksEntity> > m_ahUnits;
 
 	tvector<size_t>		m_aiCurrentSelection;
 
@@ -186,6 +191,7 @@ protected:
 		CEntityHandle<CDigitanksEntity> m_hTarget;
 	} builditem_t;
 	tvector<builditem_t>		m_aeBuildPriorities;
+	size_t                      m_iBuildPrioritiesHead;
 	bool						m_bCanUpgrade;
 
 	Vector						m_vecExplore;
@@ -218,5 +224,10 @@ protected:
 
 	CNetworkedVariable<bool>	m_bIncludeInScoreboard;
 };
+
+inline CDigitanksPlayer* ToDigitanksPlayer(CBaseEntity* pPlayer)
+{
+	return dynamic_cast<CDigitanksPlayer*>(pPlayer);
+}
 
 #endif

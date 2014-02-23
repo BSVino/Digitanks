@@ -2,6 +2,7 @@
 
 #include <models/models.h>
 #include <renderer/renderer.h>
+#include <renderer/game_renderingcontext.h>
 
 #include <digitanksgame.h>
 #include <terrain.h>
@@ -19,16 +20,16 @@ INPUTS_TABLE_END();
 
 void CBugTurret::Precache()
 {
-	PrecacheModel(_T("models/digitanks/autoturret.toy"), true);
-	PrecacheModel(_T("models/digitanks/autoturret-turret.toy"), true);
+	PrecacheModel("models/digitanks/autoturret.toy");
+	PrecacheModel("models/digitanks/autoturret-turret.toy");
 }
 
 void CBugTurret::Spawn()
 {
 	BaseClass::Spawn();
 
-	SetModel(_T("models/digitanks/autoturret.toy"));
-	m_iTurretModel = CModelLibrary::Get()->FindModel(_T("models/digitanks/autoturret-turret.toy"));
+	SetModel("models/digitanks/autoturret.toy");
+	m_iTurretModel = CModelLibrary::Get()->FindModel("models/digitanks/autoturret-turret.toy");
 
 	m_flMaxShieldStrength = m_flShieldStrength = 0;
 
@@ -49,10 +50,12 @@ void CBugTurret::ModifyContext(CRenderingContext* pContext) const
 	if (!DigitanksGame()->GetTerrain())
 		return;
 
+	pContext->SetUniform("bColorSwapInAlpha", true);
+
 	if (DigitanksGame()->GetGameType() == GAMETYPE_STANDARD)
-		pContext->SetColorSwap(Vector(DigitanksGame()->GetTerrain()->GetPrimaryTerrainColor())*2/3);
+		pContext->SetUniform("vecColorSwap", Vector(DigitanksGame()->GetTerrain()->GetPrimaryTerrainColor())*2/3);
 	else
-		pContext->SetColorSwap(GetTeam()->GetColor());
+		pContext->SetUniform("vecColorSwap", GetPlayerOwner()->GetColor());
 }
 
 float CBugTurret::GetFortifyAttackPowerBonus()
@@ -78,16 +81,16 @@ INPUTS_TABLE_END();
 
 void CGridBug::Precache()
 {
-	PrecacheModel(_T("models/digitanks/gridbug.toy"), true);
-	PrecacheModel(_T("models/digitanks/gridbug-turret.toy"), true);
+	PrecacheModel("models/digitanks/gridbug.toy");
+	PrecacheModel("models/digitanks/gridbug-turret.toy");
 }
 
 void CGridBug::Spawn()
 {
 	BaseClass::Spawn();
 
-	SetModel(_T("models/digitanks/gridbug.toy"));
-	m_iTurretModel = CModelLibrary::Get()->FindModel(_T("models/digitanks/gridbug-turret.toy"));
+	SetModel("models/digitanks/gridbug.toy");
+	m_iTurretModel = CModelLibrary::Get()->FindModel("models/digitanks/gridbug-turret.toy");
 
 	m_flMaxShieldStrength = m_flShieldStrength = 0;
 
@@ -105,8 +108,10 @@ void CGridBug::ModifyContext(CRenderingContext* pContext) const
 	if (!DigitanksGame()->GetTerrain())
 		return;
 
+	pContext->SetUniform("bColorSwapInAlpha", true);
+
 	if (DigitanksGame()->GetGameType() == GAMETYPE_STANDARD)
-		pContext->SetColorSwap(Vector(DigitanksGame()->GetTerrain()->GetPrimaryTerrainColor())*2/3);
+		pContext->SetUniform("vecColorSwap", Vector(DigitanksGame()->GetTerrain()->GetPrimaryTerrainColor())*2/3);
 	else
-		pContext->SetColorSwap(GetTeam()->GetColor());
+		pContext->SetUniform("vecColorSwap", GetPlayerOwner()->GetColor());
 }

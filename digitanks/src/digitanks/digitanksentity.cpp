@@ -1,16 +1,16 @@
 #include "digitanksentity.h"
 
-#include <GL/glew.h>
-
 #include <maths.h>
 #include <mtrand.h>
 #include <geometry.h>
 
 #include <models/models.h>
-#include <shaders/shaders.h>
-#include <renderer/renderer.h>
-#include <renderer/dissolver.h>
+#include <renderer/shaders.h>
+#include <renderer/game_renderer.h>
+#include <renderer/game_renderingcontext.h>
+#include <game/gameserver.h>
 
+#include "dissolver.h"
 #include <ui/digitankswindow.h>
 #include <ui/hud.h>
 #include "digitanksgame.h"
@@ -44,7 +44,7 @@ INPUTS_TABLE_END();
 
 void CDigitanksEntity::Precache()
 {
-	PrecacheModel("models/cage.toy", true);
+	PrecacheModel("models/cage.toy");
 	PrecacheParticleSystem("cage-aura");
 }
 
@@ -65,7 +65,7 @@ void CDigitanksEntity::Spawn()
 	m_bObjective = false;
 
 	m_iCageModel = CModelLibrary::Get()->FindModel("models/cage.toy");
-	m_hCageParticles.SetSystem("cage-aura", GetOrigin());
+	m_hCageParticles.SetSystem("cage-aura", GetGlobalOrigin());
 	m_hCageParticles.FollowEntity(this);
 }
 
@@ -91,7 +91,7 @@ void CDigitanksEntity::Think()
 
 		while (true)
 		{
-			pOther = CBaseEntity::FindClosest<CDigitanksEntity>(GetOrigin(), pOther);
+			pOther = CBaseEntity::FindClosest<CDigitanksEntity>(GetGlobalOrigin(), pOther);
 
 			if (!pOther)
 				break;
@@ -99,7 +99,7 @@ void CDigitanksEntity::Think()
 			if (pOther == this)
 				continue;
 
-			if (pOther->Distance(GetOrigin()) > VisibleRange() + DigitanksGame()->FogPenetrationDistance())
+			if (pOther->Distance(GetGlobalOrigin()) > VisibleRange() + DigitanksGame()->FogPenetrationDistance())
 				break;
 
 			pOther->DirtyVisibility();
@@ -112,7 +112,7 @@ void CDigitanksEntity::Think()
 	{
 		GameServer()->Delete(this);
 
-		if (DigitanksGame()->GetTerrain()->IsPointOverHole(GetOrigin()))
+		if (DigitanksGame()->GetTerrain()->IsPointOverHole(GetGlobalOrigin()))
 		{
 			CWreckage* pWreckage = CreateWreckage();
 
@@ -136,13 +136,13 @@ void CDigitanksEntity::Think()
 				for (size_t i = 0; i < 8; i++)
 				{
 					CDebris* pDebris = GameServer()->Create<CDebris>("CDebris");
-					pDebris->SetOrigin(GetOrigin());
+					pDebris->SetGlobalOrigin(GetGlobalOrigin());
 				}
 
 				CWreckage* pWreckage = CreateWreckage();
 				pWreckage->SetScale(2);
 
-				DigitanksGame()->GetDigitanksCamera()->Shake(GetOrigin(), 3);
+				DigitanksGame()->GetDigitanksCamera()->Shake(GetGlobalOrigin(), 3);
 				break;
 			}
 
@@ -150,7 +150,7 @@ void CDigitanksEntity::Think()
 			{
 				CProjectile* pProjectile = GameServer()->Create<CLargeShell>("CLargeShell");
 				pProjectile->SetOwner(NULL);
-				pProjectile->SetOrigin(GetOrigin());
+				pProjectile->SetGlobalOrigin(GetGlobalOrigin());
 				pProjectile->Explode();
 				break;
 			}
@@ -159,7 +159,7 @@ void CDigitanksEntity::Think()
 			{
 				CProjectile* pProjectile = GameServer()->Create<CAOEShell>("CAOEShell");
 				pProjectile->SetOwner(NULL);
-				pProjectile->SetOrigin(GetOrigin());
+				pProjectile->SetGlobalOrigin(GetGlobalOrigin());
 				pProjectile->Explode();
 				break;
 			}
@@ -168,7 +168,7 @@ void CDigitanksEntity::Think()
 			{
 				CProjectile* pProjectile = GameServer()->Create<CClusterBomb>("CClusterBomb");
 				pProjectile->SetOwner(NULL);
-				pProjectile->SetOrigin(GetOrigin());
+				pProjectile->SetGlobalOrigin(GetGlobalOrigin());
 				pProjectile->Explode();
 				break;
 			}
@@ -177,7 +177,7 @@ void CDigitanksEntity::Think()
 			{
 				CProjectile* pProjectile = GameServer()->Create<CEarthshaker>("CEarthshaker");
 				pProjectile->SetOwner(NULL);
-				pProjectile->SetOrigin(GetOrigin());
+				pProjectile->SetGlobalOrigin(GetGlobalOrigin());
 				pProjectile->Explode();
 				break;
 			}
@@ -186,7 +186,7 @@ void CDigitanksEntity::Think()
 			{
 				CProjectile* pProjectile = GameServer()->Create<CTractorBomb>("CTractorBomb");
 				pProjectile->SetOwner(NULL);
-				pProjectile->SetOrigin(GetOrigin());
+				pProjectile->SetGlobalOrigin(GetGlobalOrigin());
 				pProjectile->Explode();
 				break;
 			}
@@ -209,11 +209,11 @@ CWreckage* CDigitanksEntity::CreateWreckage()
 		return NULL;
 
 	CWreckage* pWreckage = GameServer()->Create<CWreckage>("CWreckage");
-	pWreckage->SetOrigin(GetRenderOrigin());
-	pWreckage->SetAngles(GetRenderAngles());
-	pWreckage->SetModel(GetModel());
-	pWreckage->SetGravity(Vector(0, DigitanksGame()->GetGravity(), 0));
-	pWreckage->SetOldTeam(GetDigitanksTeam());
+	pWreckage->SetGlobalOrigin(GetRenderOrigin());
+	pWreckage->SetGlobalAngles(GetRenderAngles());
+	pWreckage->SetModel(GetModelID());
+	pWreckage->SetGlobalGravity(Vector(0, 0, DigitanksGame()->GetGravity()));
+	pWreckage->SetOldPlayer(GetDigitanksPlayer());
 
 	pWreckage->CalculateVisibility();
 
@@ -276,14 +276,14 @@ void CDigitanksEntity::InterceptSupplyLines()
 		if (!pSupplyLine->GetSupplier() || !pSupplyLine->GetEntity())
 			continue;
 
-		Vector vecEntity = GetOrigin();
-		vecEntity.y = 0;
+		Vector vecEntity = GetGlobalOrigin();
+		vecEntity.z = 0;
 
-		Vector vecSupplier = pSupplyLine->GetSupplier()->GetOrigin();
-		vecSupplier.y = 0;
+		Vector vecSupplier = pSupplyLine->GetSupplier()->GetGlobalOrigin();
+		vecSupplier.z = 0;
 
-		Vector vecUnit = pSupplyLine->GetEntity()->GetOrigin();
-		vecUnit.y = 0;
+		Vector vecUnit = pSupplyLine->GetEntity()->GetGlobalOrigin();
+		vecUnit.z = 0;
 
 		if (DistanceToLineSegment(vecEntity, vecSupplier, vecUnit) > GetBoundingRadius()+4)
 			continue;
@@ -306,14 +306,15 @@ void CDigitanksEntity::InterceptSupplyLines()
 	}
 }
 
-CDigitanksTeam* CDigitanksEntity::GetDigitanksTeam() const
+CDigitanksPlayer* CDigitanksEntity::GetDigitanksPlayer() const
 {
-	return static_cast<CDigitanksTeam*>(BaseClass::GetTeam());
+	TAssert(dynamic_cast<CDigitanksPlayer*>(GetOwner()));
+	return static_cast<CDigitanksPlayer*>(GetOwner());
 }
 
 bool CDigitanksEntity::ShouldRender() const
 {
-	return GetVisibility(DigitanksGame()->GetCurrentLocalDigitanksTeam()) > 0;
+	return GetVisibility(DigitanksGame()->GetCurrentLocalDigitanksPlayer()) > 0;
 }
 
 void CDigitanksEntity::RenderVisibleArea()
@@ -321,15 +322,15 @@ void CDigitanksEntity::RenderVisibleArea()
 	if (VisibleRange() == 0)
 		return;
 
-	CRenderingContext c(GameServer()->GetRenderer());
-	c.Translate(GetOrigin());
+	CGameRenderingContext c(GameServer()->GetRenderer(), true);
+	c.Translate(GetGlobalOrigin());
 	c.Scale(VisibleRange(), VisibleRange(), VisibleRange());
 	c.RenderSphere();
 }
 
-void CDigitanksEntity::OnSetOrigin(const Vector& vecOrigin)
+void CDigitanksEntity::OnSetLocalTransform(TMatrix& m)
 {
-	BaseClass::OnSetOrigin(vecOrigin);
+	BaseClass::OnSetLocalTransform(m);
 
 	// Don't do this constantly.
 	if (GameServer()->GetGameTime() > m_flNextDirtyOrigin)
@@ -343,7 +344,7 @@ void CDigitanksEntity::OnSetOrigin(const Vector& vecOrigin)
 		m_flNextDirtyArea = GameServer()->GetGameTime() + 1.0f;
 }
 
-float CDigitanksEntity::GetVisibility(CDigitanksTeam* pTeam) const
+float CDigitanksEntity::GetVisibility(CDigitanksPlayer* pPlayer) const
 {
 	CDigitanksGame* pGame = DigitanksGame();
 
@@ -352,7 +353,7 @@ float CDigitanksEntity::GetVisibility(CDigitanksTeam* pTeam) const
 	float flConceal = 0.0f;
 	if (GetsConcealmentBonus() && pTerrain)
 	{
-		if (pTerrain->GetBit(CTerrain::WorldToArraySpace(m_vecOrigin.Get().x), CTerrain::WorldToArraySpace(m_vecOrigin.Get().z), TB_TREE))
+		if (pTerrain->GetBit(CTerrain::WorldToArraySpace(GetGlobalOrigin().x), CTerrain::WorldToArraySpace(GetGlobalOrigin().y), TB_TREE))
 			flConceal = 0.7f;
 	}
 
@@ -363,19 +364,19 @@ float CDigitanksEntity::GetVisibility(CDigitanksTeam* pTeam) const
 	if (HasLostConcealment())
 		flConceal = 0;
 
-	if (pTeam && pTeam == GetDigitanksTeam())
+	if (pPlayer && pPlayer == GetDigitanksPlayer())
 		return 1 - flConceal/2;
 
 	if (!pGame->ShouldRenderFogOfWar())
 	{
-		if (pTeam && pTeam->IsPlayerControlled())
+		if (pPlayer && pPlayer->IsHumanControlled())
 			return 1 - flConceal;
 	}
 
-	if (!pTeam)
+	if (!pPlayer)
 		return 0;
 
-	float flVisibility = pTeam->GetEntityVisibility(GetHandle()) - flConceal;
+	float flVisibility = pPlayer->GetEntityVisibility(GetHandle()) - flConceal;
 
 	if (flVisibility < 0)
 		return 0;
@@ -388,15 +389,15 @@ void CDigitanksEntity::CalculateVisibility()
 	if (!DigitanksGame())
 		return;
 
-	for (size_t i = 0; i < DigitanksGame()->GetNumTeams(); i++)
+	for (size_t i = 0; i < DigitanksGame()->GetNumPlayers(); i++)
 	{
-		if (!DigitanksGame()->GetDigitanksTeam(i))
+		if (!DigitanksGame()->GetDigitanksPlayer(i))
 			continue;
 
-		DigitanksGame()->GetDigitanksTeam(i)->CalculateEntityVisibility(this);
+		DigitanksGame()->GetDigitanksPlayer(i)->CalculateEntityVisibility(this);
 	}
 
-	m_flVisibility = GetVisibility(DigitanksGame()->GetCurrentLocalDigitanksTeam());
+	m_flVisibility = GetVisibility(DigitanksGame()->GetCurrentLocalDigitanksPlayer());
 	m_bVisibilityDirty = false;
 }
 
@@ -409,7 +410,7 @@ float CDigitanksEntity::GetVisibility() const
 	if (!m_bVisibilityDirty)
 		return m_flVisibility;
 
-	return GetVisibility(pGame->GetCurrentLocalDigitanksTeam());
+	return GetVisibility(pGame->GetCurrentLocalDigitanksPlayer());
 }
 
 float CDigitanksEntity::GetVisibility()
@@ -423,25 +424,27 @@ float CDigitanksEntity::GetVisibility()
 
 	float flOldVisibility = m_flVisibility;
 
-	CDigitanksTeam* pLocalTeam = pGame->GetCurrentLocalDigitanksTeam();
-	m_flVisibility = GetVisibility(pLocalTeam);
+	CDigitanksPlayer* pLocalPlayer = pGame->GetCurrentLocalDigitanksPlayer();
+	m_flVisibility = GetVisibility(pLocalPlayer);
+
+	Vector vecOrigin = GetGlobalOrigin();
 
 	// Find the nearest entity in the local team. If he's close enough, reduce this unit's concealment.
 	CDigitanksEntity* pOther = this;
 	while (true)
 	{
-		pOther = CBaseEntity::FindClosest<CDigitanksEntity>(m_vecOrigin, pOther);
+		pOther = CBaseEntity::FindClosest<CDigitanksEntity>(vecOrigin, pOther);
 
 		if (!pOther)
 			break;
 
-		if (pOther->Distance(m_vecOrigin) > 20)
+		if (pOther->Distance(vecOrigin) > 20)
 			break;
 
 		if (pOther == this)
 			continue;
 
-		if (pOther->GetDigitanksTeam() != pLocalTeam)
+		if (pOther->GetDigitanksPlayer() != pLocalPlayer)
 			continue;
 
 		m_flVisibility = 1 - ((1-m_flVisibility)/2);
@@ -462,8 +465,8 @@ float CDigitanksEntity::GetVisibility()
 
 float CDigitanksEntity::VisibleRange() const
 {
-	// Don't use GetOrigin because CDigitank::GetOrigin() can be expensive and we really don't want what it does.
-	if (TreesReduceVisibility() && DigitanksGame()->GetTerrain()->IsPointInTrees(m_vecOrigin))
+	// Don't use GetGlobalOrigin because CDigitank::GetGlobalOrigin() can be expensive and we really don't want what it does.
+	if (TreesReduceVisibility() && DigitanksGame()->GetTerrain()->IsPointInTrees(GetGlobalOrigin()))
 		return BaseVisibleRange()/2;
 
 	return BaseVisibleRange();
@@ -485,8 +488,8 @@ void CDigitanksEntity::RenderAvailableArea(int iArea)
 	if (dynamic_cast<CStructure*>(this) && DigitanksGame()->GetControlMode() == MODE_AIM)
 		flScoutScale = 10;
 
-	CRenderingContext c(GameServer()->GetRenderer());
-	c.Translate(GetOrigin());
+	CGameRenderingContext c(GameServer()->GetRenderer());
+	c.Translate(GetGlobalOrigin());
 	c.Scale(flAvailableArea, flAvailableArea*flScoutScale, flAvailableArea);
 	c.RenderSphere();
 }
@@ -509,7 +512,9 @@ bool CDigitanksEntity::IsTouching(CBaseEntity* pOther, Vector& vecPoint) const
 		return true;
 	}
 
-	return BaseClass::IsTouching(pOther, vecPoint);
+	TUnimplemented();
+
+	return false;
 }
 
 void CDigitanksEntity::Imprison()
@@ -528,10 +533,10 @@ void CDigitanksEntity::Rescue(CDigitanksEntity* pOther)
 	if (!pOther)
 		return;
 
-	if (!pOther->GetTeam())
+	if (!pOther->GetPlayerOwner())
 		return;
 
-	if (!pOther->GetTeam()->IsPlayerControlled())
+	if (!pOther->GetPlayerOwner()->IsHumanControlled())
 		return;
 
 	// Only suppliers can free structures other than CPUs. Otherwise they'd just go bunk again immediately.
@@ -539,9 +544,9 @@ void CDigitanksEntity::Rescue(CDigitanksEntity* pOther)
 		return;
 
 	if (GetUnitType() == STRUCTURE_CPU)
-		pOther->GetDigitanksTeam()->AddPower(5);
+		pOther->GetDigitanksPlayer()->AddPower(5);
 
-	pOther->GetTeam()->AddEntity(this);
+	pOther->GetDigitanksPlayer()->AddUnit(this);
 
 	DigitanksWindow()->GetHUD()->AddPowerupNotification(this, POWERUP_TANK);
 
@@ -561,7 +566,7 @@ void CDigitanksEntity::ModifyContext(CRenderingContext* pContext) const
 {
 	BaseClass::ModifyContext(pContext);
 
-	CDigitanksTeam* pTeam = DigitanksGame()->GetCurrentTeam();
+	CDigitanksPlayer* pTeam = DigitanksGame()->GetCurrentPlayer();
 
 	float flVisibility = GetVisibility();
 	if (flVisibility < 1)
@@ -571,79 +576,64 @@ void CDigitanksEntity::ModifyContext(CRenderingContext* pContext) const
 	}
 }
 
-void CDigitanksEntity::OnRender(CRenderingContext* pContext, bool bTransparent) const
+void CDigitanksEntity::OnRender(CGameRenderingContext* pContext) const
 {
-	BaseClass::OnRender(pContext, bTransparent);
+	BaseClass::OnRender(pContext);
 
-	if (bTransparent && IsImprisoned())
+	if (GameServer()->GetRenderer()->IsRenderingTransparent() && IsImprisoned())
 	{
-		CRenderingContext c(GameServer()->GetRenderer());
+		CGameRenderingContext c(GameServer()->GetRenderer());
 		c.SetBackCulling(false);
 		c.SetBlend(BLEND_ADDITIVE);
 		c.Scale(GetBoundingRadius(), GetBoundingRadius(), GetBoundingRadius());
-		c.Rotate(GameServer()->GetGameTime() * 90, Vector(0, 1, 0));
+		c.Rotate((float)GameServer()->GetGameTime() * 90, Vector(0, 0, 1));
 
 		float flVisibility = GetVisibility() * 0.6f;
-		if (GameServer()->GetRenderer()->ShouldUseShaders())
-		{
-			c.UseProgram(CShaderLibrary::GetScrollingTextureProgram());
-			c.SetUniform("iTexture", 0);
-			c.SetUniform("flAlpha", flVisibility);
-			c.SetUniform("flTime", -GameServer()->GetGameTime());
-			c.SetUniform("flSpeed", 1.0f);
-		}
-		else
-			c.SetAlpha(flVisibility);
+		c.UseProgram("scroll");
+		c.SetUniform("iTexture", 0);
+		c.SetUniform("flAlpha", flVisibility);
+		c.SetUniform("flTime", (float)-GameServer()->GetGameTime());
+		c.SetUniform("flSpeed", 1.0f);
 
-		CModel* pModel = CModelLibrary::Get()->GetModel(m_iCageModel);
-		if (pModel)
-		{
-			c.BindTexture(pModel->m_iCallListTexture);
-			if (pModel)
-				glCallList((GLuint)pModel->m_iCallList);
-		}
+		c.RenderModel(m_iCageModel, this);
 	}
 
-	if (bTransparent && IsImprisoned())
+	if (GameServer()->GetRenderer()->IsRenderingTransparent() && IsImprisoned())
 	{
-		CRenderingContext c(GameServer()->GetRenderer());
+		CGameRenderingContext c(GameServer()->GetRenderer());
 		c.SetBackCulling(false);
 		c.SetBlend(BLEND_ADDITIVE);
 		c.Scale(GetBoundingRadius()+1, GetBoundingRadius()+1, GetBoundingRadius()+1);
-		c.Rotate(-GameServer()->GetGameTime() * 90, Vector(0, 1, 0));
+		c.Rotate(-(float)GameServer()->GetGameTime() * 90, Vector(0, 0, 1));
 
 		float flVisibility = GetVisibility() * 0.6f;
-		if (GameServer()->GetRenderer()->ShouldUseShaders())
-		{
-			c.UseProgram(CShaderLibrary::GetScrollingTextureProgram());
-			c.SetUniform("iTexture", 0);
-			c.SetUniform("flAlpha", flVisibility);
-			c.SetUniform("flTime", -GameServer()->GetGameTime());
-			c.SetUniform("flSpeed", 1.0f);
-		}
-		else
-			c.SetAlpha(flVisibility);
+		c.UseProgram("scroll");
+		c.SetUniform("iTexture", 0);
+		c.SetUniform("flAlpha", flVisibility);
+		c.SetUniform("flTime", (float)-GameServer()->GetGameTime());
+		c.SetUniform("flSpeed", 1.0f);
 
-		CModel* pModel = CModelLibrary::Get()->GetModel(m_iCageModel);
-		c.BindTexture(pModel->m_iCallListTexture);
-		if (pModel)
-			glCallList((GLuint)pModel->m_iCallList);
+		c.RenderModel(m_iCageModel);
 	}
 
-	if (!bTransparent)
+	if (!GameServer()->GetRenderer()->IsRenderingTransparent())
 		return;
 
-	if (!DigitanksGame()->GetTerrain()->GetBit(CTerrain::WorldToArraySpace(m_vecOrigin.Get().x), CTerrain::WorldToArraySpace(m_vecOrigin.Get().z), TB_TREE))
+	if (!DigitanksGame()->GetTerrain()->GetBit(CTerrain::WorldToArraySpace(GetGlobalOrigin().x), CTerrain::WorldToArraySpace(GetGlobalOrigin().y), TB_TREE))
 		return;
 
 	if (GetVisibility() < 0.6f)
 		return;
 
-	CRenderingContext c(GameServer()->GetRenderer());
+	CGameRenderingContext c(GameServer()->GetRenderer());
 	c.SetBlend(BLEND_NONE);
 	c.SetAlpha(1);
 	c.BindTexture(0);
 
+	TUnimplemented();
+
+	/*
+	// Draw outlines of objects in trees.
 	glPushAttrib( GL_ALL_ATTRIB_BITS );
 
 	glDisable( GL_TEXTURE_2D );
@@ -665,6 +655,7 @@ void CDigitanksEntity::OnRender(CRenderingContext* pContext, bool bTransparent) 
 	pContext->RenderModel(GetModel());
 
 	glPopAttrib();
+	*/
 }
 
 void CDigitanksEntity::MakeObjective(const tvector<tstring>& sArgs)
@@ -675,4 +666,15 @@ void CDigitanksEntity::MakeObjective(const tvector<tstring>& sArgs)
 void CDigitanksEntity::ClearObjective(const tvector<tstring>& sArgs)
 {
 	m_bObjective = false;
+}
+
+void CDigitanksEntity::SetOwner(CDigitanksPlayer* pOwner)
+{
+	m_hOwner = pOwner;
+}
+
+CDigitanksPlayer* CDigitanksEntity::GetPlayerOwner() const
+{
+	TAssert(dynamic_cast<CDigitanksPlayer*>(GetOwner()));
+	return static_cast<CDigitanksPlayer*>(GetOwner());
 }

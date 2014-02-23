@@ -15,33 +15,23 @@ LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON A
 (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#ifndef TINKER_RENDER_COMMON_H
-#define TINKER_RENDER_COMMON_H
+#pragma once
 
-typedef enum
-{
-	BLEND_NONE = 0,
-	BLEND_ALPHA,		// Source image scaled by its alpha channel
-	BLEND_ADDITIVE,		// Source image values added to destination, scaled by its alpha channel
-	BLEND_BOTH,			// Source and destination images added, no scaling
-} blendtype_t;
+#ifdef WITH_EASTL
+#include <EASTL/list.h>
 
-typedef enum
-{
-	DF_NEVER,
-	DF_LESS,
-	DF_EQUAL,
-	DF_LEQUAL,
-	DF_GREATER,
-	DF_NOTEQUAL,
-	DF_GEQUAL,
-	DF_ALWAYS,
-} depth_function_t;
+#define TLIST_BASE eastl::list<T>
+#else
+#include <list>
 
-typedef enum
-{
-	CF_FRONT,
-	CF_BACK,
-} cull_face_t;
-
+#define TLIST_BASE std::list<T>
 #endif
+
+template <class T>
+class tlist : public TLIST_BASE
+{
+public:
+	inline tlist()
+		: TLIST_BASE()
+	{}
+};

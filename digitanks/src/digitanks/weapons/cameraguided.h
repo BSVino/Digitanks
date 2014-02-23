@@ -15,11 +15,11 @@ public:
 
 	virtual void				Think();
 
-	virtual void				OnSetOwner(class CDigitanksEntity* pOwner);
+	virtual void				OnSetOwner(class CBaseEntity* pOwner);
 
 	virtual void				SpecialCommand();
 	virtual bool				UsesSpecialCommand() { return true; };
-	virtual tstring				SpecialCommandHint() { return _T("Space Bar\nTo Boost"); };
+	virtual tstring				SpecialCommandHint() { return "Space Bar\nTo Boost"; };
 
 	virtual bool				ShouldTouch(CBaseEntity* pOther) const;
 	virtual bool				IsTouching(CBaseEntity* pOther, Vector& vecPoint) const;
@@ -41,7 +41,7 @@ public:
 
 protected:
 	bool						m_bLaunched;
-	CNetworkedVariable<float>	m_flBoostTime;
+	CNetworkedVariable<double>	m_flBoostTime;
 	CNetworkedVariable<float>	m_flBoostVelocityGoal;
 	CNetworkedVariable<float>	m_flBoostVelocity;
 
