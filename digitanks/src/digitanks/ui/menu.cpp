@@ -1,6 +1,5 @@
 #include "menu.h"
 
-#include <GL/glfw.h>
 #include <iostream>
 #include <fstream>
 #include <sstream>
@@ -11,19 +10,21 @@
 
 #include <tinker/cvar.h>
 #include <dt_version.h>
-#include <models/texturelibrary.h>
+#include <textures/texturelibrary.h>
 #include <renderer/renderer.h>
-#include <tinker/lobby/lobby_client.h>
+#include <tengine/lobby/lobby_client.h>
 #include <glgui/filedialog.h>
+#include <ui/instructor.h>
 
 #include <digitanksgame.h>
 #include <digitankslevel.h>
 #include <campaign/campaigndata.h>
 
-#include "instructor.h"
 #include "digitankswindow.h"
 #include "hud.h"
 #include "lobbyui.h"
+
+#define _T(x) x
 
 using namespace glgui;
 

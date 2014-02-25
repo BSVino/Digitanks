@@ -2,8 +2,9 @@
 
 #include <strutils.h>
 
+#include <glgui/rootpanel.h>
 #include <renderer/renderer.h>
-#include <models/texturelibrary.h>
+#include <textures/texturelibrary.h>
 
 #include <digitanksgame.h>
 #include <ui/digitankswindow.h>
@@ -14,22 +15,18 @@ using namespace glgui;
 CUpdatesPanel::CUpdatesPanel()
 	: CPanel(0, 0, 600, 600)
 {
-	m_pCloseButton = new CButton(0, 0, 100, 20, _T("Close"));
+	m_pCloseButton = AddControl(new CButton(0, 0, 100, 20, _T("Close")));
 	m_pCloseButton->SetClickedListener(this, Close);
 	m_pCloseButton->SetFont(_T("header"));
-	AddControl(m_pCloseButton);
 
-	m_pAvailable = new CLabel(0, 0, 100, 300, _T(""));
+	m_pAvailable = AddControl(new CLabel(0, 0, 100, 300, _T("")));
 	m_pAvailable->SetFont(_T("text"), 18);
-	AddControl(m_pAvailable);
 
-	m_pInfo = new CLabel(0, 0, 100, 300, _T(""));
+	m_pInfo = AddControl(new CLabel(0, 0, 100, 300, _T("")));
 	m_pInfo->SetFont(_T("text"));
-	AddControl(m_pInfo);
 
-	m_pTutorial = new CLabel(0, 0, 100, 300, _T(""));
+	m_pTutorial = AddControl(new CLabel(0, 0, 100, 300, _T("")));
 	m_pTutorial->SetFont(_T("text"));
-	AddControl(m_pTutorial);
 }
 
 void CUpdatesPanel::Layout()
@@ -51,10 +48,7 @@ void CUpdatesPanel::Layout()
 	m_pTutorial->SetPos(0, GetHeight() - 30);
 
 	for (size_t i = 0; i < m_apUpdates.size(); i++)
-	{
-		m_apUpdates[i]->Destructor();
-		m_apUpdates[i]->Delete();
-	}
+		RemoveControl(m_apUpdates[i]);
 
 	m_apUpdates.clear();
 
@@ -95,13 +89,12 @@ void CUpdatesPanel::Layout()
 			if (pUpdates->m_aUpdates[i][j].m_eUpdateClass == UPDATECLASS_EMPTY)
 				continue;
 
-			m_apUpdates.push_back(new CUpdateButton(this));
+			m_apUpdates.push_back(AddControl(new CUpdateButton(this)));
 			CUpdateButton* pUpdate = m_apUpdates[m_apUpdates.size()-1];
 			pUpdate->SetSize(m_iButtonSize-2, m_iButtonSize-1);
 			pUpdate->SetPos((i-iLowestX)*m_iButtonSize + iXBuffer, (j-iLowestY)*m_iButtonSize + iYBuffer);
-			pUpdate->SetFont(_T("text"), 10);
+			pUpdate->SetFont("text", 10);
 			pUpdate->SetLocation(i, j);
-			AddControl(pUpdate);
 
 			bool bCanDownload = pCurrentGame->CanDownloadUpdate(i, j);
 			bool bAlreadyDownloaded = pCurrentGame->HasDownloadedUpdate(i, j);
@@ -109,21 +102,21 @@ void CUpdatesPanel::Layout()
 			if (bAlreadyDownloaded)
 			{
 				pUpdate->SetEnabled(false);
-				pUpdate->SetFGColor(Color(0, 0, 0));
+				pUpdate->SetTextColor(Color(0, 0, 0));
 			}
 			else
 			{
-				pUpdate->SetFGColor(Color(150, 150, 150));
+				pUpdate->SetTextColor(Color(150, 150, 150));
 				if (bCanDownload)
 					pUpdate->SetClickedListener(pUpdate, &CUpdateButton::ChooseDownload);
 				else
 					pUpdate->SetEnabled(false);
 			}
 
-			size_t iSheet;
+			CMaterialHandle hSheet;
 			int sx, sy, sw, sh, tw, th;
-			GetTextureForUpdateItem(&pUpdates->m_aUpdates[i][j], iSheet, sx, sy, sw, sh, tw, th);
-			pUpdate->SetSheetTexture(iSheet, sx, sy, sw, sh, tw, th);
+			GetTextureForUpdateItem(&pUpdates->m_aUpdates[i][j], hSheet, sx, sy, sw, sh, tw, th);
+			pUpdate->SetSheetTexture(hSheet, sx, sy, sw, sh, tw, th);
 			pUpdate->SetText(pUpdates->m_aUpdates[i][j].GetName().c_str());
 
 			if (pUpdates->m_aUpdates[i][j].m_eUpdateClass == UPDATECLASS_STRUCTURE)
@@ -206,12 +199,12 @@ void CUpdatesPanel::Layout()
 				if (pUpdates->m_aUpdates[i][j].m_eUpdateClass == UPDATECLASS_STRUCTURE)
 				{
 					pUpdate->SetButtonColor(Color(250, 150, 150));
-					pUpdate->SetFGColor(Color(50, 50, 50));
+					pUpdate->SetTextColor(Color(50, 50, 50));
 				}
 				else if (pUpdates->m_aUpdates[i][j].m_eUpdateClass == UPDATECLASS_STRUCTUREUPDATE)
 				{
 					pUpdate->SetButtonColor(Color(250, 250, 250));
-					pUpdate->SetFGColor(Color(50, 50, 50));
+					pUpdate->SetTextColor(Color(50, 50, 50));
 				}
 			}
 		}
@@ -220,11 +213,11 @@ void CUpdatesPanel::Layout()
 	UpdateInfo(NULL);
 }
 
-void CUpdatesPanel::Paint(int x, int y, int w, int h)
+void CUpdatesPanel::Paint(float x, float y, float w, float h)
 {
 	CRootPanel::PaintRect(x, y, w, h, Color(0, 0, 0, GetAlpha()));
 
-	int ix, iy, iw, ih;
+	float ix, iy, iw, ih;
 	m_pInfo->GetAbsDimensions(ix, iy, iw, ih);
 	CRootPanel::PaintRect(ix, iy, iw, ih, Color(0, 0, 0, GetAlpha()));
 
@@ -238,14 +231,14 @@ void CUpdatesPanel::Paint(int x, int y, int w, int h)
 
 		if (pButton->m_flFocusRamp > 0)
 		{
-			int x, y, w, h;
+			float x, y, w, h;
 			pButton->GetAbsDimensions(x, y, w, h);
 			pButton->Paint(x, y, w, h);
 		}
 	}
 }
 
-void CUpdatesPanel::CloseCallback()
+void CUpdatesPanel::CloseCallback(const tstring& sArgs)
 {
 	SetVisible(false);
 }

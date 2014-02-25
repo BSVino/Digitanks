@@ -15,8 +15,6 @@ public:
 									CSceneTreeNode(glgui::CTreeNode* pParent, glgui::CTree* pTree);
 
 public:
-	virtual void					Delete() { delete this; };
-
 	virtual void					Paint(float x, float y, float w, float h, bool bFloating);
 
 	virtual float					GetNodeHeight() { return 30; };
@@ -31,8 +29,6 @@ public:
 									CSceneTreeUnit(CEntityHandle<CSelectable> hEntity, glgui::CTreeNode* pParent, glgui::CTree* pTree);
 
 public:
-	virtual void					Delete() { delete this; };
-
 	virtual void					Paint(float x, float y, float w, float h, bool bFloating);
 
 	virtual CSelectable*			GetEntity() { return m_hEntity; };
@@ -53,13 +49,11 @@ public:
 									CSceneTreeGroup(unittype_t eUnit, glgui::CTree* pTree);
 
 public:
-	virtual void					Delete() { delete this; };
-
 	virtual void					Paint(float x, float y, float w, float h, bool bFloating);
 
 	virtual unittype_t				GetUnitType() { return m_eUnit; };
 
-	void							GetUnitDimensions(CDigitanksEntity* pEntity, int& x, int& y, int& w, int& h);
+	void							GetUnitDimensions(CDigitanksEntity* pEntity, float& x, float& y, float& w, float& h);
 
 protected:
 	unittype_t						m_eUnit;
@@ -73,8 +67,6 @@ public:
 									CSceneTree();
 
 public:
-	virtual void					Delete() { delete this; };
-
 	virtual void					Layout();
 	virtual void					BuildTree(bool bForce = false);
 
@@ -86,7 +78,7 @@ public:
 	virtual void					OnRemoveUnitFromTeam(class CDigitanksPlayer* pTeam, class CBaseEntity* pEntity);
 	virtual void					OnTeamMembersUpdated();
 
-	void							GetUnitDimensions(CDigitanksEntity* pEntity, int& x, int& y, int& w, int& h);
+	void							GetUnitDimensions(CDigitanksEntity* pEntity, float& x, float& y, float& w, float& h);
 
 protected:
 	CEntityHandle<CDigitanksPlayer>	m_hTeam;

@@ -14,10 +14,6 @@ class CDockPanel : public glgui::CPanel
 public:
 									CDockPanel();
 
-public:
-	virtual void					Destructor();
-	virtual void					Delete() { delete this; };
-
 	virtual void					Layout();
 	virtual void					Paint(float x, float y, float w, float h);
 
@@ -39,8 +35,6 @@ public:
 									CCampaignPanel();
 
 public:
-	virtual void					Delete() { delete this; };
-
 	virtual void					Layout();
 
 	EVENT_CALLBACK(CCampaignPanel,	NewCampaign);
@@ -61,8 +55,6 @@ public:
 									CGamesPanel();
 
 public:
-	virtual void					Delete() { delete this; };
-
 	virtual void					Layout();
 
 	EVENT_CALLBACK(CGamesPanel,	Artillery);
@@ -90,8 +82,6 @@ public:
 									CMultiplayerPanel();
 
 public:
-	virtual void					Delete() { delete this; };
-
 	virtual void					Layout();
 
 	EVENT_CALLBACK(CMultiplayerPanel,	Connect);
@@ -120,8 +110,6 @@ public:
 									CCreateLobbyPanel(gametype_t eGameType);
 
 public:
-	virtual void					Delete() { delete this; };
-
 	virtual void					Layout();
 
 	EVENT_CALLBACK(CCreateLobbyPanel,	CreateHotseatLobby);
@@ -144,8 +132,6 @@ public:
 									CConnectPanel();
 
 public:
-	virtual void					Delete() { delete this; };
-
 	virtual void					Layout();
 
 	EVENT_CALLBACK(CConnectPanel,	Connect);
@@ -166,8 +152,6 @@ public:
 	virtual 						~CArtilleryGamePanel();
 
 public:
-	virtual void					Delete() { delete this; };
-
 	virtual void					Layout();
 	virtual void					Paint(float x, float y, float w, float h);
 
@@ -213,8 +197,6 @@ public:
 									~CStrategyGamePanel();
 
 public:
-	virtual void					Delete() { delete this; };
-
 	virtual void					Layout();
 	virtual void					Paint(float x, float y, float w, float h);
 
@@ -251,8 +233,6 @@ public:
 									COptionsPanel();
 
 public:
-	virtual void					Delete() { delete this; };
-
 	virtual void					Layout();
 	virtual void					Paint(float x, float y, float w, float h);
 
@@ -309,8 +289,6 @@ public:
 									CMainMenu();
 
 public:
-	virtual void					Delete() { delete this; };
-
 	virtual void					Layout();
 	virtual void					Think();
 	virtual void					Paint(float x, float y, float w, float h);

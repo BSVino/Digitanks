@@ -1069,6 +1069,7 @@ void CSupplier::UpdateTendrils()
 	if (IsConstructing())
 		return;
 
+	TStubbed("Tendrils");
 #if 0
 	if (!GetPlayerOwner())
 	{

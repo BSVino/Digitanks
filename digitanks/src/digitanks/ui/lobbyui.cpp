@@ -1,9 +1,9 @@
 #include "lobbyui.h"
 
 #include <tinker/cvar.h>
-#include <tinker/lobby/lobby_server.h>
-#include <tinker/lobby/lobby_client.h>
-#include <tinker/chatbox.h>
+#include <tengine/lobby/lobby_server.h>
+#include <tengine/lobby/lobby_client.h>
+#include <tengine/ui/chatbox.h>
 
 #include <renderer/renderer.h>
 
@@ -13,11 +13,14 @@
 #include "menu.h"
 #include "digitankswindow.h"
 
+#define _T(x) x
+
 CVar lobby_gametype("lobby_gametype", "");
 
 CLobbyPanel::CLobbyPanel()
 	: CPanel(0, 0, 100, 100)
 {
+#if 0
 	SetVisible(false);
 
 	m_pLobbyName = new glgui::CLabel(0, 0, 100, 100, _T("Lobby"));
@@ -56,10 +59,12 @@ CLobbyPanel::CLobbyPanel()
 	AddControl(m_pReady);
 
 	m_bLayout = false;
+#endif
 }
 
 void CLobbyPanel::Layout()
 {
+#if 0
 	if (!IsVisible())
 		return;
 
@@ -195,6 +200,7 @@ void CLobbyPanel::Layout()
 	}
 
 	BaseClass::Layout();
+#endif
 }
 
 void CLobbyPanel::Think()
@@ -205,11 +211,13 @@ void CLobbyPanel::Think()
 	BaseClass::Think();
 }
 
-void CLobbyPanel::Paint(int x, int y, int w, int h)
+void CLobbyPanel::Paint(float x, float y, float w, float h)
 {
+#if 0
 	glgui::CRootPanel::PaintRect(x, y, w, h, Color(12, 13, 12, 255));
 
 	BaseClass::Paint(x, y, w, h);
+#endif
 }
 
 void CLobbyPanel::CreateLobby(bool bOnline)
@@ -297,7 +305,7 @@ void CLobbyPanel::UpdatePlayerInfo()
 	CGameLobbyClient::S_UpdatePlayer(_T("color"), _T("random"));
 }
 
-void CLobbyPanel::LeaveLobbyCallback()
+void CLobbyPanel::LeaveLobbyCallback(const tstring& sArgs)
 {
 	bool bWasHost = LobbyNetwork()->IsHost();
 
@@ -343,7 +351,7 @@ void CLobbyPanel::LobbyLeaveCallback(int iConnection, INetworkListener*, class C
 		LobbyNetwork()->Disconnect();
 }
 
-void CLobbyPanel::PlayerReadyCallback()
+void CLobbyPanel::PlayerReadyCallback(const tstring& sArgs)
 {
 	bool bReady = !!stoi(CGameLobbyClient::L_GetPlayerByClient(LobbyNetwork()->GetClientID())->GetInfoValue(_T("ready")).c_str());
 
@@ -353,12 +361,12 @@ void CLobbyPanel::PlayerReadyCallback()
 		CGameLobbyClient::S_UpdatePlayer(_T("ready"), _T("1"));
 }
 
-void CLobbyPanel::AddPlayerCallback()
+void CLobbyPanel::AddPlayerCallback(const tstring& sArgs)
 {
 	CGameLobbyClient::S_AddLocalPlayer();
 }
 
-void CLobbyPanel::AddBotCallback()
+void CLobbyPanel::AddBotCallback(const tstring& sArgs)
 {
 	CGameLobbyClient::S_AddBot();
 }
@@ -392,15 +400,18 @@ void CLobbyPanel::BeginGameCallback(int iConnection, INetworkListener*, class CN
 CInfoPanel::CInfoPanel()
 	: CPanel(0, 0, 570, 520)
 {
+#if 0
 	m_pLobbyDescription = new glgui::CLabel(0, 0, 32, 32, _T(""));
 	m_pLobbyDescription->SetWrap(true);
 	m_pLobbyDescription->SetFont(_T("text"));
 	m_pLobbyDescription->SetAlign(glgui::CLabel::TA_TOPLEFT);
 	AddControl(m_pLobbyDescription);
+#endif
 }
 
 void CInfoPanel::Layout()
 {
+#if 0
 	m_pLobbyDescription->SetSize(GetWidth()-40, 80);
 	m_pLobbyDescription->SetPos(20, 20);
 
@@ -431,11 +442,13 @@ void CInfoPanel::Layout()
 	}
 
 	BaseClass::Layout();
+#endif
 }
 
 CPlayerPanel::CPlayerPanel()
 	: CPanel(0, 0, 100, 100)
 {
+#if 0
 	m_iLobbyPlayer = ~0;
 
 	m_pName = new glgui::CLabel(0, 0, 100, 100, _T("Player"));
@@ -483,10 +496,12 @@ CPlayerPanel::CPlayerPanel()
 	m_pColor->AddSubmenu(_T("Random"), this, ColorChosen);
 	for (size_t i = 0; i < m_aiAvailableColors.size(); i++)
 		m_pColor->AddSubmenu(g_aszTeamNames[m_aiAvailableColors[i]], this, ColorChosen);
+#endif
 }
 
 void CPlayerPanel::Layout()
 {
+#if 0
 	SetSize(260, 40);
 	SetPos(925 - 280, 70 + 60*m_iLobbyPlayer);
 
@@ -520,17 +535,21 @@ void CPlayerPanel::Layout()
 		m_pColor->SetButtonColor(g_aclrTeamColors[m_iColor]);
 		m_pColor->SetText(_T(""));
 	}
+#endif
 }
 
-void CPlayerPanel::Paint(int x, int y, int w, int h)
+void CPlayerPanel::Paint(float x, float y, float w, float h)
 {
+#if 0
 	glgui::CRootPanel::PaintRect(x, y, w, h, glgui::g_clrBox);
 
 	BaseClass::Paint(x, y, w, h);
+#endif
 }
 
 void CPlayerPanel::SetPlayer(size_t iID)
 {
+#if 0
 	CLobbyPlayer* pPlayer = CGameLobbyClient::L_GetPlayerByID(iID);
 
 	TAssert(pPlayer);
@@ -563,9 +582,10 @@ void CPlayerPanel::SetPlayer(size_t iID)
 	m_iColor = stoi(sColor.c_str());
 
 	Layout();
+#endif
 }
 
-void CPlayerPanel::KickCallback()
+void CPlayerPanel::KickCallback(const tstring& sArgs)
 {
 	CLobbyPlayer* pPlayer = CGameLobbyClient::L_GetPlayer(m_iLobbyPlayer);
 
@@ -576,8 +596,9 @@ void CPlayerPanel::KickCallback()
 	CGameLobbyClient::S_RemovePlayer(pPlayer->iID);
 }
 
-void CPlayerPanel::ColorChosenCallback()
+void CPlayerPanel::ColorChosenCallback(const tstring& sArgs)
 {
+#if 0
 	CLobbyPlayer* pPlayer = CGameLobbyClient::L_GetPlayer(m_iLobbyPlayer);
 
 	TAssert(pPlayer);
@@ -595,4 +616,5 @@ void CPlayerPanel::ColorChosenCallback()
 		CGameLobbyClient::S_UpdatePlayer(pPlayer->iID, _T("color"), _T("random"));
 	else
 		CGameLobbyClient::S_UpdatePlayer(pPlayer->iID, _T("color"), sprintf(tstring("%d"), m_iColor));
+#endif
 }

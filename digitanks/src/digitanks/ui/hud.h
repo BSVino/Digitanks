@@ -10,6 +10,8 @@
 #include "digitanksgame.h"
 #include "updatespanel.h"
 #include <powerup.h>
+#include "weaponpanel.h"
+#include "scenetree.h"
 
 #define NUM_BUTTONS 10
 
@@ -31,7 +33,7 @@ typedef struct
 {
 	powerup_type_t				ePowerupType;
 	CEntityHandle<CDigitanksEntity>	hEntity;
-	float						flTime;
+	double						flTime;
 	bool						bActive;
 } powerup_notification_t;
 
@@ -58,10 +60,6 @@ public:
 								CDamageIndicator(CBaseEntity* pVictim, float flDamage, bool bShield);
 
 public:
-	virtual void				Destructor();
-	virtual void				Delete() { delete this; };
-
-public:
 	void						Think();
 	void						Paint(float x, float y, float w, float h);
 
@@ -69,7 +67,7 @@ protected:
 	CEntityHandle<CBaseEntity>	m_hVictim;
 	float						m_flDamage;
 	bool						m_bShield;
-	float						m_flTime;
+	double						m_flTime;
 	Vector						m_vecLastOrigin;
 };
 
@@ -81,16 +79,12 @@ public:
 								CHitIndicator(CBaseEntity* pVictim, tstring sMessage);
 
 public:
-	virtual void				Destructor();
-	virtual void				Delete() { delete this; };
-
-public:
 	void						Think();
 	void						Paint(float x, float y, float w, float h);
 
 protected:
 	CEntityHandle<CBaseEntity>	m_hVictim;
-	float						m_flTime;
+	double						m_flTime;
 	Vector						m_vecLastOrigin;
 };
 
@@ -102,16 +96,12 @@ public:
 								CSpeechBubble(CBaseEntity* pSpeaker, tstring sSpeech);
 
 public:
-	virtual void				Destructor();
-	virtual void				Delete() { delete this; };
-
-public:
 	void						Think();
 	void						Paint(float x, float y, float w, float h);
 
 protected:
 	CEntityHandle<CBaseEntity>	m_hSpeaker;
-	float						m_flTime;
+	double						m_flTime;
 	Vector						m_vecLastOrigin;
 	float						m_flRadius;
 };
@@ -148,14 +138,14 @@ public:
 	virtual bool			MouseReleased(int code, int mx, int my);
 
 protected:
-	glgui::CLabel*			m_pOpen;
+	glgui::CControl<glgui::CLabel> m_pOpen;
 
 	bool					m_bOpen;
 
 	float					m_flGoalLerp;
 	float					m_flCurLerp;
 
-	glgui::CLabel*			m_pControls;
+	glgui::CControl<glgui::CLabel> m_pControls;
 };
 
 class CHUD : public glgui::CPanel, public IDigitanksGameListener, public glgui::IEventListener
@@ -175,21 +165,21 @@ public:
 
 	class CUpdatesPanel*		GetUpdatesPanel() { return m_pUpdatesPanel; }
 
-	static void					PaintSheet(size_t iTexture, float x, float y, float w, float h, int sx, int sy, int sw, int sh, int tw, int th, const Color& c = Color(255,255,255));
+	static void					PaintSheet(CMaterialHandle& hSheet, float x, float y, float w, float h, int sx, int sy, int sw, int sh, int tw, int th, const Color& c = Color(255,255,255));
 	static void					PaintSheet(const CTextureSheet* pSheet, const tstring& sArea, float x, float y, float w, float h, const Color& c = Color(255,255,255));
 	static void					PaintHUDSheet(const tstring& sArea, float x, float y, float w, float h, const Color& c = Color(255,255,255));
 	static const CTextureSheet&	GetHUDSheet();
-	static void					GetUnitSheet(unittype_t eUnit, size_t& iSheet, int& sx, int& sy, int& sw, int& sh, int& tw, int& th);
+	static void					GetUnitSheet(unittype_t eUnit, CMaterialHandle& hSheet, int& sx, int& sy, int& sw, int& sh, int& tw, int& th);
 	static void					PaintUnitSheet(unittype_t eUnit, float x, float y, float w, float h, const Color& c = Color(255,255,255));
-	static void					GetWeaponSheet(weapon_t eWeapon, size_t& iSheet, int& sx, int& sy, int& sw, int& sh, int& tw, int& th);
+	static void					GetWeaponSheet(weapon_t eWeapon, CMaterialHandle& hSheet, int& sx, int& sy, int& sw, int& sh, int& tw, int& th);
 	static void					PaintWeaponSheet(weapon_t eWeapon, float x, float y, float w, float h, const Color& c = Color(255,255,255));
 	static const CTextureSheet&	GetWeaponSheet();
 	static const CTextureSheet&	GetButtonSheet();
 	static const CTextureSheet&	GetDownloadSheet();
 	static const CTextureSheet&	GetKeysSheet();
-	static size_t				GetActionTanksSheet();
-	static size_t				GetPurchasePanel();
-	static size_t				GetShieldTexture();
+	static CMaterialHandle      GetActionTanksSheet();
+	static CMaterialHandle      GetPurchasePanel();
+	static CMaterialHandle      GetShieldTexture();
 
 	void						ClientEnterGame();
 
@@ -268,7 +258,7 @@ public:
 
 	class CSceneTree*			GetSceneTree() { return m_pSceneTree; };
 
-	Rect						GetButtonDimensions(size_t i);
+	FRect						GetButtonDimensions(size_t i);
 
 	EVENT_CALLBACK(CHUD, ChooseActionItem);
 	EVENT_CALLBACK(CHUD, ShowSmallActionItem);
@@ -342,17 +332,17 @@ public:
 	static void					SetTeamMembersUpdated();
 
 protected:
-	CPowerBar*					m_pShieldBar;
-	CPowerBar*					m_pHealthBar;
-	CPowerBar*					m_pAttackPower;
-	CPowerBar*					m_pDefensePower;
-	CPowerBar*					m_pMovementPower;
+	glgui::CControl<CPowerBar> m_pShieldBar;
+	glgui::CControl<CPowerBar> m_pHealthBar;
+	glgui::CControl<CPowerBar> m_pAttackPower;
+	glgui::CControl<CPowerBar> m_pDefensePower;
+	glgui::CControl<CPowerBar> m_pMovementPower;
 
 	menumode_t					m_eMenuMode;
 
-	glgui::CLabel*				m_pActionItem;
+	glgui::CControl<glgui::CLabel> m_pActionItem;
 	tvector<glgui::CPictureButton*> m_apActionItemButtons;
-	glgui::CButton*				m_pCloseActionItems;
+	glgui::CControl<glgui::CButton> m_pCloseActionItems;
 	size_t						m_iCurrentActionItem;
 	bool						m_bAllActionItemsHandled;
 	float						m_flActionItemsLerp;
@@ -363,66 +353,66 @@ protected:
 	size_t						m_iCurrentSmallActionItem;
 	tstring				m_sSmallActionItem;
 
-	float						m_flSelectorMedalStart;
+	double						m_flSelectorMedalStart;
 	CMaterialHandle             m_hSelectorMedalTexture;
 
 	tvector<tmap<size_t, CEntityHandle<CDigitank> > > m_ahScoreboardTanks;
 
-	CMouseCapturePanel*			m_pButtonPanel;
+	glgui::CControl<CMouseCapturePanel> m_pButtonPanel;
 
-	CHowToPlayPanel*			m_pHowToPlayPanel;
+	glgui::CControl<CHowToPlayPanel> m_pHowToPlayPanel;
 
-	glgui::CPictureButton*		m_apButtons[10];
+	glgui::CControl<glgui::CPictureButton> m_apButtons[10];
 
-	glgui::CLabel*				m_pAttackInfo;
+	glgui::CControl<glgui::CLabel> m_pAttackInfo;
 	float						m_flAttackInfoAlpha;
 	float						m_flAttackInfoAlphaGoal;
 
-	glgui::CLabel*				m_pTankInfo;
+	glgui::CControl<glgui::CLabel> m_pTankInfo;
 	size_t						m_iTankInfoPanel;
 
-	glgui::CLabel*				m_pTurnInfo;
+	glgui::CControl<glgui::CLabel> m_pTurnInfo;
 	float						m_flTurnInfoHeight;
 	float						m_flTurnInfoHeightGoal;
 	float						m_flTurnInfoLerp;
 	float						m_flTurnInfoLerpGoal;
 
-	glgui::CLabel*				m_pResearchInfo;
+	glgui::CControl<glgui::CLabel> m_pResearchInfo;
 
-	glgui::CLabel*				m_pButtonInfo;
+	glgui::CControl<glgui::CLabel> m_pButtonInfo;
 	tstring				m_aszButtonInfos[NUM_BUTTONS];
 
-	glgui::CLabel*				m_pPressEnter;
+	glgui::CControl<glgui::CLabel> m_pPressEnter;
 
 	bool						m_bHUDActive;
 
 	bool						m_bNeedsUpdate;
 
-	glgui::CLabel*				m_pDemoNotice;
+	glgui::CControl<glgui::CLabel> m_pDemoNotice;
 
-	glgui::CLabel*				m_pPowerInfo;
-	glgui::CLabel*				m_pFleetInfo;
-	glgui::CLabel*				m_pBandwidthInfo;
-	glgui::CLabel*				m_pTeamInfo;
+	glgui::CControl<glgui::CLabel> m_pPowerInfo;
+	glgui::CControl<glgui::CLabel> m_pFleetInfo;
+	glgui::CControl<glgui::CLabel> m_pBandwidthInfo;
+	glgui::CControl<glgui::CLabel> m_pTeamInfo;
 
-	glgui::CPictureButton*		m_pUpdatesButton;
-	CUpdatesPanel*				m_pUpdatesPanel;
+	glgui::CControl<glgui::CPictureButton> m_pUpdatesButton;
+	glgui::CControl<CUpdatesPanel> m_pUpdatesPanel;
 	bool						m_bUpdatesBlinking;
 	float						m_flUpdateIconSlide;
 	int							m_iUpdateIconSlideStartX;
 	int							m_iUpdateIconSlideStartY;
 
-	glgui::CPictureButton*		m_pTurnButton;
+	glgui::CControl<glgui::CPictureButton> m_pTurnButton;
 	bool						m_bBlinkTurnButton;
 
-	glgui::CLabel*				m_pTurnWarning;
+	glgui::CControl<glgui::CLabel> m_pTurnWarning;
 	float						m_flTurnWarningGoal;
 	float						m_flTurnWarningLerp;
 
-	glgui::CLabel*				m_pScoreboard;
+	glgui::CControl<glgui::CLabel> m_pScoreboard;
 
-	class CWeaponPanel*			m_pWeaponPanel;
-	class CSceneTree*			m_pSceneTree;
+	glgui::CControl<CWeaponPanel> m_pWeaponPanel;
+	glgui::CControl<CSceneTree> m_pSceneTree;
 
 	CTextureSheet				m_HUDSheet;
 	CTextureSheet				m_UnitsSheet;
@@ -436,11 +426,11 @@ protected:
 	CTextureSheet				m_KeysSheet;
 
 	CEntityHandle<CBaseWeapon>	m_hHintWeapon;
-	glgui::CLabel*				m_pSpacebarHint;
+	glgui::CControl<glgui::CLabel> m_pSpacebarHint;
 
 	CMaterialHandle             m_hActionTanksSheet;
 	CTextureSheet				m_ActionSignsSheet;
-	float						m_flActionSignStart;
+	double						m_flActionSignStart;
 	typedef enum
 	{
 		ACTIONSIGN_NONE = 0,
@@ -451,7 +441,7 @@ protected:
 	actionsign_t				m_eActionSign;
 
 	tstring				m_sFileRescueTexture;
-	float						m_flFileRescueStart;
+	double						m_flFileRescueStart;
 
 	CTextureSheet				m_PowerupsSheet;
 	tvector<powerup_notification_t>	m_aPowerupNotifications;

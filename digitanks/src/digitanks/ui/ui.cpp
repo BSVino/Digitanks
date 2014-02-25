@@ -5,16 +5,16 @@
 #include <strutils.h>
 #include <sockets/sockets.h>
 #include <glgui/filedialog.h>
+#include <ui/instructor.h>
 
-#include <tinker/lobby/lobby_client.h>
-#include <tinker/lobby/lobby_server.h>
+#include <tengine/lobby/lobby_client.h>
+#include <tengine/lobby/lobby_server.h>
 
 #include <renderer/renderer.h>
 
 #include "hud.h"
 #include "menu.h"
 #include "ui.h"
-#include "instructor.h"
 #include "lobbyui.h"
 
 using namespace glgui;

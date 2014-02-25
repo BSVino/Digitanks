@@ -12,8 +12,6 @@ public:
 									CPlayerPanel();
 
 public:
-	virtual void					Delete() { delete this; };
-
 	virtual void					Layout();
 	virtual void					Paint(float x, float y, float w, float h);
 
@@ -43,8 +41,6 @@ public:
 									CInfoPanel();
 
 public:
-	virtual void					Delete() { delete this; };
-
 	virtual void					Layout();
 
 protected:
@@ -59,8 +55,6 @@ public:
 									CLobbyPanel();
 
 public:
-	virtual void					Delete() { delete this; };
-
 	virtual void					Layout();
 	virtual void					Think();
 	virtual void					Paint(float x, float y, float w, float h);

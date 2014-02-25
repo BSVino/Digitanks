@@ -1,7 +1,10 @@
 #ifndef DT_UPDATESPANEL_H
 #define DT_UPDATESPANEL_H
 
-#include "glgui/glgui.h"
+#include "glgui/picturebutton.h"
+#include "glgui/panel.h"
+
+class CUpdatesPanel;
 
 class CUpdateButton : public glgui::CPictureButton, public glgui::IEventListener
 {
@@ -20,7 +23,7 @@ public:
 	EVENT_CALLBACK(CUpdateButton, ChooseDownload);
 
 public:
-	class CUpdatesPanel*			m_pUpdatesPanel;
+	glgui::CControl<CUpdatesPanel>	m_pUpdatesPanel;
 
 	int								m_iX;
 	int								m_iY;
@@ -42,17 +45,17 @@ public:
 
 	void							UpdateInfo(class CUpdateItem* pInfo);
 
-	void							GetTextureForUpdateItem(class CUpdateItem* pInfo, size_t& iSheet, int& sx, int& sy, int& sw, int& sh, int& tw, int& th);
+	void							GetTextureForUpdateItem(class CUpdateItem* pInfo, CMaterialHandle& hSheet, int& sx, int& sy, int& sw, int& sh, int& tw, int& th);
 
 	int								GetButtonSize() { return m_iButtonSize; }
 
 protected:
-	glgui::CButton*					m_pCloseButton;
-	glgui::CLabel*					m_pAvailable;
-	glgui::CLabel*					m_pInfo;
-	glgui::CLabel*					m_pTutorial;
+	glgui::CControl<glgui::CButton>					m_pCloseButton;
+	glgui::CControl<glgui::CLabel>					m_pAvailable;
+	glgui::CControl<glgui::CLabel>					m_pInfo;
+	glgui::CControl<glgui::CLabel>					m_pTutorial;
 
-	tvector<CUpdateButton*>			m_apUpdates;
+	tvector<glgui::CControl<CUpdateButton>>			m_apUpdates;
 
 	int								m_iButtonSize;
 };

@@ -7,7 +7,9 @@
 #include <glgui/rootpanel.h>
 
 #include <sound/sound.h>
-#include <renderer/renderer.h>
+#include <renderer/game_renderer.h>
+#include <renderer/game_renderingcontext.h>
+#include <game/cameramanager.h>
 
 #include "digitankswindow.h"
 #include "digitanksgame.h"
@@ -170,17 +172,11 @@ CHUD::CHUD()
 {
 	m_bNeedsUpdate = false;
 
-	m_pShieldBar = new CPowerBar(POWERBAR_SHIELD);
-	m_pHealthBar = new CPowerBar(POWERBAR_HEALTH);
-	m_pAttackPower = new CPowerBar(POWERBAR_ATTACK);
-	m_pDefensePower = new CPowerBar(POWERBAR_DEFENSE);
-	m_pMovementPower = new CPowerBar(POWERBAR_MOVEMENT);
-
-	AddControl(m_pShieldBar);
-	AddControl(m_pHealthBar);
-	AddControl(m_pAttackPower);
-	AddControl(m_pDefensePower);
-	AddControl(m_pMovementPower);
+	m_pShieldBar = AddControl(new CPowerBar(POWERBAR_SHIELD));
+	m_pHealthBar = AddControl(new CPowerBar(POWERBAR_HEALTH));
+	m_pAttackPower = AddControl(new CPowerBar(POWERBAR_ATTACK));
+	m_pDefensePower = AddControl(new CPowerBar(POWERBAR_DEFENSE));
+	m_pMovementPower = AddControl(new CPowerBar(POWERBAR_MOVEMENT));
 
 	m_hActionTanksSheet = CMaterialLibrary::AddMaterial(_T("textures/hud/actionsigns/tanks.mat"));
 	m_hPurchasePanel = CMaterialLibrary::AddMaterial(_T("textures/purchasepanel.mat"));
@@ -189,25 +185,21 @@ CHUD::CHUD()
 
 	m_eActionSign = ACTIONSIGN_NONE;
 
-	m_pActionItem = new CLabel(0, 0, 10, 10, _T(""));
+	m_pActionItem = AddControl(new CLabel(0, 0, 10, 10, _T("")));
 	m_pActionItem->SetFont(_T("text"));
-	m_pCloseActionItems = new CButton(0, 0, 100, 50, _T("Close"));
+	m_pCloseActionItems = AddControl(new CButton(0, 0, 100, 50, _T("Close")));
 	m_pCloseActionItems->SetFont(_T("header"));
-	AddControl(m_pActionItem);
-	AddControl(m_pCloseActionItems);
 	m_flActionItemsLerp = m_flActionItemsLerpGoal = 0;
 	m_flActionItemsWidth = 280;
 	m_flSmallActionItemLerp = m_flSmallActionItemLerpGoal = 0;
 	m_iCurrentSmallActionItem = ~0;
 
-	m_pButtonPanel = new CMouseCapturePanel();
-	AddControl(m_pButtonPanel);
+	m_pButtonPanel = AddControl(new CMouseCapturePanel());
 
 	for (size_t i = 0; i < NUM_BUTTONS; i++)
 	{
-		m_apButtons[i] = new CPictureButton(_T(""));
+		m_apButtons[i] = AddControl(new CPictureButton(_T("")));
 		m_apButtons[i]->SetCursorOutListener(this, ButtonCursorOut);
-		m_pButtonPanel->AddControl(m_apButtons[i]);
 	}
 
 	m_apButtons[0]->SetCursorInListener(this, ButtonCursorIn0);
@@ -221,50 +213,41 @@ CHUD::CHUD()
 	m_apButtons[8]->SetCursorInListener(this, ButtonCursorIn8);
 	m_apButtons[9]->SetCursorInListener(this, ButtonCursorIn9);
 
-	m_pAttackInfo = new CLabel(0, 0, 100, 150, _T(""));
+	m_pAttackInfo = AddControl(new CLabel(0, 0, 100, 150, _T("")));
 	m_pAttackInfo->SetWrap(false);
 	m_pAttackInfo->SetAlign(glgui::CLabel::TA_TOPLEFT);
 	m_pAttackInfo->SetFont(_T("text"));
-	AddControl(m_pAttackInfo);
 
-	m_pScoreboard = new CLabel(0, 0, 100, 150, _T(""));
+	m_pScoreboard = AddControl(new CLabel(0, 0, 100, 150, _T("")));
 	m_pScoreboard->SetWrap(false);
 	m_pScoreboard->SetAlign(glgui::CLabel::TA_TOPLEFT);
 	m_pScoreboard->SetFont(_T("text"), 10);
-	AddControl(m_pScoreboard);
 
-	m_pTankInfo = new CLabel(0, 0, 100, 100, _T(""));
+	m_pTankInfo = AddControl(new CLabel(0, 0, 100, 100, _T("")));
 	m_pTankInfo->SetFont(_T("text"), 10);
-	AddControl(m_pTankInfo);
 
-	m_pTurnInfo = new CLabel(0, 0, 100, 100, _T(""));
+	m_pTurnInfo = AddControl(new CLabel(0, 0, 100, 100, _T("")));
 	m_pTurnInfo->SetFont(_T("text"), 10);
-	AddControl(m_pTurnInfo);
 
-	m_pResearchInfo = new CLabel(0, 0, 100, 100, _T(""));
+	m_pResearchInfo = AddControl(new CLabel(0, 0, 100, 100, _T("")));
 	m_pResearchInfo->SetFont(_T("text"));
-	AddControl(m_pResearchInfo);
 
-	m_pButtonInfo = new CLabel(0, 0, 100, 100, _T(""));
+	m_pButtonInfo = AddControl(new CLabel(0, 0, 100, 100, _T("")));
 	m_pButtonInfo->SetFont(_T("text"));
-	AddControl(m_pButtonInfo);
 
-	m_pPressEnter = new CLabel(0, 0, 100, 100, _T(""));
+	m_pPressEnter = AddControl(new CLabel(0, 0, 100, 100, _T("")));
 	m_pPressEnter->SetFont(_T("text"));
-	AddControl(m_pPressEnter);
 
 	SetupMenu(MENUMODE_MAIN);
 
-	m_pDemoNotice = new CLabel(0, 0, 100, 20, _T(""));
+	m_pDemoNotice = AddControl(new CLabel(0, 0, 100, 20, _T("")));
 	m_pDemoNotice->SetFont(_T("text"));
-	AddControl(m_pDemoNotice);
 
 	m_pDemoNotice->SetAlign(CLabel::TA_TOPLEFT);
 	m_pDemoNotice->SetPos(20, 20);
 	m_pDemoNotice->SetText("");
 
-	m_pPowerInfo = new CLabel(0, 0, 200, 20, _T(""));
-	AddControl(m_pPowerInfo);
+	m_pPowerInfo = AddControl(new CLabel(0, 0, 200, 20, _T("")));
 
 	m_pPowerInfo->SetAlign(CLabel::TA_TOPCENTER);
 	m_pPowerInfo->SetPos(200, 20);
@@ -273,8 +256,7 @@ CHUD::CHUD()
 	m_pPowerInfo->SetCursorInListener(this, ShowPowerInfo);
 	m_pPowerInfo->SetCursorOutListener(this, HideTeamInfo);
 
-	m_pFleetInfo = new CLabel(0, 0, 200, 20, _T(""));
-	AddControl(m_pFleetInfo);
+	m_pFleetInfo = AddControl(new CLabel(0, 0, 200, 20, _T("")));
 
 	m_pFleetInfo->SetAlign(CLabel::TA_TOPCENTER);
 	m_pFleetInfo->SetPos(200, 20);
@@ -283,8 +265,7 @@ CHUD::CHUD()
 	m_pFleetInfo->SetCursorInListener(this, ShowFleetInfo);
 	m_pFleetInfo->SetCursorOutListener(this, HideTeamInfo);
 
-	m_pBandwidthInfo = new CLabel(0, 0, 200, 20, _T(""));
-	AddControl(m_pBandwidthInfo);
+	m_pBandwidthInfo = AddControl(new CLabel(0, 0, 200, 20, _T("")));
 
 	m_pBandwidthInfo->SetAlign(CLabel::TA_TOPCENTER);
 	m_pBandwidthInfo->SetPos(200, 20);
@@ -293,43 +274,36 @@ CHUD::CHUD()
 	m_pBandwidthInfo->SetCursorInListener(this, ShowBandwidthInfo);
 	m_pBandwidthInfo->SetCursorOutListener(this, HideTeamInfo);
 
-	m_pTeamInfo = new CLabel(0, 0, 200, 20, _T(""));
-	AddControl(m_pTeamInfo);
+	m_pTeamInfo = AddControl(new CLabel(0, 0, 200, 20, _T("")));
 
 	m_pTeamInfo->SetAlign(CLabel::TA_TOPLEFT);
 	m_pTeamInfo->SetPos(200, 20);
 	m_pTeamInfo->SetTextColor(Color(255, 255, 255));
 	m_pTeamInfo->SetFont(_T("text"));
 
-	m_pUpdatesButton = new CPictureButton(_T("Download Grid"));
+	m_pUpdatesButton = AddControl(new CPictureButton(_T("Download Grid")));
 	m_pUpdatesButton->SetClickedListener(this, OpenUpdates);
 	m_pUpdatesButton->ShowBackground(false);
 	m_pUpdatesButton->SetTooltip(_T("Download Grid"));
-	AddControl(m_pUpdatesButton);
 
-	m_pUpdatesPanel = new CUpdatesPanel();
+	m_pUpdatesPanel = AddControl(new CUpdatesPanel());
 	m_pUpdatesPanel->SetVisible(false);
-	AddControl(m_pUpdatesPanel, true);
 
 	m_flUpdateIconSlide = 0;
 
-	m_pWeaponPanel = new CWeaponPanel();
+	m_pWeaponPanel = AddControl(new CWeaponPanel());
 	m_pWeaponPanel->SetVisible(false);
-	AddControl(m_pWeaponPanel, true);
 
-	m_pSceneTree = new CSceneTree();
-	AddControl(m_pSceneTree, true);
+	m_pSceneTree = AddControl(new CSceneTree());
 
-	m_pTurnButton = new CPictureButton(_T("TURN"));
+	m_pTurnButton = AddControl(new CPictureButton(_T("TURN")));
 	SetButtonSheetTexture(m_pTurnButton, &m_HUDSheet, "EndTurn");
 	m_pTurnButton->SetClickedListener(this, EndTurn);
 	m_pTurnButton->ShowBackground(false);
 	m_pTurnButton->SetCursorInListener(this, CursorInTurnButton);
 	m_pTurnButton->SetCursorOutListener(this, CursorOutTurnButton);
-	AddControl(m_pTurnButton);
 
-	m_pTurnWarning = new CLabel(0, 0, 100, 100, _T(""));
-	AddControl(m_pTurnWarning);
+	m_pTurnWarning = AddControl(new CLabel(0, 0, 100, 100, _T("")));
 	m_pTurnWarning->SetAlign(CLabel::TA_TOPLEFT);
 	m_pTurnWarning->SetTextColor(Color(255, 255, 255));
 	m_pTurnWarning->SetFont(_T("text"));
@@ -348,13 +322,11 @@ CHUD::CHUD()
 
 	m_iTurnSound = CSoundLibrary::Get()->AddSound(_T("sound/turn.wav"));
 
-	m_pSpacebarHint = new CLabel(0, 0, 200, 20, _T(""));
+	m_pSpacebarHint = AddControl(new CLabel(0, 0, 200, 20, _T("")));
 	m_pSpacebarHint->SetAlign(CLabel::TA_MIDDLECENTER);
 	m_pSpacebarHint->SetFont(_T("text"));
-	AddControl(m_pSpacebarHint);
 
-	m_pHowToPlayPanel = new CHowToPlayPanel();
-	AddControl(m_pHowToPlayPanel, true);
+	m_pHowToPlayPanel = AddControl(new CHowToPlayPanel());
 
 #ifdef DT_COMPETITION
 	m_iCompetitionWatermark = CTextureLibrary::AddTextureID(_T("textures/competition.png"));
@@ -404,11 +376,7 @@ void CHUD::Layout()
 	m_pCloseActionItems->SetVisible(bShowCPUStuff);
 
 	for (size_t i = 0; i < m_apActionItemButtons.size(); i++)
-	{
 		RemoveControl(m_apActionItemButtons[i]);
-		m_apActionItemButtons[i]->Destructor();
-		m_apActionItemButtons[i]->Delete();
-	}
 
 	m_apActionItemButtons.clear();
 
@@ -418,8 +386,7 @@ void CHUD::Layout()
 		size_t iItemButtonSize = 30;
 		for (size_t i = 0; i < pLocalCurrentTeam->GetNumActionItems(); i++)
 		{
-			CPictureButton* pButton = new CPictureButton(sprintf(tstring("%d"), i));
-			AddControl(pButton);
+			CControl<CPictureButton> pButton = AddControl(new CPictureButton(sprintf(tstring("%d"), i)));
 			pButton->SetSize(iItemButtonSize, iItemButtonSize);
 			pButton->SetPos(iWidth - iItemButtonSize - 10, 120 + (iItemButtonSize+10)*i);
 			pButton->SetClickedListener(this, ChooseActionItem);
@@ -445,10 +412,10 @@ void CHUD::Layout()
 			case ACTIONTYPE_NEWSTRUCTURE:
 				if (hUnit != NULL)
 				{
-					size_t iSheet;
+					CMaterialHandle hSheet;
 					int sx, sy, sw, sh, tw, th;
-					GetUnitSheet(hUnit->GetUnitType(), iSheet, sx, sy, sw, sh, tw, th);
-					pButton->SetSheetTexture(iSheet, sx, sy, sw, sh, tw, th);
+					GetUnitSheet(hUnit->GetUnitType(), hSheet, sx, sy, sw, sh, tw, th);
+					pButton->SetSheetTexture(hSheet, sx, sy, sw, sh, tw, th);
 					pButton->SetTooltip(_T("Structure Complete"));
 				}
 				break;
@@ -456,10 +423,10 @@ void CHUD::Layout()
 			case ACTIONTYPE_AUTOMOVECANCELED:
 				if (hUnit != NULL)
 				{
-					size_t iSheet;
+					CMaterialHandle hSheet;
 					int sx, sy, sw, sh, tw, th;
-					GetUnitSheet(hUnit->GetUnitType(), iSheet, sx, sy, sw, sh, tw, th);
-					pButton->SetSheetTexture(iSheet, sx, sy, sw, sh, tw, th);
+					GetUnitSheet(hUnit->GetUnitType(), hSheet, sx, sy, sw, sh, tw, th);
+					pButton->SetSheetTexture(hSheet, sx, sy, sw, sh, tw, th);
 					pButton->SetTooltip(_T("Move Canceled"));
 				}
 				break;
@@ -467,10 +434,10 @@ void CHUD::Layout()
 			case ACTIONTYPE_AUTOMOVEENEMY:
 				if (hUnit != NULL)
 				{
-					size_t iSheet;
+					CMaterialHandle hSheet;
 					int sx, sy, sw, sh, tw, th;
-					GetUnitSheet(hUnit->GetUnitType(), iSheet, sx, sy, sw, sh, tw, th);
-					pButton->SetSheetTexture(iSheet, sx, sy, sw, sh, tw, th);
+					GetUnitSheet(hUnit->GetUnitType(), hSheet, sx, sy, sw, sh, tw, th);
+					pButton->SetSheetTexture(hSheet, sx, sy, sw, sh, tw, th);
 					pButton->SetTooltip(_T("Enemy Sighted"));
 				}
 				break;
@@ -478,10 +445,10 @@ void CHUD::Layout()
 			case ACTIONTYPE_UNITDAMAGED:
 				if (hUnit != NULL)
 				{
-					size_t iSheet;
+					CMaterialHandle hSheet;
 					int sx, sy, sw, sh, tw, th;
-					GetUnitSheet(hUnit->GetUnitType(), iSheet, sx, sy, sw, sh, tw, th);
-					pButton->SetSheetTexture(iSheet, sx, sy, sw, sh, tw, th);
+					GetUnitSheet(hUnit->GetUnitType(), hSheet, sx, sy, sw, sh, tw, th);
+					pButton->SetSheetTexture(hSheet, sx, sy, sw, sh, tw, th);
 					pButton->SetTooltip(_T("Unit Damaged"));
 				}
 				break;
@@ -489,10 +456,10 @@ void CHUD::Layout()
 			case ACTIONTYPE_FORTIFIEDENEMY:
 				if (hUnit != NULL)
 				{
-					size_t iSheet;
+					CMaterialHandle hSheet;
 					int sx, sy, sw, sh, tw, th;
-					GetUnitSheet(hUnit->GetUnitType(), iSheet, sx, sy, sw, sh, tw, th);
-					pButton->SetSheetTexture(iSheet, sx, sy, sw, sh, tw, th);
+					GetUnitSheet(hUnit->GetUnitType(), hSheet, sx, sy, sw, sh, tw, th);
+					pButton->SetSheetTexture(hSheet, sx, sy, sw, sh, tw, th);
 					pButton->SetTooltip(_T("Enemy Sighted"));
 				}
 				break;
@@ -500,10 +467,10 @@ void CHUD::Layout()
 			case ACTIONTYPE_UNITAUTOMOVE:
 				if (hUnit != NULL)
 				{
-					size_t iSheet;
+					CMaterialHandle hSheet;
 					int sx, sy, sw, sh, tw, th;
-					GetUnitSheet(hUnit->GetUnitType(), iSheet, sx, sy, sw, sh, tw, th);
-					pButton->SetSheetTexture(iSheet, sx, sy, sw, sh, tw, th);
+					GetUnitSheet(hUnit->GetUnitType(), hSheet, sx, sy, sw, sh, tw, th);
+					pButton->SetSheetTexture(hSheet, sx, sy, sw, sh, tw, th);
 					pButton->SetTooltip(_T("Move Completed"));
 				}
 				break;
@@ -511,10 +478,10 @@ void CHUD::Layout()
 			case ACTIONTYPE_UNITORDERS:
 				if (hUnit != NULL)
 				{
-					size_t iSheet;
+					CMaterialHandle hSheet;
 					int sx, sy, sw, sh, tw, th;
-					GetUnitSheet(hUnit->GetUnitType(), iSheet, sx, sy, sw, sh, tw, th);
-					pButton->SetSheetTexture(iSheet, sx, sy, sw, sh, tw, th);
+					GetUnitSheet(hUnit->GetUnitType(), hSheet, sx, sy, sw, sh, tw, th);
+					pButton->SetSheetTexture(hSheet, sx, sy, sw, sh, tw, th);
 					pButton->SetTooltip(_T("Orders Needed"));
 				}
 				break;
@@ -522,10 +489,10 @@ void CHUD::Layout()
 			case ACTIONTYPE_UPGRADE:
 				if (hUnit != NULL)
 				{
-					size_t iSheet;
+					CMaterialHandle hSheet;
 					int sx, sy, sw, sh, tw, th;
-					GetUnitSheet(hUnit->GetUnitType(), iSheet, sx, sy, sw, sh, tw, th);
-					pButton->SetSheetTexture(iSheet, sx, sy, sw, sh, tw, th);
+					GetUnitSheet(hUnit->GetUnitType(), hSheet, sx, sy, sw, sh, tw, th);
+					pButton->SetSheetTexture(hSheet, sx, sy, sw, sh, tw, th);
 					pButton->SetTooltip(_T("Upgrade Compeleted"));
 				}
 				break;
@@ -533,10 +500,10 @@ void CHUD::Layout()
 			case ACTIONTYPE_UNITREADY:
 				if (hUnit != NULL)
 				{
-					size_t iSheet;
+					CMaterialHandle hSheet;
 					int sx, sy, sw, sh, tw, th;
-					GetUnitSheet(hUnit->GetUnitType(), iSheet, sx, sy, sw, sh, tw, th);
-					pButton->SetSheetTexture(iSheet, sx, sy, sw, sh, tw, th);
+					GetUnitSheet(hUnit->GetUnitType(), hSheet, sx, sy, sw, sh, tw, th);
+					pButton->SetSheetTexture(hSheet, sx, sy, sw, sh, tw, th);
 					pButton->SetTooltip(_T("Unit Ready"));
 				}
 				break;
@@ -653,19 +620,19 @@ void CHUD::Layout()
 
 	if (DigitanksGame()->GetCurrentLocalDigitanksPlayer())
 	{
-		size_t iSheet;
+		CMaterialHandle hSheet;
 		int sx, sy, sw, sh, tw, th;
-		m_pUpdatesPanel->GetTextureForUpdateItem(DigitanksGame()->GetCurrentLocalDigitanksPlayer()->GetUpdateDownloading(), iSheet, sx, sy, sw, sh, tw, th);
-		m_pUpdatesButton->SetSheetTexture(iSheet, sx, sy, sw, sh, tw, th);
+		m_pUpdatesPanel->GetTextureForUpdateItem(DigitanksGame()->GetCurrentLocalDigitanksPlayer()->GetUpdateDownloading(), hSheet, sx, sy, sw, sh, tw, th);
+		m_pUpdatesButton->SetSheetTexture(hSheet, sx, sy, sw, sh, tw, th);
 	}
 
 	if (DigitanksGame()->GetGameType() == GAMETYPE_ARTILLERY)
 	{
 		// Don't clear it in the start, we want dead tanks to remain in the list so we can mark them asploded.
 
-		m_ahScoreboardTanks.resize(DigitanksGame()->GetNumTeams());
+		m_ahScoreboardTanks.resize(DigitanksGame()->GetNumPlayers());
 
-		for (size_t i = 0; i < DigitanksGame()->GetNumTeams(); i++)
+		for (size_t i = 0; i < DigitanksGame()->GetNumPlayers(); i++)
 		{
 			const CDigitanksPlayer* pTeam = DigitanksGame()->GetDigitanksPlayer(i);
 			tmap<size_t, CEntityHandle<CDigitank> >& ahTeamTanks = m_ahScoreboardTanks[i];
@@ -793,9 +760,9 @@ void CHUD::Think()
 	m_flSmallActionItemLerp = Approach(m_flSmallActionItemLerpGoal, m_flSmallActionItemLerp, GameServer()->GetFrameTime() * 4);
 
 	int iWidth = DigitanksWindow()->GetWindowWidth();
-	m_pActionItem->SetPos(iWidth - 300 + (int)(Lerp(1-m_flActionItemsLerp, 0.2f) * m_flActionItemsWidth), 130);
+	m_pActionItem->SetPos(iWidth - 300 + (int)(Bias(1-m_flActionItemsLerp, 0.2f) * m_flActionItemsWidth), 130);
 	m_pActionItem->SetAlpha((int)(m_flActionItemsLerp*255));
-	m_pCloseActionItems->SetPos(iWidth - 255 + (int)(Lerp(1-m_flActionItemsLerp, 0.2f) * m_flActionItemsWidth), m_pCloseActionItems->GetTop());
+	m_pCloseActionItems->SetPos(iWidth - 255 + (int)(Bias(1-m_flActionItemsLerp, 0.2f) * m_flActionItemsWidth), m_pCloseActionItems->GetTop());
 
 	if (m_bHUDActive && bMouseOnGrid && pCurrentTank)
 	{
@@ -896,11 +863,11 @@ void CHUD::Think()
 		if (DigitanksWindow()->GetInstructor() && DigitanksWindow()->GetInstructor()->GetCurrentLesson())
 			sLessonName = DigitanksWindow()->GetInstructor()->GetCurrentLesson()->m_sLessonName;
 
-		if (pLesson && pLesson->m_iHintButton >= 0 && DigitanksWindow()->GetInstructor() && DigitanksWindow()->GetInstructor()->GetCurrentPanel() && DigitanksWindow()->GetInstructor()->GetCurrentPanel()->IsVisible())
+		if (pLesson && !!pLesson->m_hPointAt.Downcast<CPictureButton>() && DigitanksWindow()->GetInstructor() && DigitanksWindow()->GetInstructor()->GetCurrentPanel() && DigitanksWindow()->GetInstructor()->GetCurrentPanel()->IsVisible())
 		{
 			float flRamp = Oscillate(GameServer()->GetGameTime(), 1);
 			int iColor = (int)RemapVal(flRamp, 0, 1, 0, 150);
-			m_apButtons[pLesson->m_iHintButton]->SetButtonColor(Color(iColor, 0, 0));
+			pLesson->m_hPointAt.DowncastStatic<CPictureButton>()->SetButtonColor(Color(iColor, 0, 0));
 		}
 		else if (pCurrentTank && pCurrentTank->GetDigitanksPlayer() == DigitanksGame()->GetCurrentLocalDigitanksPlayer() && sLessonName == "artillery-aim")
 		{
@@ -950,7 +917,7 @@ void CHUD::Think()
 
 	float flTurnInfoHeight = m_flTurnInfoHeight+10;
 	m_pTurnInfo->SetSize(m_pTurnInfo->GetWidth(), (int)flTurnInfoHeight);
-	m_pTurnInfo->SetPos(m_pTurnInfo->GetLeft(), 36 + 10 - (int)(Lerp(1.0f-m_flTurnInfoLerp, 0.2f)*flTurnInfoHeight));
+	m_pTurnInfo->SetPos(m_pTurnInfo->GetLeft(), 36 + 10 - (int)(Bias(1.0f-m_flTurnInfoLerp, 0.2f)*flTurnInfoHeight));
 
 	m_pUpdatesButton->SetVisible(bShowCPUStuff && !!DigitanksGame()->GetUpdateGrid());
 
@@ -970,7 +937,7 @@ void CHUD::Think()
 		m_bNeedsUpdate = false;
 	}
 
-	IControl* pMouseControl = glgui::CRootPanel::Get()->GetHasCursor();
+	CControlHandle pMouseControl = glgui::CRootPanel::Get()->GetHasCursor();
 	if (DigitanksGame()->GetDigitanksCamera()->HasCameraGuidedMissile())
 	{
 		DigitanksWindow()->SetMouseCursor(MOUSECURSOR_NONE);
@@ -978,7 +945,7 @@ void CHUD::Think()
 	}
 	else if (pMouseControl)
 	{
-		if (dynamic_cast<CHUD*>(pMouseControl))
+		if (pMouseControl.Downcast<CHUD>())
 		{
 			// Nothing.
 		}
@@ -987,7 +954,7 @@ void CHUD::Think()
 			DigitanksWindow()->SetMouseCursor(MOUSECURSOR_NONE);
 			SetTooltip(_T(""));
 		}
-		else if (dynamic_cast<glgui::CButton*>(pMouseControl))
+		else if (pMouseControl.Downcast<CButton>())
 		{
 			DigitanksWindow()->SetMouseCursor(MOUSECURSOR_NONE);
 			SetTooltip(_T(""));
@@ -995,7 +962,7 @@ void CHUD::Think()
 	}
 
 	if (m_bBlinkTurnButton)
-		m_pTurnButton->SetAlpha(Lerp(Oscillate(GameServer()->GetGameTime(), 1.0f), 0.8f));
+		m_pTurnButton->SetAlpha(Bias(Oscillate(GameServer()->GetGameTime(), 1.0f), 0.8f));
 	else
 		m_pTurnButton->SetAlpha(1.0f);
 
@@ -1010,7 +977,7 @@ void CHUD::Think()
 
 CVar show_fps("show_fps", SHOW_FPS);
 
-void CHUD::Paint(int x, int y, int w, int h)
+void CHUD::Paint(float x, float y, float w, float h)
 {
 	if (!DigitanksGame())
 		return;
@@ -1088,7 +1055,7 @@ void CHUD::Paint(int x, int y, int w, int h)
 		GameServer()->GetRenderer()->GetCameraVectors(&vecForward, NULL, &vecUp);
 
 		// Cull tanks behind the camera
-		if (vecForward.Dot((vecOrigin-GameServer()->GetCamera()->GetCameraPosition()).Normalized()) < 0)
+		if (vecForward.Dot((vecOrigin-GameServer()->GetCameraManager()->GetCameraPosition()).Normalized()) < 0)
 			continue;
 
 		if (pDTEntity->IsObjective() && pDTEntity->IsActive())
@@ -1152,7 +1119,7 @@ void CHUD::Paint(int x, int y, int w, int h)
 		}
 
 		bool bShowHealth = false;
-		if (pCurrentLocalPlayer && (pEntity->GetPlayerOwner() == pCurrentLocalPlayer || pCurrentLocalPlayer->IsSelected(pSelectable)))
+		if (pCurrentLocalPlayer && (pEntity->GetOwner() == pCurrentLocalPlayer || pCurrentLocalPlayer->IsSelected(pSelectable)))
 			bShowHealth = true;
 		if (bMouseOver)
 			bShowHealth = true;
@@ -1170,7 +1137,7 @@ void CHUD::Paint(int x, int y, int w, int h)
 		bool bShowPower = bMouseOver;
 		if (DigitanksWindow()->IsAltDown())
 			bShowPower = true;
-		if (pEntity->GetPlayerOwner() != pCurrentLocalPlayer)
+		if (pEntity->GetOwner() != pCurrentLocalPlayer)
 			bShowPower = false;
 		if (!pTank)
 			bShowPower = false;
@@ -1203,7 +1170,7 @@ void CHUD::Paint(int x, int y, int w, int h)
 		}
 
 		bool bShowFortify = pTank && (pTank->IsFortified() || pTank->IsFortifying());
-		if (pEntity->GetPlayerOwner() != pCurrentLocalPlayer)
+		if (pEntity->GetOwner() != pCurrentLocalPlayer)
 			bShowFortify = false;
 
 		if (bShowFortify)
@@ -1293,7 +1260,7 @@ void CHUD::Paint(int x, int y, int w, int h)
 			float flTextWidth = CLabel::GetTextWidth(sZZZ, sZZZ.length(), _T("smileys"), iFontSize);
 			float flTextHeight = CLabel::GetFontHeight(_T("smileys"), iFontSize);
 
-			float flLerp = fmod(GameServer()->GetGameTime(), 2.0f);
+			float flLerp = fmod(GameServer()->GetGameTime(), 2.0);
 			if (flLerp < 0.5f)
 				sZZZ = _T("z");
 			else if (flLerp < 1.0f)
@@ -1326,7 +1293,7 @@ void CHUD::Paint(int x, int y, int w, int h)
 			{
 				int iArrowWidth = 50;
 				int iArrowHeight = 82;
-				PaintHUDSheet("HintArrow", m_pUpdatesButton->GetLeft() + m_pUpdatesButton->GetWidth()/2 - iArrowWidth/2, 40 + (int)(Lerp(Oscillate(GameServer()->GetGameTime(), 1), 0.8f)*20), iArrowWidth, iArrowHeight);
+				PaintHUDSheet("HintArrow", m_pUpdatesButton->GetLeft() + m_pUpdatesButton->GetWidth()/2 - iArrowWidth/2, 40 + (int)(Bias(Oscillate(GameServer()->GetGameTime(), 1), 0.8f)*20), iArrowWidth, iArrowHeight);
 			}
 
 			PaintHUDSheet("PowerIcon", iWidth - 190, 10, 20, 20);
@@ -1357,19 +1324,19 @@ void CHUD::Paint(int x, int y, int w, int h)
 				CRootPanel::PaintRect(iWidth/2 - iDownloadedWidth/2, 3, iResearchCompleted, 20, Color(0, 200, 100, 255));
 				CRootPanel::PaintRect(iWidth/2 - iDownloadedWidth/2 + iResearchCompleted, 3, iResearchDue, 20, Color(0, 200, 100, 100));
 
-				size_t iItemSheet;
+				CMaterialHandle hItemSheet;
 				int sx, sy, sw, sh, tw, th;
-				m_pUpdatesPanel->GetTextureForUpdateItem(pItem, iItemSheet, sx, sy, sw, sh, tw, th);
+				m_pUpdatesPanel->GetTextureForUpdateItem(pItem, hItemSheet, sx, sy, sw, sh, tw, th);
 
 				float flSlideTime = 0.8f;
-				if (iItemSheet && GameServer()->GetGameTime() - m_flUpdateIconSlide < flSlideTime)
+				if (hItemSheet && GameServer()->GetGameTime() - m_flUpdateIconSlide < flSlideTime)
 				{
-					float flSlideLerp = Lerp((GameServer()->GetGameTime() - m_flUpdateIconSlide)/flSlideTime, 0.7f);
+					float flSlideLerp = Bias((GameServer()->GetGameTime() - m_flUpdateIconSlide)/flSlideTime, 0.7f);
 					int iIconX = (int)RemapValClamped(flSlideLerp, 0.0f, 1.0f, (float)m_iUpdateIconSlideStartX, (float)(iWidth/2 - iResearchWidth/2 - 35));
 					int iIconY = (int)RemapValClamped(flSlideLerp, 0.0f, 1.0f, (float)m_iUpdateIconSlideStartY, 0.0f);
 					int iButtonSize = (int)RemapValClamped(flSlideLerp, 0.0f, 1.0f, (float)m_pUpdatesPanel->GetButtonSize(), 35.0f);
 
-					CRootPanel::PaintSheet(iItemSheet, iIconX, iIconY, iButtonSize, iButtonSize, sx, sy, sw, sh, tw, th);
+					CRootPanel::PaintSheet(hItemSheet, iIconX, iIconY, iButtonSize, iButtonSize, sx, sy, sw, sh, tw, th);
 				}
 			}
 		}
@@ -1379,7 +1346,7 @@ void CHUD::Paint(int x, int y, int w, int h)
 
 		if (m_flTurnWarningLerp > 0)
 		{
-			float flWarningLerp = Lerp(m_flTurnWarningLerp, 0.7f);
+			float flWarningLerp = Bias(m_flTurnWarningLerp, 0.7f);
 			m_pTurnWarning->SetText(_T("WARNING!\n \nSome tanks still need orders. Ending the turn will forfeit their moves or attacks."));
 			m_pTurnWarning->SetSize(220, 75);
 			m_pTurnWarning->SetPos(iWidth - (int)(220*flWarningLerp), iHeight - 75 - 90 - 10);
@@ -1414,8 +1381,8 @@ void CHUD::Paint(int x, int y, int w, int h)
 		CRootPanel::PaintRect(iX, iY + iHeight, iWidth, 1, clrSelection);
 	}
 
-	CTeam* pLocalPlayer = DigitanksGame()->GetCurrentLocalDigitanksPlayer();
-	if (pLocalPlayer && m_hHintWeapon == NULL)
+	CDigitanksPlayer* pLocalPlayer = DigitanksGame()->GetCurrentLocalDigitanksPlayer();
+	if (pLocalPlayer && !m_hHintWeapon)
 	{
 		for (size_t i = 0; i < GameServer()->GetMaxEntities(); i++)
 		{
@@ -1466,7 +1433,7 @@ void CHUD::Paint(int x, int y, int w, int h)
 		CRenderingContext c(GameServer()->GetRenderer());
 		c.SetBlend(BLEND_ALPHA);
 
-		iY -= (int)(Lerp(Oscillate(GameServer()->GetGameTime(), 0.5f), 0.2f) * 10);
+		iY -= (int)(Bias(Oscillate(GameServer()->GetGameTime(), 0.5f), 0.2f) * 10);
 
 		PaintSheet(&m_KeysSheet, "SpaceBar", iX+45, iY, 60, 60);
 	}
@@ -1576,7 +1543,7 @@ void CHUD::Paint(int x, int y, int w, int h)
 
 			int iSize = 100;
 
-			glgui::CBaseControl::PaintTexture(m_iShieldTexture, iWidth/2 - 720/2 + 10 + 150/2 - iSize/2, iHeight - 150 + 10 + 130/2 - iSize/2, iSize, iSize, Color(255, 255, 255, iShield));
+			glgui::CBaseControl::PaintTexture(m_hShieldTexture, iWidth/2 - 720/2 + 10 + 150/2 - iSize/2, iHeight - 150 + 10 + 130/2 - iSize/2, iSize, iSize, Color(255, 255, 255, iShield));
 		}
 	}
 
@@ -1596,15 +1563,15 @@ void CHUD::Paint(int x, int y, int w, int h)
 			size_t iTankWidth = iTotalWidth/4;
 			size_t iTankHeight = iTankWidth/2;
 
-			size_t iTankOffset = (size_t)(Lerp(1-flWarpIn, 0.2f) * iTankWidth*2);
+			size_t iTankOffset = (size_t)(Bias(1-flWarpIn, 0.2f) * iTankWidth*2);
 
 			CRenderingContext c(GameServer()->GetRenderer());
 			c.SetBlend(BLEND_ALPHA);
 
-			PaintSheet(m_iActionTanksSheet, iTotalWidth-iTankWidth*3/2 + iTankOffset, iTotalHeight/2-iTankHeight/2, iTankWidth, iTankHeight, 0, 0, 512, 256, 512, 512, Color(255, 255, 255, (int)(flAlpha*255)));
-			PaintSheet(m_iActionTanksSheet, iTankWidth/2 - iTankOffset, iTotalHeight/2-iTankHeight/2, iTankWidth, iTankHeight, 0, 256, 512, 256, 512, 512, Color(255, 255, 255, (int)(flAlpha*255)));
+			PaintSheet(m_hActionTanksSheet, iTotalWidth-iTankWidth*3/2 + iTankOffset, iTotalHeight/2-iTankHeight/2, iTankWidth, iTankHeight, 0, 0, 512, 256, 512, 512, Color(255, 255, 255, (int)(flAlpha*255)));
+			PaintSheet(m_hActionTanksSheet, iTankWidth/2 - iTankOffset, iTotalHeight/2-iTankHeight/2, iTankWidth, iTankHeight, 0, 256, 512, 256, 512, 512, Color(255, 255, 255, (int)(flAlpha*255)));
 
-			size_t iSignWidth = (size_t)(iTotalWidth/2 * Lerp(flWarpIn, 0.2f));
+			size_t iSignWidth = (size_t)(iTotalWidth/2 * Bias(flWarpIn, 0.2f));
 			size_t iSignHeight = (size_t)(iSignWidth*0.32f);
 			if (m_eActionSign == ACTIONSIGN_FIGHT)
 				PaintSheet(&m_ActionSignsSheet, "Fight", iTotalWidth/2-iSignWidth/2, iTotalHeight/2-iSignHeight/2, iSignWidth, iSignHeight, Color(255, 255, 255, (int)(flAlpha*255)));
@@ -1669,7 +1636,7 @@ void CHUD::Paint(int x, int y, int w, int h)
 		CRenderingContext c(GameServer()->GetRenderer());
 		c.SetBlend(BLEND_ALPHA);
 
-		for (size_t i = 0; i < DigitanksGame()->GetNumTeams(); i++)
+		for (size_t i = 0; i < DigitanksGame()->GetNumPlayers(); i++)
 		{
 			const CDigitanksPlayer* pTeam = DigitanksGame()->GetDigitanksPlayer(i);
 			if (!pTeam)
@@ -1730,13 +1697,13 @@ void CHUD::Paint(int x, int y, int w, int h)
 		if (pNotification->hEntity->GetPlayerOwner() != DigitanksGame()->GetCurrentLocalDigitanksPlayer())
 			continue;
 
-		float flLerpIn = Lerp(RemapValClamped(GameServer()->GetGameTime() - pNotification->flTime, 0, 0.5f, 0, 1), 0.2f);
+		float flLerpIn = Bias(RemapValClamped(GameServer()->GetGameTime() - pNotification->flTime, 0, 0.5, 0.0, 1), 0.2f);
 		int iX = (int)RemapValClamped(flLerpIn, 0, 1, -350, (float)iNotificationX);
 
 		int iY = iFirstNotificationHeight - (iNotificationHeight+10)*i;
 
 		Color clrBox = glgui::g_clrBox;
-		clrBox.SetAlpha(RemapValClamped(GameServer()->GetGameTime() - pNotification->flTime, 1.5f, 2, 1, 0));
+		clrBox.SetAlpha((float)RemapValClamped(GameServer()->GetGameTime() - pNotification->flTime, 1.5, 2, 1.0, 0));
 		glgui::CRootPanel::PaintRect(iX, iY, 350, iNotificationHeight, clrBox);
 
 		if (GameServer()->GetGameTime() - pNotification->flTime < 2)
@@ -1757,18 +1724,18 @@ void CHUD::Paint(int x, int y, int w, int h)
 				sText = _T("Tank Upgrade Received!");
 
 			CRenderingContext c(GameServer()->GetRenderer());
-			c.SetAlpha(RemapValClamped(GameServer()->GetGameTime() - pNotification->flTime, 1.5f, 2, 1, 0));
+			c.SetAlpha(RemapValClamped(GameServer()->GetGameTime() - pNotification->flTime, 1.5, 2, 1.0, 0));
 			c.SetColor(Color(255, 255, 255, 255));
 			glgui::CLabel::PaintText(sText, sText.length(), _T("header"), 18, (float)(iX + iNotificationHeight + 20), (float)(iY + iNotificationHeight - 15));
 		}
 
-		int iSceneX, iSceneY, iSceneW, iSceneH;
+		float iSceneX, iSceneY, iSceneW, iSceneH;
 		m_pSceneTree->GetUnitDimensions(pNotification->hEntity, iSceneX, iSceneY, iSceneW, iSceneH);
 
 		int iIconX, iIconY, iIconW, iIconH;
 
 		int iSpacing = 3;
-		float flMoveLerp = SLerp(RemapValClamped(GameServer()->GetGameTime() - pNotification->flTime, 2.0f, 2.5f, 0, 1), 0.1f);
+		float flMoveLerp = Gain(RemapValClamped(GameServer()->GetGameTime() - pNotification->flTime, 2.0, 2.5, 0.0, 1), 0.1f);
 		iIconX = (int)RemapValClamped(flMoveLerp, 0, 1, (float)iX+iSpacing, (float)iSceneX);
 		iIconY = (int)RemapValClamped(flMoveLerp, 0, 1, (float)iY+iSpacing, (float)iSceneY);
 		iIconW = (int)RemapValClamped(flMoveLerp, 0, 1, (float)iNotificationHeight-iSpacing*2, (float)iSceneH);
@@ -1794,26 +1761,26 @@ void CHUD::Paint(int x, int y, int w, int h)
 		CRenderingContext c(GameServer()->GetRenderer());
 		c.SetBlend(BLEND_ADDITIVE);
 		Color clrPowerup(255, 255, 255, 255);
-		clrPowerup.SetAlpha(RemapValClamped(GameServer()->GetGameTime() - pNotification->flTime, 2.5f, 3.0f, 1, 0));
+		clrPowerup.SetAlpha((float)RemapValClamped(GameServer()->GetGameTime() - pNotification->flTime, 2.5, 3.0, 1.0, 0));
 		PaintSheet(&m_PowerupsSheet, sArea, iIconX, iIconY, iIconW, iIconH, clrPowerup);
 	}
 
 	if (m_flSelectorMedalStart > 0 && GameServer()->GetGameTime() > m_flSelectorMedalStart)
 	{
-		float flMedalDisplayTime = 5;
+		double flMedalDisplayTime = 5;
 
 		if (GameServer()->GetGameTime() > m_flSelectorMedalStart + flMedalDisplayTime)
 			m_flSelectorMedalStart = 0;
 
-		float flAlpha = RemapValClamped(GameServer()->GetGameTime(), m_flSelectorMedalStart, m_flSelectorMedalStart+0.5f, 0, 1);
+		float flAlpha = RemapValClamped(GameServer()->GetGameTime(), m_flSelectorMedalStart, m_flSelectorMedalStart+0.5, 0.0, 1);
 		if (GameServer()->GetGameTime() - m_flSelectorMedalStart > flMedalDisplayTime-1)
-			flAlpha = RemapValClamped(GameServer()->GetGameTime(), m_flSelectorMedalStart+flMedalDisplayTime-1, m_flSelectorMedalStart+flMedalDisplayTime, 1, 0);
+			flAlpha = RemapValClamped(GameServer()->GetGameTime(), m_flSelectorMedalStart+flMedalDisplayTime-1, m_flSelectorMedalStart+flMedalDisplayTime, 1.0, 0);
 
 		Color clrMedal = Color(255, 255, 255, (int)(255*flAlpha));
 
 		CRenderingContext c(GameServer()->GetRenderer());
 		c.SetBlend(BLEND_ALPHA);
-		glgui::CBaseControl::PaintTexture(m_iSelectorMedalTexture, w/2-128, h/2-128, 256, 256, clrMedal);
+		glgui::CBaseControl::PaintTexture(m_hSelectorMedalTexture, w/2-128, h/2-128, 256, 256, clrMedal);
 
 		c.SetColor(clrMedal);
 
@@ -1824,20 +1791,20 @@ void CHUD::Paint(int x, int y, int w, int h)
 
 	if (m_flFileRescueStart > 0 && GameServer()->GetGameTime() > m_flFileRescueStart)
 	{
-		float flFileRescueTime = 5;
+		double flFileRescueTime = 5;
 
 		if (GameServer()->GetGameTime() > m_flFileRescueStart + flFileRescueTime)
 			m_flFileRescueStart = 0;
 
-		float flAlpha = RemapValClamped(GameServer()->GetGameTime(), m_flFileRescueStart, m_flFileRescueStart+0.5f, 0, 1);
+		float flAlpha = RemapValClamped(GameServer()->GetGameTime(), m_flFileRescueStart, m_flFileRescueStart+0.5, 0.0, 1);
 		if (GameServer()->GetGameTime() - m_flFileRescueStart > flFileRescueTime-1)
-			flAlpha = RemapValClamped(GameServer()->GetGameTime(), m_flFileRescueStart+flFileRescueTime-1, m_flFileRescueStart+flFileRescueTime, 1, 0);
+			flAlpha = RemapValClamped(GameServer()->GetGameTime(), m_flFileRescueStart+flFileRescueTime-1, m_flFileRescueStart+flFileRescueTime, 1.0, 0);
 
 		Color clrFile = Color(255, 255, 255, (int)(255*flAlpha));
 
 		CRenderingContext c(GameServer()->GetRenderer());
 		c.SetBlend(BLEND_ALPHA);
-		glgui::CBaseControl::PaintTexture(CTextureLibrary::FindTextureID(m_sFileRescueTexture), w/2-128, h/2-128, 256, 256, clrFile);
+		glgui::CBaseControl::PaintTexture(CMaterialLibrary::FindAsset(m_sFileRescueTexture), w/2-128, h/2-128, 256, 256, clrFile);
 
 		c.SetColor(clrFile);
 
@@ -1859,7 +1826,7 @@ void CHUD::Paint(int x, int y, int w, int h)
 	}
 }
 
-void CHUD::PaintCameraGuidedMissile(int x, int y, int w, int h)
+void CHUD::PaintCameraGuidedMissile(float x, float y, float w, float h)
 {
 	CCameraGuidedMissile* pMissile = DigitanksGame()->GetDigitanksCamera()->GetCameraGuidedMissile();
 
@@ -1892,7 +1859,8 @@ void CHUD::PaintCameraGuidedMissile(int x, int y, int w, int h)
 
 	Vector vecHit;
 	CBaseEntity* pHit;
-	bool bHit = DigitanksGame()->TraceLine(pOwner->GetLastAim() + Vector(0, 0, 1), pMissile->GetGlobalOrigin(), vecHit, &pHit, CG_TERRAIN);
+	TUnimplemented();
+	bool bHit = false;//DigitanksGame()->TraceLine(pOwner->GetLastAim() + Vector(0, 0, 1), pMissile->GetGlobalOrigin(), vecHit, &pHit, CG_TERRAIN);
 
 	tstring sClear;
 	if (bHit)
@@ -1926,7 +1894,7 @@ void CHUD::PaintCameraGuidedMissile(int x, int y, int w, int h)
 	glgui::CRootPanel::PaintRect(w/2-iTrackingWidth/2, h/2-iTrackingWidth/2-50, iTrackingWidth, 1, clrWhite);
 	glgui::CRootPanel::PaintRect(w/2-iTrackingWidth/2, h/2+iTrackingWidth/2+50, iTrackingWidth, 1, clrWhite);
 
-	EAngle angCamera = pMissile->GetAngles();
+	EAngle angCamera = pMissile->GetGlobalAngles();
 	int iTicks = 10;
 	int iPixelsPerTick = iTrackingWidth/iTicks;
 
@@ -1993,7 +1961,7 @@ void CHUD::PaintCameraGuidedMissile(int x, int y, int w, int h)
 		float flRadius = pDTEntity->GetBoundingRadius();
 
 		// Cull tanks behind the camera
-		if (vecForward.Dot((vecOrigin-GameServer()->GetCamera()->GetCameraPosition()).Normalized()) < 0)
+		if (vecForward.Dot((vecOrigin-GameServer()->GetCameraManager()->GetCameraPosition()).Normalized()) < 0)
 			continue;
 
 		Vector vecTop = GameServer()->GetRenderer()->ScreenPosition(vecOrigin + vecUp*flRadius);
@@ -2025,7 +1993,7 @@ void CHUD::PaintCameraGuidedMissile(int x, int y, int w, int h)
 
 	if (Oscillate(GameServer()->GetGameTime(), 0.5f) > 0.3f)
 	{
-		if (vecForward.Dot((pOwner->GetLastAim()-GameServer()->GetCamera()->GetCameraPosition()).Normalized()) > 0)
+		if (vecForward.Dot((pOwner->GetLastAim()-GameServer()->GetCameraManager()->GetCameraPosition()).Normalized()) > 0)
 		{
 			Vector vecTarget = GameServer()->GetRenderer()->ScreenPosition(pOwner->GetLastAim());
 			float flWidth = 40;
@@ -2060,7 +2028,7 @@ void CHUD::PaintCameraGuidedMissile(int x, int y, int w, int h)
 		CRenderingContext c(GameServer()->GetRenderer());
 		c.SetBlend(BLEND_ALPHA);
 
-		iY -= (int)(Lerp(Oscillate(GameServer()->GetGameTime(), 0.5f), 0.2f) * 10);
+		iY -= (int)(Bias(Oscillate(GameServer()->GetGameTime(), 0.5f), 0.2f) * 10);
 
 		PaintSheet(&m_KeysSheet, "SpaceBar", iX+45, iY, 60, 60);
 
@@ -2073,9 +2041,9 @@ void CHUD::PaintCameraGuidedMissile(int x, int y, int w, int h)
 }
 
 // Let's phase this one out in favor of the below.
-void CHUD::PaintSheet(size_t iTexture, float x, float y, float w, float h, int sx, int sy, int sw, int sh, int tw, int th, const Color& c)
+void CHUD::PaintSheet(CMaterialHandle& hSheet, float x, float y, float w, float h, int sx, int sy, int sw, int sh, int tw, int th, const Color& c)
 {
-	glgui::CBaseControl::PaintSheet(iTexture, x, y, w, h, sx, sy, sw, sh, tw, th, c);
+	glgui::CBaseControl::PaintSheet(hSheet, x, y, w, h, sx, sy, sw, sh, tw, th, c);
 }
 
 void CHUD::PaintSheet(const CTextureSheet* pSheet, const tstring& sArea, float x, float y, float w, float h, const Color& c)
@@ -2096,7 +2064,7 @@ const CTextureSheet& CHUD::GetHUDSheet()
 	return DigitanksWindow()->GetHUD()->m_HUDSheet;
 }
 
-void CHUD::GetUnitSheet(unittype_t eUnit, size_t& iSheet, int& sx, int& sy, int& sw, int& sh, int& tw, int& th)
+void CHUD::GetUnitSheet(unittype_t eUnit, CMaterialHandle& hSheet, int& sx, int& sy, int& sw, int& sh, int& tw, int& th)
 {
 	CTextureSheet* pUnits = &DigitanksWindow()->GetHUD()->m_UnitsSheet;
 
@@ -2138,7 +2106,7 @@ void CHUD::GetUnitSheet(unittype_t eUnit, size_t& iSheet, int& sx, int& sy, int&
 		sArea = "Firewall";
 
 	Rect rUnit = pUnits->GetArea(sArea);
-	iSheet = pUnits->GetSheet(sArea);
+	hSheet = pUnits->GetSheet(sArea);
 	tw = pUnits->GetSheetWidth(sArea);
 	th = pUnits->GetSheetHeight(sArea);
 	sx = rUnit.x;
@@ -2149,13 +2117,13 @@ void CHUD::GetUnitSheet(unittype_t eUnit, size_t& iSheet, int& sx, int& sy, int&
 
 void CHUD::PaintUnitSheet(unittype_t eUnit, float x, float y, float w, float h, const Color& c)
 {
-	size_t iSheet;
+	CMaterialHandle hSheet;
 	int sx, sy, sw, sh, tw, th;
-	GetUnitSheet(eUnit, iSheet, sx, sy, sw, sh, tw, th);
-	PaintSheet(iSheet, x, y, w, h, sx, sy, sw, sh, tw, th, c);
+	GetUnitSheet(eUnit, hSheet, sx, sy, sw, sh, tw, th);
+	PaintSheet(hSheet, x, y, w, h, sx, sy, sw, sh, tw, th, c);
 }
 
-void CHUD::GetWeaponSheet(weapon_t eWeapon, size_t& iSheet, int& sx, int& sy, int& sw, int& sh, int& tw, int& th)
+void CHUD::GetWeaponSheet(weapon_t eWeapon, CMaterialHandle& hSheet, int& sx, int& sy, int& sw, int& sh, int& tw, int& th)
 {
 	CTextureSheet* pWeapons = &DigitanksWindow()->GetHUD()->m_WeaponsSheet;
 
@@ -2246,7 +2214,7 @@ void CHUD::GetWeaponSheet(weapon_t eWeapon, size_t& iSheet, int& sx, int& sy, in
 	}
 
 	Rect rUnit = pWeapons->GetArea(sArea);
-	iSheet = pWeapons->GetSheet(sArea);
+	hSheet = pWeapons->GetSheet(sArea);
 	tw = pWeapons->GetSheetWidth(sArea);
 	th = pWeapons->GetSheetHeight(sArea);
 	sx = rUnit.x;
@@ -2257,10 +2225,10 @@ void CHUD::GetWeaponSheet(weapon_t eWeapon, size_t& iSheet, int& sx, int& sy, in
 
 void CHUD::PaintWeaponSheet(weapon_t eWeapon, float x, float y, float w, float h, const Color& c)
 {
-	size_t iSheet;
+	CMaterialHandle hSheet;
 	int sx, sy, sw, sh, tw, th;
-	GetWeaponSheet(eWeapon, iSheet, sx, sy, sw, sh, tw, th);
-	PaintSheet(iSheet, x, y, w, h, sx, sy, sw, sh, tw, th, c);
+	GetWeaponSheet(eWeapon, hSheet, sx, sy, sw, sh, tw, th);
+	PaintSheet(hSheet, x, y, w, h, sx, sy, sw, sh, tw, th, c);
 }
 
 const CTextureSheet& CHUD::GetWeaponSheet()
@@ -2283,19 +2251,19 @@ const CTextureSheet& CHUD::GetKeysSheet()
 	return DigitanksWindow()->GetHUD()->m_KeysSheet;
 }
 
-size_t CHUD::GetActionTanksSheet()
+CMaterialHandle CHUD::GetActionTanksSheet()
 {
-	return DigitanksWindow()->GetHUD()->m_iActionTanksSheet;
+	return DigitanksWindow()->GetHUD()->m_hActionTanksSheet;
 }
 
-size_t CHUD::GetPurchasePanel()
+CMaterialHandle CHUD::GetPurchasePanel()
 {
-	return DigitanksWindow()->GetHUD()->m_iPurchasePanel;
+	return DigitanksWindow()->GetHUD()->m_hPurchasePanel;
 }
 
-size_t CHUD::GetShieldTexture()
+CMaterialHandle CHUD::GetShieldTexture()
 {
-	return DigitanksWindow()->GetHUD()->m_iShieldTexture;
+	return DigitanksWindow()->GetHUD()->m_hShieldTexture;
 }
 
 void CHUD::ClientEnterGame()
@@ -2509,7 +2477,7 @@ void CHUD::UpdateScoreboard()
 	tvector<const CDigitanksPlayer*> apSortedTeams;
 
 	// Prob not the fastest sorting algorithm but it doesn't need to be.
-	for (size_t i = 0; i < DigitanksGame()->GetNumTeams(); i++)
+	for (size_t i = 0; i < DigitanksGame()->GetNumPlayers(); i++)
 	{
 		const CDigitanksPlayer* pTeam = DigitanksGame()->GetDigitanksPlayer(i);
 
@@ -2589,9 +2557,9 @@ void CHUD::UpdateTurnButton()
 
 	bool bTurnComplete = true;
 
-	for (size_t i = 0; i < DigitanksGame()->GetCurrentPlayer()->GetNumMembers(); i++)
+	for (size_t i = 0; i < DigitanksGame()->GetCurrentPlayer()->GetNumUnits(); i++)
 	{
-		CDigitank* pTank = dynamic_cast<CDigitank*>(DigitanksGame()->GetCurrentPlayer()->GetMember(i));
+		CDigitank* pTank = dynamic_cast<CDigitank*>(DigitanksGame()->GetCurrentPlayer()->GetUnit(i));
 
 		if (pTank)
 		{
@@ -2651,7 +2619,7 @@ void CHUD::SetupMenu(menumode_t eMenuMode)
 		m_apButtons[i]->SetClickedListener(NULL, NULL);
 		m_apButtons[i]->SetEnabled(false);
 		SetButtonColor(i, clrBox);
-		m_apButtons[i]->SetTexture(0);
+		m_apButtons[i]->SetTexture(CMaterialHandle());
 		SetButtonInfo(i, _T(""));
 		SetButtonTooltip(i, _T(""));
 	}
@@ -2703,7 +2671,7 @@ void CHUD::SetButtonTooltip(int iButton, const tstring& sTip)
 void CHUD::ButtonCallback(int iButton)
 {
 	if (m_apButtons[iButton]->GetClickedListener())
-		m_apButtons[iButton]->GetClickedListenerCallback()(m_apButtons[iButton]->GetClickedListener());
+		m_apButtons[iButton]->GetClickedListenerCallback()(m_apButtons[iButton]->GetClickedListener(), "");
 }
 
 void CHUD::GameStart()
@@ -2831,7 +2799,8 @@ void CHUD::NewCurrentSelection()
 
 			Vector vecHit;
 			CBaseEntity* pHit;
-			Game()->TraceLine(vecCamera, vecTarget, vecHit, &pHit);
+			TUnimplemented();
+//			Game()->TraceLine(vecCamera, vecTarget, vecHit, &pHit);
 			if (pHit == DigitanksGame()->GetPrimarySelection())
 				break;
 
@@ -3059,7 +3028,7 @@ void CHUD::ShowActionItem(size_t iActionItem)
 	case ACTIONTYPE_DOWNLOADCOMPLETE:
 		m_pActionItem->SetText("");
 		m_flActionItemsLerpGoal = 0;
-		OpenUpdatesCallback();
+		OpenUpdatesCallback("");
 		return;
 
 	case ACTIONTYPE_DOWNLOADUPDATES:
@@ -3356,14 +3325,14 @@ void CHUD::CloseWeaponPanel()
 	m_pWeaponPanel->SetVisible(false);
 }
 
-Rect CHUD::GetButtonDimensions(size_t i)
+FRect CHUD::GetButtonDimensions(size_t i)
 {
-	Rect r;
+	FRect r;
 	m_apButtons[i]->GetAbsDimensions(r.x, r.y, r.w, r.h);
 	return r;
 }
 
-void CHUD::ChooseActionItemCallback()
+void CHUD::ChooseActionItemCallback(const tstring& sArgs)
 {
 	size_t iActionItem = ~0;
 
@@ -3373,7 +3342,7 @@ void CHUD::ChooseActionItemCallback()
 	// Bit of a hack since we don't know what button was pressed we have to look for it.
 	for (size_t i = 0; i < m_apActionItemButtons.size(); i++)
 	{
-		int x, y, w, h;
+		float x, y, w, h;
 		m_apActionItemButtons[i]->GetAbsDimensions(x, y, w, h);
 		if (mx >= x &&
 			my >= y &&
@@ -3408,7 +3377,7 @@ void CHUD::ChooseActionItemCallback()
 	m_flSmallActionItemLerpGoal = 0;
 }
 
-void CHUD::ShowSmallActionItemCallback()
+void CHUD::ShowSmallActionItemCallback(const tstring& sArgs)
 {
 	m_iCurrentSmallActionItem = ~0;
 	m_flSmallActionItemLerpGoal = 0;
@@ -3419,7 +3388,7 @@ void CHUD::ShowSmallActionItemCallback()
 	// Bit of a hack since we don't know what button was pressed we have to look for it.
 	for (size_t i = 0; i < m_apActionItemButtons.size(); i++)
 	{
-		int x, y, w, h;
+		float x, y, w, h;
 		m_apActionItemButtons[i]->GetAbsDimensions(x, y, w, h);
 		if (mx >= x &&
 			my >= y &&
@@ -3500,17 +3469,17 @@ void CHUD::ShowSmallActionItemCallback()
 	}
 }
 
-void CHUD::HideSmallActionItemCallback()
+void CHUD::HideSmallActionItemCallback(const tstring& sArgs)
 {
 	m_flSmallActionItemLerpGoal = 0;
 }
 
-void CHUD::CloseActionItemsCallback()
+void CHUD::CloseActionItemsCallback(const tstring& sArgs)
 {
 	ShowActionItem(~0);
 }
 
-void CHUD::CursorInTurnButtonCallback()
+void CHUD::CursorInTurnButtonCallback(const tstring& sArgs)
 {
 	if (!DigitanksGame()->GetCurrentPlayer())
 		return;
@@ -3531,67 +3500,67 @@ void CHUD::CursorInTurnButtonCallback()
 	m_flTurnWarningGoal = 0;
 }
 
-void CHUD::CursorOutTurnButtonCallback()
+void CHUD::CursorOutTurnButtonCallback(const tstring& sArgs)
 {
 	m_flTurnWarningGoal = 0;
 }
 
-void CHUD::ButtonCursorIn0Callback()
+void CHUD::ButtonCursorIn0Callback(const tstring& sArgs)
 {
 	ShowButtonInfo(0);
 }
 
-void CHUD::ButtonCursorIn1Callback()
+void CHUD::ButtonCursorIn1Callback(const tstring& sArgs)
 {
 	ShowButtonInfo(1);
 }
 
-void CHUD::ButtonCursorIn2Callback()
+void CHUD::ButtonCursorIn2Callback(const tstring& sArgs)
 {
 	ShowButtonInfo(2);
 }
 
-void CHUD::ButtonCursorIn3Callback()
+void CHUD::ButtonCursorIn3Callback(const tstring& sArgs)
 {
 	ShowButtonInfo(3);
 }
 
-void CHUD::ButtonCursorIn4Callback()
+void CHUD::ButtonCursorIn4Callback(const tstring& sArgs)
 {
 	ShowButtonInfo(4);
 }
 
-void CHUD::ButtonCursorIn5Callback()
+void CHUD::ButtonCursorIn5Callback(const tstring& sArgs)
 {
 	ShowButtonInfo(5);
 }
 
-void CHUD::ButtonCursorIn6Callback()
+void CHUD::ButtonCursorIn6Callback(const tstring& sArgs)
 {
 	ShowButtonInfo(6);
 }
 
-void CHUD::ButtonCursorIn7Callback()
+void CHUD::ButtonCursorIn7Callback(const tstring& sArgs)
 {
 	ShowButtonInfo(7);
 }
 
-void CHUD::ButtonCursorIn8Callback()
+void CHUD::ButtonCursorIn8Callback(const tstring& sArgs)
 {
 	ShowButtonInfo(8);
 }
 
-void CHUD::ButtonCursorIn9Callback()
+void CHUD::ButtonCursorIn9Callback(const tstring& sArgs)
 {
 	ShowButtonInfo(9);
 }
 
-void CHUD::ButtonCursorOutCallback()
+void CHUD::ButtonCursorOutCallback(const tstring& sArgs)
 {
 	HideButtonInfo();
 }
 
-void CHUD::EndTurnCallback()
+void CHUD::EndTurnCallback(const tstring& sArgs)
 {
 	if (DigitanksGame()->GetCurrentLocalDigitanksPlayer() != DigitanksGame()->GetCurrentPlayer())
 		return;
@@ -3602,7 +3571,7 @@ void CHUD::EndTurnCallback()
 	DigitanksGame()->EndTurn();
 }
 
-void CHUD::OpenUpdatesCallback()
+void CHUD::OpenUpdatesCallback(const tstring& sArgs)
 {
 	if (m_pUpdatesPanel)
 		m_pUpdatesPanel->SetVisible(true);
@@ -3612,7 +3581,7 @@ void CHUD::OpenUpdatesCallback()
 	DigitanksGame()->SetControlMode(MODE_NONE);
 }
 
-void CHUD::MoveCallback()
+void CHUD::MoveCallback(const tstring& sArgs)
 {
 	if (!m_bHUDActive)
 		return;
@@ -3629,7 +3598,7 @@ void CHUD::MoveCallback()
 	SetupMenu();
 }
 
-void CHUD::CancelAutoMoveCallback()
+void CHUD::CancelAutoMoveCallback(const tstring& sArgs)
 {
 	if (!m_bHUDActive)
 		return;
@@ -3645,7 +3614,7 @@ void CHUD::CancelAutoMoveCallback()
 	SetupMenu();
 }
 
-void CHUD::TurnCallback()
+void CHUD::TurnCallback(const tstring& sArgs)
 {
 	if (!m_bHUDActive)
 		return;
@@ -3660,7 +3629,7 @@ void CHUD::TurnCallback()
 	SetupMenu();
 }
 
-void CHUD::AimCallback()
+void CHUD::AimCallback(const tstring& sArgs)
 {
 	if (!m_bHUDActive)
 		return;
@@ -3687,7 +3656,7 @@ void CHUD::AimCallback()
 	SetupMenu();
 }
 
-void CHUD::FortifyCallback()
+void CHUD::FortifyCallback(const tstring& sArgs)
 {
 	if (!m_bHUDActive)
 		return;
@@ -3710,7 +3679,7 @@ void CHUD::FortifyCallback()
 	UpdateInfo();
 }
 
-void CHUD::SentryCallback()
+void CHUD::SentryCallback(const tstring& sArgs)
 {
 	if (!m_bHUDActive)
 		return;
@@ -3733,7 +3702,7 @@ void CHUD::SentryCallback()
 	UpdateInfo();
 }
 
-void CHUD::PromoteCallback()
+void CHUD::PromoteCallback(const tstring& sArgs)
 {
 	if (!m_bHUDActive)
 		return;
@@ -3741,7 +3710,7 @@ void CHUD::PromoteCallback()
 	SetupMenu(MENUMODE_PROMOTE);
 }
 
-void CHUD::PromoteAttackCallback()
+void CHUD::PromoteAttackCallback(const tstring& sArgs)
 {
 	if (!m_bHUDActive)
 		return;
@@ -3763,7 +3732,7 @@ void CHUD::PromoteAttackCallback()
 //	DigitanksWindow()->GetInstructor()->FinishedLesson(CInstructor::TUTORIAL_UPGRADE);
 }
 
-void CHUD::PromoteDefenseCallback()
+void CHUD::PromoteDefenseCallback(const tstring& sArgs)
 {
 	if (!m_bHUDActive)
 		return;
@@ -3785,7 +3754,7 @@ void CHUD::PromoteDefenseCallback()
 //	DigitanksWindow()->GetInstructor()->FinishedLesson(CInstructor::TUTORIAL_UPGRADE);
 }
 
-void CHUD::PromoteMovementCallback()
+void CHUD::PromoteMovementCallback(const tstring& sArgs)
 {
 	if (!m_bHUDActive)
 		return;
@@ -3807,7 +3776,7 @@ void CHUD::PromoteMovementCallback()
 //	DigitanksWindow()->GetInstructor()->FinishedLesson(CInstructor::TUTORIAL_UPGRADE);
 }
 
-void CHUD::FireSpecialCallback()
+void CHUD::FireSpecialCallback(const tstring& sArgs)
 {
 	if (!m_bHUDActive)
 		return;
@@ -3824,7 +3793,7 @@ void CHUD::FireSpecialCallback()
 	SetupMenu();
 }
 
-void CHUD::BuildMiniBufferCallback()
+void CHUD::BuildMiniBufferCallback(const tstring& sArgs)
 {
 	if (!m_bHUDActive)
 		return;
@@ -3848,7 +3817,7 @@ void CHUD::BuildMiniBufferCallback()
 	SetupMenu();
 }
 
-void CHUD::BuildBufferCallback()
+void CHUD::BuildBufferCallback(const tstring& sArgs)
 {
 	if (!m_bHUDActive)
 		return;
@@ -3870,7 +3839,7 @@ void CHUD::BuildBufferCallback()
 	SetupMenu();
 }
 
-void CHUD::BuildBatteryCallback()
+void CHUD::BuildBatteryCallback(const tstring& sArgs)
 {
 	if (!m_bHUDActive)
 		return;
@@ -3894,7 +3863,7 @@ void CHUD::BuildBatteryCallback()
 	SetupMenu();
 }
 
-void CHUD::BuildPSUCallback()
+void CHUD::BuildPSUCallback(const tstring& sArgs)
 {
 	if (!m_bHUDActive)
 		return;
@@ -3916,7 +3885,7 @@ void CHUD::BuildPSUCallback()
 	SetupMenu();
 }
 
-void CHUD::BuildLoaderCallback()
+void CHUD::BuildLoaderCallback(const tstring& sArgs)
 {
 	if (!m_bHUDActive)
 		return;
@@ -3924,7 +3893,7 @@ void CHUD::BuildLoaderCallback()
 	SetupMenu(MENUMODE_LOADERS);
 }
 
-void CHUD::BuildInfantryLoaderCallback()
+void CHUD::BuildInfantryLoaderCallback(const tstring& sArgs)
 {
 	if (!m_bHUDActive)
 		return;
@@ -3946,7 +3915,7 @@ void CHUD::BuildInfantryLoaderCallback()
 	SetupMenu();
 }
 
-void CHUD::BuildTankLoaderCallback()
+void CHUD::BuildTankLoaderCallback(const tstring& sArgs)
 {
 	if (!m_bHUDActive)
 		return;
@@ -3968,7 +3937,7 @@ void CHUD::BuildTankLoaderCallback()
 	SetupMenu();
 }
 
-void CHUD::BuildArtilleryLoaderCallback()
+void CHUD::BuildArtilleryLoaderCallback(const tstring& sArgs)
 {
 	if (!m_bHUDActive)
 		return;
@@ -3990,13 +3959,13 @@ void CHUD::BuildArtilleryLoaderCallback()
 	SetupMenu();
 }
 
-void CHUD::CancelBuildCallback()
+void CHUD::CancelBuildCallback(const tstring& sArgs)
 {
 	DigitanksGame()->SetControlMode(MODE_NONE);
 	SetupMenu();
 }
 
-void CHUD::BuildUnitCallback()
+void CHUD::BuildUnitCallback(const tstring& sArgs)
 {
 	if (!m_bHUDActive)
 		return;
@@ -4019,7 +3988,7 @@ void CHUD::BuildUnitCallback()
 	UpdateTeamInfo();
 }
 
-void CHUD::BuildScoutCallback()
+void CHUD::BuildScoutCallback(const tstring& sArgs)
 {
 	if (!m_bHUDActive)
 		return;
@@ -4040,7 +4009,7 @@ void CHUD::BuildScoutCallback()
 	UpdateTeamInfo();
 }
 
-void CHUD::BuildTurretCallback()
+void CHUD::BuildTurretCallback(const tstring& sArgs)
 {
 	if (!m_bHUDActive)
 		return;
@@ -4062,7 +4031,7 @@ void CHUD::BuildTurretCallback()
 	SetupMenu();
 }
 
-void CHUD::BeginUpgradeCallback()
+void CHUD::BeginUpgradeCallback(const tstring& sArgs)
 {
 	if (!m_bHUDActive)
 		return;
@@ -4083,7 +4052,7 @@ void CHUD::BeginUpgradeCallback()
 	UpdateTeamInfo();
 }
 
-void CHUD::CloakCallback()
+void CHUD::CloakCallback(const tstring& sArgs)
 {
 	CDigitank* pDigitank = DigitanksGame()->GetPrimarySelectionTank();
 
@@ -4099,7 +4068,7 @@ void CHUD::CloakCallback()
 		pDigitank->Cloak();
 }
 
-void CHUD::ChooseWeaponCallback()
+void CHUD::ChooseWeaponCallback(const tstring& sArgs)
 {
 	if (!m_bHUDActive)
 		return;
@@ -4116,12 +4085,12 @@ void CHUD::ChooseWeaponCallback()
 	}
 }
 
-void CHUD::GoToMainCallback()
+void CHUD::GoToMainCallback(const tstring& sArgs)
 {
 	SetupMenu(MENUMODE_MAIN);
 }
 
-void CHUD::ShowPowerInfoCallback()
+void CHUD::ShowPowerInfoCallback(const tstring& sArgs)
 {
 	m_pTeamInfo->SetText("");
 
@@ -4137,9 +4106,9 @@ void CHUD::ShowPowerInfoCallback()
 	m_pTeamInfo->AppendText(sprintf(tstring("Power stored: %.1f\n"), pCurrentTeam->GetPower()));
 	m_pTeamInfo->AppendText(sprintf(tstring("Power per turn: +%.1f\n \n"), pCurrentTeam->GetPowerPerTurn()));
 
-	for (size_t i = 0; i < pCurrentTeam->GetNumMembers(); i++)
+	for (size_t i = 0; i < pCurrentTeam->GetNumUnits(); i++)
 	{
-		const CBaseEntity* pEntity = pCurrentTeam->GetMember(i);
+		const CBaseEntity* pEntity = pCurrentTeam->GetUnit(i);
 		if (!pEntity)
 			continue;
 
@@ -4169,7 +4138,7 @@ void CHUD::ShowPowerInfoCallback()
 	LayoutTeamInfo();
 }
 
-void CHUD::ShowFleetInfoCallback()
+void CHUD::ShowFleetInfoCallback(const tstring& sArgs)
 {
 	m_pTeamInfo->SetText("");
 
@@ -4191,9 +4160,9 @@ void CHUD::ShowFleetInfoCallback()
 	int iInfantry = 0;
 
 	m_pTeamInfo->AppendText(_T("Suppliers:\n"));
-	for (size_t i = 0; i < pCurrentTeam->GetNumMembers(); i++)
+	for (size_t i = 0; i < pCurrentTeam->GetNumUnits(); i++)
 	{
-		const CBaseEntity* pEntity = pCurrentTeam->GetMember(i);
+		const CBaseEntity* pEntity = pCurrentTeam->GetUnit(i);
 		if (!pEntity)
 			continue;
 
@@ -4234,7 +4203,7 @@ void CHUD::ShowFleetInfoCallback()
 	LayoutTeamInfo();
 }
 
-void CHUD::ShowBandwidthInfoCallback()
+void CHUD::ShowBandwidthInfoCallback(const tstring& sArgs)
 {
 	m_pTeamInfo->SetText("");
 
@@ -4254,9 +4223,9 @@ void CHUD::ShowBandwidthInfoCallback()
 		m_pTeamInfo->AppendText(sprintf(tstring("Download rate: %.1fmb/turn\n \n"), pCurrentTeam->GetBandwidth()));
 	}
 
-	for (size_t i = 0; i < pCurrentTeam->GetNumMembers(); i++)
+	for (size_t i = 0; i < pCurrentTeam->GetNumUnits(); i++)
 	{
-		const CBaseEntity* pEntity = pCurrentTeam->GetMember(i);
+		const CBaseEntity* pEntity = pCurrentTeam->GetUnit(i);
 		if (!pEntity)
 			continue;
 
@@ -4274,12 +4243,12 @@ void CHUD::ShowBandwidthInfoCallback()
 	LayoutTeamInfo();
 }
 
-void CHUD::HideTeamInfoCallback()
+void CHUD::HideTeamInfoCallback(const tstring& sArgs)
 {
 	m_pTeamInfo->SetText("");
 }
 
-void CHUD::FireTurretCallback()
+void CHUD::FireTurretCallback(const tstring& sArgs)
 {
 	CAutoTurret* pTurret = dynamic_cast<CAutoTurret*>(DigitanksGame()->GetPrimarySelection());
 
@@ -4360,26 +4329,20 @@ CDamageIndicator::CDamageIndicator(CBaseEntity* pVictim, float flDamage, bool bS
 	SetWrap(false);
 }
 
-void CDamageIndicator::Destructor()
-{
-	glgui::CRootPanel::Get()->RemoveControl(this);
-}
-
 void CDamageIndicator::Think()
 {
-	float flFadeTime = 1.0f;
+	double flFadeTime = 1.0f;
 
 	if (GameServer()->GetGameTime() - m_flTime > flFadeTime)
 	{
-		Destructor();
-		Delete();
+		GetParent().DowncastStatic<CPanel>()->RemoveControl(this);
 		return;
 	}
 
 	if (m_hVictim != NULL)
 		m_vecLastOrigin = m_hVictim->GetGlobalOrigin();
 
-	float flOffset = RemapVal(GameServer()->GetGameTime() - m_flTime, 0, flFadeTime, 10, 20);
+	float flOffset = RemapVal(GameServer()->GetGameTime() - m_flTime, 0, flFadeTime, 10.0, 20);
 
 	Vector vecScreen = GameServer()->GetRenderer()->ScreenPosition(m_vecLastOrigin);
 	if (m_bShield)
@@ -4387,21 +4350,21 @@ void CDamageIndicator::Think()
 
 	SetPos((int)(vecScreen.x+flOffset), (int)(vecScreen.y-flOffset));
 
-	SetAlpha((int)RemapVal(GameServer()->GetGameTime() - m_flTime, 0, flFadeTime, 255, 0));
+	SetAlpha((float)RemapVal(GameServer()->GetGameTime() - m_flTime, 0, flFadeTime, 255.0, 0));
 
 	// Cull tanks behind the camera
-	if (GameServer()->GetRenderer()->GetCameraVector().Dot((m_vecLastOrigin-GameServer()->GetCamera()->GetCameraPosition()).Normalized()) < 0)
+	if (GameServer()->GetRenderer()->GetCameraVector().Dot((m_vecLastOrigin-GameServer()->GetCameraManager()->GetCameraPosition()).Normalized()) < 0)
 		SetAlpha(0);
 
 	BaseClass::Think();
 }
 
-void CDamageIndicator::Paint(int x, int y, int w, int h)
+void CDamageIndicator::Paint(float x, float y, float w, float h)
 {
 	if (m_bShield)
 	{
-		int iWidth = GetTextWidth();
-		int iHeight = (int)GetTextHeight();
+		float iWidth = GetTextWidth();
+		float iHeight = GetTextHeight();
 		CRootPanel::PaintRect(x, y-iHeight/2, iWidth, iHeight, Color(0, 0, 0, GetAlpha()/2));
 	}
 
@@ -4431,26 +4394,20 @@ CHitIndicator::CHitIndicator(CBaseEntity* pVictim, tstring sMessage)
 	SetAlign(CLabel::TA_TOPLEFT);
 }
 
-void CHitIndicator::Destructor()
-{
-	glgui::CRootPanel::Get()->RemoveControl(this);
-}
-
 void CHitIndicator::Think()
 {
-	float flFadeTime = 1.0f;
+	double flFadeTime = 1.0f;
 
 	if (GameServer()->GetGameTime() - m_flTime > flFadeTime)
 	{
-		Destructor();
-		Delete();
+		GetParent().DowncastStatic<CPanel>()->RemoveControl(this);
 		return;
 	}
 
 	if (m_hVictim != NULL)
 		m_vecLastOrigin = m_hVictim->GetGlobalOrigin();
 
-	float flOffset = RemapVal(GameServer()->GetGameTime() - m_flTime, 0, flFadeTime, 10, 20);
+	float flOffset = RemapVal(GameServer()->GetGameTime() - m_flTime, 0, flFadeTime, 10.0, 20);
 
 	Vector vecScreen = GameServer()->GetRenderer()->ScreenPosition(m_vecLastOrigin);
 	vecScreen.x -= 20;
@@ -4458,19 +4415,19 @@ void CHitIndicator::Think()
 
 	SetPos((int)(vecScreen.x+flOffset), (int)(vecScreen.y-flOffset));
 
-	SetAlpha((int)RemapVal(GameServer()->GetGameTime() - m_flTime, 0, flFadeTime, 255, 0));
+	SetAlpha((int)RemapVal(GameServer()->GetGameTime() - m_flTime, 0, flFadeTime, 255.0, 0));
 
 	// Cull tanks behind the camera
-	if (GameServer()->GetRenderer()->GetCameraVector().Dot((m_vecLastOrigin-GameServer()->GetCamera()->GetCameraPosition()).Normalized()) < 0)
+	if (GameServer()->GetRenderer()->GetCameraVector().Dot((m_vecLastOrigin-GameServer()->GetCameraManager()->GetCameraPosition()).Normalized()) < 0)
 		SetAlpha(0);
 
 	BaseClass::Think();
 }
 
-void CHitIndicator::Paint(int x, int y, int w, int h)
+void CHitIndicator::Paint(float x, float y, float w, float h)
 {
-	int iWidth = GetTextWidth();
-	int iHeight = (int)GetTextHeight();
+	float iWidth = GetTextWidth();
+	float iHeight = GetTextHeight();
 	CRootPanel::PaintRect(x, y-iHeight/2, iWidth, iHeight, Color(0, 0, 0, GetAlpha()/2));
 
 	BaseClass::Paint(x, y, w, h);
@@ -4499,22 +4456,16 @@ CSpeechBubble::CSpeechBubble(CBaseEntity* pSpeaker, tstring sSpeech)
 	SetAlign(CLabel::TA_MIDDLECENTER);
 }
 
-void CSpeechBubble::Destructor()
-{
-	glgui::CRootPanel::Get()->RemoveControl(this);
-}
-
 void CSpeechBubble::Think()
 {
-	float flFadeTime = 3.0f;
+	double flFadeTime = 3.0f;
 
 	if (!GameServer())
 		return;
 
 	if (GameServer()->GetGameTime() - m_flTime > flFadeTime)
 	{
-		Destructor();
-		Delete();
+		GetParent().DowncastStatic<CPanel>()->RemoveControl(this);
 		return;
 	}
 
@@ -4533,16 +4484,16 @@ void CSpeechBubble::Think()
 
 	SetPos((int)(vecScreen.x), (int)(vecScreen.y));
 
-	SetAlpha((int)RemapValClamped(GameServer()->GetGameTime() - m_flTime, flFadeTime-1, flFadeTime, 255, 0));
+	SetAlpha((int)RemapValClamped(GameServer()->GetGameTime() - m_flTime, flFadeTime-1, flFadeTime, 255.0, 0));
 
 	// Cull tanks behind the camera
-	if (GameServer()->GetRenderer()->GetCameraVector().Dot((m_vecLastOrigin-GameServer()->GetCamera()->GetCameraPosition()).Normalized()) < 0)
+	if (GameServer()->GetRenderer()->GetCameraVector().Dot((m_vecLastOrigin-GameServer()->GetCameraManager()->GetCameraPosition()).Normalized()) < 0)
 		SetAlpha(0);
 
 	BaseClass::Think();
 }
 
-void CSpeechBubble::Paint(int x, int y, int w, int h)
+void CSpeechBubble::Paint(float x, float y, float w, float h)
 {
 	if (!GameServer())
 		return;
@@ -4562,16 +4513,14 @@ void CSpeechBubble::Paint(int x, int y, int w, int h)
 CHowToPlayPanel::CHowToPlayPanel()
 	: CPanel(0, 0, 100, 100)
 {
-	m_pOpen = new CLabel(0, 0, 100, 100, _T(""), _T("header"), 18);
-	AddControl(m_pOpen);
+	m_pOpen = AddControl(new CLabel(0, 0, 100, 100, _T(""), _T("header"), 18));
 
 	m_bOpen = false;
 
 	m_flGoalLerp = 0;
 	m_flCurLerp = 0;
 
-	m_pControls = new CLabel(0, 0, 100, 100, _T(""), _T("text"), 13);
-	AddControl(m_pControls);
+	m_pControls = AddControl(new CLabel(0, 0, 100, 100, _T(""), _T("text"), 13));
 }
 
 void CHowToPlayPanel::Layout()
@@ -4624,14 +4573,14 @@ void CHowToPlayPanel::Think()
 	if (iX > (GetParent()->GetWidth()/2 - 617/2 - 35) - 150 - 10)
 		iX = (GetParent()->GetWidth()/2 - 617/2 - 35) - 150 - 10;
 
-	SetPos(iX, (int)(RemapVal(Lerp(m_flCurLerp, 0.6f), 0, 1, -300, 0)));
-	SetSize((int)(RemapVal(Lerp(m_flCurLerp, 0.6f), 0, 1, 150, 350)), 350);
+	SetPos(iX, (int)(RemapVal(Bias(m_flCurLerp, 0.6f), 0, 1, -300, 0)));
+	SetSize((int)(RemapVal(Bias(m_flCurLerp, 0.6f), 0, 1, 150, 350)), 350);
 
-	m_pOpen->SetSize((int)(RemapVal(Lerp(m_flCurLerp, 0.6f), 0, 1, 150, 300)), 50);
+	m_pOpen->SetSize((int)(RemapVal(Bias(m_flCurLerp, 0.6f), 0, 1, 150, 300)), 50);
 	m_pControls->SetAlpha(m_flCurLerp);
 }
 
-void CHowToPlayPanel::Paint(int x, int y, int w, int h)
+void CHowToPlayPanel::Paint(float x, float y, float w, float h)
 {
 	CRootPanel::PaintRect(x, y, w, h);
 

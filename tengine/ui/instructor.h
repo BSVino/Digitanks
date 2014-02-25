@@ -62,6 +62,8 @@ public:
 	pfnConditionsMet                m_pfnConditions;
 
 	tvector<CLessonOutput>          m_aOutputs;
+
+	glgui::CControl<glgui::CBaseControl> m_hPointAt;
 };
 
 class CLessonPanel : public glgui::CPanel, public glgui::IEventListener

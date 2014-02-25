@@ -1,10 +1,11 @@
 #include "weaponpanel.h"
 
+#include <ui/instructor.h>
+
 #include <digitanksgame.h>
 #include <renderer/renderer.h>
 #include "digitankswindow.h"
 #include "hud.h"
-#include "instructor.h"
 
 using namespace glgui;
 

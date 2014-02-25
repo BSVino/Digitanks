@@ -86,6 +86,24 @@ extern void DebugPrint(const char* pszText);
 // If you hit this, the code is either incomplete or untested.
 #define TUnimplemented() TAssertNoMsg(false)
 
+#ifdef _DEBUG
+
+// Ruthlessly remove this if you see it.
+#define TStubbed(x) \
+	do { \
+		static bool seen = false; \
+		if (!seen) { \
+			TMsg("STUBBED: " x "\n"); \
+		} \
+	} while (false); \
+
+#else
+
+// Code will not build in release mode until stubs are removed.
+#define TStubbed(x) ERROR!
+
+#endif
+
 #ifdef __GNUC__
 #if __GNUC__ < 4 || __GNUC_MINOR__ < 6
 

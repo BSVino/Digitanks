@@ -17,6 +17,7 @@ bool CDigitanksWindow::GetBoxSelection(size_t& iX, size_t& iY, size_t& iX2, size
 	if (!IsMouseDragging())
 		return false;
 
+	TStubbed("GetBoxSelection");
 #if 0
 	if (m_bBoxSelect)
 	{

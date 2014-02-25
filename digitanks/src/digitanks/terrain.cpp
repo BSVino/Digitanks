@@ -708,6 +708,7 @@ void CTerrain::GenerateTerrainCallList(int i, int j)
 	pChunk->m_iOpaqueIndicesVerts = aiTris.size();
 	aiTris.clear();
 
+	TStubbed("Terrain generation");
 #if 0
 	Vector vecTopX = (Vector(0.1f, 0.1f, 0.1f) + Vector(GetPrimaryTerrainColor()))/4;
 	Vector vecTopY = (Vector(0.05f, 0.05f, 0.05f) + Vector(GetPrimaryTerrainColor()))/4;
@@ -1079,6 +1080,7 @@ void CTerrain::GenerateCallLists()
 
 			pChunk->ClearGLData(false);
 
+			TStubbed("GenerateCallLists Terrain wall");
 #if 0
 			if (pChunk->m_iWallList)
 				glDeleteLists((GLuint)pChunk->m_iWallList, 1);
@@ -1314,6 +1316,7 @@ void CTerrain::OnRender(CGameRenderingContext* pContext) const
 
 void CTerrain::RenderTransparentTerrain() const
 {
+	TStubbed("Transparent terrain");
 #if 0
 	glPushAttrib(GL_ENABLE_BIT|GL_CURRENT_BIT);
 	glDisable(GL_CULL_FACE);

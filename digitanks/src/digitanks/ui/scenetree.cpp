@@ -1,17 +1,21 @@
 #include "scenetree.h"
 
 #include <game/gameserver.h>
-#include <models/texturelibrary.h>
-#include <renderer/renderer.h>
+#include <textures/materiallibrary.h>
+#include <renderer/game_renderer.h>
+#include <ui/instructor.h>
+#include <glgui/rootpanel.h>
+#include <renderer/game_renderingcontext.h>
 
 #include <digitanksgame.h>
 #include "digitankswindow.h"
 #include "hud.h"
 #include <dt_camera.h>
-#include "instructor.h"
+
+using namespace glgui;
 
 CSceneTree::CSceneTree()
-	: CTree(CTextureLibrary::AddTextureID(_T("textures/hud/arrow.png")), 0, 0)
+	: CTree(CMaterialLibrary::AddMaterial("textures/hud/arrow.mat"))
 {
 }
 
@@ -67,9 +71,9 @@ void CSceneTree::BuildTree(bool bForce)
 
 		CSceneTreeUnit* pUnit = new CSceneTreeUnit(pEntity, pTreeGroup, this);
 		if (pTreeGroup->GetUnitType() == STRUCTURE_CPU)
-			pUnit->SetTooltip(tstring(_T("Structure: ")) + pEntity->GetEntityName());
+			pUnit->SetTooltip(tstring("Structure: ") + pEntity->GetEntityName());
 		else
-			pUnit->SetTooltip(tstring(_T("Unit: ")) + pEntity->GetEntityName());
+			pUnit->SetTooltip(tstring("Unit: ") + pEntity->GetEntityName());
 		pTreeGroup->AddNode(pUnit);
 	}
 
@@ -78,9 +82,9 @@ void CSceneTree::BuildTree(bool bForce)
 
 CSceneTreeGroup* CSceneTree::GetUnitNode(unittype_t eUnit)
 {
-	for (size_t i = 0; i < m_apNodes.size(); i++)
+	for (size_t i = 0; i < m_ahNodes.size(); i++)
 	{
-		CSceneTreeGroup* pTreeGroup = dynamic_cast<CSceneTreeGroup*>(m_apNodes[i]);
+		CSceneTreeGroup* pTreeGroup = m_ahNodes[i].Downcast<CSceneTreeGroup>();
 		if (eUnit == pTreeGroup->GetUnitType())
 			return pTreeGroup;
 
@@ -96,9 +100,9 @@ CSceneTreeGroup* CSceneTree::GetUnitNode(unittype_t eUnit)
 	}
 
 	// It's not there. Insert it.
-	for (size_t i = 0; i < m_apNodes.size(); i++)
+	for (size_t i = 0; i < m_ahNodes.size(); i++)
 	{
-		CSceneTreeGroup* pTreeGroup = dynamic_cast<CSceneTreeGroup*>(m_apNodes[i]);
+		CSceneTreeGroup* pTreeGroup = m_ahNodes[i].Downcast<CSceneTreeGroup>();
 		if (eUnit < pTreeGroup->GetUnitType())
 		{
 			CSceneTreeGroup* pReturn = new CSceneTreeGroup(eUnit, this);
@@ -110,22 +114,22 @@ CSceneTreeGroup* CSceneTree::GetUnitNode(unittype_t eUnit)
 	CSceneTreeGroup* pReturn = new CSceneTreeGroup(eUnit, this);
 
 	if (pReturn->GetUnitType() == STRUCTURE_CPU)
-		pReturn->SetTooltip(_T("Group: Structures"));
+		pReturn->SetTooltip("Group: Structures");
 	else
-		pReturn->SetTooltip(_T("Group: Units"));
+		pReturn->SetTooltip("Group: Units");
 
 	AddNode(pReturn);
 	return pReturn;
 }
 
-void CSceneTree::Paint(int x, int y, int w, int h)
+void CSceneTree::Paint(float x, float y, float w, float h)
 {
 	glgui::CRootPanel::PaintRect(x, y, w, h, m_clrBackground);
 
 	if (m_iHilighted != ~0)
 	{
-		IControl* pNode = m_apControls[m_iHilighted];
-		int cx, cy, cw, ch;
+		CControlHandle pNode = m_apControls[m_iHilighted];
+		float cx, cy, cw, ch;
 		pNode->GetAbsDimensions(cx, cy, cw, ch);
 		glgui::CRootPanel::PaintRect(cx+ch, cy, ch, ch, Color(255, 255, 255, 100));
 	}
@@ -165,9 +169,9 @@ void CSceneTree::OnAddUnitToTeam(CDigitanksPlayer* pTeam, CBaseEntity* pEntity)
 	CSceneTreeUnit* pUnit = new CSceneTreeUnit(pSelectable, pTreeGroup, this);
 
 	if (pTreeGroup->GetUnitType() == STRUCTURE_CPU)
-		pUnit->SetTooltip(tstring(_T("Structure: ")) + pSelectable->GetEntityName());
+		pUnit->SetTooltip(tstring("Structure: ") + pSelectable->GetEntityName());
 	else
-		pUnit->SetTooltip(tstring(_T("Unit: ")) + pSelectable->GetEntityName());
+		pUnit->SetTooltip(tstring("Unit: ") + pSelectable->GetEntityName());
 
 	pTreeGroup->AddNode(pUnit);
 
@@ -199,24 +203,18 @@ void CSceneTree::OnRemoveUnitFromTeam(CDigitanksPlayer* pTeam, CBaseEntity* pEnt
 
 	CSceneTreeGroup* pTreeGroup = GetUnitNode(eUnit);
 
-	for (size_t i = 0; i < pTreeGroup->m_apNodes.size(); i++)
+	for (size_t i = 0; i < pTreeGroup->m_ahNodes.size(); i++)
 	{
-		CSceneTreeUnit* pUnit = dynamic_cast<CSceneTreeUnit*>(pTreeGroup->m_apNodes[i]);
+		CSceneTreeUnit* pUnit = pTreeGroup->m_ahNodes[i].Downcast<CSceneTreeUnit>();
 		if (!pUnit)
 			continue;
 
 		if (pUnit->GetEntity() == pSelectable)
 		{
 			RemoveNode(pUnit);
-			pUnit->Destructor();
-			pUnit->Delete();
 
-			if (pTreeGroup->m_apNodes.size() == 0)
-			{
+			if (pTreeGroup->m_ahNodes.size() == 0)
 				RemoveNode(pTreeGroup);
-				pTreeGroup->Destructor();
-				pTreeGroup->Delete();
-			}
 
 			break;
 		}
@@ -230,7 +228,7 @@ void CSceneTree::OnTeamMembersUpdated()
 	BuildTree(true);
 }
 
-void CSceneTree::GetUnitDimensions(CDigitanksEntity* pEntity, int& x, int& y, int& w, int& h)
+void CSceneTree::GetUnitDimensions(CDigitanksEntity* pEntity, float& x, float& y, float& w, float& h)
 {
 	if (!pEntity)
 		return;
@@ -249,7 +247,7 @@ CSceneTreeGroup::CSceneTreeGroup(unittype_t eUnit, glgui::CTree* pTree)
 	m_eUnit = eUnit;
 }
 
-void CSceneTreeGroup::Paint(int x, int y, int w, int h, bool bFloating)
+void CSceneTreeGroup::Paint(float x, float y, float w, float h, bool bFloating)
 {
 	if (!IsVisible())
 		return;
@@ -264,11 +262,11 @@ void CSceneTreeGroup::Paint(int x, int y, int w, int h, bool bFloating)
 	BaseClass::Paint(x, y, w, h, bFloating);
 }
 
-void CSceneTreeGroup::GetUnitDimensions(CDigitanksEntity* pEntity, int& x, int& y, int& w, int& h)
+void CSceneTreeGroup::GetUnitDimensions(CDigitanksEntity* pEntity, float& x, float& y, float& w, float& h)
 {
-	for (size_t i = 0; i < m_apNodes.size(); i++)
+	for (size_t i = 0; i < m_ahNodes.size(); i++)
 	{
-		CSceneTreeUnit* pUnit = dynamic_cast<CSceneTreeUnit*>(m_apNodes[i]);
+		CSceneTreeUnit* pUnit = m_ahNodes[i].Downcast<CSceneTreeUnit>();
 		if (!pUnit)
 			continue;
 
@@ -288,7 +286,7 @@ CSceneTreeUnit::CSceneTreeUnit(CEntityHandle<CSelectable> hEntity, glgui::CTreeN
 	m_hEntity = hEntity;
 }
 
-void CSceneTreeUnit::Paint(int x, int y, int w, int h, bool bFloating)
+void CSceneTreeUnit::Paint(float x, float y, float w, float h, bool bFloating)
 {
 	if (!IsVisible())
 		return;
@@ -436,20 +434,20 @@ void CSceneTreeUnit::Selected()
 			DigitanksGame()->GetDigitanksCamera()->SetTarget(m_hEntity->GetGlobalOrigin());
 		}
 
-		DigitanksWindow()->GetInstructor()->FinishedTutorial("artillery-select", true);
+		DigitanksWindow()->GetInstructor()->FinishedLesson("artillery-select", true);
 		if (m_hEntity->GetUnitType() == UNIT_MOBILECPU)
-			DigitanksWindow()->GetInstructor()->FinishedTutorial("strategy-select", true);
+			DigitanksWindow()->GetInstructor()->FinishedLesson("strategy-select", true);
 	}
 
 	BaseClass::Selected();
 }
 
 CSceneTreeNode::CSceneTreeNode(glgui::CTreeNode* pParent, glgui::CTree* pTree)
-	: glgui::CTreeNode(pParent, pTree, _T(""), _T("sans-serif"))
+	: glgui::CTreeNode(pParent, pTree, "", "sans-serif")
 {
 }
 
-void CSceneTreeNode::Paint(int x, int y, int w, int h, bool bFloating)
+void CSceneTreeNode::Paint(float x, float y, float w, float h, bool bFloating)
 {
 	BaseClass::Paint(x, y, w, h, bFloating);
 }

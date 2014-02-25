@@ -1210,6 +1210,8 @@ void CDigitanksPlayer::MouseInput(int iButton, tinker_mouse_state_t iState)
 		DigitanksGame()->SetControlMode(MODE_NONE);
 	}
 
+	TStubbed("MouseInput Player controls");
+
 #if 0
 	if (DigitanksGame()->GetControlMode() != MODE_NONE && iButton == TINKER_KEY_MOUSE_LEFT && iState == 1)
 	{
@@ -1390,6 +1392,7 @@ void CDigitanksPlayer::MouseWheel(int iState)
 
 	static int iOldState = 0;
 
+	TStubbed("MouseWheel controls");
 #if 0
 	if (GameServer() && GameServer()->GetCamera())
 	{
@@ -1438,6 +1441,7 @@ void CDigitanksPlayer::KeyPress(int c)
 			DigitanksWindow()->SetContextualCommandsOverride(true);
 	}
 
+	TStubbed("KeyPress controls");
 #if 0
 	if (GameServer() && GameServer()->GetCamera())
 		GameServer()->GetCamera()->KeyDown(c);
@@ -1548,6 +1552,7 @@ void CDigitanksPlayer::KeyPress(int c)
 
 void CDigitanksPlayer::KeyRelease(int c)
 {
+	TStubbed("KeyRelease controls");
 #if 0
 	if (GameServer() && GameServer()->GetCamera())
 		GameServer()->GetCamera()->KeyUp(c);
@@ -1559,6 +1564,7 @@ void CDigitanksPlayer::KeyRelease(int c)
 
 void CDigitanksPlayer::CharPress(int c)
 {
+	TStubbed("CharPress controls");
 #if 0
 	if (c == '`')
 	{

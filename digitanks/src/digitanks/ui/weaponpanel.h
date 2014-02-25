@@ -1,7 +1,8 @@
 #ifndef DT_WEAPONPANEL_H
 #define DT_WEAPONPANEL_H
 
-#include <glgui/glgui.h>
+#include <glgui/picturebutton.h>
+#include <glgui/panel.h>
 
 #include <dt_common.h>
 

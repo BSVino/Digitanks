@@ -34,6 +34,8 @@ void CModelDissolver::AddModel(CBaseEntity* pEntity, Color* pclrSwap, Vector* pv
 	if (!pModel)
 		return;
 
+	TStubbed("Dissolver");
+
 	Matrix4x4 mTransform;
 	mTransform.SetTranslation(pEntity->GetRenderOrigin());
 	mTransform.SetAngles(pEntity->GetRenderAngles());
