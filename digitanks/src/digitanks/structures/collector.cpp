@@ -4,7 +4,7 @@
 #include <ui/digitankswindow.h>
 #include <ui/hud.h>
 
-#include <digitanksteam.h>
+#include <digitanksplayer.h>
 #include <digitanksgame.h>
 
 REGISTER_ENTITY(CCollector);

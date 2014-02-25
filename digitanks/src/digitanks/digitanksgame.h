@@ -9,7 +9,7 @@
 
 #include "units/digitank.h"
 #include "terrain.h"
-#include "digitanksteam.h"
+#include "digitanksplayer.h"
 #include "dt_common.h"
 #include "updates.h"
 #include "instructor_entity.h"

@@ -1,4 +1,4 @@
-#include "digitanksteam.h"
+#include "digitanksplayer.h"
 
 #include <maths.h>
 #include <geometry.h>

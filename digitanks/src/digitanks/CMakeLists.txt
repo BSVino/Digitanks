@@ -25,7 +25,7 @@ set (DIGITANKS_SOURCES
 	digitanksentity.cpp
 	digitanksgame.cpp
 	digitankslevel.cpp
-	digitanksteam.cpp
+	digitanksplayer.cpp
 	dt_camera.cpp
 	dt_common.cpp
 	dt_lobbylistener.cpp
