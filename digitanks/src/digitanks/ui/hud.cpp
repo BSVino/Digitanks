@@ -4,6 +4,7 @@
 #include <strutils.h>
 
 #include <tinker/cvar.h>
+#include <glgui/rootpanel.h>
 
 #include <sound/sound.h>
 #include <renderer/renderer.h>
@@ -28,6 +29,8 @@
 #include "scenetree.h"
 
 using namespace glgui;
+
+#define _T(x) x
 
 CVar hud_enable("hud_enable", "on");
 
@@ -71,7 +74,7 @@ void CPowerBar::Think()
 	}
 	else if (m_ePowerbarType == POWERBAR_ATTACK)
 	{
-		if (strlen(pSelection->GetPowerBar1Text()) && pSelection->GetTeam() == DigitanksGame()->GetCurrentLocalDigitanksPlayer())
+		if (strlen(pSelection->GetPowerBar1Text()) && pSelection->GetPlayerOwner() == DigitanksGame()->GetCurrentLocalDigitanksPlayer())
 		{
 			sprintf(szLabel, "%s: %d%%", pSelection->GetPowerBar1Text(), (int)(pSelection->GetPowerBar1Value()*100));
 			SetText(szLabel);
@@ -81,7 +84,7 @@ void CPowerBar::Think()
 	}
 	else if (m_ePowerbarType == POWERBAR_DEFENSE)
 	{
-		if (strlen(pSelection->GetPowerBar2Text()) && pSelection->GetTeam() == DigitanksGame()->GetCurrentLocalDigitanksPlayer())
+		if (strlen(pSelection->GetPowerBar2Text()) && pSelection->GetPlayerOwner() == DigitanksGame()->GetCurrentLocalDigitanksPlayer())
 		{
 			sprintf(szLabel, "%s: %d%%", pSelection->GetPowerBar2Text(), (int)(pSelection->GetPowerBar2Value()*100));
 			SetText(szLabel);
@@ -91,7 +94,7 @@ void CPowerBar::Think()
 	}
 	else
 	{
-		if (strlen(pSelection->GetPowerBar3Text()) && pSelection->GetTeam() == DigitanksGame()->GetCurrentLocalDigitanksPlayer())
+		if (strlen(pSelection->GetPowerBar3Text()) && pSelection->GetPlayerOwner() == DigitanksGame()->GetCurrentLocalDigitanksPlayer())
 		{
 			sprintf(szLabel, "%s: %d%%", pSelection->GetPowerBar3Text(), (int)(pSelection->GetPowerBar3Value()*100));
 			SetText(szLabel);
@@ -137,17 +140,17 @@ void CPowerBar::Paint(float x, float y, float w, float h)
 	}
 	else if (m_ePowerbarType == POWERBAR_ATTACK)
 	{
-		if (pSelection->GetTeam() == DigitanksGame()->GetCurrentLocalDigitanksPlayer())
+		if (pSelection->GetPlayerOwner() == DigitanksGame()->GetCurrentLocalDigitanksPlayer())
 			CRootPanel::PaintRect(x+1, y+1, (int)(w * pSelection->GetPowerBar1Size())-2, h-2, Color(150, 0, 0));
 	}
 	else if (m_ePowerbarType == POWERBAR_DEFENSE)
 	{
-		if (pSelection->GetTeam() == DigitanksGame()->GetCurrentLocalDigitanksPlayer())
+		if (pSelection->GetPlayerOwner() == DigitanksGame()->GetCurrentLocalDigitanksPlayer())
 			CRootPanel::PaintRect(x+1, y+1, (int)(w * pSelection->GetPowerBar2Size())-2, h-2, Color(0, 0, 150));
 	}
 	else
 	{
-		if (pSelection->GetTeam() == DigitanksGame()->GetCurrentLocalDigitanksPlayer())
+		if (pSelection->GetPlayerOwner() == DigitanksGame()->GetCurrentLocalDigitanksPlayer())
 			CRootPanel::PaintRect(x+1, y+1, (int)(w * pSelection->GetPowerBar3Size())-2, h-2, Color(100, 100, 0));
 	}
 
@@ -161,7 +164,7 @@ CHUD::CHUD()
 	m_WeaponsSheet("textures/hud/hud-weapons-01.txt"),
 	m_ButtonSheet("textures/hud/hud-menu-sheet-01.txt"),
 	m_DownloadSheet("textures/hud/hud-download-sheet-01.txt"),
-	m_KeysSheet("textures/hud/keys.txt")),
+	m_KeysSheet("textures/hud/keys.txt"),
 	m_ActionSignsSheet("textures/hud/actionsigns/signs.txt"),
 	m_PowerupsSheet("textures/hud/powerups-sheet.txt")
 {
@@ -179,10 +182,10 @@ CHUD::CHUD()
 	AddControl(m_pDefensePower);
 	AddControl(m_pMovementPower);
 
-	m_iActionTanksSheet = CTextureLibrary::AddTextureID(_T("textures/hud/actionsigns/tanks.png"));
-	m_iPurchasePanel = CTextureLibrary::AddTextureID(_T("textures/purchasepanel.png"));
-	m_iShieldTexture = CTextureLibrary::AddTextureID(_T("textures/hud/hud-shield.png"));
-	m_iSelectorMedalTexture = CTextureLibrary::AddTextureID(_T("textures/hud/selector-medal.png"));
+	m_hActionTanksSheet = CMaterialLibrary::AddMaterial(_T("textures/hud/actionsigns/tanks.mat"));
+	m_hPurchasePanel = CMaterialLibrary::AddMaterial(_T("textures/purchasepanel.mat"));
+	m_hShieldTexture = CMaterialLibrary::AddMaterial(_T("textures/hud/hud-shield.mat"));
+	m_hSelectorMedalTexture = CMaterialLibrary::AddMaterial(_T("textures/hud/selector-medal.mat"));
 
 	m_eActionSign = ACTIONSIGN_NONE;
 
@@ -265,7 +268,7 @@ CHUD::CHUD()
 
 	m_pPowerInfo->SetAlign(CLabel::TA_TOPCENTER);
 	m_pPowerInfo->SetPos(200, 20);
-	m_pPowerInfo->SetFGColor(Color(220, 220, 255));
+	m_pPowerInfo->SetTextColor(Color(220, 220, 255));
 	m_pPowerInfo->SetFont(_T("text"));
 	m_pPowerInfo->SetCursorInListener(this, ShowPowerInfo);
 	m_pPowerInfo->SetCursorOutListener(this, HideTeamInfo);
@@ -275,7 +278,7 @@ CHUD::CHUD()
 
 	m_pFleetInfo->SetAlign(CLabel::TA_TOPCENTER);
 	m_pFleetInfo->SetPos(200, 20);
-	m_pFleetInfo->SetFGColor(Color(220, 220, 255));
+	m_pFleetInfo->SetTextColor(Color(220, 220, 255));
 	m_pFleetInfo->SetFont(_T("text"));
 	m_pFleetInfo->SetCursorInListener(this, ShowFleetInfo);
 	m_pFleetInfo->SetCursorOutListener(this, HideTeamInfo);
@@ -285,7 +288,7 @@ CHUD::CHUD()
 
 	m_pBandwidthInfo->SetAlign(CLabel::TA_TOPCENTER);
 	m_pBandwidthInfo->SetPos(200, 20);
-	m_pBandwidthInfo->SetFGColor(Color(220, 220, 255));
+	m_pBandwidthInfo->SetTextColor(Color(220, 220, 255));
 	m_pBandwidthInfo->SetFont(_T("text"));
 	m_pBandwidthInfo->SetCursorInListener(this, ShowBandwidthInfo);
 	m_pBandwidthInfo->SetCursorOutListener(this, HideTeamInfo);
@@ -295,7 +298,7 @@ CHUD::CHUD()
 
 	m_pTeamInfo->SetAlign(CLabel::TA_TOPLEFT);
 	m_pTeamInfo->SetPos(200, 20);
-	m_pTeamInfo->SetFGColor(Color(255, 255, 255));
+	m_pTeamInfo->SetTextColor(Color(255, 255, 255));
 	m_pTeamInfo->SetFont(_T("text"));
 
 	m_pUpdatesButton = new CPictureButton(_T("Download Grid"));
@@ -328,7 +331,7 @@ CHUD::CHUD()
 	m_pTurnWarning = new CLabel(0, 0, 100, 100, _T(""));
 	AddControl(m_pTurnWarning);
 	m_pTurnWarning->SetAlign(CLabel::TA_TOPLEFT);
-	m_pTurnWarning->SetFGColor(Color(255, 255, 255));
+	m_pTurnWarning->SetTextColor(Color(255, 255, 255));
 	m_pTurnWarning->SetFont(_T("text"));
 
 	m_flTurnWarningGoal = 0;
@@ -756,7 +759,7 @@ void CHUD::Think()
 		{
 			CDigitanksEntity* pDTHit = dynamic_cast<CDigitanksEntity*>(pHit);
 			CStaticProp* pSPHit = dynamic_cast<CStaticProp*>(pHit);
-			if (pDTHit && pDTHit->TakesDamage() && pDTHit->GetTeam() != pCurrentTank->GetTeam() && pDTHit->GetVisibility() > 0.5f && !pSPHit)
+			if (pDTHit && pDTHit->TakesDamage() && pDTHit->GetPlayerOwner() != pCurrentTank->GetPlayerOwner() && pDTHit->GetVisibility() > 0.5f && !pSPHit)
 			{
 				if (pDTHit->GetUnitType() == UNIT_SCOUT && pCurrentTank->GetCurrentWeapon() != WEAPON_INFANTRYLASER)
 					DigitanksWindow()->SetMouseCursor(MOUSECURSOR_AIM);
@@ -1138,7 +1141,7 @@ void CHUD::Paint(int x, int y, int w, int h)
 			CRootPanel::PaintRect((int)(vecScreen.x + flWidth/2), (int)(vecScreen.y - flWidth/2), 1, (int)flWidth, clrSelection);
 			CRootPanel::PaintRect((int)(vecScreen.x - flWidth/2), (int)(vecScreen.y + flWidth/2), (int)flWidth, 1, clrSelection);
 
-			if (pTank && pTank->GetTeam() == pCurrentLocalPlayer)
+			if (pTank && pTank->GetPlayerOwner() == pCurrentLocalPlayer)
 			{
 				CRenderingContext c(GameServer()->GetRenderer());
 				c.SetBlend(BLEND_ALPHA);
@@ -1149,7 +1152,7 @@ void CHUD::Paint(int x, int y, int w, int h)
 		}
 
 		bool bShowHealth = false;
-		if (pCurrentLocalPlayer && (pEntity->GetTeam() == pCurrentLocalPlayer || pCurrentLocalPlayer->IsSelected(pSelectable)))
+		if (pCurrentLocalPlayer && (pEntity->GetPlayerOwner() == pCurrentLocalPlayer || pCurrentLocalPlayer->IsSelected(pSelectable)))
 			bShowHealth = true;
 		if (bMouseOver)
 			bShowHealth = true;
@@ -1167,7 +1170,7 @@ void CHUD::Paint(int x, int y, int w, int h)
 		bool bShowPower = bMouseOver;
 		if (DigitanksWindow()->IsAltDown())
 			bShowPower = true;
-		if (pEntity->GetTeam() != pCurrentLocalPlayer)
+		if (pEntity->GetPlayerOwner() != pCurrentLocalPlayer)
 			bShowPower = false;
 		if (!pTank)
 			bShowPower = false;
@@ -1188,7 +1191,7 @@ void CHUD::Paint(int x, int y, int w, int h)
 			CRootPanel::PaintRect((int)(vecScreen.x - flWidth/2), (int)(vecScreen.y - flWidth/2 - 2), (int)(flWidth*flMovementPower), 3, Color(255, 255, 0));
 		}
 
-		bool bShowGoalMove = pTank && pTank->GetTeam() == pCurrentLocalPlayer && pTank->HasGoalMovePosition();
+		bool bShowGoalMove = pTank && pTank->GetPlayerOwner() == pCurrentLocalPlayer && pTank->HasGoalMovePosition();
 
 		if (bShowGoalMove)
 		{
@@ -1200,7 +1203,7 @@ void CHUD::Paint(int x, int y, int w, int h)
 		}
 
 		bool bShowFortify = pTank && (pTank->IsFortified() || pTank->IsFortifying());
-		if (pEntity->GetTeam() != pCurrentLocalPlayer)
+		if (pEntity->GetPlayerOwner() != pCurrentLocalPlayer)
 			bShowFortify = false;
 
 		if (bShowFortify)
@@ -1436,7 +1439,7 @@ void CHUD::Paint(int x, int y, int w, int h)
 			if (!pWeapon->GetOwner())
 				continue;
 			
-			if (pWeapon->GetOwner()->GetTeam() != pLocalPlayer)
+			if (pWeapon->GetOwner()->GetPlayerOwner() != pLocalPlayer)
 				continue;
 
 			if (pWeapon->GetBonusDamage() > 0)
@@ -1544,8 +1547,8 @@ void CHUD::Paint(int x, int y, int w, int h)
 			iSize = 50;
 
 		Color clrTeam(255, 255, 255, 255);
-		if (pSelection->GetTeam())
-			clrTeam = pSelection->GetTeam()->GetColor();
+		if (pSelection->GetPlayerOwner())
+			clrTeam = pSelection->GetPlayerOwner()->GetColor();
 		PaintUnitSheet(pSelection->GetUnitType(), iWidth/2 - 720/2 + 10 + 150/2 - iSize/2, iHeight - 150 + 10 + 130/2 - iSize/2, iSize, iSize, clrTeam);
 
 		pSelection->DrawSchema(iWidth/2 - 720/2 + 10 + 150/2 - 100/2, iHeight - 150 + 10 + 130/2 - 100/2, 100, 100);
@@ -1682,7 +1685,7 @@ void CHUD::Paint(int x, int y, int w, int h)
 			if (DigitanksGame()->GetCurrentPlayer() == pTeam)
 				CBaseControl::PaintRect(w - ahTeamTanks.size() * 30 - 20, 35 + i*40, ahTeamTanks.size()*30+10, 45, Color(0, 0, 0, 150));
 
-			tstring sTeamName = pTeam->GetTeamName();
+			tstring sTeamName = pTeam->GetPlayerName();
 			if (pTeam->IsHumanControlled())
 				sTeamName = tstring(_T("[")) + sTeamName + _T("]");
 
@@ -1724,7 +1727,7 @@ void CHUD::Paint(int x, int y, int w, int h)
 			continue;
 		}
 
-		if (pNotification->hEntity->GetTeam() != DigitanksGame()->GetCurrentLocalDigitanksPlayer())
+		if (pNotification->hEntity->GetPlayerOwner() != DigitanksGame()->GetCurrentLocalDigitanksPlayer())
 			continue;
 
 		float flLerpIn = Lerp(RemapValClamped(GameServer()->GetGameTime() - pNotification->flTime, 0, 0.5f, 0, 1), 0.2f);
@@ -2009,8 +2012,8 @@ void CHUD::PaintCameraGuidedMissile(int x, int y, int w, int h)
 			continue;
 
 		Color clrTeam = Color(255, 255, 255);
-		if (pTank->GetTeam())
-			clrTeam = pTank->GetTeam()->GetColor();
+		if (pTank->GetPlayerOwner())
+			clrTeam = pTank->GetPlayerOwner()->GetColor();
 		clrTeam.SetAlpha(clrWhite.a());
 
 		float flHole = 5;
@@ -2386,7 +2389,7 @@ void CHUD::UpdateTankInfo(CDigitank* pTank)
 		if (pTargetTank == pTank)
 			continue;
 
-		if (pTargetTank->GetTeam() == pTank->GetTeam())
+		if (pTargetTank->GetPlayerOwner() == pTank->GetPlayerOwner())
 			continue;
 
 		Vector vecOrigin2D = pTargetTank->GetGlobalOrigin();
@@ -2542,7 +2545,7 @@ void CHUD::UpdateScoreboard()
 
 		if (DigitanksGame()->IsTeamControlledByMe(pTeam))
 			s += _T("[");
-		s += pTeam->GetTeamName();
+		s += pTeam->GetPlayerName();
 		if (DigitanksGame()->IsTeamControlledByMe(pTeam))
 			s += _T("]");
 
@@ -2653,7 +2656,7 @@ void CHUD::SetupMenu(menumode_t eMenuMode)
 		SetButtonTooltip(i, _T(""));
 	}
 
-	if (!IsActive() || !DigitanksGame()->GetPrimarySelection() || DigitanksGame()->GetPrimarySelection()->GetTeam() != DigitanksGame()->GetCurrentLocalDigitanksPlayer())
+	if (!IsActive() || !DigitanksGame()->GetPrimarySelection() || DigitanksGame()->GetPrimarySelection()->GetPlayerOwner() != DigitanksGame()->GetCurrentLocalDigitanksPlayer())
 		return;
 
 	DigitanksGame()->GetPrimarySelection()->SetupMenu(eMenuMode);
@@ -2773,7 +2776,7 @@ void CHUD::NewCurrentTeam()
 		// If we have local hotseat multiplayer, update for the new team.
 		m_pSceneTree->BuildTree();
 
-		if (DigitanksGame()->GetTeam(0) == DigitanksGame()->GetCurrentPlayer() && DigitanksGame()->GetTurn() == 0)
+		if (DigitanksGame()->GetPlayer(0) == DigitanksGame()->GetCurrentPlayer() && DigitanksGame()->GetTurn() == 0)
 		{
 			// Don't show for the first team on the first turn, show fight instead.
 		}
@@ -4325,11 +4328,11 @@ CDamageIndicator::CDamageIndicator(CBaseEntity* pVictim, float flDamage, bool bS
 	SetPos((int)vecScreen.x, (int)vecScreen.y);
 
 	if (m_bShield)
-		SetFGColor(Color(255, 255, 255));
+		SetTextColor(Color(255, 255, 255));
 	else if (flDamage < 0)
-		SetFGColor(Color(0, 255, 0));
+		SetTextColor(Color(0, 255, 0));
 	else
-		SetFGColor(Color(255, 0, 0));
+		SetTextColor(Color(255, 0, 0));
 
 	int iDamage = (int)flDamage;
 
@@ -4419,7 +4422,7 @@ CHitIndicator::CHitIndicator(CBaseEntity* pVictim, tstring sMessage)
 	vecScreen.y -= 20;
 	SetPos((int)vecScreen.x, (int)vecScreen.y);
 
-	SetFGColor(Color(255, 255, 255));
+	SetTextColor(Color(255, 255, 255));
 
 	SetText(sMessage.c_str());
 	SetWrap(false);
@@ -4487,7 +4490,7 @@ CSpeechBubble::CSpeechBubble(CBaseEntity* pSpeaker, tstring sSpeech)
 
 	glgui::CRootPanel::Get()->AddControl(this, (DigitanksGame()->GetGameType() == GAMETYPE_MENU)?false:true);
 
-	SetFGColor(Color(255, 255, 255));
+	SetTextColor(Color(255, 255, 255));
 
 	SetText(sSpeech.c_str());
 	SetWrap(false);

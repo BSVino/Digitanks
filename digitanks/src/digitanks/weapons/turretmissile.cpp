@@ -37,7 +37,7 @@ void CTurretMissile::SetTarget(CBaseEntity* pTarget)
 	m_hTarget = pTarget;
 }
 
-Vector CTurretMissile::GetGlobalOrigin() const
+const TVector CTurretMissile::GetGlobalOrigin() const
 {
 	if (!m_hOwner)
 		return BaseClass::GetGlobalOrigin();
@@ -78,7 +78,7 @@ void CTurretMissile::Think()
 	if (flTimeSinceFire > InterceptTime())
 	{
 		m_hTarget->TakeDamage(GetOwner(), this, DAMAGE_EXPLOSION, m_flDamage, true);
-		DigitanksGame()->Explode(GetOwner(), this, ExplosionRadius(), m_flDamage, m_hTarget, GetOwner()?GetOwner()->GetTeam():NULL);
+		DigitanksGame()->Explode(GetOwner(), this, ExplosionRadius(), m_flDamage, m_hTarget, GetOwner()?GetOwner()->GetPlayerOwner():NULL);
 		CParticleSystemLibrary::AddInstance(_T("bolt-explosion"), GetGlobalOrigin());
 		Delete();
 	}

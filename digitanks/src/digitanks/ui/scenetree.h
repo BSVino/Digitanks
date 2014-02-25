@@ -19,8 +19,8 @@ public:
 
 	virtual void					Paint(float x, float y, float w, float h, bool bFloating);
 
-	virtual int						GetNodeHeight() { return 30; };
-	virtual int						GetNodeSpacing() { return 10; };
+	virtual float					GetNodeHeight() { return 30; };
+	virtual float					GetNodeSpacing() { return 10; };
 };
 
 class CSceneTreeUnit : public CSceneTreeNode

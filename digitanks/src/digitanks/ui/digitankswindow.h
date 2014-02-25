@@ -68,16 +68,8 @@ public:
 	virtual void				Render();
 	virtual int					WindowClose();
 	virtual void				WindowResize(int x, int y);
-	virtual void				MouseMotion(int x, int y);
-	virtual void				MouseInput(int iButton, int iState);
-	virtual void				MouseWheel(int iState);
 
 	void						SetMouseCursor(mousecursor_t eCursor) { m_eMouseCursor = eCursor; }
-
-	virtual bool				KeyPress(int c);
-	virtual void				KeyRelease(int c);
-	virtual void				CharPress(int c);
-	virtual void				CharRelease(int c);
 
 	bool						GetBoxSelection(size_t& iX, size_t& iY, size_t& iX2, size_t& iY2);
 	bool						IsMouseDragging();
@@ -147,7 +139,6 @@ protected:
 	class CMainMenu*			m_pMainMenu;
 	class CDigitanksMenu*		m_pMenu;
 	class CVictoryPanel*		m_pVictory;
-	class CPurchasePanel*		m_pPurchase;
 	class CStoryPanel*			m_pStory;
 	class CLobbyPanel*			m_pLobby;
 
@@ -161,17 +152,10 @@ protected:
 
 	class CCampaignData*		m_pCampaign;
 
-	bool						m_bBoxSelect;
 	int							m_iMouseInitialX;
 	int							m_iMouseInitialY;
 	int							m_iMouseCurrentX;
 	int							m_iMouseCurrentY;
-
-	int							m_iMouseMoved;
-
-	bool						m_bMouseDownInGUI;
-
-	float						m_flLastClick;
 
 	CMaterialHandle				m_hCursors;
 	mousecursor_t				m_eMouseCursor;

@@ -664,7 +664,7 @@ void CClusterBomb::SpecialCommand()
 	if (m_flExplosionRadius < 15)
 		return;
 
-	if (m_flTimeExploded == 0.0f)
+	if (m_flTimeExploded == 0.0)
 		Explode();
 }
 
@@ -765,7 +765,7 @@ void CTractorBomb::Precache()
 
 void CTractorBomb::SpecialCommand()
 {
-	if (ShouldExplode() && m_flTimeExploded == 0.0f && !m_bFragmented)
+	if (ShouldExplode() && m_flTimeExploded == 0.0 && !m_bFragmented)
 		Explode();
 }
 

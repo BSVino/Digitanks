@@ -23,12 +23,6 @@ CGame* CreateGame()
 	return GameServer()->Create<CIntroGame>("CIntroGame");
 }
 
-CCamera* CreateCamera()
-{
-	CCamera* pCamera = new CIntroCamera();
-	return pCamera;
-}
-
 CResource<CLevel> CreateLevel()
 {
 	return CResource<CLevel>(new CLevel());

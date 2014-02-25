@@ -13,7 +13,7 @@ public:
 
 	void						SetTarget(class CBaseEntity* pTarget);
 
-	virtual Vector				GetGlobalOrigin() const;
+	virtual const TVector		GetGlobalOrigin() const;
 
 	virtual void				Think();
 

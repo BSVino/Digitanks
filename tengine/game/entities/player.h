@@ -2,6 +2,7 @@
 #define TINKER_PLAYER_H
 
 #include <tengine/game/entities/baseentity.h>
+#include <keys.h>
 
 #include <ui/instructor.h>
 
@@ -32,8 +33,8 @@ public:
 									CPlayer();
 
 public:
-	virtual void					MouseMotion(int x, int y);
-	virtual void					MouseInput(int iButton, int iState) {};
+	virtual void					MouseMotion(int dx, int dy);
+	virtual void					MouseInput(int iButton, tinker_mouse_state_t iState) {};
 	virtual void					KeyPress(int c);
 	virtual void					KeyRelease(int c);
 	virtual void					JoystickButtonPress(int iJoystick, int c);

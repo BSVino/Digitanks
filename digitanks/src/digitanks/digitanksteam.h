@@ -153,6 +153,15 @@ public:
 	void						RemoveUnit(CDigitanksEntity* pEntity);
 	virtual void				OnRemoveUnit(CDigitanksEntity* pEntity);
 
+	virtual void				MouseMotion(int dx, int dy);
+	virtual void				MouseInput(int iButton, tinker_mouse_state_t iState);
+	void                        MouseDoubleClick();
+	virtual void				MouseWheel(int iState);
+	virtual void				KeyPress(int c);
+	virtual void				KeyRelease(int c);
+	virtual void				CharPress(int c);
+	virtual void				CharRelease(int c);
+
 	void						SetLoseCondition(losecondition_t eLose) { m_eLoseCondition = eLose; }
 	losecondition_t				GetLoseCondition() { return m_eLoseCondition; }
 
@@ -223,6 +232,9 @@ protected:
 	CNetworkedVariable<losecondition_t> m_eLoseCondition;
 
 	CNetworkedVariable<bool>	m_bIncludeInScoreboard;
+
+	int							m_iMouseMoved;
+	bool						m_bBoxSelect;
 };
 
 inline CDigitanksPlayer* ToDigitanksPlayer(CBaseEntity* pPlayer)

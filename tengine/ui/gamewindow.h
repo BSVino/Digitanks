@@ -35,6 +35,7 @@ public:
 
 	virtual void				MouseMotion(int x, int y);
 	virtual bool				MouseInput(int iButton, tinker_mouse_state_t iState);
+	virtual void                MouseDoubleClick() {};
 	bool						GetLastMouse(int& x, int& y);
 	virtual void				MouseWheel(int x, int y);
 	virtual bool				JoystickButtonPress(int iJoystick, int c);
@@ -68,6 +69,8 @@ protected:
 
 	tstring						m_sRestartGameMode;
 	bool                        m_bReloadLevel;
+
+	float						m_flLastClick;
 };
 
 inline CGameWindow* GameWindow()

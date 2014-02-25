@@ -25,6 +25,7 @@
 #include <tinker/console.h>
 #include <renderer/renderer.h>
 #include <renderer/shaders.h>
+#include <renderer/game_renderingcontext.h>
 
 #include "glgui/glgui.h"
 #include "digitanksgame.h"
@@ -60,8 +61,6 @@ CDigitanksWindow::CDigitanksWindow(int argc, char** argv)
 	m_pCampaign = NULL;
 
 	m_eRestartAction = GAMETYPE_MENU;
-
-	m_bBoxSelect = false;
 
 	m_iMouseLastX = 0;
 	m_iMouseLastY = 0;
@@ -190,26 +189,17 @@ CRenderer* CDigitanksWindow::CreateRenderer()
 
 void CDigitanksWindow::RenderLoading()
 {
-	glClear(GL_DEPTH_BUFFER_BIT|GL_COLOR_BUFFER_BIT);
+	CRenderingContext c(GetRenderer());
 
-	glMatrixMode(GL_PROJECTION);
-	glPushMatrix();
-	glLoadIdentity();
-	glOrtho(0, m_iWindowWidth, m_iWindowHeight, 0, -1, 1);
+	c.ClearColor();
+	c.ClearDepth();
 
-	glMatrixMode(GL_MODELVIEW);
-	glPushMatrix();
-	glLoadIdentity();
+	c.SetProjection(Matrix4x4::ProjectOrthographic(0, m_iWindowWidth, m_iWindowHeight, 0, -1, 1));
 
-	glPushAttrib(GL_COLOR_BUFFER_BIT|GL_DEPTH_BUFFER_BIT|GL_ENABLE_BIT|GL_TEXTURE_BIT);
+	c.SetDepthTest(false);
+	c.SetBlend(BLEND_ALPHA);
 
-	glDisable(GL_DEPTH_TEST);
-	glEnable(GL_TEXTURE_2D);
-	glDisable(GL_LIGHTING);
-	glEnable(GL_BLEND);
-	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-
-	glgui::CRootPanel::PaintTexture(m_iLoading, m_iWindowWidth/2 - 150, m_iWindowHeight/2 - 150, 300, 300);
+	glgui::CRootPanel::PaintTexture(m_hLoading, m_iWindowWidth/2 - 150, m_iWindowHeight/2 - 150, 300, 300);
 	glgui::CRootPanel::PaintTexture(GetLunarWorkshopLogo(), m_iWindowWidth-200-20, m_iWindowHeight - 200, 200, 200);
 
 	float flWidth = glgui::CLabel::GetTextWidth(m_sAction, m_sAction.length(), "text", 12);
@@ -217,20 +207,11 @@ void CDigitanksWindow::RenderLoading()
 
 	if (m_iTotalProgress)
 	{
-		glDisable(GL_TEXTURE_2D);
 		float flProgress = (float)m_iProgress/(float)m_iTotalProgress;
 		glgui::CBaseControl::PaintRect(m_iWindowWidth/2 - 200, m_iWindowHeight/2 + 190, (int)(400*flProgress), 10, Color(255, 255, 255));
 	}
 
 	CApplication::Get()->GetConsole()->Paint();
-
-	glMatrixMode(GL_PROJECTION);
-	glPopMatrix();   
-
-	glMatrixMode(GL_MODELVIEW);
-	glPopMatrix();
-
-	glPopAttrib();
 
 	SwapBuffers();
 }
@@ -240,67 +221,42 @@ void CDigitanksWindow::RenderMouseCursor()
 	if (m_eMouseCursor == MOUSECURSOR_NONE)
 		return;
 
-	glMatrixMode(GL_PROJECTION);
-	glPushMatrix();
-	glLoadIdentity();
-	glOrtho(0, (double)m_iWindowWidth, (double)m_iWindowHeight, 0, -1, 1);
+	CRenderingContext c(GetRenderer());
 
-	glMatrixMode(GL_MODELVIEW);
-	glPushMatrix();
-	glLoadIdentity();
+	c.ClearColor();
+	c.ClearDepth();
 
-	glPushAttrib(GL_COLOR_BUFFER_BIT|GL_DEPTH_BUFFER_BIT|GL_ENABLE_BIT|GL_TEXTURE_BIT);
+	c.SetProjection(Matrix4x4::ProjectOrthographic(0, m_iWindowWidth, m_iWindowHeight, 0, -1, 1));
 
-	glDisable(GL_DEPTH_TEST);
-	glDisable(GL_TEXTURE_2D);
-	glDisable(GL_LIGHTING);
-	glEnable(GL_COLOR_MATERIAL);
-
-	glEnable(GL_BLEND);
-	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-
-#ifdef TINKER_OPTIMIZE_SOFTWARE
-	glShadeModel(GL_FLAT);
-#else
-	glShadeModel(GL_SMOOTH);
-#endif
+	c.SetDepthTest(false);
+	c.SetBlend(BLEND_ALPHA);
 
 	int mx, my;
 	GetMousePosition(mx, my);
 
 	if (m_eMouseCursor == MOUSECURSOR_SELECT)
-		glgui::CBaseControl::PaintSheet(m_iCursors, mx-20, my-20, 80, 40, 160, 0, 80, 40, 256, 128);
+		glgui::CBaseControl::PaintSheet(m_hCursors, mx-20, my-20, 80, 40, 160, 0, 80, 40, 256, 128);
 	else if (m_eMouseCursor == MOUSECURSOR_BUILD)
-		glgui::CBaseControl::PaintSheet(m_iCursors, mx-20, my-20, 80, 40, 0, 0, 80, 40, 256, 128);
+		glgui::CBaseControl::PaintSheet(m_hCursors, mx-20, my-20, 80, 40, 0, 0, 80, 40, 256, 128);
 	else if (m_eMouseCursor == MOUSECURSOR_BUILDINVALID)
-		glgui::CBaseControl::PaintSheet(m_iCursors, mx-20, my-20, 80, 40, 80, 0, 80, 40, 256, 128);
+		glgui::CBaseControl::PaintSheet(m_hCursors, mx-20, my-20, 80, 40, 80, 0, 80, 40, 256, 128);
 	else if (m_eMouseCursor == MOUSECURSOR_MOVE)
-		glgui::CBaseControl::PaintSheet(m_iCursors, mx-20, my-20, 80, 40, 0, 40, 80, 40, 256, 128);
+		glgui::CBaseControl::PaintSheet(m_hCursors, mx-20, my-20, 80, 40, 0, 40, 80, 40, 256, 128);
 	else if (m_eMouseCursor == MOUSECURSOR_MOVEAUTO)
-		glgui::CBaseControl::PaintSheet(m_iCursors, mx-20, my-20, 80, 40, 80, 40, 80, 40, 256, 128);
+		glgui::CBaseControl::PaintSheet(m_hCursors, mx-20, my-20, 80, 40, 80, 40, 80, 40, 256, 128);
 	else if (m_eMouseCursor == MOUSECURSOR_ROTATE)
-		glgui::CBaseControl::PaintSheet(m_iCursors, mx-20, my-20, 80, 40, 0, 80, 80, 40, 256, 128);
+		glgui::CBaseControl::PaintSheet(m_hCursors, mx-20, my-20, 80, 40, 0, 80, 80, 40, 256, 128);
 	else if (m_eMouseCursor == MOUSECURSOR_AIM)
-		glgui::CBaseControl::PaintSheet(m_iCursors, mx-20, my-20, 80, 40, 160, 40, 80, 40, 256, 128);
+		glgui::CBaseControl::PaintSheet(m_hCursors, mx-20, my-20, 80, 40, 160, 40, 80, 40, 256, 128);
 	else if (m_eMouseCursor == MOUSECURSOR_AIMENEMY)
 	{
 		if (Oscillate(GameServer()->GetGameTime(), 0.4f) > 0.3f)
-			glgui::CBaseControl::PaintSheet(m_iCursors, mx-20, my-20, 80, 40, 80, 80, 80, 40, 256, 128);
+			glgui::CBaseControl::PaintSheet(m_hCursors, mx-20, my-20, 80, 40, 80, 80, 80, 40, 256, 128);
 		else
-			glgui::CBaseControl::PaintSheet(m_iCursors, mx-20, my-20, 80, 40, 160, 40, 80, 40, 256, 128);
+			glgui::CBaseControl::PaintSheet(m_hCursors, mx-20, my-20, 80, 40, 160, 40, 80, 40, 256, 128);
 	}
 	else if (m_eMouseCursor == MOUSECURSOR_AIMINVALID)
-		glgui::CBaseControl::PaintSheet(m_iCursors, mx-20, my-20, 80, 40, 160, 80, 80, 40, 256, 128);
-
-	glEnable(GL_DEPTH_TEST);
-
-	glMatrixMode(GL_PROJECTION);
-	glPopMatrix();   
-
-	glMatrixMode(GL_MODELVIEW);
-	glPopMatrix();
-
-	glPopAttrib();
+		glgui::CBaseControl::PaintSheet(m_hCursors, mx-20, my-20, 80, 40, 160, 80, 80, 40, 256, 128);
 }
 
 void LoadLevel(class CCommand* pCommand, tvector<tstring>& asTokens, const tstring& sCommand)
@@ -541,14 +497,6 @@ void CDigitanksWindow::Run()
 {
 	CreateGame(GAMETYPE_MENU);
 
-#ifndef DT_COMPETITION
-	if (!IsRegistered())
-	{
-		m_pMainMenu->SetVisible(false);
-		m_pPurchase->OpeningApplication();
-	}
-#endif
-
 	while (IsOpen())
 	{
 		CProfiler::BeginFrame();
@@ -695,11 +643,8 @@ void CDigitanksWindow::Render()
 
 int CDigitanksWindow::WindowClose()
 {
-	if (m_pPurchase->IsVisible())
-		return GL_TRUE;
-
 	CloseApplication();
-	return GL_FALSE;
+	return 0;
 }
 
 void CDigitanksWindow::WindowResize(int w, int h)
@@ -748,11 +693,12 @@ bool CDigitanksWindow::GetMouseGridPosition(Vector& vecPoint, CBaseEntity** pHit
 
 	Vector vecWorld = GameServer()->GetRenderer()->WorldPosition(Vector((float)x, (float)y, 1));
 
-	Vector vecCameraVector = GameServer()->GetCamera()->GetCameraPosition();
+	Vector vecCameraVector = GameServer()->GetRenderer()->GetCameraPosition();
 
 	Vector vecRay = (vecWorld - vecCameraVector).Normalized();
 
-	return GameServer()->GetGame()->TraceLine(vecCameraVector, vecCameraVector+vecRay*1000, vecPoint, pHit, iCollisionGroup);
+	TUnimplemented();
+	return false;//GameServer()->GetGame()->TraceLine(vecCameraVector, vecCameraVector+vecRay*1000, vecPoint, pHit, iCollisionGroup);
 }
 
 void CDigitanksWindow::GameOver(bool bPlayerWon)
@@ -770,27 +716,15 @@ void CDigitanksWindow::OnClientDisconnect(int iClient)
 
 void CDigitanksWindow::CloseApplication()
 {
-#ifdef DT_COMPETITION
-	exit(0);
-#endif
-
-	if (IsRegistered())
-		exit(0);
-
-	if (m_pPurchase->IsVisible())
-		exit(0);
-
-	m_pMenu->SetVisible(false);
-	m_pMainMenu->SetVisible(false);
-	m_pPurchase->ClosingApplication();
-
 	SaveConfig();
+
+	exit(0);
 }
 
 void CDigitanksWindow::SaveConfig()
 {
 	c.add<float>("soundvolume", GetSoundVolume());
-	c.add<float>("musicvolume"), GetMusicVolume());
+	c.add<float>("musicvolume", GetMusicVolume());
 	c.add<bool>("windowed", !m_bCfgFullscreen);
 	c.add<bool>("constrainmouse", m_bConstrainMouse);
 	c.add<bool>("contextualcommands", m_bContextualCommands);

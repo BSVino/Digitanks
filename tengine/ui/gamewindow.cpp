@@ -431,6 +431,17 @@ bool CGameWindow::MouseInput(int iButton, tinker_mouse_state_t iState)
 			return true;
 	}
 
+	if (iButton == TINKER_KEY_MOUSE_LEFT && iState == 0)
+	{
+		if (GameServer()->GetGameTime() < m_flLastClick)
+			m_flLastClick = 0;
+
+		if (GameServer()->GetGameTime() - m_flLastClick < 0.2f)
+			MouseDoubleClick();
+		else
+			m_flLastClick = GameServer()->GetGameTime();
+	}
+
 	if (Game())
 	{
 		for (size_t i = 0; i < Game()->GetNumLocalPlayers(); i++)

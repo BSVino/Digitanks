@@ -364,7 +364,7 @@ protected:
 	tstring				m_sSmallActionItem;
 
 	float						m_flSelectorMedalStart;
-	size_t						m_iSelectorMedalTexture;
+	CMaterialHandle             m_hSelectorMedalTexture;
 
 	tvector<tmap<size_t, CEntityHandle<CDigitank> > > m_ahScoreboardTanks;
 
@@ -429,7 +429,7 @@ protected:
 	CTextureSheet				m_WeaponsSheet;
 	CTextureSheet				m_ButtonSheet;
 	CTextureSheet				m_DownloadSheet;
-	size_t						m_iShieldTexture;
+	CMaterialHandle             m_hShieldTexture;
 
 	size_t						m_iTurnSound;
 
@@ -438,7 +438,7 @@ protected:
 	CEntityHandle<CBaseWeapon>	m_hHintWeapon;
 	glgui::CLabel*				m_pSpacebarHint;
 
-	size_t						m_iActionTanksSheet;
+	CMaterialHandle             m_hActionTanksSheet;
 	CTextureSheet				m_ActionSignsSheet;
 	float						m_flActionSignStart;
 	typedef enum
@@ -456,7 +456,7 @@ protected:
 	CTextureSheet				m_PowerupsSheet;
 	tvector<powerup_notification_t>	m_aPowerupNotifications;
 
-	size_t						m_iPurchasePanel;
+	CMaterialHandle             m_hPurchasePanel;
 
 	size_t						m_iCompetitionWatermark;
 };

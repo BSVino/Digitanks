@@ -53,13 +53,6 @@ CGame* CreateGame()
 	return GameServer()->Create<CDigitanksGame>("CDigitanksGame");
 }
 
-CCamera* CreateCamera()
-{
-	CDigitanksCamera* pCamera = new CDigitanksCamera();
-	pCamera->SnapDistance(120);
-	return pCamera;
-}
-
 CResource<CLevel> CreateLevel()
 {
 	return CResource<CLevel>(new CDigitanksLevel());

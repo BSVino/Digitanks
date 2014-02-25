@@ -87,9 +87,6 @@ public:
 	EVENT_CALLBACK(CPurchasePanel, Email);
 
 protected:
-	glgui::CControl<glgui::CLabel>     m_pPurchase;
-	glgui::CControl<glgui::CButton>    m_pPurchaseButton;
-
 	glgui::CControl<glgui::CLabel>     m_pEnterEmail;
 	glgui::CControl<glgui::CTextField> m_pEmail;
 	glgui::CControl<glgui::CButton>    m_pContinueButton;

@@ -69,15 +69,15 @@ CCommand noclip("noclip", ::NoClip);
 
 CVar m_sensitivity("m_sensitivity", "4");
 
-void CPlayer::MouseMotion(int x, int y)
+void CPlayer::MouseMotion(int dx, int dy)
 {
 	if (!m_hCharacter)
 		return;
 
 	EAngle angDirection = m_hCharacter->GetViewAngles();
 
-	angDirection.y -= (x*m_sensitivity.GetFloat()/20);
-	angDirection.p -= (y*m_sensitivity.GetFloat()/20);
+	angDirection.y -= (dx*m_sensitivity.GetFloat()/20);
+	angDirection.p -= (dy*m_sensitivity.GetFloat()/20);
 
 	if (angDirection.p > 89)
 		angDirection.p = 89;
