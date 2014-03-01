@@ -3,9 +3,9 @@
 
 #include "baseweapon.h"
 
-class CMissileDefense : public CBaseWeapon
+class CMissileDefense : public CDigitanksWeapon
 {
-	REGISTER_ENTITY_CLASS(CMissileDefense, CBaseWeapon);
+	REGISTER_ENTITY_CLASS(CMissileDefense, CDigitanksWeapon);
 
 public:
 	void						SetTarget(class CProjectile* pTarget);

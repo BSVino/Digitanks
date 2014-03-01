@@ -6,6 +6,7 @@
 #include <glgui/picturebutton.h>
 #include <textures/texturesheet.h>
 #include <textures/texturelibrary.h>
+#include <ui/hudviewport.h>
 
 #include "digitanksgame.h"
 #include "updatespanel.h"
@@ -148,9 +149,9 @@ protected:
 	glgui::CControl<glgui::CLabel> m_pControls;
 };
 
-class CHUD : public glgui::CPanel, public IDigitanksGameListener, public glgui::IEventListener
+class CHUD : public CHUDViewport, public IDigitanksGameListener, public glgui::IEventListener
 {
-	DECLARE_CLASS(CHUD, glgui::CPanel);
+	DECLARE_CLASS(CHUD, CHUDViewport);
 
 public:
 								CHUD();
@@ -425,7 +426,7 @@ protected:
 
 	CTextureSheet				m_KeysSheet;
 
-	CEntityHandle<CBaseWeapon>	m_hHintWeapon;
+	CEntityHandle<CDigitanksWeapon>	m_hHintWeapon;
 	glgui::CControl<glgui::CLabel> m_pSpacebarHint;
 
 	CMaterialHandle             m_hActionTanksSheet;

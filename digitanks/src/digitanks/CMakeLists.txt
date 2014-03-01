@@ -38,6 +38,7 @@ set (DIGITANKS_SOURCES
 	terrain.cpp
 	updates.cpp
 	wreckage.cpp
+	dissolver.cpp
 
 	${CMAKE_SOURCE_DIR}/tengine/renderer/systems.cpp
 )

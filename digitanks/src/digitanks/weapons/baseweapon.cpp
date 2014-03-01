@@ -4,32 +4,32 @@
 #include <dt_camera.h>
 #include <dt_renderer.h>
 
-REGISTER_ENTITY(CBaseWeapon);
+REGISTER_ENTITY(CDigitanksWeapon);
 
-NETVAR_TABLE_BEGIN(CBaseWeapon);
+NETVAR_TABLE_BEGIN(CDigitanksWeapon);
 	NETVAR_DEFINE(float, m_flTimeExploded);
 	NETVAR_DEFINE(CEntityHandle<CDigitanksEntity>, m_hOwner);
 	NETVAR_DEFINE(float, m_flDamage);
 NETVAR_TABLE_END();
 
-SAVEDATA_TABLE_BEGIN(CBaseWeapon);
+SAVEDATA_TABLE_BEGIN(CDigitanksWeapon);
 	SAVEDATA_DEFINE(CSaveData::DATA_NETVAR, float, m_flTimeExploded);
 	SAVEDATA_DEFINE(CSaveData::DATA_COPYTYPE, bool, m_bShouldRender);
 	SAVEDATA_DEFINE(CSaveData::DATA_NETVAR, CEntityHandle<CDigitanksEntity>, m_hOwner);
 	SAVEDATA_DEFINE(CSaveData::DATA_NETVAR, float, m_flDamage);
 SAVEDATA_TABLE_END();
 
-INPUTS_TABLE_BEGIN(CBaseWeapon);
+INPUTS_TABLE_BEGIN(CDigitanksWeapon);
 INPUTS_TABLE_END();
 
 #define _T(x) x
 
-void CBaseWeapon::Precache()
+void CDigitanksWeapon::Precache()
 {
 	PrecacheSound(_T("sound/explosion.wav"));
 }
 
-void CBaseWeapon::Spawn()
+void CDigitanksWeapon::Spawn()
 {
 	BaseClass::Spawn();
 
@@ -38,7 +38,7 @@ void CBaseWeapon::Spawn()
 	m_flDamage = 0;
 }
 
-void CBaseWeapon::ClientSpawn()
+void CDigitanksWeapon::ClientSpawn()
 {
 	BaseClass::ClientSpawn();
 
@@ -52,12 +52,12 @@ void CBaseWeapon::ClientSpawn()
 		m_bShouldRender = false;
 }
 
-CDigitanksEntity* CBaseWeapon::GetOwner() const
+CDigitanksEntity* CDigitanksWeapon::GetOwner() const
 {
 	return dynamic_cast<CDigitanksEntity*>(m_hOwner.GetPointer());
 }
 
-void CBaseWeapon::OnSetOwner(CBaseEntity* pOwner)
+void CDigitanksWeapon::OnSetOwner(CBaseEntity* pOwner)
 {
 	m_hOwner = pOwner;
 	if (pOwner)
@@ -73,7 +73,7 @@ void CBaseWeapon::OnSetOwner(CBaseEntity* pOwner)
 	BaseClass::OnSetOwner(pOwner);
 }
 
-void CBaseWeapon::Think()
+void CDigitanksWeapon::Think()
 {
 	BaseClass::Think();
 
@@ -84,7 +84,7 @@ void CBaseWeapon::Think()
 		Delete();
 }
 
-void CBaseWeapon::Explode(CBaseEntity* pInstigator)
+void CDigitanksWeapon::Explode(CBaseEntity* pInstigator)
 {
 	bool bHit = false;
 	if (m_flDamage > 0)
@@ -338,37 +338,37 @@ static const tchar* g_apszWeaponDescriptions[WEAPON_MAX] =
 	_T("You won! Fireworks are in order."),
 };
 
-float CBaseWeapon::GetWeaponEnergy(weapon_t eProjectile)
+float CDigitanksWeapon::GetWeaponEnergy(weapon_t eProjectile)
 {
 	return g_aflWeaponEnergies[eProjectile];
 }
 
-float CBaseWeapon::GetWeaponDamage(weapon_t eProjectile)
+float CDigitanksWeapon::GetWeaponDamage(weapon_t eProjectile)
 {
 	return g_aflWeaponDamages[eProjectile];
 }
 
-size_t CBaseWeapon::GetWeaponShells(weapon_t eProjectile)
+size_t CDigitanksWeapon::GetWeaponShells(weapon_t eProjectile)
 {
 	return g_aiWeaponShells[eProjectile];
 }
 
-float CBaseWeapon::GetWeaponFireInterval(weapon_t eProjectile)
+float CDigitanksWeapon::GetWeaponFireInterval(weapon_t eProjectile)
 {
 	return g_aflWeaponFireInterval[eProjectile];
 }
 
-const tchar* CBaseWeapon::GetWeaponName(weapon_t eProjectile)
+const tchar* CDigitanksWeapon::GetWeaponName(weapon_t eProjectile)
 {
 	return g_apszWeaponNames[eProjectile];
 }
 
-const tchar* CBaseWeapon::GetWeaponDescription(weapon_t eProjectile)
+const tchar* CDigitanksWeapon::GetWeaponDescription(weapon_t eProjectile)
 {
 	return g_apszWeaponDescriptions[eProjectile];
 }
 
-bool CBaseWeapon::IsWeaponPrimarySelectionOnly(weapon_t eProjectile)
+bool CDigitanksWeapon::IsWeaponPrimarySelectionOnly(weapon_t eProjectile)
 {
 	if (eProjectile == PROJECTILE_CAMERAGUIDED)
 		return true;

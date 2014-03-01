@@ -19,7 +19,7 @@ public:
 	EVENT_CALLBACK(CWeaponButton, ChooseWeapon);
 
 public:
-	class CWeaponPanel*				m_pWeaponPanel;
+	glgui::CControl<class CWeaponPanel>				m_pWeaponPanel;
 
 	weapon_t						m_eWeapon;
 };
@@ -38,9 +38,9 @@ public:
 	void							SetTextureForWeapon(CWeaponButton* pWeapon, weapon_t eWeapon);
 
 protected:
-	glgui::CLabel*					m_pInfo;
+	glgui::CControl<glgui::CLabel>					m_pInfo;
 
-	tvector<CWeaponButton*>			m_apWeapons;
+	tvector<glgui::CControl<CWeaponButton>>			m_apWeapons;
 
 	weapon_t						m_eWeapon;
 };

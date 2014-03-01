@@ -5,7 +5,6 @@
 
 #include <color.h>
 
-#include <raytracer/raytracer.h>
 #include <textures/texturehandle.h>
 
 #include <game/entities/baseentity.h>
@@ -71,7 +70,6 @@ protected:
 	float							m_aflHeights[TERRAIN_CHUNK_SIZE][TERRAIN_CHUNK_SIZE];
 	float							m_aflLava[TERRAIN_CHUNK_SIZE][TERRAIN_CHUNK_SIZE];
 	bool							m_abDontSimulate[TERRAIN_CHUNK_SIZE][TERRAIN_CHUNK_SIZE];
-	class raytrace::CRaytracer*		m_pTracer;
 
 	// A bit field
 	unsigned char					m_aiSpecialData[TERRAIN_CHUNK_SIZE][TERRAIN_CHUNK_SIZE];

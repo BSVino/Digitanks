@@ -1157,6 +1157,12 @@ void CSupplier::UpdateTendrils()
 #endif
 }
 
+size_t CSupplier::RenderTendrils(CRenderingContext& r)
+{
+	TStubbed("RenderTendrils()");
+	return 0;
+}
+
 void CSupplier::BeginTendrilGrowth()
 {
 	m_flTendrilGrowthStartTime = GameServer()->GetGameTime();

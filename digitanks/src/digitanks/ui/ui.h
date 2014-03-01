@@ -66,36 +66,6 @@ protected:
 	glgui::CControl<glgui::CButton> m_pRestart;
 };
 
-class CPurchasePanel : public glgui::CPanel, public glgui::IEventListener
-{
-	DECLARE_CLASS(CPurchasePanel, glgui::CPanel);
-
-public:
-									CPurchasePanel();
-
-public:
-	virtual void					Layout();
-	virtual void					Think();
-	virtual void					Paint(float x, float y, float w, float h);
-
-	virtual void					ClosingApplication();
-	virtual void					OpeningApplication();
-
-	EVENT_CALLBACK(CPurchasePanel, Purchase);
-	EVENT_CALLBACK(CPurchasePanel, Exit);
-	EVENT_CALLBACK(CPurchasePanel, MainMenu);
-	EVENT_CALLBACK(CPurchasePanel, Email);
-
-protected:
-	glgui::CControl<glgui::CLabel>     m_pEnterEmail;
-	glgui::CControl<glgui::CTextField> m_pEmail;
-	glgui::CControl<glgui::CButton>    m_pContinueButton;
-
-	bool							m_bClosing;
-
-	float							m_flTimeOpened;
-};
-
 class CStoryPanel : public glgui::CPanel
 {
 	DECLARE_CLASS(CStoryPanel, glgui::CPanel);

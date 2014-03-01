@@ -5,9 +5,9 @@
 
 #include <dt_common.h>
 
-class CBaseWeapon : public CBaseEntity
+class CDigitanksWeapon : public CBaseEntity
 {
-	REGISTER_ENTITY_CLASS(CBaseWeapon, CBaseEntity);
+	REGISTER_ENTITY_CLASS(CDigitanksWeapon, CBaseEntity);
 
 public:
 	virtual void				Precache();

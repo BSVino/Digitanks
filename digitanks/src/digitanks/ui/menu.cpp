@@ -3,17 +3,23 @@
 #include <iostream>
 #include <fstream>
 #include <sstream>
+#include <memory>
 
 #include <tinker_platform.h>
 #include <strutils.h>
 #include <mtrand.h>
 
 #include <tinker/cvar.h>
+#include <datamanager/data.h>
 #include <dt_version.h>
 #include <textures/texturelibrary.h>
-#include <renderer/renderer.h>
+#include <renderer/game_renderer.h>
+#include <renderer/renderingcontext.h>
 #include <tengine/lobby/lobby_client.h>
 #include <glgui/filedialog.h>
+#include <glgui/textfield.h>
+#include <glgui/checkbox.h>
+#include <glgui/menu.h>
 #include <ui/instructor.h>
 
 #include <digitanksgame.h>
@@ -31,58 +37,49 @@ using namespace glgui;
 CMainMenu::CMainMenu()
 	: CPanel(0, 0, 310, 620)
 {
-	m_pCampaign = new CButton(0, 0, 100, 100, _T("CAMPAIGN"));
+	m_pCampaign = AddControl(new CButton(0, 0, 100, 100, _T("CAMPAIGN")));
 	m_pCampaign->SetClickedListener(this, OpenCampaignPanel);
 	m_pCampaign->SetFont(_T("header"), 28);
 	m_pCampaign->SetButtonColor(Color(0,0,0));
-	AddControl(m_pCampaign);
 
-	m_pPlay = new CButton(0, 0, 100, 100, _T("SKIRMISH"));
+	m_pPlay = AddControl(new CButton(0, 0, 100, 100, _T("SKIRMISH")));
 	m_pPlay->SetClickedListener(this, OpenGamesPanel);
 	m_pPlay->SetFont(_T("header"), 28);
 	m_pPlay->SetButtonColor(Color(0,0,0));
-	AddControl(m_pPlay);
 
-	m_pMultiplayer = new CButton(0, 0, 100, 100, _T("MULTIPLAYER"));
+	m_pMultiplayer = AddControl(new CButton(0, 0, 100, 100, _T("MULTIPLAYER")));
 	m_pMultiplayer->SetClickedListener(this, OpenMultiplayerPanel);
 	m_pMultiplayer->SetFont(_T("header"), 28);
 	m_pMultiplayer->SetButtonColor(Color(0,0,0));
 #if !defined(TINKER_UNLOCKED)
 	m_pMultiplayer->SetEnabled(false);
 #endif
-	AddControl(m_pMultiplayer);
 
-	m_pOptions = new CButton(0, 0, 100, 100, _T("OPTIONS"));
+	m_pOptions = AddControl(new CButton(0, 0, 100, 100, _T("OPTIONS")));
 	m_pOptions->SetClickedListener(this, OpenOptionsPanel);
 	m_pOptions->SetFont(_T("header"), 28);
 	m_pOptions->SetButtonColor(Color(0,0,0));
-	AddControl(m_pOptions);
 
-	m_pQuit = new CButton(0, 0, 100, 100, _T("QUIT"));
+	m_pQuit = AddControl(new CButton(0, 0, 100, 100, _T("QUIT")));
 	m_pQuit->SetClickedListener(this, Quit);
 	m_pQuit->SetFont(_T("header"), 28);
 	m_pQuit->SetButtonColor(Color(0,0,0));
-	AddControl(m_pQuit);
 
-	m_pHint = new CLabel(0, 0, 100, 100, _T(""));
+	m_pHint = AddControl(new CLabel(0, 0, 100, 100, _T("")));
 	m_pHint->SetFont(_T("text"));
-	AddControl(m_pHint);
 
-	m_pShowCredits = new CButton(0, 0, 100, 100, _T("CREDITS"));
+	m_pShowCredits = AddControl(new CButton(0, 0, 100, 100, _T("CREDITS")));
 	m_pShowCredits->SetClickedListener(this, Credits);
 	m_pShowCredits->SetFont(_T("header"), 9);
 	m_pShowCredits->SetButtonColor(Color(0,0,0));
-	AddControl(m_pShowCredits);
 
-	m_pCredits = new CLabel(0, 0, 100, 100, _T(""));
+	m_pCredits = AddControl(new CLabel(0, 0, 100, 100, _T("")));
 	m_pCredits->SetFont(_T("text"), 18);
 	m_pCredits->SetAlign(CLabel::TA_TOPCENTER);
-	AddControl(m_pCredits);
 
-	m_pVersion = new CLabel(0, 0, 100, 100, _T(""));
+	m_pVersion = AddControl(new CLabel(0, 0, 100, 100, _T("")));
 	m_pVersion->SetFont(_T("text"), 11);
 	m_pVersion->SetAlign(CLabel::TA_LEFTCENTER);
-	AddControl(m_pVersion);
 
 	m_pDockPanel = NULL;
 }
@@ -136,23 +133,23 @@ void CMainMenu::Think()
 	BaseClass::Think();
 
 	m_flCreditsRoll += GameServer()->GetFrameTime()*30;
-	int x, y;
+	float x, y;
 	GetAbsPos(x, y);
 	m_pCredits->SetPos(370 - x, (int)(DigitanksWindow()->GetWindowHeight() - y - m_flCreditsRoll));
 }
 
-void CMainMenu::Paint(int x, int y, int w, int h)
+void CMainMenu::Paint(float x, float y, float w, float h)
 {
 	CRootPanel::PaintRect(0, 0, m_pVersion->GetWidth(), m_pVersion->GetHeight(), Color(0, 0, 0, 100));
 
-	int hx, hy;
+	float hx, hy;
 	m_pHint->GetAbsPos(hx, hy);
 	if (m_pHint->GetText().length() > 1)
 		CRootPanel::PaintRect(hx-25, hy-3, m_pHint->GetWidth()+50, m_pHint->GetHeight()+6, Color(0, 0, 0, 255));
 
 	if (m_pCredits->IsVisible())
 	{
-		int cx, cy;
+		float cx, cy;
 		m_pCredits->GetAbsPos(cx, cy);
 
 		CRootPanel::PaintRect(cx-5, 0, m_pCredits->GetWidth()+10, CRootPanel::Get()->GetHeight(), Color(0, 0, 0, 100));
@@ -184,7 +181,7 @@ void CMainMenu::SetVisible(bool bVisible)
 	m_pCredits->SetVisible(false);
 }
 
-void CMainMenu::OpenCampaignPanelCallback()
+void CMainMenu::OpenCampaignPanelCallback(const tstring& sArgs)
 {
 	CDockPanel* pDock = GetDockPanel();
 	pDock->SetDockedPanel(new CCampaignPanel());
@@ -193,7 +190,7 @@ void CMainMenu::OpenCampaignPanelCallback()
 	m_pCredits->SetVisible(false);
 }
 
-void CMainMenu::OpenGamesPanelCallback()
+void CMainMenu::OpenGamesPanelCallback(const tstring& sArgs)
 {
 	CDockPanel* pDock = GetDockPanel();
 	pDock->SetDockedPanel(new CGamesPanel());
@@ -202,7 +199,7 @@ void CMainMenu::OpenGamesPanelCallback()
 	m_pCredits->SetVisible(false);
 }
 
-void CMainMenu::OpenMultiplayerPanelCallback()
+void CMainMenu::OpenMultiplayerPanelCallback(const tstring& sArgs)
 {
 #if !defined(TINKER_UNLOCKED)
 	return;
@@ -215,7 +212,7 @@ void CMainMenu::OpenMultiplayerPanelCallback()
 	m_pCredits->SetVisible(false);
 }
 
-void CMainMenu::OpenOptionsPanelCallback()
+void CMainMenu::OpenOptionsPanelCallback(const tstring& sArgs)
 {
 	CDockPanel* pDock = GetDockPanel();
 	pDock->SetDockedPanel(new COptionsPanel());
@@ -224,12 +221,12 @@ void CMainMenu::OpenOptionsPanelCallback()
 	m_pCredits->SetVisible(false);
 }
 
-void CMainMenu::QuitCallback()
+void CMainMenu::QuitCallback(const tstring& sArgs)
 {
 	DigitanksWindow()->CloseApplication();
 }
 
-void CMainMenu::CreditsCallback()
+void CMainMenu::CreditsCallback(const tstring& sArgs)
 {
 	std::basic_ifstream<tchar> i;
 	i.open("credits.txt");
@@ -258,13 +255,12 @@ void CMainMenu::CreditsCallback()
 	m_pHint->SetText("");
 }
 
-CDockPanel* CMainMenu::GetDockPanel()
+CControl<CDockPanel> CMainMenu::GetDockPanel()
 {
 	if (!m_pDockPanel)
 	{
-		m_pDockPanel = new CDockPanel();
+		m_pDockPanel = CRootPanel::Get()->AddControl(new CDockPanel());
 		m_pDockPanel->SetBGColor(Color(0, 0, 0, 255));
-		CRootPanel::Get()->AddControl(m_pDockPanel);
 
 		m_pDockPanel->SetSize(570, 520);
 		m_pDockPanel->SetPos(390, 30);
@@ -284,32 +280,22 @@ CDockPanel::CDockPanel()
 	m_pDockedPanel = NULL;
 }
 
-void CDockPanel::Destructor()
-{
-	if (m_pDockedPanel)
-		delete m_pDockedPanel;
-}
-
 void CDockPanel::Layout()
 {
 	BaseClass::Layout();
 }
 
-void CDockPanel::Paint(int x, int y, int w, int h)
+void CDockPanel::Paint(float x, float y, float w, float h)
 {
 	CRootPanel::PaintRect(x, y, w, h, m_clrBackground);
 
 	BaseClass::Paint(x, y, w, h);
 }
 
-void CDockPanel::SetDockedPanel(glgui::CPanel* pDock)
+void CDockPanel::SetDockedPanel(glgui::CControl<glgui::CPanel> pDock)
 {
 	if (m_pDockedPanel)
-	{
 		RemoveControl(m_pDockedPanel);
-		m_pDockedPanel->Destructor();
-		m_pDockedPanel->Delete();
-	}
 
 	if (pDock)
 	{
@@ -324,17 +310,15 @@ void CDockPanel::SetDockedPanel(glgui::CPanel* pDock)
 CCampaignPanel::CCampaignPanel()
 	: CPanel(0, 0, 570, 520)
 {
-	m_pNewCampaign = new CButton(0, 0, 100, 100, _T("BEGIN CAMPAIGN"));
+	m_pNewCampaign = AddControl(new CButton(0, 0, 100, 100, _T("BEGIN CAMPAIGN")));
 	m_pNewCampaign->SetClickedListener(this, NewCampaign);
 	m_pNewCampaign->SetCursorInListener(this, NewCampaignHint);
 	m_pNewCampaign->SetFont(_T("header"), 18);
-	AddControl(m_pNewCampaign);
 
-	m_pContinueCampaign = new CButton(0, 0, 100, 100, _T("CONTINUE CAMPAIGN"));
+	m_pContinueCampaign = AddControl(new CButton(0, 0, 100, 100, _T("CONTINUE CAMPAIGN")));
 	m_pContinueCampaign->SetClickedListener(this, ContinueCampaign);
 	m_pContinueCampaign->SetCursorInListener(this, ContinueCampaignHint);
 	m_pContinueCampaign->SetFont(_T("header"), 18);
-	AddControl(m_pContinueCampaign);
 }
 
 void CCampaignPanel::Layout()
@@ -355,7 +339,7 @@ void CCampaignPanel::Layout()
 	BaseClass::Layout();
 }
 
-void CCampaignPanel::NewCampaignCallback()
+void CCampaignPanel::NewCampaignCallback(const tstring& sArgs)
 {
 	DigitanksWindow()->NewCampaign();
 
@@ -364,12 +348,12 @@ void CCampaignPanel::NewCampaignCallback()
 	DigitanksWindow()->GetMainMenu()->SetVisible(false);
 }
 
-void CCampaignPanel::NewCampaignHintCallback()
+void CCampaignPanel::NewCampaignHintCallback(const tstring& sArgs)
 {
 	DigitanksWindow()->GetMainMenu()->SetHint(_T("The Digitanks have captured your files. You've got to rescue them and take your hard drive back!"));
 }
 
-void CCampaignPanel::ContinueCampaignCallback()
+void CCampaignPanel::ContinueCampaignCallback(const tstring& sArgs)
 {
 	DigitanksWindow()->ContinueCampaign();
 
@@ -378,7 +362,7 @@ void CCampaignPanel::ContinueCampaignCallback()
 	DigitanksWindow()->GetMainMenu()->SetVisible(false);
 }
 
-void CCampaignPanel::ContinueCampaignHintCallback()
+void CCampaignPanel::ContinueCampaignHintCallback(const tstring& sArgs)
 {
 	DigitanksWindow()->GetMainMenu()->SetHint(_T("Resume a previous campaign where you left off."));
 }
@@ -386,19 +370,17 @@ void CCampaignPanel::ContinueCampaignHintCallback()
 CGamesPanel::CGamesPanel()
 	: CPanel(0, 0, 570, 520)
 {
-	m_pArtillery = new CButton(0, 0, 100, 100, _T("ARTILLERY"));
+	m_pArtillery = AddControl(new CButton(0, 0, 100, 100, _T("ARTILLERY")));
 	m_pArtillery->SetClickedListener(this, Artillery);
 	m_pArtillery->SetCursorInListener(this, ArtilleryHint);
 	m_pArtillery->SetFont(_T("header"), 18);
-	AddControl(m_pArtillery);
 
-	m_pStrategy = new CButton(0, 0, 100, 100, _T("STRATEGY"));
+	m_pStrategy = AddControl(new CButton(0, 0, 100, 100, _T("STRATEGY")));
 	m_pStrategy->SetClickedListener(this, Strategy);
 	m_pStrategy->SetCursorInListener(this, StrategyHint);
 	m_pStrategy->SetFont(_T("header"), 18);
-	AddControl(m_pStrategy);
 
-	m_pLoad = new CButton(0, 0, 100, 100, _T("LOAD"));
+	m_pLoad = AddControl(new CButton(0, 0, 100, 100, _T("LOAD")));
 	m_pLoad->SetClickedListener(this, Load);
 	m_pLoad->SetFont(_T("header"), 18);
 
@@ -406,11 +388,8 @@ CGamesPanel::CGamesPanel()
 	m_pLoad->SetEnabled(false);
 #endif
 
-	AddControl(m_pLoad);
-
-	m_pDockPanel = new CDockPanel();
+	m_pDockPanel = AddControl(new CDockPanel());
 	m_pDockPanel->SetBGColor(Color(12, 13, 12, 255));
-	AddControl(m_pDockPanel);
 }
 
 void CGamesPanel::Layout()
@@ -430,22 +409,22 @@ void CGamesPanel::Layout()
 	BaseClass::Layout();
 }
 
-void CGamesPanel::ArtilleryCallback()
+void CGamesPanel::ArtilleryCallback(const tstring& sArgs)
 {
 	m_pDockPanel->SetDockedPanel(new CArtilleryGamePanel());
 }
 
-void CGamesPanel::StrategyCallback()
+void CGamesPanel::StrategyCallback(const tstring& sArgs)
 {
 	m_pDockPanel->SetDockedPanel(new CStrategyGamePanel());
 }
 
-void CGamesPanel::LoadCallback()
+void CGamesPanel::LoadCallback(const tstring& sArgs)
 {
 	glgui::CFileDialog::ShowOpenDialog(GetAppDataDirectory(DigitanksWindow()->AppDirectory(), _T("")), ".sav", this, Open);
 }
 
-void CGamesPanel::OpenCallback()
+void CGamesPanel::OpenCallback(const tstring& sArgs)
 {
 	tstring sFilename = glgui::CFileDialog::GetFile();
 	if (!sFilename.length())
@@ -466,12 +445,12 @@ void CGamesPanel::OpenCallback()
 	}
 }
 
-void CGamesPanel::ArtilleryHintCallback()
+void CGamesPanel::ArtilleryHintCallback(const tstring& sArgs)
 {
 	DigitanksWindow()->GetMainMenu()->SetHint(_T("Artillery mode is a quick no-holds-barred fight to the death. You control 1 to 4 tanks in a head-on deathmatch against your enemies. The last team standing wins. Not much strategy here, just make sure you bring the biggest guns!"));
 }
 
-void CGamesPanel::StrategyHintCallback()
+void CGamesPanel::StrategyHintCallback(const tstring& sArgs)
 {
 	DigitanksWindow()->GetMainMenu()->SetHint(_T("Strap in and grab a cup of coffee! Strategy mode takes a couple hours to play. You control a CPU, build a base, and produce units. You'll have to control and harvest the valuable Electronode resources to win. The objective is to destroy all enemy CPUs."));
 }
@@ -479,27 +458,23 @@ void CGamesPanel::StrategyHintCallback()
 CMultiplayerPanel::CMultiplayerPanel()
 	: CPanel(0, 0, 570, 520)
 {
-	m_pConnect = new CButton(0, 0, 100, 100, _T("CONNECT"));
+	m_pConnect = AddControl(new CButton(0, 0, 100, 100, _T("CONNECT")));
 	m_pConnect->SetClickedListener(this, Connect);
 	m_pConnect->SetCursorInListener(this, ClientHint);
 	m_pConnect->SetFont(_T("header"), 18);
-	AddControl(m_pConnect);
 
-	m_pCreateArtilleryLobby = new CButton(0, 0, 100, 100, _T("CREATE ARTILLERY LOBBY"));
+	m_pCreateArtilleryLobby = AddControl(new CButton(0, 0, 100, 100, _T("CREATE ARTILLERY LOBBY")));
 	m_pCreateArtilleryLobby->SetClickedListener(this, CreateArtilleryLobby);
 	m_pCreateArtilleryLobby->SetCursorInListener(this, CreateArtilleryHint);
 	m_pCreateArtilleryLobby->SetFont(_T("header"), 18);
-	AddControl(m_pCreateArtilleryLobby);
 
-	m_pCreateStrategyLobby = new CButton(0, 0, 100, 100, _T("CREATE STRATEGY LOBBY"));
+	m_pCreateStrategyLobby = AddControl(new CButton(0, 0, 100, 100, _T("CREATE STRATEGY LOBBY")));
 	m_pCreateStrategyLobby->SetClickedListener(this, CreateStrategyLobby);
 	m_pCreateStrategyLobby->SetCursorInListener(this, CreateStrategyHint);
 	m_pCreateStrategyLobby->SetFont(_T("header"), 18);
-	AddControl(m_pCreateStrategyLobby);
 
-	m_pDockPanel = new CDockPanel();
+	m_pDockPanel = AddControl(new CDockPanel());
 	m_pDockPanel->SetBGColor(Color(12, 13, 12, 255));
-	AddControl(m_pDockPanel);
 }
 
 void CMultiplayerPanel::Layout()
@@ -519,27 +494,27 @@ void CMultiplayerPanel::Layout()
 	BaseClass::Layout();
 }
 
-void CMultiplayerPanel::ConnectCallback()
+void CMultiplayerPanel::ConnectCallback(const tstring& sArgs)
 {
 	m_pDockPanel->SetDockedPanel(new CConnectPanel());
 }
 
-void CMultiplayerPanel::CreateArtilleryLobbyCallback()
+void CMultiplayerPanel::CreateArtilleryLobbyCallback(const tstring& sArgs)
 {
 	m_pDockPanel->SetDockedPanel(new CCreateLobbyPanel(GAMETYPE_ARTILLERY));
 }
 
-void CMultiplayerPanel::CreateStrategyLobbyCallback()
+void CMultiplayerPanel::CreateStrategyLobbyCallback(const tstring& sArgs)
 {
 	m_pDockPanel->SetDockedPanel(new CCreateLobbyPanel(GAMETYPE_STANDARD));
 }
 
-void CMultiplayerPanel::LoadCallback()
+void CMultiplayerPanel::LoadCallback(const tstring& sArgs)
 {
 	glgui::CFileDialog::ShowOpenDialog(GetAppDataDirectory(DigitanksWindow()->AppDirectory(), _T("")), ".sav", this, Open);
 }
 
-void CMultiplayerPanel::OpenCallback()
+void CMultiplayerPanel::OpenCallback(const tstring& sArgs)
 {
 	tstring sFilename = glgui::CFileDialog::GetFile();
 	if (!sFilename.length())
@@ -562,17 +537,17 @@ void CMultiplayerPanel::OpenCallback()
 	}
 }
 
-void CMultiplayerPanel::ClientHintCallback()
+void CMultiplayerPanel::ClientHintCallback(const tstring& sArgs)
 {
 	DigitanksWindow()->GetMainMenu()->SetHint(_T("Enter a hostname and port to connect to a remote host and play."));
 }
 
-void CMultiplayerPanel::CreateArtilleryHintCallback()
+void CMultiplayerPanel::CreateArtilleryHintCallback(const tstring& sArgs)
 {
 	DigitanksWindow()->GetMainMenu()->SetHint(_T("Artillery mode is a quick no-holds-barred fight to the death. You control 1 to 4 tanks in a head-on deathmatch against your enemies. The last team standing wins. Not much strategy here, just make sure you bring the biggest guns!"));
 }
 
-void CMultiplayerPanel::CreateStrategyHintCallback()
+void CMultiplayerPanel::CreateStrategyHintCallback(const tstring& sArgs)
 {
 	DigitanksWindow()->GetMainMenu()->SetHint(_T("Strap in and grab a cup of coffee! Strategy mode takes a couple hours to play. You control a CPU, build a base, and produce units. You'll have to control and harvest the valuable Electronode resources to win. The objective is to destroy all enemy CPUs."));
 }
@@ -584,20 +559,18 @@ CCreateLobbyPanel::CCreateLobbyPanel(gametype_t eGameType)
 
 	if (m_eGameType == GAMETYPE_ARTILLERY)
 	{
-		m_pCreateHotseatLobby = new CButton(0, 0, 100, 100, _T("Create Hotseat Lobby"));
+		m_pCreateHotseatLobby = AddControl(new CButton(0, 0, 100, 100, _T("Create Hotseat Lobby")));
 		m_pCreateHotseatLobby->SetClickedListener(this, CreateHotseatLobby);
 		m_pCreateHotseatLobby->SetCursorInListener(this, CreateHotseatHint);
 		m_pCreateHotseatLobby->SetFont(_T("header"), 12);
-		AddControl(m_pCreateHotseatLobby);
 	}
 	else
 		m_pCreateHotseatLobby = NULL;
 
-	m_pCreateOnlineLobby = new CButton(0, 0, 100, 100, _T("Create Online Lobby"));
+	m_pCreateOnlineLobby = AddControl(new CButton(0, 0, 100, 100, _T("Create Online Lobby")));
 	m_pCreateOnlineLobby->SetClickedListener(this, CreateOnlineLobby);
 	m_pCreateOnlineLobby->SetCursorInListener(this, CreateOnlineHint);
 	m_pCreateOnlineLobby->SetFont(_T("header"), 12);
-	AddControl(m_pCreateOnlineLobby);
 }
 
 void CCreateLobbyPanel::Layout()
@@ -614,26 +587,26 @@ void CCreateLobbyPanel::Layout()
 	BaseClass::Layout();
 }
 
-void CCreateLobbyPanel::CreateHotseatLobbyCallback()
+void CCreateLobbyPanel::CreateHotseatLobbyCallback(const tstring& sArgs)
 {
 	CVar::SetCVar("lobby_gametype", (int)m_eGameType);
 
 	DigitanksWindow()->GetLobbyPanel()->CreateLobby(false);
 }
 
-void CCreateLobbyPanel::CreateOnlineLobbyCallback()
+void CCreateLobbyPanel::CreateOnlineLobbyCallback(const tstring& sArgs)
 {
 	CVar::SetCVar("lobby_gametype", (int)m_eGameType);
 
 	DigitanksWindow()->GetLobbyPanel()->CreateLobby(true);
 }
 
-void CCreateLobbyPanel::CreateHotseatHintCallback()
+void CCreateLobbyPanel::CreateHotseatHintCallback(const tstring& sArgs)
 {
 	DigitanksWindow()->GetMainMenu()->SetHint(_T("Hotseat games are played with you and a few friends on this computer. You and your friends will take turns at the computer."));
 }
 
-void CCreateLobbyPanel::CreateOnlineHintCallback()
+void CCreateLobbyPanel::CreateOnlineHintCallback(const tstring& sArgs)
 {
 	DigitanksWindow()->GetMainMenu()->SetHint(_T("Online multiplayer games take place over the internet. You need a LAN or internet connection and a few friends to play online."));
 }
@@ -643,18 +616,15 @@ CConnectPanel::CConnectPanel()
 {
 	DigitanksWindow()->SetServerType(SERVER_CLIENT);
 
-	m_pHostnameLabel = new CLabel(0, 0, 32, 32, _T("Lobby Host:"));
+	m_pHostnameLabel = AddControl(new CLabel(0, 0, 32, 32, _T("Lobby Host:")));
 	m_pHostnameLabel->SetWrap(false);
 	m_pHostnameLabel->SetFont(_T("text"));
-	AddControl(m_pHostnameLabel);
 
-	m_pHostname = new CTextField();
-	AddControl(m_pHostname);
+	m_pHostname = AddControl(new CTextField());
 
-	m_pConnect = new CButton(0, 0, 100, 100, _T("Connect"));
+	m_pConnect = AddControl(new CButton(0, 0, 100, 100, _T("Connect")));
 	m_pConnect->SetClickedListener(this, Connect);
 	m_pConnect->SetFont(_T("header"), 12);
-	AddControl(m_pConnect);
 }
 
 void CConnectPanel::Layout()
@@ -668,7 +638,7 @@ void CConnectPanel::Layout()
 	BaseClass::Layout();
 }
 
-void CConnectPanel::ConnectCallback()
+void CConnectPanel::ConnectCallback(const tstring& sArgs)
 {
 	DigitanksWindow()->GetLobbyPanel()->ConnectToLocalLobby(m_pHostname->GetText());
 }
@@ -676,11 +646,8 @@ void CConnectPanel::ConnectCallback()
 CArtilleryGamePanel::CArtilleryGamePanel(bool bMultiplayer)
 	: CPanel(0, 0, 570, 520)
 {
-	m_iLevelPreview = 0;
-
-	m_pLevels = new CTree(0, 0, 0);
+	m_pLevels = AddControl(new CTree());
 	m_pLevels->SetSelectedListener(this, LevelChosen);
-	AddControl(m_pLevels);
 
 	for (size_t i = 0; i < CDigitanksGame::GetNumLevels(GAMETYPE_ARTILLERY); i++)
 	{
@@ -691,22 +658,19 @@ CArtilleryGamePanel::CArtilleryGamePanel(bool bMultiplayer)
 	}
 	m_iLevelSelected = RandomInt(0, CDigitanksGame::GetNumLevels(GAMETYPE_ARTILLERY)-1);
 
-	m_pLevelDescription = new CLabel(0, 0, 32, 32, _T(""));
+	m_pLevelDescription = AddControl(new CLabel(0, 0, 32, 32, _T("")));
 	m_pLevelDescription->SetWrap(true);
 	m_pLevelDescription->SetFont(_T("text"));
 	m_pLevelDescription->SetAlign(CLabel::TA_TOPLEFT);
-	AddControl(m_pLevelDescription);
 
-	m_pDifficulty = new CScrollSelector<int>(_T("text"));
+	m_pDifficulty = AddControl(new CScrollSelector<int>(_T("text")));
 	m_pDifficulty->AddSelection(CScrollSelection<int>(0, _T("Easy")));
 	m_pDifficulty->AddSelection(CScrollSelection<int>(1, _T("Normal")));
 	m_pDifficulty->SetSelection(1);
-	AddControl(m_pDifficulty);
 
-	m_pDifficultyLabel = new CLabel(0, 0, 32, 32, _T("Difficulty"));
+	m_pDifficultyLabel = AddControl(new CLabel(0, 0, 32, 32, _T("Difficulty")));
 	m_pDifficultyLabel->SetWrap(false);
 	m_pDifficultyLabel->SetFont(_T("text"));
-	AddControl(m_pDifficultyLabel);
 
 	if (bMultiplayer)
 	{
@@ -721,63 +685,55 @@ CArtilleryGamePanel::CArtilleryGamePanel(bool bMultiplayer)
 	}
 	else
 	{
-		m_pBotPlayers = new CScrollSelector<int>(_T("text"));
-		AddControl(m_pBotPlayers);
+		m_pBotPlayers = AddControl(new CScrollSelector<int>(_T("text")));
 
-		m_pBotPlayersLabel = new CLabel(0, 0, 32, 32, _T("Bot Players"));
+		m_pBotPlayersLabel = AddControl(new CLabel(0, 0, 32, 32, _T("Bot Players")));
 		m_pBotPlayersLabel->SetWrap(false);
 		m_pBotPlayersLabel->SetFont(_T("text"));
-		AddControl(m_pBotPlayersLabel);
 	}
 
-	m_pTanks = new CScrollSelector<int>(_T("text"));
+	m_pTanks = AddControl(new CScrollSelector<int>(_T("text")));
 	m_pTanks->AddSelection(CScrollSelection<int>(1, _T("1")));
 	m_pTanks->AddSelection(CScrollSelection<int>(2, _T("2")));
 	m_pTanks->AddSelection(CScrollSelection<int>(3, _T("3")));
 	m_pTanks->SetSelection(2);
 	m_pTanks->SetSelectedListener(this, TanksSelected);
-	AddControl(m_pTanks);
 
 	if (CGameLobbyClient::L_IsInLobby())
 		CGameLobbyClient::S_UpdateLobby(_T("tanks"), sprintf(tstring("%d"), m_pTanks->GetSelectionValue()));
 
-	m_pTanksLabel = new CLabel(0, 0, 32, 32, _T("Tanks Per Player"));
+	m_pTanksLabel = AddControl(new CLabel(0, 0, 32, 32, _T("Tanks Per Player")));
 	m_pTanksLabel->SetWrap(false);
 	m_pTanksLabel->SetFont(_T("text"));
-	AddControl(m_pTanksLabel);
 
-	m_pTerrain = new CScrollSelector<float>(_T("text"));
+	m_pTerrain = AddControl(new CScrollSelector<float>(_T("text")));
 	m_pTerrain->AddSelection(CScrollSelection<float>(10, _T("Flatty")));
 	m_pTerrain->AddSelection(CScrollSelection<float>(50, _T("Hilly")));
 	m_pTerrain->AddSelection(CScrollSelection<float>(80, _T("Mountainy")));
 	m_pTerrain->AddSelection(CScrollSelection<float>(120, _T("Everesty")));
 	m_pTerrain->SetSelection(2);
 	m_pTerrain->SetSelectedListener(this, TerrainSelected);
-	AddControl(m_pTerrain);
 
 	if (CGameLobbyClient::L_IsInLobby())
 		CGameLobbyClient::S_UpdateLobby(_T("terrain"), sprintf(tstring("%.1f"), m_pTerrain->GetSelectionValue()));
 
-	m_pTerrainLabel = new CLabel(0, 0, 32, 32, _T("Terrain"));
+	m_pTerrainLabel = AddControl(new CLabel(0, 0, 32, 32, _T("Terrain")));
 	m_pTerrainLabel->SetWrap(false);
 	m_pTerrainLabel->SetFont(_T("text"));
-	AddControl(m_pTerrainLabel);
 
 	if (bMultiplayer)
 		m_pBeginGame = NULL;
 	else
 	{
-		m_pBeginGame = new CButton(0, 0, 100, 100, _T("BEGIN!"));
+		m_pBeginGame = AddControl(new CButton(0, 0, 100, 100, _T("BEGIN!")));
 		m_pBeginGame->SetClickedListener(this, BeginGame);
 		m_pBeginGame->SetFont(_T("header"), 12);
-		AddControl(m_pBeginGame);
 	}
 }
 
 CArtilleryGamePanel::~CArtilleryGamePanel()
 {
-	if (m_iLevelPreview)
-		CRenderer::UnloadTextureFromGL(m_iLevelPreview);
+	m_hLevelPreview.Reset();
 }
 
 void CArtilleryGamePanel::Layout()
@@ -836,24 +792,24 @@ void CArtilleryGamePanel::Layout()
 	BaseClass::Layout();
 }
 
-void CArtilleryGamePanel::Paint(int x, int y, int w, int h)
+void CArtilleryGamePanel::Paint(float x, float y, float w, float h)
 {
 	if (true)
 	{
 		CRenderingContext c(GameServer()->GetRenderer());
 		c.SetBlend(BLEND_ALPHA);
 
-		int ax, ay;
+		float ax, ay;
 		GetAbsPos(ax, ay);
 
-		if (m_iLevelPreview)
-			CBaseControl::PaintTexture(m_iLevelPreview, ax + w - 160, ay + 10, 150, 150);
+		if (m_hLevelPreview.IsValid())
+			CBaseControl::PaintTexture(m_hLevelPreview, ax + w - 160, ay + 10, 150, 150);
 	}
 
 	BaseClass::Paint(x, y, w, h);
 }
 
-void CArtilleryGamePanel::BeginGameCallback()
+void CArtilleryGamePanel::BeginGameCallback(const tstring& sArgs)
 {
 	CVar::SetCVar("game_players", 1);
 	CVar::SetCVar("game_bots", m_pBotPlayers->GetSelectionValue());
@@ -875,12 +831,12 @@ void CArtilleryGamePanel::BeginGameCallback()
 	DigitanksWindow()->GetMainMenu()->SetVisible(false);
 }
 
-void CArtilleryGamePanel::UpdateLayoutCallback()
+void CArtilleryGamePanel::UpdateLayoutCallback(const tstring& sArgs)
 {
 	Layout();
 }
 
-void CArtilleryGamePanel::LevelChosenCallback()
+void CArtilleryGamePanel::LevelChosenCallback(const tstring& sArgs)
 {
 	size_t iMode = m_pLevels->GetSelectedNodeId();
 
@@ -898,13 +854,14 @@ void CArtilleryGamePanel::LevelChosenCallback()
 	}
 }
 
-void CArtilleryGamePanel::LevelPreviewCallback()
+void CArtilleryGamePanel::LevelPreviewCallback(const tstring& sArgs)
 {
 	size_t iMode = ~0;
 
 	for (size_t i = 0; i < m_pLevels->GetControls().size(); i++)
 	{
-		int cx, cy, cw, ch, mx, my;
+		float cx, cy, cw, ch;
+		int mx, my;
 		m_pLevels->GetControls()[i]->GetAbsDimensions(cx, cy, cw, ch);
 		CRootPanel::GetFullscreenMousePos(mx, my);
 		if (mx >= cx &&
@@ -923,18 +880,18 @@ void CArtilleryGamePanel::LevelPreviewCallback()
 	PreviewLevel(iMode);
 }
 
-void CArtilleryGamePanel::LevelRevertPreviewCallback()
+void CArtilleryGamePanel::LevelRevertPreviewCallback(const tstring& sArgs)
 {
 	PreviewLevel(m_iLevelSelected);
 }
 
-void CArtilleryGamePanel::TanksSelectedCallback()
+void CArtilleryGamePanel::TanksSelectedCallback(const tstring& sArgs)
 {
 	if (CGameLobbyClient::L_IsInLobby())
 		CGameLobbyClient::S_UpdateLobby(_T("tanks"), sprintf(tstring("%d"), m_pTanks->GetSelectionValue()));
 }
 
-void CArtilleryGamePanel::TerrainSelectedCallback()
+void CArtilleryGamePanel::TerrainSelectedCallback(const tstring& sArgs)
 {
 	if (CGameLobbyClient::L_IsInLobby())
 		CGameLobbyClient::S_UpdateLobby(_T("terrain"), sprintf(tstring("%.1f"), m_pTerrain->GetSelectionValue()));
@@ -942,12 +899,11 @@ void CArtilleryGamePanel::TerrainSelectedCallback()
 
 void CArtilleryGamePanel::PreviewLevel(size_t iLevel)
 {
-	if (m_iLevelPreview)
-		CRenderer::UnloadTextureFromGL(m_iLevelPreview);
+	if (m_hLevelPreview.IsValid())
+		m_hLevelPreview.Reset();
 
 	if (iLevel == ~0)
 	{
-		m_iLevelPreview = 0;
 		m_pLevelDescription->SetText("");
 		return;
 	}
@@ -955,8 +911,19 @@ void CArtilleryGamePanel::PreviewLevel(size_t iLevel)
 	CDigitanksLevel* pLevel = CDigitanksGame::GetLevel(GAMETYPE_ARTILLERY, iLevel);
 
 	Color clrPreview[256*256];
-	Color* pclrHeight = CRenderer::GetTextureData(pLevel->GetTerrainHeightImage());
-	Color* pclrData = CRenderer::GetTextureData(pLevel->GetTerrainDataImage());
+
+	int w, h;
+
+	Color* pclrHeight = CRenderer::LoadTextureData(pLevel->GetTerrainHeightImage().GetName(), w, h);
+
+	TAssert(w == TERRAIN_SIZE);
+	TAssert(h == TERRAIN_SIZE);
+
+	Color* pclrData = CRenderer::LoadTextureData(pLevel->GetTerrainDataImage().GetName(), w, h);
+
+	TAssert(w == TERRAIN_SIZE);
+	TAssert(h == TERRAIN_SIZE);
+
 	for (size_t i = 0; i < 256; i++)
 	{
 		for (size_t j = 0; j < 256; j++)
@@ -985,7 +952,8 @@ void CArtilleryGamePanel::PreviewLevel(size_t iLevel)
 		}
 	}
 
-	m_iLevelPreview = CRenderer::LoadTextureIntoGL(clrPreview, 1);
+	std::shared_ptr<CData> pMaterial(new CData("Shader", "gui"));
+	m_hLevelPreview = CMaterialLibrary::AddMaterial(pMaterial.get());
 
 	m_pLevelDescription->SetText(tstring(_T("Author: ")) + pLevel->GetAuthor() + _T("\n \nDescription: ") + pLevel->GetDescription());
 
@@ -998,11 +966,8 @@ void CArtilleryGamePanel::PreviewLevel(size_t iLevel)
 CStrategyGamePanel::CStrategyGamePanel(bool bMultiplayer)
 	: CPanel(0, 0, 570, 520)
 {
-	m_iLevelPreview = 0;
-
-	m_pLevels = new CTree(0, 0, 0);
+	m_pLevels = AddControl(new CTree());
 	m_pLevels->SetSelectedListener(this, LevelChosen);
-	AddControl(m_pLevels);
 
 	for (size_t i = 0; i < CDigitanksGame::GetNumLevels(GAMETYPE_STANDARD); i++)
 	{
@@ -1013,22 +978,19 @@ CStrategyGamePanel::CStrategyGamePanel(bool bMultiplayer)
 	}
 	m_iLevelSelected = RandomInt(0, CDigitanksGame::GetNumLevels(GAMETYPE_STANDARD)-1);
 
-	m_pLevelDescription = new CLabel(0, 0, 32, 32, _T(""));
+	m_pLevelDescription = AddControl(new CLabel(0, 0, 32, 32, _T("")));
 	m_pLevelDescription->SetWrap(true);
 	m_pLevelDescription->SetFont(_T("text"));
 	m_pLevelDescription->SetAlign(CLabel::TA_TOPLEFT);
-	AddControl(m_pLevelDescription);
 
-	m_pDifficulty = new CScrollSelector<int>(_T("text"));
+	m_pDifficulty = AddControl(new CScrollSelector<int>(_T("text")));
 	m_pDifficulty->AddSelection(CScrollSelection<int>(0, _T("Easy")));
 	m_pDifficulty->AddSelection(CScrollSelection<int>(1, _T("Normal")));
 	m_pDifficulty->SetSelection(1);
-	AddControl(m_pDifficulty);
 
-	m_pDifficultyLabel = new CLabel(0, 0, 32, 32, _T("Difficulty"));
+	m_pDifficultyLabel = AddControl(new CLabel(0, 0, 32, 32, _T("Difficulty")));
 	m_pDifficultyLabel->SetWrap(false);
 	m_pDifficultyLabel->SetFont(_T("text"));
-	AddControl(m_pDifficultyLabel);
 
 	if (bMultiplayer)
 	{
@@ -1043,30 +1005,26 @@ CStrategyGamePanel::CStrategyGamePanel(bool bMultiplayer)
 	}
 	else
 	{
-		m_pBotPlayers = new CScrollSelector<int>(_T("text"));
-		AddControl(m_pBotPlayers);
+		m_pBotPlayers = AddControl(new CScrollSelector<int>(_T("text")));
 
-		m_pBotPlayersLabel = new CLabel(0, 0, 32, 32, _T("Bot Players"));
+		m_pBotPlayersLabel = AddControl(new CLabel(0, 0, 32, 32, _T("Bot Players")));
 		m_pBotPlayersLabel->SetWrap(false);
 		m_pBotPlayersLabel->SetFont(_T("text"));
-		AddControl(m_pBotPlayersLabel);
 	}
 
 	if (bMultiplayer)
 		m_pBeginGame = NULL;
 	else
 	{
-		m_pBeginGame = new CButton(0, 0, 100, 100, _T("BEGIN!"));
+		m_pBeginGame = AddControl(new CButton(0, 0, 100, 100, _T("BEGIN!")));
 		m_pBeginGame->SetClickedListener(this, BeginGame);
 		m_pBeginGame->SetFont(_T("header"), 12);
-		AddControl(m_pBeginGame);
 	}
 }
 
 CStrategyGamePanel::~CStrategyGamePanel()
 {
-	if (m_iLevelPreview)
-		CRenderer::UnloadTextureFromGL(m_iLevelPreview);
+	m_hLevelPreview.Reset();
 }
 
 void CStrategyGamePanel::Layout()
@@ -1111,24 +1069,24 @@ void CStrategyGamePanel::Layout()
 	BaseClass::Layout();
 }
 
-void CStrategyGamePanel::Paint(int x, int y, int w, int h)
+void CStrategyGamePanel::Paint(float x, float y, float w, float h)
 {
 	if (true)
 	{
 		CRenderingContext c(GameServer()->GetRenderer());
 		c.SetBlend(BLEND_ALPHA);
 
-		int ax, ay;
+		float ax, ay;
 		GetAbsPos(ax, ay);
 
-		if (m_iLevelPreview)
-			CBaseControl::PaintTexture(m_iLevelPreview, ax + w - 160, ay + 10, 150, 150);
+		if (m_hLevelPreview.IsValid())
+			CBaseControl::PaintTexture(m_hLevelPreview, ax + w - 160, ay + 10, 150, 150);
 	}
 
 	BaseClass::Paint(x, y, w, h);
 }
 
-void CStrategyGamePanel::BeginGameCallback()
+void CStrategyGamePanel::BeginGameCallback(const tstring& sArgs)
 {
 	CVar::SetCVar("game_players", 1);
 	CVar::SetCVar("game_bots", m_pBotPlayers->GetSelectionValue());
@@ -1147,12 +1105,12 @@ void CStrategyGamePanel::BeginGameCallback()
 	DigitanksWindow()->GetMainMenu()->SetVisible(false);
 }
 
-void CStrategyGamePanel::UpdateLayoutCallback()
+void CStrategyGamePanel::UpdateLayoutCallback(const tstring& sArgs)
 {
 	Layout();
 }
 
-void CStrategyGamePanel::LevelChosenCallback()
+void CStrategyGamePanel::LevelChosenCallback(const tstring& sArgs)
 {
 	size_t iMode = m_pLevels->GetSelectedNodeId();
 
@@ -1170,13 +1128,14 @@ void CStrategyGamePanel::LevelChosenCallback()
 	}
 }
 
-void CStrategyGamePanel::LevelPreviewCallback()
+void CStrategyGamePanel::LevelPreviewCallback(const tstring& sArgs)
 {
 	size_t iMode = ~0;
 
 	for (size_t i = 0; i < m_pLevels->GetControls().size(); i++)
 	{
-		int cx, cy, cw, ch, mx, my;
+		float cx, cy, cw, ch;
+		int mx, my;
 		m_pLevels->GetControls()[i]->GetAbsDimensions(cx, cy, cw, ch);
 		CRootPanel::GetFullscreenMousePos(mx, my);
 		if (mx >= cx &&
@@ -1195,19 +1154,17 @@ void CStrategyGamePanel::LevelPreviewCallback()
 	PreviewLevel(iMode);
 }
 
-void CStrategyGamePanel::LevelRevertPreviewCallback()
+void CStrategyGamePanel::LevelRevertPreviewCallback(const tstring& sArgs)
 {
 	PreviewLevel(m_iLevelSelected);
 }
 
 void CStrategyGamePanel::PreviewLevel(size_t iLevel)
 {
-	if (m_iLevelPreview)
-		CRenderer::UnloadTextureFromGL(m_iLevelPreview);
+	m_hLevelPreview.Reset();
 
 	if (iLevel == ~0)
 	{
-		m_iLevelPreview = 0;
 		m_pLevelDescription->SetText("");
 		return;
 	}
@@ -1215,8 +1172,19 @@ void CStrategyGamePanel::PreviewLevel(size_t iLevel)
 	CDigitanksLevel* pLevel = CDigitanksGame::GetLevel(GAMETYPE_STANDARD, iLevel);
 
 	Color clrPreview[256*256];
-	Color* pclrHeight = CRenderer::GetTextureData(pLevel->GetTerrainHeightImage());
-	Color* pclrData = CRenderer::GetTextureData(pLevel->GetTerrainDataImage());
+
+	int w, h;
+
+	Color* pclrHeight = CRenderer::LoadTextureData(pLevel->GetTerrainHeightImage().GetName(), w, h);
+
+	TAssert(w == TERRAIN_SIZE);
+	TAssert(h == TERRAIN_SIZE);
+
+	Color* pclrData = CRenderer::LoadTextureData(pLevel->GetTerrainDataImage().GetName(), w, h);
+
+	TAssert(w == TERRAIN_SIZE);
+	TAssert(h == TERRAIN_SIZE);
+
 	for (size_t i = 0; i < 256; i++)
 	{
 		for (size_t j = 0; j < 256; j++)
@@ -1245,32 +1213,33 @@ void CStrategyGamePanel::PreviewLevel(size_t iLevel)
 		}
 	}
 
-	m_iLevelPreview = CRenderer::LoadTextureIntoGL(clrPreview, 1);
+	std::shared_ptr<CData> pMaterial(new CData("Shader", "gui"));
+	m_hLevelPreview = CMaterialLibrary::AddMaterial(pMaterial.get());
 
 	m_pLevelDescription->SetText(tstring(_T("Author: ")) + pLevel->GetAuthor() + _T("\n \nDescription: ") + pLevel->GetDescription());
 
 	Layout();
 }
 
+#if 0
 // HOLY CRAP A GLOBAL! Yeah it's bad. Sue me.
 tvector<GLFWvidmode> g_aVideoModes;
 GLFWvidmode g_aModes[ 100 ];
+#endif
 
 COptionsPanel::COptionsPanel()
 	: CPanel(0, 0, 570, 520)
 {
 	m_bStandalone = false;
 
-	m_pNicknameLabel = new CLabel(0, 0, 32, 32, _T("Nickname:"));
+	m_pNicknameLabel = AddControl(new CLabel(0, 0, 32, 32, _T("Nickname:")));
 	m_pNicknameLabel->SetWrap(false);
 	m_pNicknameLabel->SetFont(_T("text"));
-	AddControl(m_pNicknameLabel);
 
-	m_pNickname = new CTextField();
+	m_pNickname = AddControl(new CTextField());
 	m_pNickname->SetContentsChangedListener(this, NewNickname);
-	AddControl(m_pNickname);
 
-	m_pSoundVolume = new CScrollSelector<float>(_T("text"));
+	m_pSoundVolume = AddControl(new CScrollSelector<float>(_T("text")));
 	m_pSoundVolume->AddSelection(CScrollSelection<float>(0, _T("Off")));
 	m_pSoundVolume->AddSelection(CScrollSelection<float>(0.1f, _T("10%")));
 	m_pSoundVolume->AddSelection(CScrollSelection<float>(0.2f, _T("20%")));
@@ -1284,14 +1253,12 @@ COptionsPanel::COptionsPanel()
 	m_pSoundVolume->AddSelection(CScrollSelection<float>(1.0f, _T("100%")));
 	m_pSoundVolume->SetSelection(1);
 	m_pSoundVolume->SetSelectedListener(this, SoundVolumeChanged);
-	AddControl(m_pSoundVolume);
 
-	m_pSoundVolumeLabel = new CLabel(0, 0, 32, 32, _T("Sound Volume"));
+	m_pSoundVolumeLabel = AddControl(new CLabel(0, 0, 32, 32, _T("Sound Volume")));
 	m_pSoundVolumeLabel->SetWrap(false);
 	m_pSoundVolumeLabel->SetFont(_T("text"));
-	AddControl(m_pSoundVolumeLabel);
 
-	m_pMusicVolume = new CScrollSelector<float>(_T("text"));
+	m_pMusicVolume = AddControl(new CScrollSelector<float>(_T("text")));
 	m_pMusicVolume->AddSelection(CScrollSelection<float>(0, _T("Off")));
 	m_pMusicVolume->AddSelection(CScrollSelection<float>(0.1f, _T("10%")));
 	m_pMusicVolume->AddSelection(CScrollSelection<float>(0.2f, _T("20%")));
@@ -1305,33 +1272,29 @@ COptionsPanel::COptionsPanel()
 	m_pMusicVolume->AddSelection(CScrollSelection<float>(1.0f, _T("100%")));
 	m_pMusicVolume->SetSelection(1);
 	m_pMusicVolume->SetSelectedListener(this, MusicVolumeChanged);
-	AddControl(m_pMusicVolume);
 
-	m_pMusicVolumeLabel = new CLabel(0, 0, 32, 32, _T("Music Volume"));
+	m_pMusicVolumeLabel = AddControl(new CLabel(0, 0, 32, 32, _T("Music Volume")));
 	m_pMusicVolumeLabel->SetWrap(false);
 	m_pMusicVolumeLabel->SetFont(_T("text"));
-	AddControl(m_pMusicVolumeLabel);
 
-	m_pVideoChangedNotice = new CLabel(0, 0, 32, 32, _T("Changes to the video settings will take effect after the game has been restarted."));
+	m_pVideoChangedNotice = AddControl(new CLabel(0, 0, 32, 32, _T("Changes to the video settings will take effect after the game has been restarted.")));
 	m_pVideoChangedNotice->SetVisible(false);
 	m_pVideoChangedNotice->SetFont(_T("text"));
-	AddControl(m_pVideoChangedNotice);
 
-	m_pWindowed = new CCheckBox();
+	m_pWindowed = AddControl(new CCheckBox());
 	m_pWindowed->SetClickedListener(this, WindowedChanged);
 	m_pWindowed->SetUnclickedListener(this, WindowedChanged);
-	AddControl(m_pWindowed);
 
-	m_pWindowedLabel = new CLabel(0, 0, 100, 100, _T("Run in a window"));
+	m_pWindowedLabel = AddControl(new CLabel(0, 0, 100, 100, _T("Run in a window")));
 	m_pWindowedLabel->SetFont(_T("text"));
-	AddControl(m_pWindowedLabel);
 
-	m_pVideoModes = new CMenu(_T("Change Resolution"));
+	m_pVideoModes = AddControl(new CMenu(_T("Change Resolution")));
 	m_pVideoModes->SetFont(_T("text"));
-	AddControl(m_pVideoModes);
 
     int iModes;
 
+	TStubbed("Video modes");
+#if 0
 	g_aVideoModes.clear();
 
 	iModes = glfwGetVideoModes( g_aModes, 100 );
@@ -1351,55 +1314,31 @@ COptionsPanel::COptionsPanel()
 		m_pVideoModes->AddSubmenu(sMode, this, VideoModeChosen);
 		g_aVideoModes.push_back(g_aModes[i]);
 	}
+#endif
 
-	m_pFramebuffers = new CCheckBox();
-	m_pFramebuffers->SetClickedListener(this, FramebuffersChanged);
-	m_pFramebuffers->SetUnclickedListener(this, FramebuffersChanged);
-	AddControl(m_pFramebuffers);
-
-	m_pFramebuffersLabel = new CLabel(0, 0, 100, 100, _T("Use framebuffers"));
-	m_pFramebuffersLabel->SetFont(_T("text"));
-	AddControl(m_pFramebuffersLabel);
-
-	m_pShaders = new CCheckBox();
-	m_pShaders->SetClickedListener(this, ShadersChanged);
-	m_pShaders->SetUnclickedListener(this, ShadersChanged);
-	AddControl(m_pShaders);
-
-	m_pShadersLabel = new CLabel(0, 0, 100, 100, _T("Use shaders"));
-	m_pShadersLabel->SetFont(_T("text"));
-	AddControl(m_pShadersLabel);
-
-	m_pConstrain = new CCheckBox();
+	m_pConstrain = AddControl(new CCheckBox());
 	m_pConstrain->SetClickedListener(this, ConstrainChanged);
 	m_pConstrain->SetUnclickedListener(this, ConstrainChanged);
-	AddControl(m_pConstrain);
 
-	m_pConstrainLabel = new CLabel(0, 0, 100, 100, _T("Constrain mouse to screen edges"));
+	m_pConstrainLabel = AddControl(new CLabel(0, 0, 100, 100, _T("Constrain mouse to screen edges")));
 	m_pConstrainLabel->SetFont(_T("text"));
-	AddControl(m_pConstrainLabel);
 
-	m_pContextual = new CCheckBox();
+	m_pContextual = AddControl(new CCheckBox());
 	m_pContextual->SetClickedListener(this, ContextualChanged);
 	m_pContextual->SetUnclickedListener(this, ContextualChanged);
-	AddControl(m_pContextual);
 
-	m_pContextualLabel = new CLabel(0, 0, 100, 100, _T("Contextual mouse commands"));
+	m_pContextualLabel = AddControl(new CLabel(0, 0, 100, 100, _T("Contextual mouse commands")));
 	m_pContextualLabel->SetFont(_T("text"));
-	AddControl(m_pContextualLabel);
 
-	m_pReverseSpacebar = new CCheckBox();
+	m_pReverseSpacebar = AddControl(new CCheckBox());
 	m_pReverseSpacebar->SetClickedListener(this, ReverseSpacebarChanged);
 	m_pReverseSpacebar->SetUnclickedListener(this, ReverseSpacebarChanged);
-	AddControl(m_pReverseSpacebar);
 
-	m_pReverseSpacebarLabel = new CLabel(0, 0, 100, 100, _T("Reverse spacebar drag"));
+	m_pReverseSpacebarLabel = AddControl(new CLabel(0, 0, 100, 100, _T("Reverse spacebar drag")));
 	m_pReverseSpacebarLabel->SetFont(_T("text"));
-	AddControl(m_pReverseSpacebarLabel);
 
-	m_pClose = new CButton(0, 0, 100, 100, _T("X"));
+	m_pClose = AddControl(new CButton(0, 0, 100, 100, _T("X")));
 	m_pClose->SetClickedListener(this, Close);
-	AddControl(m_pClose);
 }
 
 void COptionsPanel::Layout()
@@ -1450,22 +1389,6 @@ void COptionsPanel::Layout()
 	m_pWindowed->SetPos(m_pWindowedLabel->GetLeft() - 15, GetHeight()-230 + m_pWindowedLabel->GetHeight()/2 - m_pWindowed->GetHeight()/2);
 	m_pWindowed->SetState(!DigitanksWindow()->IsFullscreen(), false);
 
-	m_pFramebuffersLabel->SetWrap(false);
-	m_pFramebuffersLabel->SetAlign(CLabel::TA_LEFTCENTER);
-	m_pFramebuffersLabel->SetSize(10, 10);
-	m_pFramebuffersLabel->EnsureTextFits();
-	m_pFramebuffersLabel->SetPos(GetWidth()/2 - m_pFramebuffersLabel->GetWidth()/2 + 10 + 40, GetHeight()-200);
-	m_pFramebuffers->SetPos(m_pFramebuffersLabel->GetLeft() - 15, GetHeight()-200 + m_pFramebuffersLabel->GetHeight()/2 - m_pFramebuffers->GetHeight()/2);
-	m_pFramebuffers->SetState(DigitanksWindow()->WantsFramebuffers(), false);
-
-	m_pShadersLabel->SetWrap(false);
-	m_pShadersLabel->SetAlign(CLabel::TA_LEFTCENTER);
-	m_pShadersLabel->SetSize(10, 10);
-	m_pShadersLabel->EnsureTextFits();
-	m_pShadersLabel->SetPos(GetWidth()/2 - m_pShadersLabel->GetWidth()/2 + 10 + 40, GetHeight()-180);
-	m_pShaders->SetPos(m_pShadersLabel->GetLeft() - 15, GetHeight()-180 + m_pShadersLabel->GetHeight()/2 - m_pShaders->GetHeight()/2);
-	m_pShaders->SetState(DigitanksWindow()->WantsShaders(), false);
-
 	m_pConstrainLabel->SetWrap(false);
 	m_pConstrainLabel->SetAlign(CLabel::TA_LEFTCENTER);
 	m_pConstrainLabel->SetSize(10, 10);
@@ -1498,7 +1421,7 @@ void COptionsPanel::Layout()
 	m_pClose->SetVisible(m_bStandalone);
 }
 
-void COptionsPanel::Paint(int x, int y, int w, int h)
+void COptionsPanel::Paint(float x, float y, float w, float h)
 {
 	if (m_bStandalone)
 		CRootPanel::PaintRect(x, y, w, h, Color(12, 13, 12, 255));
@@ -1506,25 +1429,26 @@ void COptionsPanel::Paint(int x, int y, int w, int h)
 	BaseClass::Paint(x, y, w, h);
 }
 
-void COptionsPanel::NewNicknameCallback()
+void COptionsPanel::NewNicknameCallback(const tstring& sArgs)
 {
 	DigitanksWindow()->SetPlayerNickname(m_pNickname->GetText());
 }
 
-void COptionsPanel::SoundVolumeChangedCallback()
+void COptionsPanel::SoundVolumeChangedCallback(const tstring& sArgs)
 {
 	DigitanksWindow()->SetSoundVolume(m_pSoundVolume->GetSelectionValue());
 	DigitanksWindow()->SaveConfig();
 }
 
-void COptionsPanel::MusicVolumeChangedCallback()
+void COptionsPanel::MusicVolumeChangedCallback(const tstring& sArgs)
 {
 	DigitanksWindow()->SetMusicVolume(m_pMusicVolume->GetSelectionValue());
 	DigitanksWindow()->SaveConfig();
 }
 
-void COptionsPanel::VideoModeChosenCallback()
+void COptionsPanel::VideoModeChosenCallback(const tstring& sArgs)
 {
+#if 0
 	size_t iMode = m_pVideoModes->GetSelectedMenu();
 
 	if (iMode >= g_aVideoModes.size())
@@ -1538,9 +1462,10 @@ void COptionsPanel::VideoModeChosenCallback()
 	m_pVideoChangedNotice->SetVisible(true);
 
 	m_pVideoModes->Pop(true, true);
+#endif
 }
 
-void COptionsPanel::WindowedChangedCallback()
+void COptionsPanel::WindowedChangedCallback(const tstring& sArgs)
 {
 	DigitanksWindow()->SetConfigFullscreen(!m_pWindowed->GetState());
 	DigitanksWindow()->SaveConfig();
@@ -1548,41 +1473,25 @@ void COptionsPanel::WindowedChangedCallback()
 	m_pVideoChangedNotice->SetVisible(true);
 }
 
-void COptionsPanel::FramebuffersChangedCallback()
-{
-	DigitanksWindow()->SetWantsFramebuffers(m_pFramebuffers->GetState());
-	DigitanksWindow()->SaveConfig();
-
-	m_pVideoChangedNotice->SetVisible(true);
-}
-
-void COptionsPanel::ShadersChangedCallback()
-{
-	DigitanksWindow()->SetWantsShaders(m_pShaders->GetState());
-	DigitanksWindow()->SaveConfig();
-
-	m_pVideoChangedNotice->SetVisible(true);
-}
-
-void COptionsPanel::ConstrainChangedCallback()
+void COptionsPanel::ConstrainChangedCallback(const tstring& sArgs)
 {
 	DigitanksWindow()->SetConstrainMouse(m_pConstrain->GetState());
 	DigitanksWindow()->SaveConfig();
 }
 
-void COptionsPanel::ContextualChangedCallback()
+void COptionsPanel::ContextualChangedCallback(const tstring& sArgs)
 {
 	DigitanksWindow()->SetContextualCommands(m_pContextual->GetState());
 	DigitanksWindow()->SaveConfig();
 }
 
-void COptionsPanel::ReverseSpacebarChangedCallback()
+void COptionsPanel::ReverseSpacebarChangedCallback(const tstring& sArgs)
 {
 	DigitanksWindow()->SetReverseSpacebar(m_pReverseSpacebar->GetState());
 	DigitanksWindow()->SaveConfig();
 }
 
-void COptionsPanel::CloseCallback()
+void COptionsPanel::CloseCallback(const tstring& sArgs)
 {
 	SetVisible(false);
 }

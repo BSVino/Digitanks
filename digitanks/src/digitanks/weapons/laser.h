@@ -3,9 +3,9 @@
 
 #include "baseweapon.h"
 
-class CLaser : public CBaseWeapon
+class CLaser : public CDigitanksWeapon
 {
-	REGISTER_ENTITY_CLASS(CLaser, CBaseWeapon);
+	REGISTER_ENTITY_CLASS(CLaser, CDigitanksWeapon);
 
 public:
 	virtual void				Precache();

@@ -7,9 +7,9 @@
 
 #include "baseweapon.h"
 
-class CProjectile : public CBaseWeapon
+class CProjectile : public CDigitanksWeapon
 {
-	REGISTER_ENTITY_CLASS(CProjectile, CBaseWeapon);
+	REGISTER_ENTITY_CLASS(CProjectile, CDigitanksWeapon);
 
 public:
 								CProjectile();

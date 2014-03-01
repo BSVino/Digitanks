@@ -17,12 +17,12 @@ public:
 	virtual void					Layout();
 	virtual void					Paint(float x, float y, float w, float h);
 
-	virtual void					SetDockedPanel(glgui::CPanel* pDock);
+	virtual void					SetDockedPanel(glgui::CControl<glgui::CPanel> pDock);
 
 	void							SetBGColor(Color clrBG) { m_clrBackground = clrBG; };
 
 protected:
-	glgui::CPanel*					m_pDockedPanel;
+	glgui::CControl<glgui::CPanel>	m_pDockedPanel;
 
 	Color							m_clrBackground;
 };
@@ -43,8 +43,8 @@ public:
 	EVENT_CALLBACK(CCampaignPanel,	ContinueCampaignHint);
 
 protected:
-	glgui::CButton*					m_pNewCampaign;
-	glgui::CButton*					m_pContinueCampaign;
+	glgui::CControl<glgui::CButton>					m_pNewCampaign;
+	glgui::CControl<glgui::CButton>					m_pContinueCampaign;
 };
 
 class CGamesPanel : public glgui::CPanel, public glgui::IEventListener
@@ -66,12 +66,12 @@ public:
 	EVENT_CALLBACK(CGamesPanel,	StrategyHint);
 
 protected:
-	glgui::CButton*					m_pArtillery;
-	glgui::CButton*					m_pStrategy;
+	glgui::CControl<glgui::CButton>					m_pArtillery;
+	glgui::CControl<glgui::CButton>					m_pStrategy;
 
-	glgui::CButton*					m_pLoad;
+	glgui::CControl<glgui::CButton>					m_pLoad;
 
-	CDockPanel*						m_pDockPanel;
+	glgui::CControl<CDockPanel>						m_pDockPanel;
 };
 
 class CMultiplayerPanel : public glgui::CPanel, public glgui::IEventListener
@@ -95,11 +95,11 @@ public:
 	EVENT_CALLBACK(CMultiplayerPanel,	CreateStrategyHint);
 
 protected:
-	glgui::CButton*					m_pConnect;
-	glgui::CButton*					m_pCreateArtilleryLobby;
-	glgui::CButton*					m_pCreateStrategyLobby;
+	glgui::CControl<glgui::CButton>					m_pConnect;
+	glgui::CControl<glgui::CButton>					m_pCreateArtilleryLobby;
+	glgui::CControl<glgui::CButton>					m_pCreateStrategyLobby;
 
-	CDockPanel*						m_pDockPanel;
+	glgui::CControl<CDockPanel>						m_pDockPanel;
 };
 
 class CCreateLobbyPanel : public glgui::CPanel, public glgui::IEventListener
@@ -120,8 +120,8 @@ public:
 protected:
 	gametype_t						m_eGameType;
 
-	glgui::CButton*					m_pCreateHotseatLobby;
-	glgui::CButton*					m_pCreateOnlineLobby;
+	glgui::CControl<glgui::CButton>					m_pCreateHotseatLobby;
+	glgui::CControl<glgui::CButton>					m_pCreateOnlineLobby;
 };
 
 class CConnectPanel : public glgui::CPanel, public glgui::IEventListener
@@ -137,10 +137,10 @@ public:
 	EVENT_CALLBACK(CConnectPanel,	Connect);
 
 protected:
-	glgui::CLabel*					m_pHostnameLabel;
-	glgui::CTextField*				m_pHostname;
+	glgui::CControl<glgui::CLabel>					m_pHostnameLabel;
+	glgui::CControl<glgui::CTextField>				m_pHostname;
 
-	glgui::CButton*					m_pConnect;
+	glgui::CControl<glgui::CButton>					m_pConnect;
 };
 
 class CArtilleryGamePanel : public glgui::CPanel, public glgui::IEventListener
@@ -166,26 +166,26 @@ public:
 	void							PreviewLevel(size_t iLevel);
 
 protected:
-	glgui::CTree*					m_pLevels;
+	glgui::CControl<glgui::CTree>					m_pLevels;
 	size_t							m_iLevelSelected;
 
-	glgui::CLabel*					m_pLevelDescription;
+	glgui::CControl<glgui::CLabel>					m_pLevelDescription;
 
-	size_t							m_iLevelPreview;
+	CMaterialHandle							m_hLevelPreview;
 
-	glgui::CScrollSelector<int>*	m_pDifficulty;
-	glgui::CLabel*					m_pDifficultyLabel;
+	glgui::CControl<glgui::CScrollSelector<int>>	m_pDifficulty;
+	glgui::CControl<glgui::CLabel>					m_pDifficultyLabel;
 
-	glgui::CScrollSelector<int>*	m_pBotPlayers;
-	glgui::CLabel*					m_pBotPlayersLabel;
+	glgui::CControl<glgui::CScrollSelector<int>>	m_pBotPlayers;
+	glgui::CControl<glgui::CLabel>					m_pBotPlayersLabel;
 
-	glgui::CScrollSelector<int>*	m_pTanks;
-	glgui::CLabel*					m_pTanksLabel;
+	glgui::CControl<glgui::CScrollSelector<int>>	m_pTanks;
+	glgui::CControl<glgui::CLabel>					m_pTanksLabel;
 
-	glgui::CScrollSelector<float>*	m_pTerrain;
-	glgui::CLabel*					m_pTerrainLabel;
+	glgui::CControl<glgui::CScrollSelector<float>>	m_pTerrain;
+	glgui::CControl<glgui::CLabel>					m_pTerrainLabel;
 
-	glgui::CButton*					m_pBeginGame;
+	glgui::CControl<glgui::CButton>					m_pBeginGame;
 };
 
 class CStrategyGamePanel : public glgui::CPanel, public glgui::IEventListener
@@ -209,20 +209,20 @@ public:
 	void							PreviewLevel(size_t iLevel);
 
 protected:
-	glgui::CTree*					m_pLevels;
+	glgui::CControl<glgui::CTree>					m_pLevels;
 	size_t							m_iLevelSelected;
 
-	glgui::CLabel*					m_pLevelDescription;
+	glgui::CControl<glgui::CLabel>					m_pLevelDescription;
 
-	size_t							m_iLevelPreview;
+	CMaterialHandle							m_hLevelPreview;
 
-	glgui::CScrollSelector<int>*	m_pDifficulty;
-	glgui::CLabel*					m_pDifficultyLabel;
+	glgui::CControl<glgui::CScrollSelector<int>>	m_pDifficulty;
+	glgui::CControl<glgui::CLabel>					m_pDifficultyLabel;
 
-	glgui::CScrollSelector<int>*	m_pBotPlayers;
-	glgui::CLabel*					m_pBotPlayersLabel;
+	glgui::CControl<glgui::CScrollSelector<int>>	m_pBotPlayers;
+	glgui::CControl<glgui::CLabel>					m_pBotPlayersLabel;
 
-	glgui::CButton*					m_pBeginGame;
+	glgui::CControl<glgui::CButton>					m_pBeginGame;
 };
 
 class COptionsPanel : public glgui::CPanel, public glgui::IEventListener
@@ -243,42 +243,40 @@ public:
 	EVENT_CALLBACK(COptionsPanel,	MusicVolumeChanged);
 	EVENT_CALLBACK(COptionsPanel,	VideoModeChosen);
 	EVENT_CALLBACK(COptionsPanel,	WindowedChanged);
-	EVENT_CALLBACK(COptionsPanel,	FramebuffersChanged);
-	EVENT_CALLBACK(COptionsPanel,	ShadersChanged);
 	EVENT_CALLBACK(COptionsPanel,	ConstrainChanged);
 	EVENT_CALLBACK(COptionsPanel,	ContextualChanged);
 	EVENT_CALLBACK(COptionsPanel,	ReverseSpacebarChanged);
 	EVENT_CALLBACK(COptionsPanel,	Close);
 
 protected:
-	glgui::CLabel*					m_pNicknameLabel;
-	glgui::CTextField*				m_pNickname;
+	glgui::CControl<glgui::CLabel>					m_pNicknameLabel;
+	glgui::CControl<glgui::CTextField>				m_pNickname;
 
-	glgui::CScrollSelector<float>*	m_pSoundVolume;
-	glgui::CLabel*					m_pSoundVolumeLabel;
+	glgui::CControl<glgui::CScrollSelector<float>>	m_pSoundVolume;
+	glgui::CControl<glgui::CLabel>					m_pSoundVolumeLabel;
 
-	glgui::CScrollSelector<float>*	m_pMusicVolume;
-	glgui::CLabel*					m_pMusicVolumeLabel;
+	glgui::CControl<glgui::CScrollSelector<float>>	m_pMusicVolume;
+	glgui::CControl<glgui::CLabel>					m_pMusicVolumeLabel;
 
-	glgui::CMenu*					m_pVideoModes;
+	glgui::CControl<glgui::CMenu>					m_pVideoModes;
 
-	glgui::CCheckBox*				m_pWindowed;
-	glgui::CLabel*					m_pWindowedLabel;
+	glgui::CControl<glgui::CCheckBox>				m_pWindowed;
+	glgui::CControl<glgui::CLabel>					m_pWindowedLabel;
 
-	glgui::CCheckBox*				m_pConstrain;
-	glgui::CLabel*					m_pConstrainLabel;
+	glgui::CControl<glgui::CCheckBox>				m_pConstrain;
+	glgui::CControl<glgui::CLabel>					m_pConstrainLabel;
 
-	glgui::CCheckBox*				m_pContextual;
-	glgui::CLabel*					m_pContextualLabel;
+	glgui::CControl<glgui::CCheckBox>				m_pContextual;
+	glgui::CControl<glgui::CLabel>					m_pContextualLabel;
 
-	glgui::CCheckBox*				m_pReverseSpacebar;
-	glgui::CLabel*					m_pReverseSpacebarLabel;
+	glgui::CControl<glgui::CCheckBox>				m_pReverseSpacebar;
+	glgui::CControl<glgui::CLabel>					m_pReverseSpacebarLabel;
 
-	glgui::CLabel*					m_pVideoChangedNotice;
+	glgui::CControl<glgui::CLabel>					m_pVideoChangedNotice;
 
 	bool							m_bStandalone;
 
-	glgui::CButton*					m_pClose;
+	glgui::CControl<glgui::CButton>					m_pClose;
 };
 
 class CMainMenu : public glgui::CPanel, public glgui::IEventListener
@@ -302,27 +300,27 @@ public:
 	EVENT_CALLBACK(CMainMenu,		Quit);
 	EVENT_CALLBACK(CMainMenu,		Credits);
 
-	CDockPanel*						GetDockPanel();
+	glgui::CControl<CDockPanel>						GetDockPanel();
 
 	virtual void					SetHint(const tstring &sHint);
 
 protected:
-	glgui::CButton*					m_pCampaign;
-	glgui::CButton*					m_pPlay;
-	glgui::CButton*					m_pMultiplayer;
-	glgui::CButton*					m_pOptions;
-	glgui::CButton*					m_pQuit;
+	glgui::CControl<glgui::CButton>					m_pCampaign;
+	glgui::CControl<glgui::CButton>					m_pPlay;
+	glgui::CControl<glgui::CButton>					m_pMultiplayer;
+	glgui::CControl<glgui::CButton>					m_pOptions;
+	glgui::CControl<glgui::CButton>					m_pQuit;
 
-	glgui::CLabel*					m_pHint;
+	glgui::CControl<glgui::CLabel>					m_pHint;
 
-	glgui::CButton*					m_pShowCredits;
-	glgui::CLabel*					m_pCredits;
+	glgui::CControl<glgui::CButton>					m_pShowCredits;
+	glgui::CControl<glgui::CLabel>					m_pCredits;
 
-	CDockPanel*						m_pDockPanel;
+	glgui::CControl<CDockPanel>						m_pDockPanel;
 
 	float							m_flCreditsRoll;
 
-	glgui::CLabel*					m_pVersion;
+	glgui::CControl<glgui::CLabel>					m_pVersion;
 };
 
 #endif

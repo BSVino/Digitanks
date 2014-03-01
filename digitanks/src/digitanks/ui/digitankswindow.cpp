@@ -259,46 +259,6 @@ void CDigitanksWindow::RenderMouseCursor()
 		glgui::CBaseControl::PaintSheet(m_hCursors, mx-20, my-20, 80, 40, 160, 80, 80, 40, 256, 128);
 }
 
-void LoadLevel(class CCommand* pCommand, tvector<tstring>& asTokens, const tstring& sCommand)
-{
-	if (asTokens.size() == 1)
-	{
-		if (!GameServer())
-		{
-			TMsg("Use load_level 'levelpath' to specify the level.\n");
-			return;
-		}
-
-		CDigitanksLevel* pLevel = CDigitanksGame::GetLevel(CVar::GetCVarValue("game_level"));
-
-		if (!pLevel)
-		{
-			TMsg(tstring("Can't find file '") + CVar::GetCVarValue("game_level") + "'.\n");
-			return;
-		}
-
-		DigitanksWindow()->CreateGame(pLevel->GetGameType());
-		return;
-	}
-
-	CDigitanksLevel* pLevel = CDigitanksGame::GetLevel(asTokens[1]);
-
-	if (!pLevel)
-	{
-		TMsg(tstring("Can't find file '") + asTokens[1] + "'.\n");
-		return;
-	}
-
-	CVar::SetCVar("game_level", pLevel->GetFile());
-
-	DigitanksWindow()->CreateGame(pLevel->GetGameType());
-
-	CApplication::CloseConsole();
-
-	DigitanksWindow()->GetInstructor()->SetActive(false);
-}
-
-CCommand load_level("load_level", ::LoadLevel);
 CVar game_type("game_type", "");
 
 void CDigitanksWindow::CreateGame(gametype_t eRequestedGameType)
@@ -399,31 +359,6 @@ void CDigitanksWindow::CreateGame(gametype_t eRequestedGameType)
 
 	m_pMainMenu->SetVisible(eGameType == GAMETYPE_MENU);
 	m_pVictory->SetVisible(false);
-}
-
-void CDigitanksWindow::DestroyGame()
-{
-	TMsg("Destroying game.\n");
-
-	RenderLoading();
-
-	if (m_pGameServer)
-		delete m_pGameServer;
-
-	if (m_pHUD)
-	{
-		glgui::CRootPanel::Get()->RemoveControl(m_pHUD);
-		delete m_pHUD;
-	}
-
-	if (m_pInstructor)
-		delete m_pInstructor;
-
-	m_pGameServer = NULL;
-	m_pHUD = NULL;
-	m_pInstructor = NULL;
-
-	CSoundLibrary::StopMusic();
 }
 
 void CDigitanksWindow::NewCampaign()
@@ -742,10 +677,7 @@ void CDigitanksWindow::SaveConfig()
 
 CInstructor* CDigitanksWindow::GetInstructor()
 {
-	if (!m_pInstructor)
-		m_pInstructor = new CInstructor();
-
-	return m_pInstructor;
+	return BaseClass::GetInstructor();
 }
 
 void CDigitanksWindow::SetSoundVolume(float flSoundVolume)

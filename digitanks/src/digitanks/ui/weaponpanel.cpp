@@ -1,9 +1,12 @@
 #include "weaponpanel.h"
 
 #include <ui/instructor.h>
+#include <glgui/rootpanel.h>
+
+#include <renderer/game_renderer.h>
+#include <renderer/game_renderingcontext.h>
 
 #include <digitanksgame.h>
-#include <renderer/renderer.h>
 #include "digitankswindow.h"
 #include "hud.h"
 
@@ -12,9 +15,8 @@ using namespace glgui;
 CWeaponPanel::CWeaponPanel()
 	: CPanel(0, 0, 260, 300)
 {
-	m_pInfo = new CLabel(0, 0, 100, 300, _T(""));
-	m_pInfo->SetFont(_T("text"));
-	AddControl(m_pInfo);
+	m_pInfo = AddControl(new CLabel(0, 0, 100, 300, ""));
+	m_pInfo->SetFont("text");
 }
 
 void CWeaponPanel::Layout()
@@ -27,10 +29,7 @@ void CWeaponPanel::Layout()
 	SetSize(250, 250);
 
 	for (size_t i = 0; i < m_apWeapons.size(); i++)
-	{
-		m_apWeapons[i]->Destructor();
-		m_apWeapons[i]->Delete();
-	}
+		RemoveControl(m_apWeapons[i]);
 
 	m_apWeapons.clear();
 
@@ -84,16 +83,15 @@ void CWeaponPanel::Layout()
 			if (!DigitanksGame()->IsWeaponAllowed(eWeapon, pTank) && iWeapon >= pTank->GetNumWeapons())
 				break;
 
-			m_apWeapons.push_back(new CWeaponButton(this));
+			m_apWeapons.push_back(AddControl(new CWeaponButton(this)));
 			CWeaponButton* pWeapon = m_apWeapons[m_apWeapons.size()-1];
 			pWeapon->SetSize(iButtonSize-2, iButtonSize-1);
 			pWeapon->SetPos(i*iButtonSize + iPaddingSize*i, j*iButtonSize + iPaddingSize*j);
-			pWeapon->SetFont(_T("text"), 10);
+			pWeapon->SetFont("text"), 10;
 			pWeapon->SetWeapon(eWeapon);
-			AddControl(pWeapon);
 
 			pWeapon->SetEnabled(true);
-			pWeapon->SetFGColor(Color(0, 0, 0));
+			pWeapon->SetTextColor(Color(0, 0, 0));
 			pWeapon->SetClickedListener(pWeapon, &CWeaponButton::ChooseWeapon);
 
 			SetTextureForWeapon(pWeapon, eWeapon);
@@ -114,7 +112,7 @@ void CWeaponPanel::Layout()
 	UpdateInfo(WEAPON_NONE);
 }
 
-void CWeaponPanel::Paint(int x, int y, int w, int h)
+void CWeaponPanel::Paint(float x, float y, float w, float h)
 {
 	if (DigitanksGame()->GetPrimarySelectionTank())
 	{
@@ -136,7 +134,7 @@ void CWeaponPanel::Paint(int x, int y, int w, int h)
 
 		int iShieldSize = 200;
 
-		int iShield = (int)(255*(10-CBaseWeapon::GetWeaponEnergy(m_eWeapon))/10);
+		int iShield = (int)(255*(10-CDigitanksWeapon::GetWeaponEnergy(m_eWeapon))/10);
 		if (iShield > 255)
 			iShield = 255;
 
@@ -145,13 +143,13 @@ void CWeaponPanel::Paint(int x, int y, int w, int h)
 
 		c.SetColor(Color(255, 255, 255, 255));
 		tstring sShields = sprintf(tstring("Shield Power: %d%%"), 100-((int)CProjectile::GetWeaponEnergy(m_eWeapon)*10));
-		float flTextWidth = glgui::CLabel::GetTextWidth(sShields, sShields.length(), _T("text"), 12);
-		glgui::CLabel::PaintText(sShields, sShields.length(), _T("text"), 12, iWindowWidth/4 - flTextWidth/2, (float)(iWindowHeight/2 - iShieldSize/2));
+		float flTextWidth = glgui::CLabel::GetTextWidth(sShields, sShields.length(), "text", 12);
+		glgui::CLabel::PaintText(sShields, sShields.length(), "text", 12, iWindowWidth/4 - flTextWidth/2, (float)(iWindowHeight/2 - iShieldSize/2));
 	}
 
 	if (m_pInfo->GetText().length() > 1)
 	{
-		int ix, iy, iw, ih;
+		float ix, iy, iw, ih;
 		m_pInfo->GetAbsDimensions(ix, iy, iw, ih);
 		CRootPanel::PaintRect(ix, iy, iw, ih, Color(0, 0, 0, GetAlpha()));
 	}
@@ -175,8 +173,8 @@ void CWeaponPanel::UpdateInfo(weapon_t eWeapon)
 	tstring sName = CProjectile::GetWeaponName(eWeapon);
 	sName.make_upper();
 
-	s += sName + _T("\n \n");
-	s += tstring(CProjectile::GetWeaponDescription(eWeapon)) + _T("\n \n");
+	s += sName + "\n \n";
+	s += tstring(CProjectile::GetWeaponDescription(eWeapon)) + "\n \n";
 	s += sprintf(tstring("Energy Required: %d%%\n"), ((int)CProjectile::GetWeaponEnergy(eWeapon)*10));
 	s += sprintf(tstring("Damage: %.1f\n"), CProjectile::GetWeaponDamage(eWeapon));
 
@@ -191,15 +189,15 @@ void CWeaponPanel::SetTextureForWeapon(CWeaponButton* pWeapon, weapon_t eWeapon)
 	int iTextureWidth = 512;
 	int iTextureHeight = 256;
 
-	size_t iSheet;
+	CMaterialHandle hSheet;
 	int sx, sy, sw, sh, tw, th;
-	CHUD::GetWeaponSheet(eWeapon, iSheet, sx, sy, sw, sh, tw, th);
+	CHUD::GetWeaponSheet(eWeapon, hSheet, sx, sy, sw, sh, tw, th);
 
-	pWeapon->SetSheetTexture(iSheet, sx, sy, sw, sh, tw, th);
+	pWeapon->SetSheetTexture(hSheet, sx, sy, sw, sh, tw, th);
 }
 
 CWeaponButton::CWeaponButton(CWeaponPanel* pPanel)
-	: CPictureButton(_T(""))
+	: CPictureButton("")
 {
 	m_pWeaponPanel = pPanel;
 	m_eWeapon = WEAPON_NONE;
@@ -217,7 +215,7 @@ void CWeaponButton::CursorIn()
 	m_pWeaponPanel->UpdateInfo(m_eWeapon);
 }
 
-void CWeaponButton::ChooseWeaponCallback()
+void CWeaponButton::ChooseWeaponCallback(const tstring& sArgs)
 {
 	CDigitanksPlayer* pTeam = DigitanksGame()->GetCurrentLocalDigitanksPlayer();
 
@@ -237,6 +235,6 @@ void CWeaponButton::ChooseWeaponCallback()
 
 	CRootPanel::Get()->Layout();
 
-	DigitanksWindow()->GetInstructor()->FinishedTutorial("artillery-chooseweapon", true);
+	DigitanksWindow()->GetInstructor()->FinishedLesson("artillery-chooseweapon", true);
 }
 

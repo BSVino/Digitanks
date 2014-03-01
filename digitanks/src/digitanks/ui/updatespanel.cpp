@@ -10,6 +10,8 @@
 #include <ui/digitankswindow.h>
 #include <ui/hud.h>
 
+#define _T(x) x
+
 using namespace glgui;
 
 CUpdatesPanel::CUpdatesPanel()
@@ -310,11 +312,11 @@ void CUpdatesPanel::UpdateInfo(CUpdateItem* pInfo)
 		m_pTutorial->SetText(_T("This update is not yet available for download."));
 }
 
-void CUpdatesPanel::GetTextureForUpdateItem(class CUpdateItem* pInfo, size_t& iSheet, int& sx, int& sy, int& sw, int& sh, int& tw, int& th)
+void CUpdatesPanel::GetTextureForUpdateItem(class CUpdateItem* pInfo, CMaterialHandle& hSheet, int& sx, int& sy, int& sw, int& sh, int& tw, int& th)
 {
 	if (!pInfo)
 	{
-		iSheet = DigitanksWindow()->GetHUD()->GetDownloadSheet().GetSheet("DownloadButton");
+		hSheet = DigitanksWindow()->GetHUD()->GetDownloadSheet().GetSheet("DownloadButton");
 		Rect rArea = DigitanksWindow()->GetHUD()->GetDownloadSheet().GetArea("DownloadButton");
 		sx = rArea.x;
 		sy = rArea.y;
@@ -335,42 +337,42 @@ void CUpdatesPanel::GetTextureForUpdateItem(class CUpdateItem* pInfo, size_t& iS
 		{
 		case STRUCTURE_CPU:
 			rArea = DigitanksWindow()->GetHUD()->GetDownloadSheet().GetArea("CPU");
-			iSheet = DigitanksWindow()->GetHUD()->GetDownloadSheet().GetSheet("CPU");
+			hSheet = DigitanksWindow()->GetHUD()->GetDownloadSheet().GetSheet("CPU");
 			tw = DigitanksWindow()->GetHUD()->GetDownloadSheet().GetSheetWidth("CPU");
 			th = DigitanksWindow()->GetHUD()->GetDownloadSheet().GetSheetHeight("CPU");
 			break;
 
 		case STRUCTURE_BUFFER:
 			rArea = DigitanksWindow()->GetHUD()->GetDownloadSheet().GetArea("MacroBuffer");
-			iSheet = DigitanksWindow()->GetHUD()->GetDownloadSheet().GetSheet("MacroBuffer");
+			hSheet = DigitanksWindow()->GetHUD()->GetDownloadSheet().GetSheet("MacroBuffer");
 			tw = DigitanksWindow()->GetHUD()->GetDownloadSheet().GetSheetWidth("MacroBuffer");
 			th = DigitanksWindow()->GetHUD()->GetDownloadSheet().GetSheetHeight("MacroBuffer");
 			break;
 
 		case STRUCTURE_PSU:
 			rArea = DigitanksWindow()->GetHUD()->GetDownloadSheet().GetArea("PSU");
-			iSheet = DigitanksWindow()->GetHUD()->GetDownloadSheet().GetSheet("PSU");
+			hSheet = DigitanksWindow()->GetHUD()->GetDownloadSheet().GetSheet("PSU");
 			tw = DigitanksWindow()->GetHUD()->GetDownloadSheet().GetSheetWidth("PSU");
 			th = DigitanksWindow()->GetHUD()->GetDownloadSheet().GetSheetHeight("PSU");
 			break;
 
 		case STRUCTURE_INFANTRYLOADER:
 			rArea = DigitanksWindow()->GetHUD()->GetDownloadSheet().GetArea("ResistorFactory");
-			iSheet = DigitanksWindow()->GetHUD()->GetDownloadSheet().GetSheet("ResistorFactory");
+			hSheet = DigitanksWindow()->GetHUD()->GetDownloadSheet().GetSheet("ResistorFactory");
 			tw = DigitanksWindow()->GetHUD()->GetDownloadSheet().GetSheetWidth("ResistorFactory");
 			th = DigitanksWindow()->GetHUD()->GetDownloadSheet().GetSheetHeight("ResistorFactory");
 			break;
 
 		case STRUCTURE_TANKLOADER:
 			rArea = DigitanksWindow()->GetHUD()->GetDownloadSheet().GetArea("DigitankFactory");
-			iSheet = DigitanksWindow()->GetHUD()->GetDownloadSheet().GetSheet("DigitankFactory");
+			hSheet = DigitanksWindow()->GetHUD()->GetDownloadSheet().GetSheet("DigitankFactory");
 			tw = DigitanksWindow()->GetHUD()->GetDownloadSheet().GetSheetWidth("DigitankFactory");
 			th = DigitanksWindow()->GetHUD()->GetDownloadSheet().GetSheetHeight("DigitankFactory");
 			break;
 
 		case STRUCTURE_ARTILLERYLOADER:
 			rArea = DigitanksWindow()->GetHUD()->GetDownloadSheet().GetArea("ArtilleryFactory");
-			iSheet = DigitanksWindow()->GetHUD()->GetDownloadSheet().GetSheet("ArtilleryFactory");
+			hSheet = DigitanksWindow()->GetHUD()->GetDownloadSheet().GetSheet("ArtilleryFactory");
 			tw = DigitanksWindow()->GetHUD()->GetDownloadSheet().GetSheetWidth("ArtilleryFactory");
 			th = DigitanksWindow()->GetHUD()->GetDownloadSheet().GetSheetHeight("ArtilleryFactory");
 			break;
@@ -466,7 +468,7 @@ void CUpdatesPanel::GetTextureForUpdateItem(class CUpdateItem* pInfo, size_t& iS
 			break;
 		}
 
-		iSheet = pSheet->GetSheet(sArea);
+		hSheet = pSheet->GetSheet(sArea);
 		Rect rArea = pSheet->GetArea(sArea);
 		sx = rArea.x;
 		sy = rArea.y;
@@ -514,7 +516,7 @@ void CUpdatesPanel::GetTextureForUpdateItem(class CUpdateItem* pInfo, size_t& iS
 			break;
 		}
 
-		iSheet = pSheet->GetSheet(sArea);
+		hSheet = pSheet->GetSheet(sArea);
 		Rect rArea = pSheet->GetArea(sArea);
 		sx = rArea.x;
 		sy = rArea.y;
@@ -572,13 +574,13 @@ void CUpdateButton::Think()
 	CPictureButton::Think();
 }
 
-void CUpdateButton::Paint(int x, int y, int w, int h)
+void CUpdateButton::Paint(float x, float y, float w, float h)
 {
 	float flScale = RemapVal(m_flFocusRamp, 0, 1, 1, 1.5f);
 	CPictureButton::Paint(x + w/2 - (int)(flScale*w)/2, y + h/2 - (int)(flScale*h)/2, (int)(w*flScale), (int)(h*flScale));
 }
 
-void CUpdateButton::ChooseDownloadCallback()
+void CUpdateButton::ChooseDownloadCallback(const tstring& sArgs)
 {
 	CUpdateGrid* pUpdates = DigitanksGame()->GetUpdateGrid();
 	if (!pUpdates)
@@ -588,7 +590,7 @@ void CUpdateButton::ChooseDownloadCallback()
 
 	if (DigitanksGame()->GetCurrentLocalDigitanksPlayer()->IsDownloading(m_iX, m_iY))
 	{
-		int x, y;
+		float x, y;
 		GetAbsPos(x, y);
 		DigitanksWindow()->GetHUD()->SlideUpdateIcon(x, y);
 

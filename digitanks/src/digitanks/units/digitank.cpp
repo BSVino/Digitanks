@@ -178,7 +178,7 @@ SAVEDATA_TABLE_BEGIN(CDigitank);
 	SAVEDATA_DEFINE(CSaveData::DATA_NETVAR, bool, m_bLostConcealment);
 	SAVEDATA_DEFINE(CSaveData::DATA_COPYTYPE, float, m_flFireWeaponTime);
 	SAVEDATA_DEFINE(CSaveData::DATA_COPYTYPE, size_t, m_iFireWeapons);
-	SAVEDATA_DEFINE(CSaveData::DATA_COPYTYPE, CEntityHandle<CBaseWeapon>, m_hWeapon);
+	SAVEDATA_DEFINE(CSaveData::DATA_COPYTYPE, CEntityHandle<CDigitanksWeapon>, m_hWeapon);
 	SAVEDATA_DEFINE(CSaveData::DATA_COPYTYPE, float, m_flLastSpeech);
 	SAVEDATA_DEFINE(CSaveData::DATA_COPYTYPE, float, m_flNextIdle);
 	SAVEDATA_DEFINE(CSaveData::DATA_OMIT, size_t, m_iTurretModel);	// Set in Spawn()
@@ -2454,7 +2454,7 @@ void CDigitank::FireWeapon()
 
 void CDigitank::FireWeapon(CNetworkParameters* p)
 {
-	m_hWeapon = CEntityHandle<CBaseWeapon>(p->ui2);
+	m_hWeapon = CEntityHandle<CDigitanksWeapon>(p->ui2);
 
 	Vector vecLandingSpot = Vector(p->fl3, p->fl4, p->fl5);
 
@@ -2520,7 +2520,7 @@ void CDigitank::FireProjectile(CProjectile* pProjectile, Vector vecLandingSpot)
 	}
 }
 
-CBaseWeapon* CDigitank::CreateWeapon()
+CDigitanksWeapon* CDigitank::CreateWeapon()
 {
 	if (GetCurrentWeapon() == PROJECTILE_ARTILLERY)
 		return GameServer()->Create<CArtilleryShell>("CArtilleryShell");

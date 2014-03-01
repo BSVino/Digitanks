@@ -4,9 +4,9 @@
 #include "baseweapon.h"
 #include <renderer/particles.h>
 
-class CTurretMissile : public CBaseWeapon
+class CTurretMissile : public CDigitanksWeapon
 {
-	REGISTER_ENTITY_CLASS(CTurretMissile, CBaseWeapon);
+	REGISTER_ENTITY_CLASS(CTurretMissile, CDigitanksWeapon);
 
 public:
 	virtual void				Spawn();

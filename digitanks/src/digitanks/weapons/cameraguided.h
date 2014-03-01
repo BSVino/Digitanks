@@ -5,9 +5,9 @@
 
 #include <renderer/particles.h>
 
-class CCameraGuidedMissile : public CBaseWeapon
+class CCameraGuidedMissile : public CDigitanksWeapon
 {
-	REGISTER_ENTITY_CLASS(CCameraGuidedMissile, CBaseWeapon);
+	REGISTER_ENTITY_CLASS(CCameraGuidedMissile, CDigitanksWeapon);
 
 public:
 	virtual void				Precache();

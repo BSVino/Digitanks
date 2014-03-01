@@ -58,6 +58,21 @@ CResource<CLevel> CreateLevel()
 	return CResource<CLevel>(new CDigitanksLevel());
 }
 
+CHUDViewport* CreateHUD()
+{
+	return new CHUD();
+}
+
+tstring GetInitialGameMode()
+{
+	return "menu";
+}
+
+pfnConditionsMet Game_GetInstructorConditions(const tstring& sConditions)
+{
+	return false;
+}
+
 REGISTER_ENTITY(CDigitanksGame);
 
 NETVAR_TABLE_BEGIN(CDigitanksGame);
@@ -1709,7 +1724,7 @@ void CDigitanksGame::FireTanks()
 	{
 		CDigitank* pTank = pTeam->GetTank(i);
 
-		if (CBaseWeapon::IsWeaponPrimarySelectionOnly(pTank->GetCurrentWeapon()) && GetPrimarySelectionTank() != pTank)
+		if (CDigitanksWeapon::IsWeaponPrimarySelectionOnly(pTank->GetCurrentWeapon()) && GetPrimarySelectionTank() != pTank)
 			continue;
 
 		if (pTank->GetCurrentWeapon() == WEAPON_CHARGERAM)
@@ -1945,7 +1960,7 @@ void CDigitanksGame::OnClientEnterGame(int iClient)
 
 bool CDigitanksGame::Explode(CBaseEntity* pAttacker, CBaseEntity* pInflictor, float flRadius, float flDamage, CBaseEntity* pIgnore, const CDigitanksPlayer* pTeamIgnore)
 {
-	CBaseWeapon* pWeapon = dynamic_cast<CBaseWeapon*>(pInflictor);
+	CDigitanksWeapon* pWeapon = dynamic_cast<CDigitanksWeapon*>(pInflictor);
 
 	Vector vecExplosionOrigin;
 	if (pInflictor)
@@ -2528,7 +2543,7 @@ void CDigitanksGame::WeaponSpecialCommand(CDigitanksPlayer* pTeam)
 	if (pTeam != GetCurrentPlayer())
 		return;
 
-	tvector<CEntityHandle<CBaseWeapon> > ahWeapons;
+	tvector<CEntityHandle<CDigitanksWeapon> > ahWeapons;
 
 	// Form a list of weapons to send the message to since sometimes it creates new projectiles,
 	// and we don't want to send the message to those new ones.
@@ -2538,7 +2553,7 @@ void CDigitanksGame::WeaponSpecialCommand(CDigitanksPlayer* pTeam)
 		if (!pEntity)
 			continue;
 
-		CBaseWeapon* pWeapon = dynamic_cast<CBaseWeapon*>(pEntity);
+		CDigitanksWeapon* pWeapon = dynamic_cast<CDigitanksWeapon*>(pEntity);
 		if (!pWeapon)
 			continue;
 
@@ -2554,7 +2569,7 @@ void CDigitanksGame::WeaponSpecialCommand(CDigitanksPlayer* pTeam)
 
 	for (size_t i = 0; i < ahWeapons.size(); i++)
 	{
-		CBaseWeapon* pWeapon = ahWeapons[i];
+		CDigitanksWeapon* pWeapon = ahWeapons[i];
 		if (!pWeapon)
 			continue;
 
@@ -2864,4 +2879,10 @@ void CDigitanksGame::UpdateHUD(CNetworkedVariableBase* pVariable)
 void CDigitanksGame::UpdateTeamMembers(CNetworkedVariableBase* pVariable)
 {
 	CHUD::SetTeamMembersUpdated();
+}
+
+bool CDigitanksGame::IsFeatureDisabled(disable_t /*eDisabled*/)
+{
+	TStubbed("IsFeatureDisabled");
+	return false;
 }

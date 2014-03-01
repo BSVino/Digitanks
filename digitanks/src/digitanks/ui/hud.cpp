@@ -160,7 +160,7 @@ void CPowerBar::Paint(float x, float y, float w, float h)
 }
 
 CHUD::CHUD()
-	: CPanel(0, 0, 100, 100),
+	: CHUDViewport(),
 	m_HUDSheet("textures/hud/hud-sheet.txt"),
 	m_UnitsSheet("textures/hud/units-sheet.txt"),
 	m_WeaponsSheet("textures/hud/hud-weapons-01.txt"),
@@ -338,7 +338,7 @@ void CHUD::Layout()
 	if (!DigitanksGame())
 		return;
 
-	SetSize(GetParent()->GetWidth(), GetParent()->GetHeight());
+	BaseClass::Layout();
 
 	int iWidth = DigitanksWindow()->GetWindowWidth();
 	int iHeight = DigitanksWindow()->GetWindowHeight();
@@ -1390,7 +1390,7 @@ void CHUD::Paint(float x, float y, float w, float h)
 			if (!pEntity)
 				continue;
 
-			CBaseWeapon* pWeapon = dynamic_cast<CBaseWeapon*>(pEntity);
+			CDigitanksWeapon* pWeapon = dynamic_cast<CDigitanksWeapon*>(pEntity);
 			if (!pWeapon)
 				continue;
 
@@ -2394,7 +2394,7 @@ void CHUD::UpdateTankInfo(CDigitank* pTank)
 
 	float flShieldStrength = pClosestTarget->GetShieldValue();
 	float flDamageBlocked = flShieldStrength * pClosestTarget->GetDefenseScale(true);
-	float flAttackDamage = CBaseWeapon::GetWeaponDamage(pTank->GetCurrentWeapon());
+	float flAttackDamage = CDigitanksWeapon::GetWeaponDamage(pTank->GetCurrentWeapon());
 
 	float flShieldDamage;
 	float flTankDamage = 0;

@@ -6,7 +6,6 @@
 #include <strutils.h>
 
 #include <tinker/cvar.h>
-#include <raytracer/raytracer.h>
 #include <textures/texturelibrary.h>
 #include <renderer/shaders.h>
 #include <renderer/game_renderingcontext.h>
@@ -16,8 +15,6 @@
 #include "digitankslevel.h"
 #include <weapons/projectile.h>
 #include "ui/digitankswindow.h"
-
-using namespace raytrace;
 
 #ifdef _DEBUG
 //#define DEBUG_RENDERQUADTREE
@@ -556,11 +553,6 @@ void CTerrain::GenerateCollision()
 			{
 				CTerrainChunk* pChunk = &m_aTerrainChunks[x][y];
 
-				if (pChunk->m_pTracer)
-					delete pChunk->m_pTracer;
-
-				pChunk->m_pTracer = new raytrace::CRaytracer(NULL, 7);
-
 				for (size_t i = 0; i < TERRAIN_CHUNK_SIZE; i++)
 				{
 					for (size_t j = 0; j < TERRAIN_CHUNK_SIZE; j++)
@@ -590,7 +582,6 @@ void CTerrain::GenerateCollision()
 				}
 
 				pChunk->m_bNeedsRegenerate = true;
-				pChunk->m_pTracer->BuildTree();
 			}
 
 			if (GameServer()->GetWorkListener())
@@ -1805,17 +1796,7 @@ bool CTerrain::Collide(const Vector& v1, const Vector& v2, Vector& vecPoint)
 		for (int j = 0; j < TERRAIN_CHUNKS; j++)
 		{
 			CTerrainChunk* pChunk = GetChunk(i, j);
-			if (pChunk->m_pTracer)
-			{
-				CCollisionResult tr;
-				bool bHit = pChunk->m_pTracer->Raytrace(v1, v2, tr);
-				if (bHit)
-				{
-					if ((v1-tr.vecHit).LengthSqr() < (v1-vecPoint).LengthSqr())
-						vecPoint = tr.vecHit;
-					bReturn = true;
-				}
-			}
+			TStubbed("CTerrain::Collide");
 		}
 	}
 
@@ -1827,7 +1808,7 @@ void CTerrain::TakeDamage(CBaseEntity* pAttacker, CBaseEntity* pInflictor, damag
 	if (eDamageType != DAMAGE_EXPLOSION)
 		return;
 
-	CBaseWeapon* pWeapon = dynamic_cast<CBaseWeapon*>(pInflictor);
+	CDigitanksWeapon* pWeapon = dynamic_cast<CDigitanksWeapon*>(pInflictor);
 	CTreeCutter* pTreeCutter = dynamic_cast<CTreeCutter*>(pInflictor);
 
 	if (pWeapon && !pWeapon->CreatesCraters() && !pTreeCutter)
@@ -2452,13 +2433,8 @@ void CTerrain::TerrainData(class CNetworkParameters* p)
 	if (!pChunk->m_bNeedsRegenerate)
 		return;
 
-	if (pChunk->m_pTracer)
-		delete pChunk->m_pTracer;
-
 	if (terrain_debug.GetBool())
 		TMsg(sprintf(tstring("CTerrain::TerrainData(%d, %d) regenerating collision\n"), i, j));
-
-	pChunk->m_pTracer = new raytrace::CRaytracer(NULL, 7);
 
 	int iXMin = (int)(TERRAIN_CHUNK_SIZE*i);
 	int iYMin = (int)(TERRAIN_CHUNK_SIZE*j);
@@ -2491,7 +2467,6 @@ void CTerrain::TerrainData(class CNetworkParameters* p)
 
 	if (!GameServer()->IsLoading())
 	{
-		pChunk->m_pTracer->BuildTree();
 		GenerateTerrainCallList(i, j);
 	}
 }
@@ -2577,7 +2552,6 @@ void CTerrain::ClientEnterGame()
 
 CTerrainChunk::CTerrainChunk()
 {
-	m_pTracer = NULL;
 	m_iTerrainVerts = 0;
 	m_iOpaqueIndices = 0;
 	m_iTransparentIndices = 0;

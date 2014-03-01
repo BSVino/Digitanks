@@ -236,7 +236,7 @@ public:
 	void						FireWeapon();
 	virtual void				FireWeapon(class CNetworkParameters* p);
 	virtual void				FireProjectile(class CProjectile* pProjectile, Vector vecLandingSpot);
-	virtual class CBaseWeapon*	CreateWeapon();
+	virtual class CDigitanksWeapon*	CreateWeapon();
 	weapon_t					GetCurrentWeapon() const { return m_eWeapon; }
 	void						SetCurrentWeapon(weapon_t e, bool bNetworked = true);
 	float						GetWeaponEnergy() const;
@@ -416,7 +416,7 @@ protected:
 
 	double						m_flFireWeaponTime;
 	size_t						m_iFireWeapons;
-	CEntityHandle<CBaseWeapon>	m_hWeapon;
+	CEntityHandle<CDigitanksWeapon>	m_hWeapon;
 
 	double						m_flLastSpeech;
 	double						m_flNextIdle;

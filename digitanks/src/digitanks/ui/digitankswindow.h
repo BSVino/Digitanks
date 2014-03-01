@@ -47,7 +47,6 @@ public:
 	void						RenderMouseCursor();
 
 	void						CreateGame(gametype_t eGameType = GAMETYPE_EMPTY);
-	void						DestroyGame();
 
 	void						NewCampaign();
 	void						RestartCampaignLevel();
@@ -104,13 +103,13 @@ public:
 
 	void						SaveConfig();
 
-	class CMainMenu*			GetMainMenu() { return m_pMainMenu; };
-	class CDigitanksMenu*		GetMenu() { return m_pMenu; };
-	class CHUD*					GetHUD() { return m_pHUD; };
+	glgui::CControl<class CMainMenu>			GetMainMenu() { return m_pMainMenu; };
+	glgui::CControl<class CDigitanksMenu>		GetMenu() { return m_pMenu; };
+	glgui::CControl<class CHUD>					GetHUD() { return m_pHUD; };
 	class CInstructor*			GetInstructor();
-	class CVictoryPanel*		GetVictoryPanel() { return m_pVictory; };
-	class CStoryPanel*			GetStoryPanel() { return m_pStory; };
-	class CLobbyPanel*			GetLobbyPanel() { return m_pLobby; };
+	glgui::CControl<class CVictoryPanel>		GetVictoryPanel() { return m_pVictory; };
+	glgui::CControl<class CStoryPanel>			GetStoryPanel() { return m_pStory; };
+	glgui::CControl<class CLobbyPanel>			GetLobbyPanel() { return m_pLobby; };
 
 	float						GetSoundVolume() { return m_flSoundVolume; };
 	void						SetSoundVolume(float flSoundVolume);
@@ -136,19 +135,17 @@ protected:
 
 	CMaterialHandle				m_hLoading;
 
-	class CMainMenu*			m_pMainMenu;
-	class CDigitanksMenu*		m_pMenu;
-	class CVictoryPanel*		m_pVictory;
-	class CStoryPanel*			m_pStory;
-	class CLobbyPanel*			m_pLobby;
+	glgui::CControl<class CMainMenu>			m_pMainMenu;
+	glgui::CControl<class CDigitanksMenu>		m_pMenu;
+	glgui::CControl<class CVictoryPanel>		m_pVictory;
+	glgui::CControl<class CStoryPanel>			m_pStory;
+	glgui::CControl<class CLobbyPanel>			m_pLobby;
 
 	servertype_t				m_eServerType;
 
 	gametype_t					m_eRestartAction;
 
-	class CHUD*					m_pHUD;
-
-	class CInstructor*			m_pInstructor;
+	glgui::CControl<class CHUD>					m_pHUD;
 
 	class CCampaignData*		m_pCampaign;
 

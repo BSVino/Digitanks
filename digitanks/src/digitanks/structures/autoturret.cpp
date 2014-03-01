@@ -163,7 +163,7 @@ void CAutoTurret::Fire()
 		pMissile->SetTarget(apTargets[i]);
 
 		// Firing more missiles dilutes each missile.
-		pMissile->SetDamage(CBaseWeapon::GetWeaponDamage(WEAPON_TURRETMISSILE)/apTargets.size());
+		pMissile->SetDamage(CDigitanksWeapon::GetWeaponDamage(WEAPON_TURRETMISSILE)/apTargets.size());
 	}
 
 	m_bHasFired = true;
