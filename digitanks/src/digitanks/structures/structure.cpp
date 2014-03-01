@@ -638,7 +638,7 @@ float CStructure::UpgradeCost() const
 	return flPowerToUpgrade;
 }
 
-CMaterialHandle CSupplier::s_hTendrilBeam = 0;
+CMaterialHandle CSupplier::s_hTendrilBeam;
 
 REGISTER_ENTITY(CSupplier);
 

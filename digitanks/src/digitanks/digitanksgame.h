@@ -70,6 +70,9 @@ class CDigitanksGame : public CGame
 	REGISTER_ENTITY_CLASS(CDigitanksGame, CGame);
 
 public:
+	CDigitanksGame();
+
+public:
 	virtual void 			Precache();
 	virtual void 			Spawn();
 
@@ -82,7 +85,7 @@ public:
 
 	virtual void			ClientUpdate(int iClient);
 
-	void					SetupGame(gametype_t eGameType);
+	void					SetupGame(tstring sType);
 	void					SetupEntities();
 	NET_CALLBACK(CDigitanksGame, SetupEntities);
 

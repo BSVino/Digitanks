@@ -55,8 +55,8 @@ SAVEDATA_TABLE_END();
 INPUTS_TABLE_BEGIN(CTerrain);
 INPUTS_TABLE_END();
 
-CTextureHandle CTerrain::s_hTreeTexture = 0;
-CTextureHandle CTerrain::s_hBeamTexture = 0;
+CTextureHandle CTerrain::s_hTreeTexture;
+CTextureHandle CTerrain::s_hBeamTexture;
 
 CVar terrain_debug("terrain_debug", "off");
 
@@ -2459,7 +2459,7 @@ void CTerrain::TerrainData(class CNetworkParameters* p)
 			Vector v3 = Vector(flX1, GetRealHeight(x+1, z+1), flZ1);
 			Vector v4 = Vector(flX1, GetRealHeight(x+1, z), flZ);
 
-			TUnimplemented();
+			TStubbed("Create terrain physics");
 			//pChunk->m_pTracer->AddTriangle(v1, v2, v3);
 			//pChunk->m_pTracer->AddTriangle(v1, v3, v4);
 		}

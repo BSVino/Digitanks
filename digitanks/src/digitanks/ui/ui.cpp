@@ -190,7 +190,7 @@ void CDigitanksMenu::LoadCallback(const tstring& sArgs)
 #endif
 
 	if (!GameServer())
-		DigitanksWindow()->CreateGame(GAMETYPE_EMPTY);
+		DigitanksWindow()->CreateGame("empty");
 
 	glgui::CFileDialog::ShowOpenDialog(GetAppDataDirectory(DigitanksWindow()->AppDirectory(), _T("")), ".sav", this, Open);
 }
@@ -208,7 +208,7 @@ void CDigitanksMenu::OpenCallback(const tstring& sArgs)
 	else
 	{
 		DigitanksWindow()->DestroyGame();
-		DigitanksWindow()->CreateGame(GAMETYPE_MENU);
+		DigitanksWindow()->CreateGame("menu");
 	}
 }
 
@@ -232,7 +232,7 @@ void CDigitanksMenu::ExitCallback(const tstring& sArgs)
 
 	GameServer()->SetLoading(true);
 	DigitanksWindow()->DestroyGame();
-	DigitanksWindow()->CreateGame(GAMETYPE_MENU);
+	DigitanksWindow()->CreateGame("menu");
 	SetVisible(false);
 	DigitanksWindow()->GetMainMenu()->SetVisible(true);
 	GameServer()->SetLoading(false);

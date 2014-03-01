@@ -21,6 +21,14 @@ CDigitanksRenderer::CDigitanksRenderer()
 	m_oExplosionBuffer("explosion"), m_oVisibility1Buffer("vis1"), m_oVisibility2Buffer("vis2"),
 	m_oVisibilityMaskedBuffer("vismasked"), m_oAvailableAreaBuffer("availablearea")
 {
+}
+
+void CDigitanksRenderer::Initialize()
+{
+	BaseClass::Initialize();
+
+	DigitanksWindow()->RenderLoading();
+
 	m_hVignetting = CTextureLibrary::AddTexture("textures/vignetting.png");
 
 	SetSkybox(
@@ -31,6 +39,14 @@ CDigitanksRenderer::CDigitanksRenderer()
 		CTextureLibrary::AddTexture("textures/skybox/standard-dn.png", 2),
 		CTextureLibrary::AddTexture("textures/skybox/standard-up.png", 2)
 		);
+
+	m_oExplosionBuffer = CreateFrameBuffer("explosion", m_iWidth, m_iHeight, (fb_options_e)(FB_TEXTURE|FB_SCENE_DEPTH));
+	m_oVisibility1Buffer = CreateFrameBuffer("vis1", m_iWidth, m_iHeight, (fb_options_e)(FB_TEXTURE|FB_SCENE_DEPTH));
+	m_oVisibility2Buffer = CreateFrameBuffer("vis2", m_iWidth, m_iHeight, (fb_options_e)(FB_TEXTURE));
+	m_oVisibilityMaskedBuffer = CreateFrameBuffer("vismasked", m_iWidth, m_iHeight, (fb_options_e)(FB_TEXTURE|FB_SCENE_DEPTH));
+	m_oAvailableAreaBuffer = CreateFrameBuffer("availablearea", m_iWidth, m_iHeight, (fb_options_e)(FB_TEXTURE));
+
+	m_hNoise = CTextureLibrary::AddTexture("textures/noise.png");
 
 	m_iRing1 = CModelLibrary::Get()->AddModel("models/skybox/ring1.toy");
 	m_iRing2 = CModelLibrary::Get()->AddModel("models/skybox/ring2.toy");
@@ -60,19 +76,6 @@ CDigitanksRenderer::CDigitanksRenderer()
 	m_iFloaters[14] = CModelLibrary::Get()->AddModel("models/skybox/floaters/float15.toy");
 
 	m_flLastBloomPulse = -100;
-}
-
-void CDigitanksRenderer::Initialize()
-{
-	BaseClass::Initialize();
-
-	m_oExplosionBuffer = CreateFrameBuffer("explosion", m_iWidth, m_iHeight, (fb_options_e)(FB_TEXTURE|FB_SCENE_DEPTH));
-	m_oVisibility1Buffer = CreateFrameBuffer("vis1", m_iWidth, m_iHeight, (fb_options_e)(FB_TEXTURE|FB_SCENE_DEPTH));
-	m_oVisibility2Buffer = CreateFrameBuffer("vis2", m_iWidth, m_iHeight, (fb_options_e)(FB_TEXTURE));
-	m_oVisibilityMaskedBuffer = CreateFrameBuffer("vismasked", m_iWidth, m_iHeight, (fb_options_e)(FB_TEXTURE|FB_SCENE_DEPTH));
-	m_oAvailableAreaBuffer = CreateFrameBuffer("availablearea", m_iWidth, m_iHeight, (fb_options_e)(FB_TEXTURE));
-
-	m_hNoise = CTextureLibrary::AddTexture("textures/noise.png");
 }
 
 void CDigitanksRenderer::SetupFrame(class CRenderingContext* pContext)

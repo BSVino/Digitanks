@@ -46,8 +46,6 @@ public:
 	void						RenderLoading();
 	void						RenderMouseCursor();
 
-	void						CreateGame(gametype_t eGameType = GAMETYPE_EMPTY);
-
 	void						NewCampaign();
 	void						RestartCampaignLevel();
 	void						NextCampaignLevel();
@@ -58,7 +56,7 @@ public:
 
 	void						Restart(gametype_t eRestartAction);
 
-	void						Run();	// Doesn't return
+	void						PreFrame();
 
 	void						ConstrainMouse();
 
@@ -105,7 +103,7 @@ public:
 
 	glgui::CControl<class CMainMenu>			GetMainMenu() { return m_pMainMenu; };
 	glgui::CControl<class CDigitanksMenu>		GetMenu() { return m_pMenu; };
-	glgui::CControl<class CHUD>					GetHUD() { return m_pHUD; };
+	class CHUD*					GetHUD();
 	class CInstructor*			GetInstructor();
 	glgui::CControl<class CVictoryPanel>		GetVictoryPanel() { return m_pVictory; };
 	glgui::CControl<class CStoryPanel>			GetStoryPanel() { return m_pStory; };
@@ -144,8 +142,6 @@ protected:
 	servertype_t				m_eServerType;
 
 	gametype_t					m_eRestartAction;
-
-	glgui::CControl<class CHUD>					m_pHUD;
 
 	class CCampaignData*		m_pCampaign;
 

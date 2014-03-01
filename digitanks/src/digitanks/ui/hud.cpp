@@ -2055,6 +2055,11 @@ void CHUD::PaintSheet(const CTextureSheet* pSheet, const tstring& sArea, float x
 void CHUD::PaintHUDSheet(const tstring& sArea, float x, float y, float w, float h, const Color& c)
 {
 	CHUD* pHUD = DigitanksWindow()->GetHUD();
+
+	TAssert(pHUD);
+	if (!pHUD)
+		return;
+
 	const Rect* pRect = &pHUD->m_HUDSheet.GetArea(sArea);
 	PaintSheet(pHUD->m_HUDSheet.GetSheet(sArea), x, y, w, h, pRect->x, pRect->y, pRect->w, pRect->h, pHUD->m_HUDSheet.GetSheetWidth(sArea), pHUD->m_HUDSheet.GetSheetHeight(sArea), c);
 }

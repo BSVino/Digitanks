@@ -93,6 +93,7 @@ extern void DebugPrint(const char* pszText);
 	do { \
 		static bool seen = false; \
 		if (!seen) { \
+			seen = true; \
 			TMsg("STUBBED: " x "\n"); \
 		} \
 	} while (false); \

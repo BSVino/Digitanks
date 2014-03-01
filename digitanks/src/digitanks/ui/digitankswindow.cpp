@@ -137,8 +137,6 @@ void CDigitanksWindow::OpenWindow()
 	CApplication::OpenWindow(m_iWindowWidth, m_iWindowHeight, m_bCfgFullscreen, false);
 
 	m_hCursors = CMaterialLibrary::AddMaterial("textures/cursors.mat");
-	m_hLoading = CMaterialLibrary::AddMaterial("textures/loading.mat");
-	m_hLunarWorkshop = CMaterialLibrary::AddMaterial("textures/lunar-workshop.mat");
 
 	RenderLoading();
 
@@ -189,6 +187,12 @@ CRenderer* CDigitanksWindow::CreateRenderer()
 
 void CDigitanksWindow::RenderLoading()
 {
+	if (!m_hLoading)
+		m_hLoading = CMaterialLibrary::AddMaterial("textures/loading.mat");
+
+	if (!m_hLunarWorkshop)
+		m_hLunarWorkshop = CMaterialLibrary::AddMaterial("textures/lunar-workshop.mat");
+
 	CRenderingContext c(GetRenderer());
 
 	c.ClearColor();
@@ -259,108 +263,6 @@ void CDigitanksWindow::RenderMouseCursor()
 		glgui::CBaseControl::PaintSheet(m_hCursors, mx-20, my-20, 80, 40, 160, 80, 80, 40, 256, 128);
 }
 
-CVar game_type("game_type", "");
-
-void CDigitanksWindow::CreateGame(gametype_t eRequestedGameType)
-{
-	gametype_t eGameType = GAMETYPE_MENU;
-	if (eRequestedGameType == GAMETYPE_FROM_CVAR)
-	{
-		if (game_type.GetValue() == "menu")
-			eGameType = GAMETYPE_MENU;
-		else if (game_type.GetValue() == "artillery")
-			eGameType = GAMETYPE_ARTILLERY;
-		else if (game_type.GetValue() == "strategy")
-			eGameType = GAMETYPE_STANDARD;
-		else if (game_type.GetValue() == "campaign")
-			eGameType = GAMETYPE_CAMPAIGN;
-		else
-			eGameType = GAMETYPE_EMPTY;
-	}
-	else if (eRequestedGameType == GAMETYPE_FROM_LOBBY)
-		eGameType = (gametype_t)stoi(CGameLobbyClient::L_GetInfoValue("gametype").c_str());
-	else
-		eGameType = eRequestedGameType;
-
-	if (eGameType == GAMETYPE_MENU)
-		game_type.SetValue("menu");
-	else if (eGameType == GAMETYPE_ARTILLERY)
-		game_type.SetValue("artillery");
-	else if (eGameType == GAMETYPE_STANDARD)
-		game_type.SetValue("strategy");
-	else if (eGameType == GAMETYPE_CAMPAIGN)
-		game_type.SetValue("campaign");
-	else
-		game_type.SetValue("empty");
-
-	// Suppress all network commands until the game is done loading.
-	GameNetwork()->SetLoading(true);
-
-	RenderLoading();
-
-	if (eGameType != GAMETYPE_MENU)
-		CSoundLibrary::StopMusic();
-
-	if (eGameType == GAMETYPE_MENU)
-	{
-		if (!CSoundLibrary::IsMusicPlaying() && !HasCommandLineSwitch("--no-music"))
-			CSoundLibrary::PlayMusic("sound/assemble-for-victory.ogg", true);
-	}
-	else if (!HasCommandLineSwitch("--no-music"))
-		CSoundLibrary::PlayMusic("sound/network-rise-network-fall.ogg", true);
-
-	mtsrand((size_t)time(NULL));
-
-	const char* pszPort = GetCommandLineSwitchValue("--port");
-	int iPort = pszPort?atoi(pszPort):0;
-
-	if (!m_pGameServer)
-	{
-		m_pHUD = new CHUD();
-		glgui::CRootPanel::Get()->AddControl(m_pHUD);
-
-		m_pGameServer = new CGameServer(this);
-
-		if (!m_pRenderer)
-		{
-			m_pRenderer = CreateRenderer();
-			m_pRenderer->Initialize();
-		}
-
-		if (!m_pInstructor)
-			m_pInstructor = new CInstructor();
-	}
-
-	if (GameServer())
-	{
-		GameServer()->SetServerType(m_eServerType);
-		if (eGameType == GAMETYPE_MENU)
-			GameServer()->SetServerType(SERVER_LOCAL);
-		GameServer()->SetServerPort(iPort);
-		GameServer()->Initialize();
-
-		GameNetwork()->SetCallbacks(m_pGameServer, CGameServer::ClientConnectCallback, CGameServer::ClientEnterGameCallback, CGameServer::ClientDisconnectCallback);
-	}
-
-	if (GameNetwork()->IsHost() && DigitanksGame())
-	{
-		GameServer()->SetupFromLobby(eRequestedGameType == GAMETYPE_FROM_LOBBY);
-		DigitanksGame()->SetupGame(eGameType);
-	}
-
-	// Now turn the network on and connect all clients.
-	GameNetwork()->SetLoading(false);
-
-	// Must set player nickname after teams have been set up or it won't stick.
-	if (GameServer())
-		GameServer()->SetPlayerNickname(GetPlayerNickname());
-
-	glgui::CRootPanel::Get()->Layout();
-
-	m_pMainMenu->SetVisible(eGameType == GAMETYPE_MENU);
-	m_pVictory->SetVisible(false);
-}
-
 void CDigitanksWindow::NewCampaign()
 {
 	if (!m_pCampaign)
@@ -369,7 +271,7 @@ void CDigitanksWindow::NewCampaign()
 	CVar::SetCVar("game_level", m_pCampaign->BeginCampaign());
 
 	DigitanksWindow()->SetServerType(SERVER_LOCAL);
-	DigitanksWindow()->CreateGame(GAMETYPE_CAMPAIGN);
+	DigitanksWindow()->CreateGame("campaign");
 }
 
 void CDigitanksWindow::RestartCampaignLevel()
@@ -428,56 +330,13 @@ void CDigitanksWindow::Restart(gametype_t eRestartAction)
 	GameServer()->Halt();
 }
 
-void CDigitanksWindow::Run()
+void CDigitanksWindow::PreFrame()
 {
-	CreateGame(GAMETYPE_MENU);
+	BaseClass::PreFrame();
 
-	while (IsOpen())
-	{
-		CProfiler::BeginFrame();
+	SetMouseCursor(MOUSECURSOR_NONE);
 
-		if (true)
-		{
-			TPROF("CDigitanksWindow::Run");
-
-			SetMouseCursor(MOUSECURSOR_NONE);
-
-			ConstrainMouse();
-
-			if (GameServer()->IsHalting())
-			{
-				DestroyGame();
-				CreateGame(m_eRestartAction);
-
-				m_eRestartAction = GAMETYPE_MENU;
-			}
-
-			float flTime = GetTime();
-			if (GameServer())
-			{
-				if (GameServer()->IsLoading())
-				{
-					// Pump the network
-					CNetwork::Think();
-					RenderLoading();
-					continue;
-				}
-				else if (GameServer()->IsClient() && !GameNetwork()->IsConnected())
-				{
-					DestroyGame();
-					CreateGame(GAMETYPE_MENU);
-				}
-				else
-				{
-					GameServer()->Think(flTime);
-					Render();
-				}
-			}
-		}
-
-		CProfiler::Render();
-		SwapBuffers();
-	}
+	ConstrainMouse();
 }
 
 void CDigitanksWindow::ConstrainMouse()
@@ -673,6 +532,11 @@ void CDigitanksWindow::SaveConfig()
 	o << c;
 
 	TMsg("Saved config.\n");
+}
+
+CHUD* CDigitanksWindow::GetHUD()
+{
+	return static_cast<CHUD*>(m_pHUD);
 }
 
 CInstructor* CDigitanksWindow::GetInstructor()

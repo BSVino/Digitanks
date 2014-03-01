@@ -40,6 +40,7 @@ CTextureSheet::CTextureSheet(tstring sFile)
 		{
 			tstring sTexture = pChild->GetValueString();
 			m_hDefaultSheet = CMaterialLibrary::AddMaterial(sTexture);
+			TAssertNoMsg(m_hDefaultSheet.IsValid());
 		}
 		else if (pChild->GetKey() == "Area")
 		{
@@ -120,6 +121,9 @@ size_t CTextureSheet::GetSheetWidth(const tstring& sArea) const
 	const CMaterialHandle& hSheet = it->second.m_hSheet;
 	if (!hSheet.IsValid())
 	{
+		if (!m_hDefaultSheet)
+			return 0;
+
 		TAssertNoMsg(m_hDefaultSheet->m_ahTextures.size());
 		return m_hDefaultSheet->m_ahTextures[0]->m_iWidth;
 	}
@@ -138,6 +142,9 @@ size_t CTextureSheet::GetSheetHeight(const tstring& sArea) const
 	const CMaterialHandle& hSheet = it->second.m_hSheet;
 	if (!hSheet.IsValid())
 	{
+		if (!m_hDefaultSheet)
+			return 0;
+
 		TAssertNoMsg(m_hDefaultSheet->m_ahTextures.size());
 		return m_hDefaultSheet->m_ahTextures[0]->m_iHeight;
 	}

@@ -722,9 +722,6 @@ void CRenderingContext::SetUniform(const char* pszName, size_t iSize, const Vect
 
 void CRenderingContext::BindTexture(size_t iTexture, int iChannel, bool bMultisample)
 {
-	// Not tested since the move to a stack
-	TAssert(iChannel == 0);
-
 	glActiveTexture(GL_TEXTURE0+iChannel);
 
 	if (bMultisample)
@@ -1360,4 +1357,6 @@ CRenderingContext::CRenderContext::CRenderContext()
 	m_bProjectionUpdated = false;
 	m_bViewUpdated = false;
 	m_bTransformUpdated = false;
+
+	m_eCullFace = CF_BACK;
 }

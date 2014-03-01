@@ -26,6 +26,7 @@
 #include "terrain.h"
 #include "dt_camera.h"
 #include <ui/weaponpanel.h>
+#include "ui/menu.h"
 
 #include "menumarcher.h"
 #include "units/standardtank.h"
@@ -145,6 +146,11 @@ INPUTS_TABLE_BEGIN(CDigitanksGame);
 	INPUT_DEFINE(TankSelectionMedal);
 INPUTS_TABLE_END();
 
+CDigitanksGame::CDigitanksGame()
+{
+	m_eGameType = GAMETYPE_EMPTY;
+}
+
 void CDigitanksGame::Precache()
 {
 	BaseClass::Precache();
@@ -240,39 +246,71 @@ void CDigitanksGame::ClientUpdate(int iClient)
 
 CVar game_difficulty("game_difficulty", "1");
 
-void CDigitanksGame::SetupGame(gametype_t eGameType)
+void CDigitanksGame::SetupGame(tstring sGameType)
 {
+	if (sGameType == "from_cvar")
+		sGameType = CVar::GetCVarValue("game_type");
+	else if (sGameType == "from_lobby")
+	{
+		TUnimplemented(); // This info value will be an integer string, eg "1". Will have to be changed.
+		sGameType = CGameLobbyClient::L_GetInfoValue("gametype");
+	}
+
 	GameServer()->SetLoading(true);
 
 	DigitanksWindow()->RenderLoading();
+
+	if (sGameType != "menu")
+		CSoundLibrary::StopMusic();
+
+	if (sGameType == "menu")
+	{
+		if (!CSoundLibrary::IsMusicPlaying() && !Application()->HasCommandLineSwitch("--no-music"))
+			CSoundLibrary::PlayMusic("sound/assemble-for-victory.ogg", true);
+	}
+	else if (!Application()->HasCommandLineSwitch("--no-music"))
+		CSoundLibrary::PlayMusic("sound/network-rise-network-fall.ogg", true);
 
 	SetupEntities();
 
 	if (!GameNetwork()->IsHost())
 		return;
 
-	m_eGameType = eGameType;
+	if (sGameType == "menu")
+		m_eGameType = GAMETYPE_MENU;
+	else if (sGameType == "artillery")
+		m_eGameType = GAMETYPE_ARTILLERY;
+	else if (sGameType == "standard")
+		m_eGameType = GAMETYPE_STANDARD;
+	else if (sGameType == "campaign")
+		m_eGameType = GAMETYPE_CAMPAIGN;
+	else
+		m_eGameType = GAMETYPE_EMPTY;
+
 	m_iTurn = 0;
 
 	SetCurrentLevel(CVar::GetCVarValue("game_level"));
 
 	m_hInstructor = GameServer()->Create<CInstructorEntity>("CInstructorEntity");
 
-	if (eGameType == GAMETYPE_STANDARD)
+	if (m_eGameType == GAMETYPE_STANDARD)
 		SetupStrategy();
-	else if (eGameType == GAMETYPE_ARTILLERY)
+	else if (m_eGameType == GAMETYPE_ARTILLERY)
 		SetupArtillery();
-	else if (eGameType == GAMETYPE_MENU)
+	else if (m_eGameType == GAMETYPE_MENU)
 		SetupMenuMarch();
-	else if (eGameType == GAMETYPE_CAMPAIGN)
+	else if (m_eGameType == GAMETYPE_CAMPAIGN)
 		SetupCampaign();
 
-	if (eGameType != GAMETYPE_EMPTY)
+	if (m_eGameType != GAMETYPE_EMPTY && m_eGameType != GAMETYPE_MENU)
 		StartGame();
 
 	DigitanksGame()->SetDifficulty(game_difficulty.GetInt());
 
 	GameServer()->SetLoading(false);
+
+	DigitanksWindow()->GetMainMenu()->SetVisible(m_eGameType == GAMETYPE_MENU);
+	DigitanksWindow()->GetVictoryPanel()->SetVisible(false);
 }
 
 void CDigitanksGame::ReadGameScript(tstring sScript)
