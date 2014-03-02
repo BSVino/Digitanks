@@ -1296,7 +1296,7 @@ void CDigitanksPlayer::MouseInput(int iButton, tinker_mouse_state_t iState)
 				if (pSelectable->GetVisibility() == 0)
 					continue;
 
-				if (pSelectable->GetTeam() != pClickedSelectable->GetTeam())
+				if (pSelectable->GetPlayerOwner() != pClickedSelectable->GetPlayerOwner())
 					continue;
 
 				if (pSelectable->GetUnitType() != pClickedSelectable->GetUnitType())
@@ -1397,9 +1397,9 @@ void CDigitanksPlayer::MouseWheel(int iState)
 	if (GameServer() && GameServer()->GetCamera())
 	{
 		if (iState > iOldState)
-			DigitanksGame()->GetDigitanksCamera()->ZoomIn();
+			DigitanksGame()->GetOverheadCamera()->ZoomIn();
 		else
-			DigitanksGame()->GetDigitanksCamera()->ZoomOut();
+			DigitanksGame()->GetOverheadCamera()->ZoomOut();
 	}
 #endif
 

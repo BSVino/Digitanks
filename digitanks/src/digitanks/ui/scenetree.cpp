@@ -297,7 +297,7 @@ void CSceneTreeUnit::Paint(float x, float y, float w, float h, bool bFloating)
 	CRenderingContext c(GameServer()->GetRenderer());
 	c.SetBlend(BLEND_ALPHA);
 
-	Color clrTeam = m_hEntity->GetTeam()?m_hEntity->GetTeam()->GetColor():Color(255,255,255,255);
+	Color clrTeam = m_hEntity->GetPlayerOwner()?m_hEntity->GetPlayerOwner()->GetColor():Color(255,255,255,255);
 
 	CDigitank* pTank = dynamic_cast<CDigitank*>(m_hEntity.GetPointer());
 	if (pTank && !pTank->NeedsOrders())
@@ -431,7 +431,7 @@ void CSceneTreeUnit::Selected()
 		else
 		{
 			pCurrentLocalTeam->SetPrimarySelection(m_hEntity);
-			DigitanksGame()->GetDigitanksCamera()->SetTarget(m_hEntity->GetGlobalOrigin());
+			DigitanksGame()->GetOverheadCamera()->SetTarget(m_hEntity->GetGlobalOrigin());
 		}
 
 		DigitanksWindow()->GetInstructor()->FinishedLesson("artillery-select", true);

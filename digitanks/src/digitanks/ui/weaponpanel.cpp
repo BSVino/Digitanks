@@ -124,8 +124,8 @@ void CWeaponPanel::Paint(float x, float y, float w, float h)
 		glgui::CBaseControl::PaintRect(iWindowWidth/4 - iBoxSize/2, iWindowHeight/2 - iBoxSize/2, iBoxSize, iBoxSize, Color(0, 0, 0, 200));
 
 		Color clrTeam(255, 255, 255, 255);
-		if (DigitanksGame()->GetPrimarySelectionTank()->GetTeam())
-			clrTeam = DigitanksGame()->GetPrimarySelectionTank()->GetTeam()->GetColor();
+		if (DigitanksGame()->GetPrimarySelectionTank()->GetPlayerOwner())
+			clrTeam = DigitanksGame()->GetPrimarySelectionTank()->GetPlayerOwner()->GetColor();
 
 		CRenderingContext c(GameServer()->GetRenderer());
 

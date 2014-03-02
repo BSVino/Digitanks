@@ -56,9 +56,9 @@ void CBuffer::UpdateInfo(tstring& s)
 	s += "MACRO-BUFFER INFO\n";
 	s += "Network extender\n \n";
 
-	if (GetTeam())
+	if (GetPlayerOwner())
 	{
-		s += "Team: " + GetTeam()->GetTeamName() + "\n";
+		s += "Team: " + GetPlayerOwner()->GetPlayerName() + "\n";
 		if (GetDigitanksPlayer() == DigitanksGame()->GetCurrentLocalDigitanksPlayer())
 			s += " Friendly\n \n";
 		else
@@ -151,9 +151,9 @@ void CMiniBuffer::UpdateInfo(tstring& s)
 	s += "BUFFER INFO\n";
 	s += "Network extender\n \n";
 
-	if (GetTeam())
+	if (GetPlayerOwner())
 	{
-		s += "Team: " + GetTeam()->GetTeamName() + "\n";
+		s += "Team: " + GetPlayerOwner()->GetPlayerName() + "\n";
 		if (GetDigitanksPlayer() == DigitanksGame()->GetCurrentLocalDigitanksPlayer())
 			s += " Friendly\n \n";
 		else

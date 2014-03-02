@@ -68,7 +68,7 @@ void CLaser::OnSetOwner(CBaseEntity* pOwner)
 		if (!pEntity->TakesDamage())
 			continue;
 
-		if (pEntity->GetTeam() == pOwner->GetTeam())
+		if (pEntity->GetOwner() == pOwner->GetOwner())
 			continue;
 
 		float flDistance = DistanceToPlane(pEntity->GetGlobalOrigin(), GetGlobalOrigin(), vecRight);

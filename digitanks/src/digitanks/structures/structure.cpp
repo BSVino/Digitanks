@@ -988,8 +988,8 @@ void CSupplier::PostRender() const
 		return;
 	}
 
-	CDigitanksCamera* pCamera = DigitanksGame()->GetDigitanksCamera();
-	Vector vecCamera = pCamera->GetCameraPosition();
+	COverheadCamera* pCamera = DigitanksGame()->GetOverheadCamera();
+	Vector vecCamera = pCamera->GetGlobalOrigin();
 	float flDistanceSqr = GetGlobalOrigin().DistanceSqr(vecCamera);
 	float flFadeDistance = tendril_fade_distance.GetFloat();
 

@@ -56,9 +56,9 @@ void CCollector::UpdateInfo(tstring& s)
 	s += "POWER SUPPLY UNIT\n";
 	s += "Resource collector\n \n";
 
-	if (GetTeam())
+	if (GetPlayerOwner())
 	{
-		s += "Team: " + GetTeam()->GetTeamName() + "\n";
+		s += "Team: " + GetPlayerOwner()->GetPlayerName() + "\n";
 		if (GetDigitanksPlayer() == DigitanksGame()->GetCurrentLocalDigitanksPlayer())
 			s += " Friendly\n \n";
 		else
@@ -150,9 +150,9 @@ void CBattery::UpdateInfo(tstring& s)
 	s += "CAPACITOR\n";
 	s += "Resource collector\n \n";
 
-	if (GetTeam())
+	if (GetPlayerOwner())
 	{
-		s += "Team: " + GetTeam()->GetTeamName() + "\n";
+		s += "Team: " + GetPlayerOwner()->GetPlayerName() + "\n";
 		if (GetDigitanksPlayer() == DigitanksGame()->GetCurrentLocalDigitanksPlayer())
 			s += " Friendly\n \n";
 		else

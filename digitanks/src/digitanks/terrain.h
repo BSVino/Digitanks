@@ -22,8 +22,8 @@ public:
 	Vector   vecPosition;
 	Vector   vecColor;
 	Vector2D vecUV;
-	int      iCoordX;
-	int      iCoordY;
+	//int      iCoordX;
+	//int      iCoordY;
 };
 
 typedef enum

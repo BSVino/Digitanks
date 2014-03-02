@@ -1883,7 +1883,7 @@ void CDigitank::OnControlModeChange(controlmode_t eOldMode, controlmode_t eNewMo
 		if (IsArtillery())
 		{
 			Vector vecCenter = DigitanksGame()->GetTerrain()->GetPointHeight(GetGlobalOrigin() + AngleVector(GetAngles()) * GetMaxRange()/2);
-			DigitanksGame()->GetDigitanksCamera()->SetTarget(vecCenter);
+			DigitanksGame()->GetOverheadCamera()->SetTarget(vecCenter);
 		}
 	}
 }
@@ -2510,13 +2510,13 @@ void CDigitank::FireProjectile(CProjectile* pProjectile, Vector vecLandingSpot)
 	// Follow the first if there's only one or the third if there's many, such as the resistor machine gun.
 	size_t iProjectiles = CProjectile::GetWeaponShells(GetCurrentWeapon());
 	if (iProjectiles == 1)
-		DigitanksGame()->GetDigitanksCamera()->ProjectileFired(pProjectile);
+		DigitanksGame()->GetOverheadCamera()->ProjectileFired(pProjectile);
 	else
 	{
 		if (iProjectiles <= 3 && m_iFireWeapons == iProjectiles-1)
-			DigitanksGame()->GetDigitanksCamera()->ProjectileFired(pProjectile);
+			DigitanksGame()->GetOverheadCamera()->ProjectileFired(pProjectile);
 		else if (m_iFireWeapons == 3)
-			DigitanksGame()->GetDigitanksCamera()->ProjectileFired(pProjectile);
+			DigitanksGame()->GetOverheadCamera()->ProjectileFired(pProjectile);
 	}
 }
 
@@ -3192,7 +3192,7 @@ void CDigitank::RenderTurret(float flAlpha) const
 		r.SetBlend(BLEND_ALPHA);
 	}
 
-	r.Translate(Vector(-0.0f, 0.810368f, 0));
+	r.Translate(Vector(-0.0f, 0, 0.810368f));
 
 	r.Rotate(-m_flCurrentTurretYaw, Vector(0, 0, 1));
 

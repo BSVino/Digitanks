@@ -138,7 +138,7 @@ void CSupplyLine::Intercept(float flIntercept)
 
 	m_bDelayRecharge = true;
 
-	if (GetEntity() && m_flIntegrity < MinimumIntegrity() && dynamic_cast<CStructure*>(GetEntity()) && GetEntity()->GetTeam())
+	if (GetEntity() && m_flIntegrity < MinimumIntegrity() && dynamic_cast<CStructure*>(GetEntity()) && GetEntity()->GetOwner())
 	{
 		ToDigitanksPlayer(GetEntity()->GetOwner())->RemoveUnit(static_cast<CStructure*>(GetEntity()));
 		DigitanksGame()->OnDisabled(GetEntity(), NULL, NULL);
@@ -169,8 +169,8 @@ void CSupplyLine::PostRender() const
 		r.UseFrameBuffer(DigitanksGame()->GetDigitanksRenderer()->GetVisibilityMaskedBuffer());
 
 	Color clrTeam(255, 255, 255, 255);
-	if (GetTeam())
-		clrTeam = GetTeam()->GetColor();
+	if (GetPlayerOwner())
+		clrTeam = GetPlayerOwner()->GetColor();
 	clrTeam = (Vector(clrTeam) + Vector(1,1,1))/2;
 
 	CRopeRenderer oRope(GameServer()->GetRenderer(), s_hSupplyBeam, DigitanksGame()->GetTerrain()->GetPointHeight(m_hSupplier->GetGlobalOrigin()) + Vector(0, 0, 2), 2.5f);

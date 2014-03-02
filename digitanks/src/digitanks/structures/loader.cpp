@@ -416,9 +416,9 @@ void CLoader::UpdateInfo(tstring& s)
 	s = "";
 	tstring p;
 
-	if (GetTeam())
+	if (GetPlayerOwner())
 	{
-		s += "Team: " + GetTeam()->GetTeamName() + "\n";
+		s += "Team: " + GetPlayerOwner()->GetPlayerName() + "\n";
 		if (GetDigitanksPlayer() == DigitanksGame()->GetCurrentLocalDigitanksPlayer())
 			s += " Friendly\n \n";
 		else
@@ -459,7 +459,7 @@ void CLoader::DrawQueue(float x, float y, float w, float h)
 {
 	glgui::CBaseControl::PaintRect(x, y, w, h, Color(0, 0, 0));
 
-	if (!GetTeam())
+	if (!GetPlayerOwner())
 		return;
 
 	if (!IsProducing())
@@ -467,7 +467,7 @@ void CLoader::DrawQueue(float x, float y, float w, float h)
 
 	float flSize = h*2/3;
 
-	CHUD::PaintUnitSheet(GetBuildUnit(), x + w/2 - flSize/2, y + h/2 - flSize/2, flSize, flSize, GetTeam()->GetColor());
+	CHUD::PaintUnitSheet(GetBuildUnit(), x + w/2 - flSize/2, y + h/2 - flSize/2, flSize, flSize, GetPlayerOwner()->GetColor());
 
 	int iTotalTurns = GetTurnsToProduce();
 	int iTurnsProgressed = iTotalTurns-GetTurnsRemainingToProduce();

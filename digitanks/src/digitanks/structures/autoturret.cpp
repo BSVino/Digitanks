@@ -46,7 +46,7 @@ void CAutoTurret::ModifyContext(CRenderingContext* pContext) const
 {
 	BaseClass::ModifyContext(pContext);
 
-	if (!GetTeam())
+	if (!GetPlayerOwner())
 		return;
 
 	pContext->SetUniform("bColorSwapInAlpha", true);
@@ -61,7 +61,7 @@ void CAutoTurret::OnRender(CGameRenderingContext* pContext) const
 	if (GetVisibility() == 0)
 		return;
 
-	if (!GetTeam())
+	if (!GetPlayerOwner())
 		return;
 
 	if (!GameServer()->GetRenderer()->IsRenderingTransparent())
@@ -127,17 +127,17 @@ tvector<CDigitank*> CAutoTurret::GetTargets()
 		if (!pEntity)
 			continue;
 
-		if (pEntity->GetTeam() == GetTeam())
-			continue;
-
-		if (!pEntity->GetTeam())
-			continue;
-
 		if (pEntity->Distance(GetGlobalOrigin()) > VisibleRange())
 			continue;
 
 		CDigitank* pTank = dynamic_cast<CDigitank*>(pEntity);
 		if (!pTank)
+			continue;
+
+		if (pTank->GetPlayerOwner() == GetPlayerOwner())
+			continue;
+
+		if (!pTank->GetPlayerOwner())
 			continue;
 
 		apTargets.push_back(pTank);
@@ -214,9 +214,9 @@ void CAutoTurret::UpdateInfo(tstring& s)
 	s += "FIREWALL INFO\n";
 	s += "Network defender\n \n";
 
-	if (GetTeam())
+	if (GetPlayerOwner())
 	{
-		s += "Team: " + GetTeam()->GetTeamName() + "\n";
+		s += "Team: " + GetPlayerOwner()->GetPlayerName() + "\n";
 		if (GetDigitanksPlayer() == DigitanksGame()->GetCurrentLocalDigitanksPlayer())
 			s += " Friendly\n \n";
 		else

@@ -62,10 +62,10 @@ CSupplyLine* CScout::FindClosestEnemySupplyLine(bool bInRange)
 		if (!pClosest)
 			return NULL;
 
-		if (pClosest->GetTeam() == GetTeam())
+		if (pClosest->GetPlayerOwner() == GetPlayerOwner())
 			continue;
 
-		if (!pClosest->GetTeam())
+		if (!pClosest->GetPlayerOwner())
 			continue;
 
 		if (!pClosest->GetSupplier() || !pClosest->GetEntity())

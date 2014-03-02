@@ -12,9 +12,23 @@
 #include <ui/instructor.h>
 #include <weapons/cameraguided.h>
 
-CDigitanksCamera::CDigitanksCamera()
+REGISTER_ENTITY(COverheadCamera);
+
+NETVAR_TABLE_BEGIN(COverheadCamera);
+NETVAR_TABLE_END();
+
+SAVEDATA_TABLE_BEGIN(COverheadCamera);
+SAVEDATA_TABLE_END();
+
+INPUTS_TABLE_BEGIN(COverheadCamera);
+INPUTS_TABLE_END();
+
+void COverheadCamera::Spawn()
 {
+	BaseClass::Spawn();
+
 	m_flTargetRamp = m_flDistanceRamp = m_flAngleRamp = 0;
+	m_flDistance = 40;
 	m_angCamera = EAngle(45, 0, 0);
 	m_bRotatingCamera = false;
 	m_bDraggingCamera = false;
@@ -24,9 +38,11 @@ CDigitanksCamera::CDigitanksCamera()
 	m_bMouseDragLeft = m_bMouseDragRight = m_bMouseDragUp = m_bMouseDragDown = false;
 
 	m_flTransitionToProjectileTime = 0;
+
+	DigitanksGame()->SetOverheadCamera(this);
 }
 
-void CDigitanksCamera::SetTarget(Vector vecTarget)
+void COverheadCamera::SetTarget(Vector vecTarget)
 {
 	if (GameServer()->IsLoading())
 	{
@@ -42,7 +58,7 @@ void CDigitanksCamera::SetTarget(Vector vecTarget)
 	m_vecVelocity = m_vecGoalVelocity = Vector(0,0,0);
 }
 
-void CDigitanksCamera::SnapTarget(Vector vecTarget)
+void COverheadCamera::SnapTarget(Vector vecTarget)
 {
 	if (!DigitanksGame()->GetTerrain())
 		return;
@@ -54,7 +70,7 @@ void CDigitanksCamera::SnapTarget(Vector vecTarget)
 	m_vecVelocity = m_vecGoalVelocity = Vector(0,0,0);
 }
 
-void CDigitanksCamera::SetDistance(float flDistance)
+void COverheadCamera::SetDistance(float flDistance)
 {
 	if (GameServer()->IsLoading())
 	{
@@ -73,13 +89,13 @@ void CDigitanksCamera::SetDistance(float flDistance)
 	m_flNewDistance = flDistance;
 }
 
-void CDigitanksCamera::SnapDistance(float flDistance)
+void COverheadCamera::SnapDistance(float flDistance)
 {
 	m_flDistanceRamp = 0;
 	m_flNewDistance = flDistance;
 }
 
-void CDigitanksCamera::SetAngle(EAngle angCamera)
+void COverheadCamera::SetAngle(EAngle angCamera)
 {
 	if (GameServer()->IsLoading())
 	{
@@ -92,48 +108,51 @@ void CDigitanksCamera::SetAngle(EAngle angCamera)
 	m_angNewAngle = angCamera;
 }
 
-void CDigitanksCamera::SnapAngle(EAngle angCamera)
+void COverheadCamera::SnapAngle(EAngle angCamera)
 {
 	m_angCamera = angCamera;
 }
 
-void CDigitanksCamera::ZoomOut()
+void COverheadCamera::ZoomOut()
 {
 	SetDistance(m_flNewDistance+20);
 
 	DigitanksWindow()->GetInstructor()->FinishedLesson("mission-1-zoomview");
 }
 
-void CDigitanksCamera::ZoomIn()
+void COverheadCamera::ZoomIn()
 {
 	SetDistance(m_flNewDistance-20);
 
 	DigitanksWindow()->GetInstructor()->FinishedLesson("mission-1-zoomview");
 }
 
-void CDigitanksCamera::Shake(Vector vecLocation, float flMagnitude)
+void COverheadCamera::Shake(Vector vecLocation, float flMagnitude)
 {
 	m_vecShakeLocation = vecLocation;
 	m_flShakeMagnitude = flMagnitude;
 }
 
-void CDigitanksCamera::SetCameraGuidedMissile(CCameraGuidedMissile* pMissile)
+void COverheadCamera::SetCameraGuidedMissile(CCameraGuidedMissile* pMissile)
 {
+	TStubbed("Camera guided missile camera");
 	m_hCameraGuidedMissile = pMissile;
 	m_flCameraGuidedFOV = m_flCameraGuidedFOVGoal = 0;
 }
 
-CCameraGuidedMissile* CDigitanksCamera::GetCameraGuidedMissile()
+CCameraGuidedMissile* COverheadCamera::GetCameraGuidedMissile()
 {
+	TStubbed("Camera guided missile camera");
 	return m_hCameraGuidedMissile;
 }
 
-bool CDigitanksCamera::HasCameraGuidedMissile()
+bool COverheadCamera::HasCameraGuidedMissile()
 {
+	TStubbed("Camera guided missile camera");
 	return m_hCameraGuidedMissile != NULL;
 }
 
-void CDigitanksCamera::ShowEnemyMoves()
+void COverheadCamera::ShowEnemyMoves()
 {
 	CDigitanksPlayer* pCurrentTeam = DigitanksGame()->GetCurrentPlayer();
 
@@ -167,7 +186,7 @@ void CDigitanksCamera::ShowEnemyMoves()
 		if (DigitanksGame()->GetGameType() == GAMETYPE_STANDARD)
 			pClosestStructure = CBaseEntity::FindClosest<CStructure>(vecAim);
 
-		if (pClosestTank && pClosestTank->GetTeam())
+		if (pClosestTank && pClosestTank->GetPlayerOwner())
 		{
 			if (pClosestTank->GetPlayerOwner()->IsHumanControlled())
 			{
@@ -178,7 +197,7 @@ void CDigitanksCamera::ShowEnemyMoves()
 			continue;
 		}
 
-		if (pClosestStructure && pClosestStructure->GetTeam() && pClosestStructure->GetPlayerOwner()->IsHumanControlled())
+		if (pClosestStructure && pClosestStructure->GetPlayerOwner() && pClosestStructure->GetPlayerOwner()->IsHumanControlled())
 		{
 			apTargets.push_back(pTank);
 			vecAveragePosition += pTank->GetGlobalOrigin();
@@ -285,7 +304,7 @@ void CDigitanksCamera::ShowEnemyMoves()
 		SetTarget(pClosestTarget->GetRealOrigin());
 }
 
-void CDigitanksCamera::ProjectileFired(CProjectile* pProjectile)
+void COverheadCamera::ProjectileFired(CProjectile* pProjectile)
 {
 	if (!m_hTankTarget)
 		return;
@@ -320,26 +339,26 @@ void CDigitanksCamera::ProjectileFired(CProjectile* pProjectile)
 	m_flTransitionToProjectileTime = GameServer()->GetGameTime();
 }
 
-void CDigitanksCamera::ReplaceProjectileTarget(CProjectile* pTarget)
+void COverheadCamera::ReplaceProjectileTarget(CProjectile* pTarget)
 {
 	if (m_hTankProjectile != NULL)
 		m_hTankProjectile = pTarget;
 }
 
-void CDigitanksCamera::ClearFollowTarget()
+void COverheadCamera::ClearFollowTarget()
 {
 	m_hTankTarget = NULL;
 	m_hTankProjectile = NULL;
 }
 
-void CDigitanksCamera::EnterGame()
+void COverheadCamera::EnterGame()
 {
 	m_flTimeSinceNewGame = GameServer()->GetGameTime();
 }
 
-void CDigitanksCamera::Think()
+void COverheadCamera::CameraThink()
 {
-	BaseClass::Think();
+	BaseClass::CameraThink();
 
 	double flGameTime = GameServer()->GetGameTime();
 	float flFrameTime = (float)GameServer()->GetFrameTime();
@@ -362,7 +381,7 @@ void CDigitanksCamera::Think()
 	}
 
 	m_vecVelocity.x = Approach(m_vecGoalVelocity.x, m_vecVelocity.x, flFrameTime*200);
-	m_vecVelocity.z = Approach(m_vecGoalVelocity.z, m_vecVelocity.z, flFrameTime*200);
+	m_vecVelocity.y = Approach(m_vecGoalVelocity.y, m_vecVelocity.y, flFrameTime*200);
 
 	if (m_flTargetRamp && flGameTime - m_flTargetRamp < flLerpTime)
 	{
@@ -404,6 +423,12 @@ void CDigitanksCamera::Think()
 	else
 		m_flDistance = m_flNewDistance;
 
+	if (m_flDistance < 40)
+		m_flDistance = 40;
+
+	if (m_flDistance > 400)
+		m_flDistance = 400;
+
 	if (m_flAngleRamp && flGameTime - m_flAngleRamp < flLerpTime)
 	{
 		float flLerp = Bias((float)(flGameTime - m_flAngleRamp)/flLerpTime, flBiasAmount);
@@ -433,14 +458,11 @@ void CDigitanksCamera::Think()
 	}
 	else
 		m_vecShake = Vector(0,0,0);
-}
 
-Vector CDigitanksCamera::GetCameraPosition()
-{
 	if (m_hTankTarget != NULL)
-		return GetTankFollowPosition(m_hTankTarget);
+		SetGlobalOrigin(GetTankFollowPosition(m_hTankTarget));
 
-	if (m_hTankProjectile != NULL)
+	else if (m_hTankProjectile != NULL)
 	{
 		float flLerp = (float)RemapValClamped(GameServer()->GetGameTime(), m_flTransitionToProjectileTime, m_flTransitionToProjectileTime + 0.5, 0.0, 1.0);
 
@@ -453,28 +475,28 @@ Vector CDigitanksCamera::GetCameraPosition()
 			Vector vecTorpedoFollow = m_hTankProjectile->GetGlobalOrigin() - vecDirection*15 + Vector(0, 0, 15);
 
 			if (flLerp < 1 && m_hTankProjectile->GetOwner())
-				return LerpValue<Vector>(GetTankFollowPosition(dynamic_cast<CDigitank*>(m_hTankProjectile->GetOwner())), vecTorpedoFollow, flLerp);
-
-			return vecTorpedoFollow;
+				SetGlobalOrigin(LerpValue<Vector>(GetTankFollowPosition(dynamic_cast<CDigitank*>(m_hTankProjectile->GetOwner())), vecTorpedoFollow, flLerp));
+			else
+				SetGlobalOrigin(vecTorpedoFollow);
 		}
+		else
+		{
+			Vector vecVelocity = m_hTankProjectile->GetGlobalVelocity();
 
-		Vector vecVelocity = m_hTankProjectile->GetGlobalVelocity();
+			Vector vecForward, vecRight, vecUp;
+			AngleVectors(VectorAngles(vecVelocity), &vecForward, &vecRight, &vecUp);
 
-		Vector vecForward, vecRight, vecUp;
-		AngleVectors(VectorAngles(vecVelocity), &vecForward, &vecRight, &vecUp);
+			Vector vecProjectileFollow = m_hTankProjectile->GetGlobalOrigin() - vecForward*13 - vecRight*4;
 
-		Vector vecProjectileFollow = m_hTankProjectile->GetGlobalOrigin() - vecForward*13 - vecRight*4;
-
-		if (flLerp < 1 && m_hTankProjectile->GetOwner())
-			return LerpValue<Vector>(GetTankFollowPosition(dynamic_cast<CDigitank*>(m_hTankProjectile->GetOwner())), vecProjectileFollow, flLerp);
-
-		return vecProjectileFollow;
+			if (flLerp < 1 && m_hTankProjectile->GetOwner())
+				SetGlobalOrigin(LerpValue<Vector>(GetTankFollowPosition(dynamic_cast<CDigitank*>(m_hTankProjectile->GetOwner())), vecProjectileFollow, flLerp));
+			else
+				SetGlobalOrigin(vecProjectileFollow);
+		}
 	}
-
-	if (m_hCameraGuidedMissile != NULL)
-		return m_hCameraGuidedMissile->GetGlobalOrigin();
-
-	if (GameServer()->GetGameTime() - m_flTimeSinceNewGame < 3 && DigitanksGame()->GetGameType() != GAMETYPE_MENU)
+	else if (m_hCameraGuidedMissile != NULL)
+		SetGlobalOrigin(m_hCameraGuidedMissile->GetGlobalOrigin());
+	else if (GameServer()->GetGameTime() - m_flTimeSinceNewGame < 3 && DigitanksGame()->GetGameType() != GAMETYPE_MENU)
 	{
 		float flCameraIntroLerp = Gain((float)RemapVal(GameServer()->GetGameTime() - m_flTimeSinceNewGame, 0.0, 3.0, 0.0, 1.0), 0.2f);
 
@@ -484,53 +506,47 @@ Vector CDigitanksCamera::GetCameraPosition()
 		Vector vecIntroTarget = m_vecTarget;
 		Vector vecIntroCamera = AngleVector(angIntro) * 400 + vecIntroTarget;
 
-		return LerpValue<Vector>(vecIntroCamera, m_vecCamera, flCameraIntroLerp) + m_vecShake;
+		SetGlobalOrigin(LerpValue<Vector>(vecIntroCamera, m_vecCamera, flCameraIntroLerp) + m_vecShake);
 	}
+	else
+		SetGlobalOrigin(m_vecCamera + m_vecShake);
 
-	return m_vecCamera + m_vecShake;
-}
-
-Vector CDigitanksCamera::GetCameraTarget()
-{
 	if (m_hTankTarget != NULL)
 	{
 		if (m_hTankTarget->GetCurrentWeapon() == WEAPON_CHARGERAM)
-			return m_hTankTarget->GetGlobalOrigin() + AngleVector(m_hTankTarget->GetAngles()) * 10;
-
-		return m_hTankTarget->GetLastAim();
+			SetGlobalAngles(VectorAngles(m_hTankTarget->GetGlobalOrigin() + AngleVector(m_hTankTarget->GetAngles()) * 10 - GetGlobalOrigin()));
+		else
+			SetGlobalAngles(VectorAngles(m_hTankTarget->GetLastAim() - GetGlobalOrigin()));
 	}
-
-	if (m_hTankProjectile != NULL)
+	else if (m_hTankProjectile != NULL)
 	{
 		float flLerp = (float)RemapValClamped(GameServer()->GetGameTime(), m_flTransitionToProjectileTime, m_flTransitionToProjectileTime + 0.5, 0.0, 1.0);
 
 		CDigitank* pTank = dynamic_cast<CDigitank*>(m_hTankProjectile->GetOwner());
 		TAssert(pTank);
-		if (!pTank)
-			return Vector();
-
-		if (m_hTankProjectile->GetWeaponType() == PROJECTILE_TORPEDO)
+		if (pTank)
 		{
-			Vector vecTorpedoTarget = m_hTankProjectile->GetGlobalOrigin();
+			if (m_hTankProjectile->GetWeaponType() == PROJECTILE_TORPEDO)
+			{
+				Vector vecTorpedoTarget = m_hTankProjectile->GetGlobalOrigin();
+
+				if (flLerp < 1 && m_hTankProjectile->GetOwner())
+					return SetGlobalAngles(VectorAngles(LerpValue<Vector>(pTank->GetLastAim(), vecTorpedoTarget, flLerp) - GetGlobalOrigin()));
+				else
+					return SetGlobalAngles(VectorAngles(vecTorpedoTarget - GetGlobalOrigin()));
+			}
+
+			Vector vecProjectileTarget = m_hTankProjectile->GetGlobalOrigin() + m_hTankProjectile->GetGlobalVelocity();
 
 			if (flLerp < 1 && m_hTankProjectile->GetOwner())
-				return LerpValue<Vector>(pTank->GetLastAim(), vecTorpedoTarget, flLerp);
-
-			return vecTorpedoTarget;
+				return SetGlobalAngles(VectorAngles(LerpValue<Vector>(pTank->GetLastAim(), vecProjectileTarget, flLerp) - GetGlobalOrigin()));
+			else
+				return SetGlobalAngles(VectorAngles(vecProjectileTarget - GetGlobalOrigin()));
 		}
-
-		Vector vecProjectileTarget = m_hTankProjectile->GetGlobalOrigin() + m_hTankProjectile->GetGlobalVelocity();
-
-		if (flLerp < 1 && m_hTankProjectile->GetOwner())
-			return LerpValue<Vector>(pTank->GetLastAim(), vecProjectileTarget, flLerp);
-
-		return vecProjectileTarget;
 	}
-
-	if (m_hCameraGuidedMissile != NULL)
-		return m_hCameraGuidedMissile->GetGlobalOrigin() + AngleVector(m_hCameraGuidedMissile->GetViewAngles());
-
-	if (GameServer()->GetGameTime() - m_flTimeSinceNewGame < 3 && DigitanksGame()->GetGameType() != GAMETYPE_MENU)
+	else if (m_hCameraGuidedMissile != NULL)
+		return SetGlobalAngles(VectorAngles(m_hCameraGuidedMissile->GetGlobalOrigin() + AngleVector(m_hCameraGuidedMissile->GetViewAngles()) - GetGlobalOrigin()));
+	else if (GameServer()->GetGameTime() - m_flTimeSinceNewGame < 3 && DigitanksGame()->GetGameType() != GAMETYPE_MENU)
 	{
 		float flCameraIntroLerp = Bias((float)RemapVal(GameServer()->GetGameTime() - m_flTimeSinceNewGame, 0.0, 3.0, 0.0, 1.0), 0.2f);
 
@@ -540,16 +556,16 @@ Vector CDigitanksCamera::GetCameraTarget()
 		Vector vecIntroTarget = m_vecTarget;
 		Vector vecIntroCamera = AngleVector(angIntro) * 400 + vecIntroTarget;
 
-		return LerpValue<Vector>(vecIntroTarget, m_vecTarget, flCameraIntroLerp) + m_vecShake;
+		return SetGlobalAngles(VectorAngles(LerpValue<Vector>(vecIntroTarget, m_vecTarget, flCameraIntroLerp) + m_vecShake - GetGlobalOrigin()));
 	}
-
-	return m_vecTarget + m_vecShake;
+	else
+		return SetGlobalAngles(VectorAngles(m_vecTarget + m_vecShake - GetGlobalOrigin()));
 }
 
 CVar cam_cg_fov("cam_cg_fov", "80");
 CVar cam_cg_boost_fov("cam_cg_boost_fov", "70");
 
-float CDigitanksCamera::GetFOV()
+float COverheadCamera::GetFOV()
 {
 	if (m_hCameraGuidedMissile != NULL)
 		return RemapVal(m_flCameraGuidedFOV, 0, 1, cam_cg_fov.GetFloat(), cam_cg_boost_fov.GetFloat());
@@ -557,7 +573,7 @@ float CDigitanksCamera::GetFOV()
 	return BaseClass::GetFOV();
 }
 
-float CDigitanksCamera::GetCameraNear()
+float COverheadCamera::GetCameraNear()
 {
 	if (m_hCameraGuidedMissile != NULL)
 		return 1.0f;
@@ -565,7 +581,7 @@ float CDigitanksCamera::GetCameraNear()
 	return 10;
 }
 
-float CDigitanksCamera::GetCameraFar()
+float COverheadCamera::GetCameraFar()
 {
 	if (m_hCameraGuidedMissile != NULL)
 		return 1000;
@@ -573,7 +589,7 @@ float CDigitanksCamera::GetCameraFar()
 	return 1000;
 }
 
-Vector CDigitanksCamera::GetTankFollowPosition(CDigitank* pTank)
+Vector COverheadCamera::GetTankFollowPosition(CDigitank* pTank)
 {
 	TAssert(pTank);
 	if (!pTank)
@@ -627,7 +643,7 @@ CLIENT_GAME_COMMAND(CGAng)
 	hMissile->SetGlobalAngles(angMissile);
 }
 
-void CDigitanksCamera::MouseInput(int x, int y)
+void COverheadCamera::MouseInput(int x, int y)
 {
 	int dx, dy;
 
@@ -748,7 +764,7 @@ void CDigitanksCamera::MouseInput(int x, int y)
 		m_vecGoalVelocity = Vector(0,0,0);
 }
 
-void CDigitanksCamera::MouseButton(int iButton, int iState)
+void COverheadCamera::MouseButton(int iButton, int iState)
 {
 	if (iButton == TINKER_KEY_MOUSE_RIGHT)
 	{
@@ -756,7 +772,7 @@ void CDigitanksCamera::MouseButton(int iButton, int iState)
 	}
 }
 
-void CDigitanksCamera::KeyDown(int c)
+void COverheadCamera::KeyDown(int c)
 {
 	if (!DigitanksGame()->IsFeatureDisabled(DISABLE_VIEW_MOVE))
 	{
@@ -782,7 +798,7 @@ void CDigitanksCamera::KeyDown(int c)
 		ZoomOut();
 }
 
-void CDigitanksCamera::KeyUp(int c)
+void COverheadCamera::KeyUp(int c)
 {
 	if (c == TINKER_KEY_UP)
 		m_vecGoalVelocity.x = 0.0f;

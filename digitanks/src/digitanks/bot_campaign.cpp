@@ -204,20 +204,20 @@ void CDigitanksPlayer::Bot_ExecuteTurnCampaign()
 		if (!pTank && !pStructure)
 			continue;
 
+		CDigitanksEntity* pDTEntity = static_cast<CDigitanksEntity*>(pEntity);
+
 		if (pTank && pTank->IsImprisoned())
 			continue;
 
-		if (pEntity->GetTeam() == pHeadTank->GetTeam())
+		if (pDTEntity->GetPlayerOwner() == pHeadTank->GetPlayerOwner())
 			continue;
 
 		// Don't fire on neutral structures.
-		if (pEntity->GetTeam() == NULL)
+		if (pDTEntity->GetPlayerOwner() == NULL)
 			continue;
 
 		if (GetEntityVisibility(pEntity->GetHandle()) == 0)
 			continue;
-
-		CDigitanksEntity* pDTEntity = dynamic_cast<CDigitanksEntity*>(pEntity);
 
 		if (pDTEntity->GetUnitType() == UNIT_SCOUT)
 			continue;
@@ -325,7 +325,7 @@ void CDigitanksPlayer::Bot_ExecuteTurnCampaign()
 				if (!pClosestInfantry)
 					break;
 
-				if (pClosestInfantry->GetTeam() == pTank->GetTeam())
+				if (pClosestInfantry->GetPlayerOwner() == pTank->GetPlayerOwner())
 					continue;
 
 				if (pClosestInfantry->IsImprisoned())
@@ -350,10 +350,10 @@ void CDigitanksPlayer::Bot_ExecuteTurnCampaign()
 				if (!pClosestSupply)
 					break;
 
-				if (pClosestSupply->GetTeam() == pTank->GetTeam())
+				if (pClosestSupply->GetPlayerOwner() == pTank->GetPlayerOwner())
 					continue;
 
-				if (!pClosestSupply->GetTeam())
+				if (!pClosestSupply->GetPlayerOwner())
 					continue;
 
 				if (!pClosestSupply->GetSupplier() || !pClosestSupply->GetEntity())
@@ -412,7 +412,7 @@ void CDigitanksPlayer::Bot_ExecuteTurnCampaign()
 					if (pClosestEnemy->IsImprisoned())
 						continue;
 
-					if (pClosestEnemy->GetTeam() == pTank->GetTeam())
+					if (pClosestEnemy->GetPlayerOwner() == pTank->GetPlayerOwner())
 						continue;
 
 					if (!pTank->IsInsideMaxRange(pClosestEnemy->GetGlobalOrigin()))
@@ -554,7 +554,7 @@ void CDigitanksPlayer::Bot_ExecuteTurnCampaign()
 					if (!pClosestEnemy)
 						break;
 
-					if (pClosestEnemy->GetTeam() == pTank->GetTeam())
+					if (pClosestEnemy->GetPlayerOwner() == pTank->GetPlayerOwner())
 						continue;
 
 					if (pClosestEnemy->IsImprisoned())
@@ -671,7 +671,7 @@ void CDigitanksPlayer::Bot_ExecuteTurnCampaign()
 				if (!pClosestEnemy)
 					break;
 
-				if (pClosestEnemy->GetTeam() == pTank->GetTeam())
+				if (pClosestEnemy->GetPlayerOwner() == pTank->GetPlayerOwner())
 					continue;
 
 				if (pClosestEnemy->IsImprisoned())
@@ -748,7 +748,7 @@ void CDigitanksPlayer::Bot_ExecuteTurnCampaign()
 					if (!pClosestEnemy)
 						break;
 
-					if (pClosestEnemy->GetTeam() == pTank->GetTeam())
+					if (pClosestEnemy->GetPlayerOwner() == pTank->GetPlayerOwner())
 						continue;
 
 					if (pClosestEnemy->IsImprisoned())

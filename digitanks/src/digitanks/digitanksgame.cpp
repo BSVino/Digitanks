@@ -157,6 +157,27 @@ void CDigitanksGame::Precache()
 
 	// We precache this for the hud since it's not an entity
 	PrecacheSound("sound/actionsign.wav");
+
+	PrecacheModel("models/skybox/ring1.toy");
+	PrecacheModel("models/skybox/ring2.toy");
+	PrecacheModel("models/skybox/ring3.toy");
+	PrecacheModel("models/skybox/vortex.toy");
+	PrecacheModel("models/skybox/digiverse.toy");
+	PrecacheModel("models/skybox/floaters/float01.toy");
+	PrecacheModel("models/skybox/floaters/float02.toy");
+	PrecacheModel("models/skybox/floaters/float03.toy");
+	PrecacheModel("models/skybox/floaters/float04.toy");
+	PrecacheModel("models/skybox/floaters/float05.toy");
+	PrecacheModel("models/skybox/floaters/float06.toy");
+	PrecacheModel("models/skybox/floaters/float07.toy");
+	PrecacheModel("models/skybox/floaters/float08.toy");
+	PrecacheModel("models/skybox/floaters/float09.toy");
+	PrecacheModel("models/skybox/floaters/float10.toy");
+	PrecacheModel("models/skybox/floaters/float11.toy");
+	PrecacheModel("models/skybox/floaters/float12.toy");
+	PrecacheModel("models/skybox/floaters/float13.toy");
+	PrecacheModel("models/skybox/floaters/float14.toy");
+	PrecacheModel("models/skybox/floaters/float15.toy");
 }
 
 void CDigitanksGame::Spawn()
@@ -898,6 +919,12 @@ void CDigitanksGame::SetupMenuMarch()
 	CTeam* pTeam = GameServer()->Create<CTeam>("CTeam");
 	pTeam->SetColor(Color(0, 0, 255));
 
+	GameServer()->Create<COverheadCamera>("COverheadCamera");
+
+	GetOverheadCamera()->SnapTarget(Vector(0,0,0));
+	GetOverheadCamera()->SnapAngle(EAngle(55,40,0));
+	GetOverheadCamera()->SnapDistance(60);
+
 #if !defined(TINKER_OPTIMIZE_SOFTWARE)
 	CMenuMarcher* pMarcher;
 
@@ -1268,7 +1295,7 @@ void CDigitanksGame::EnterGame(int iConnection, CNetworkParameters* p)
 	}
 
 	if (m_eGameType == GAMETYPE_STANDARD || m_eGameType == GAMETYPE_ARTILLERY || m_eGameType == GAMETYPE_CAMPAIGN)
-		DigitanksGame()->GetDigitanksCamera()->EnterGame();
+		DigitanksGame()->GetOverheadCamera()->EnterGame();
 }
 
 void CDigitanksGame::StartNewRound()
@@ -1569,9 +1596,9 @@ void CDigitanksGame::Think()
 			}
 		}
 
-		EAngle angCamera = GetDigitanksCamera()->GetAngles();
+		EAngle angCamera = GetOverheadCamera()->GetAngles();
 		angCamera.y += (float)GameServer()->GetFrameTime()*2;
-		GetDigitanksCamera()->SnapAngle(angCamera);
+		GetOverheadCamera()->SnapAngle(angCamera);
 
 		if (GameNetwork()->IsHost() && GameServer()->GetGameTime() > m_flLastFireworks + RandomFloat(0.5f, 3.0f))
 		{
@@ -1824,7 +1851,7 @@ void CDigitanksGame::EndTurn(int iConnection, CNetworkParameters* p)
 		return;
 
 	if (!GetCurrentPlayer()->IsHumanControlled())
-		DigitanksGame()->GetDigitanksCamera()->ShowEnemyMoves();
+		DigitanksGame()->GetOverheadCamera()->ShowEnemyMoves();
 
 	if (GetCurrentPlayer()->IsHumanControlled())
 		m_flLastHumanMove = GameServer()->GetGameTime();
@@ -1937,7 +1964,7 @@ void CDigitanksGame::StartTurn(int iConnection, CNetworkParameters* p)
 	if (!GameNetwork()->ShouldRunClientFunction())
 		return;
 
-	DigitanksGame()->GetDigitanksCamera()->ClearFollowTarget();
+	DigitanksGame()->GetOverheadCamera()->ClearFollowTarget();
 
 	if (m_iCurrentPlayer == (size_t)0)
 		m_iTurn++;
@@ -2334,8 +2361,8 @@ SERVER_GAME_COMMAND(GameOver)
 	if (DigitanksGame()->GetListener() && DigitanksGame()->GetCurrentLocalDigitanksPlayer() && !DigitanksGame()->GetCurrentLocalDigitanksPlayer()->HasLost())
 		DigitanksGame()->GetListener()->GameOver(!DigitanksGame()->GetCurrentLocalDigitanksPlayer()->HasLost());
 
-	DigitanksGame()->GetDigitanksCamera()->SetDistance(250);
-	DigitanksGame()->GetDigitanksCamera()->SetTarget(Vector(0,0,0));
+	DigitanksGame()->GetOverheadCamera()->SetDistance(250);
+	DigitanksGame()->GetOverheadCamera()->SetTarget(Vector(0,0,0));
 }
 
 void CDigitanksGame::GameOver()
@@ -2548,10 +2575,14 @@ CDigitanksRenderer*	CDigitanksGame::GetDigitanksRenderer()
 	return dynamic_cast<CDigitanksRenderer*>(GameServer()->GetRenderer());
 }
 
-CDigitanksCamera* CDigitanksGame::GetDigitanksCamera()
+COverheadCamera* CDigitanksGame::GetOverheadCamera()
 {
-	CCameraManager* pCameraManager = GameServer()->GetCameraManager();
-	return dynamic_cast<CDigitanksCamera*>(pCameraManager->GetActiveCamera());
+	return m_hOverheadCamera;
+}
+
+void CDigitanksGame::SetOverheadCamera(COverheadCamera* pCamera)
+{
+	m_hOverheadCamera = pCamera;
 }
 
 float CDigitanksGame::GetGravity()
@@ -2654,23 +2685,23 @@ void CDigitanksGame::ClientEnterGame()
 
 	if (m_eGameType == GAMETYPE_MENU)
 	{
-		GetDigitanksCamera()->SnapTarget(Vector(0,0,0));
-		GetDigitanksCamera()->SnapAngle(EAngle(55,20,0));
-		GetDigitanksCamera()->SnapDistance(60);
+		GetOverheadCamera()->SnapTarget(Vector(0,0,0));
+		GetOverheadCamera()->SnapAngle(EAngle(55,20,0));
+		GetOverheadCamera()->SnapDistance(60);
 	}
 	else if (m_eGameType != GAMETYPE_CAMPAIGN)
 	{
 		const CBaseEntity* pMember = GetCurrentLocalDigitanksPlayer()->GetUnit(0);
 		if (GetCurrentLocalDigitanksPlayer() && pMember)
-			GetDigitanksCamera()->SnapTarget(pMember->GetGlobalOrigin());
+			GetOverheadCamera()->SnapTarget(pMember->GetGlobalOrigin());
 		else
-			GetDigitanksCamera()->SnapTarget(Vector(0,0,0));
-		GetDigitanksCamera()->SnapAngle(EAngle(45,0,0));
+			GetOverheadCamera()->SnapTarget(Vector(0,0,0));
+		GetOverheadCamera()->SnapAngle(EAngle(45,0,0));
 
 		if (m_eGameType == GAMETYPE_ARTILLERY)
-			GetDigitanksCamera()->SnapDistance(220);
+			GetOverheadCamera()->SnapDistance(220);
 		else
-			GetDigitanksCamera()->SnapDistance(120);
+			GetOverheadCamera()->SnapDistance(120);
 	}
 
 	// Give the game a second to load up before showing the fight sign.

@@ -134,11 +134,18 @@ void CDigitanksWindow::OpenWindow()
 	glgui::CLabel::AddFont("smileys", "fonts/smileys.ttf");
 	glgui::CLabel::AddFont("cameramissile", "fonts/cameramissile.ttf");
 
+	SetMultisampling(true);
+
 	CApplication::OpenWindow(m_iWindowWidth, m_iWindowHeight, m_bCfgFullscreen, false);
 
 	m_hCursors = CMaterialLibrary::AddMaterial("textures/cursors.mat");
 
 	RenderLoading();
+
+	CVar::SetCVar("game_mode", GetInitialGameMode());
+
+	m_pGameServer = new CGameServer();
+	m_pInstructor = new CInstructor();
 
 	InitUI();
 
@@ -159,6 +166,18 @@ void CDigitanksWindow::OpenWindow()
 	}
 
 	SaveConfig();
+
+	mtsrand((size_t)time(NULL));
+
+	glgui::CRootPanel::Get()->AddControl(m_pHUD = CreateHUD());
+
+	glgui::CRootPanel::Get()->SetLighting(false);
+	glgui::CRootPanel::Get()->SetSize((float)GetWindowWidth(), (float)GetWindowHeight());
+	glgui::CRootPanel::Get()->Layout();
+
+	GameServer()->SetLoading(false);
+
+	CApplication::Get()->SetMouseCursorEnabled(false);
 
 #ifdef __linux__
 	g_pDisplay = XOpenDisplay(NULL);
@@ -421,16 +440,7 @@ void CDigitanksWindow::Render()
 	if (!GameServer())
 		return;
 
-	TPROF("CDigitanksWindow::Render");
-
-	GameServer()->Render();
-
-	if (true)
-	{
-		TPROF("GUI");
-		glgui::CRootPanel::Get()->Think(GameServer()->GetGameTime());
-		glgui::CRootPanel::Get()->Paint(0, 0, (int)m_iWindowWidth, (int)m_iWindowHeight);
-	}
+	BaseClass::Render();
 
 	RenderMouseCursor();
 }

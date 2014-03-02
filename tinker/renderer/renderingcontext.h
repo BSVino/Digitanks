@@ -149,6 +149,7 @@ public:
 	void					BeginRenderVertexArray(size_t iBuffer=0);
 	void					SetPositionBuffer(const float* pflBuffer, size_t iStrideBytes=0);
 	void					SetPositionBuffer(size_t iOffsetBytes, size_t iStrideBytes);
+	void					SetColorBuffer(size_t iOffsetBytes, size_t iStrideBytes);
 	void					SetNormalsBuffer(const float* pflBuffer, size_t iStrideBytes=0);
 	void					SetNormalsBuffer(size_t iOffsetBytes, size_t iStrideBytes);
 	void					SetTangentsBuffer(const float* pflBuffer, size_t iStrideBytes=0);

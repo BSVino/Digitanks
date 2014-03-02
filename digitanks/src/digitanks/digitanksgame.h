@@ -206,7 +206,8 @@ public:
 	NET_CALLBACK_ENTITY(CDigitanksGame, CLoader, BeginProduction);
 
 	virtual class CDigitanksRenderer*	GetDigitanksRenderer();
-	virtual class CDigitanksCamera*		GetDigitanksCamera();
+	virtual class COverheadCamera*      GetOverheadCamera();
+	void                                SetOverheadCamera(class COverheadCamera* pCamera);
 
 	float					GetGravity();
 
@@ -286,6 +287,7 @@ protected:
 	CNetworkedString		m_sObjective;
 
 	CNetworkedHandle<CTerrain> m_hTerrain;
+	CNetworkedHandle<COverheadCamera> m_hOverheadCamera;
 
 	CNetworkedHandle<CInstructorEntity> m_hInstructor;
 

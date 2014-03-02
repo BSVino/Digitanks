@@ -1088,6 +1088,14 @@ void CRenderingContext::SetPositionBuffer(size_t iOffset, size_t iStride)
 	glVertexAttribPointer(m_pShader->m_iPositionAttribute, 3, GL_FLOAT, false, iStride, BUFFER_OFFSET(iOffset));
 }
 
+void CRenderingContext::SetColorBuffer(size_t iOffset, size_t iStride)
+{
+	TAssert(iOffset%4 == 0);	// Should be multiples of four because it's offsets in bytes and we're always working with floats or doubles
+	TAssert(m_pShader->m_iColorAttribute != ~0);
+	glEnableVertexAttribArray(m_pShader->m_iColorAttribute);
+	glVertexAttribPointer(m_pShader->m_iColorAttribute, 3, GL_FLOAT, false, iStride, BUFFER_OFFSET(iOffset));
+}
+
 void CRenderingContext::SetNormalsBuffer(const float* pflBuffer, size_t iStride)
 {
 	if (m_pShader->m_iNormalAttribute == ~0)

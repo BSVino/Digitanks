@@ -142,7 +142,7 @@ void CDigitanksEntity::Think()
 				CWreckage* pWreckage = CreateWreckage();
 				pWreckage->SetScale(2);
 
-				DigitanksGame()->GetDigitanksCamera()->Shake(GetGlobalOrigin(), 3);
+				DigitanksGame()->GetOverheadCamera()->Shake(GetGlobalOrigin(), 3);
 				break;
 			}
 
@@ -221,9 +221,9 @@ CWreckage* CDigitanksEntity::CreateWreckage()
 	if (pTank)
 		pWreckage->SetTurretModel(pTank->GetTurretModel());
 
-	bool bColorSwap = GetTeam() && (dynamic_cast<CDigitank*>(this));
+	bool bColorSwap = GetPlayerOwner() && (dynamic_cast<CDigitank*>(this));
 	if (bColorSwap)
-		pWreckage->SetColorSwap(GetTeam()->GetColor());
+		pWreckage->SetColorSwap(GetPlayerOwner()->GetColor());
 
 	return pWreckage;
 }
@@ -254,7 +254,7 @@ void CDigitanksEntity::InterceptSupplyLines()
 	if (dynamic_cast<CSupplyLine*>(this))
 		return;
 
-	if (!GetTeam())
+	if (!GetPlayerOwner())
 		return;
 
 	for (size_t i = 0; i < GameServer()->GetMaxEntities(); i++)
@@ -267,10 +267,10 @@ void CDigitanksEntity::InterceptSupplyLines()
 		if (!pSupplyLine)
 			continue;
 
-		if (pSupplyLine->GetTeam() == GetTeam())
+		if (pSupplyLine->GetPlayerOwner() == GetPlayerOwner())
 			continue;
 
-		if (!pSupplyLine->GetTeam())
+		if (!pSupplyLine->GetPlayerOwner())
 			continue;
 
 		if (!pSupplyLine->GetSupplier() || !pSupplyLine->GetEntity())
@@ -503,7 +503,7 @@ bool CDigitanksEntity::IsTouching(CBaseEntity* pOther, Vector& vecPoint) const
 		if (!pOtherTank)
 			return false;
 
-		if (!pOtherTank->GetTeam())
+		if (!pOtherTank->GetPlayerOwner())
 			return false;
 
 		if (Distance(pOtherTank->GetRealOrigin()) > 20)

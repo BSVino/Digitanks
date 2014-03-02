@@ -5,14 +5,13 @@
 
 #include <game/entities/camera.h>
 
-class CDigitanksCamera : public CCamera
+class COverheadCamera : public CCamera
 {
-	DECLARE_CLASS(CDigitanksCamera, CCamera);
+	REGISTER_ENTITY_CLASS(COverheadCamera, CCamera);
 
 public:
-					CDigitanksCamera();
+	void			Spawn();
 
-public:
 	void			SetTarget(Vector vecTarget);
 	void			SnapTarget(Vector vecTarget);
 	void			SetDistance(float flDistance);
@@ -39,10 +38,8 @@ public:
 	void			ClearFollowTarget();
 
 	virtual void	EnterGame();
-	virtual void	Think();
+	virtual void	CameraThink();
 
-	virtual Vector	GetCameraPosition();
-	virtual Vector	GetCameraTarget();
 	virtual float	GetFOV();
 	virtual float	GetCameraNear();
 	virtual float	GetCameraFar();

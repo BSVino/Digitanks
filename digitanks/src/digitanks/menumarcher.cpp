@@ -59,10 +59,25 @@ void CMenuMarcher::Think()
 
 	Speak();
 
-	Vector vecNewOrigin = GetGlobalOrigin() + Vector(0, -5, 0) * (float)GameServer()->GetFrameTime();
-	vecNewOrigin.z = FindHoverHeight(vecNewOrigin);
+	Vector vecNewOrigin = GetGlobalOrigin() + Vector(0, 5, 0) * (float)GameServer()->GetFrameTime();
+
 	if (vecNewOrigin.y > 80)
 		vecNewOrigin.y -= 160;
+
+	vecNewOrigin.z = vecNewOrigin.z + GetGlobalVelocity().z * (float)GameServer()->GetFrameTime();
+
+	float flNewHoverHeight = FindHoverHeight(vecNewOrigin) + 1;
+
+	if (vecNewOrigin.z > flNewHoverHeight)
+	{
+		SetGlobalVelocity(Vector(0, 0, GetGlobalVelocity().z - 5 * (float)GameServer()->GetFrameTime()));
+	}
+	else
+	{
+		vecNewOrigin.z = flNewHoverHeight;
+		SetGlobalVelocity(Vector(0, 0, Approach(0, GetGlobalVelocity().z, 1 * (float)GameServer()->GetFrameTime())));
+	}
+
 	SetGlobalOrigin(vecNewOrigin);
 }
 
@@ -76,12 +91,14 @@ Vector CMenuMarcher::GetRenderOrigin() const
 	return GetGlobalOrigin() + Vector(0, 0, 1 + flLerp*0.5f);
 }
 
-void CMenuMarcher::ModifyContext(CRenderingContext* pContext) const
+bool CMenuMarcher::ModifyShader(CRenderingContext* pContext) const
 {
-	BaseClass::ModifyContext(pContext);
+	bool bReturn = BaseClass::ModifyShader(pContext);
 
 	pContext->SetUniform("bColorSwapInAlpha", true);
 	pContext->SetUniform("vecColorSwap", Color(0, 0, 255));
+
+	return bReturn;
 }
 
 void CMenuMarcher::OnRender(CGameRenderingContext* pContext) const
@@ -98,15 +115,12 @@ void CMenuMarcher::RenderTurret() const
 		return;
 
 	CGameRenderingContext r(GameServer()->GetRenderer(), true);
-	r.Translate(Vector(-0.527677f, 0.810368f, 0));
+	r.Translate(Vector(0, 0, 0.810368f));
 
 	float flScale = 1.3f;
 	r.Scale(flScale, flScale, flScale);
 
-	r.SetUniform("bColorSwapInAlpha", true);
-	r.SetUniform("vecColorSwap", Color(0, 0, 255));
-
-	r.RenderModel(m_iTurretModel);
+	r.RenderModel(m_iTurretModel, this);
 }
 
 void CMenuMarcher::Speak()

@@ -100,7 +100,7 @@ void CCameraGuidedMissile::OnSetOwner(CBaseEntity* pOwner)
 
 	if (pTank && pTank->GetDigitanksPlayer() == DigitanksGame()->GetCurrentLocalDigitanksPlayer())
 	{
-		DigitanksGame()->GetDigitanksCamera()->SetCameraGuidedMissile(this);
+		DigitanksGame()->GetOverheadCamera()->SetCameraGuidedMissile(this);
 		DigitanksWindow()->SetMouseCursorEnabled(false);
 	}
 }
@@ -126,13 +126,15 @@ bool CCameraGuidedMissile::ShouldTouch(CBaseEntity* pOther) const
 	if (pOther->GetCollisionGroup() == CG_PROP)
 		return true;
 
+#if 0
 	if (pOther->GetCollisionGroup() == CG_ENTITY)
 	{
-		if (m_hOwner != NULL && pOther->GetTeam() == m_hOwner->GetTeam())
+		if (m_hOwner != NULL && pOther->GetPlayerOwner() == m_hOwner->GetPlayerOwner())
 			return false;
 
 		return true;
 	}
+#endif
 
 	if (pOther->GetCollisionGroup() == CG_TERRAIN)
 		return true;
@@ -193,8 +195,8 @@ void CCameraGuidedMissile::OnExplode(CBaseEntity* pInstigator)
 
 	if (GetOwner() && GetOwner()->GetDigitanksPlayer() == DigitanksGame()->GetCurrentLocalDigitanksPlayer())
 	{
-		DigitanksGame()->GetDigitanksCamera()->SetCameraGuidedMissile(NULL);
-		DigitanksGame()->GetDigitanksCamera()->SnapTarget(GetGlobalOrigin());
+		DigitanksGame()->GetOverheadCamera()->SetCameraGuidedMissile(NULL);
+		DigitanksGame()->GetOverheadCamera()->SnapTarget(GetGlobalOrigin());
 		DigitanksWindow()->SetMouseCursorEnabled(true);
 	}
 

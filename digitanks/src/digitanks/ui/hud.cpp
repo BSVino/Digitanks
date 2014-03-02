@@ -938,7 +938,7 @@ void CHUD::Think()
 	}
 
 	CControlHandle pMouseControl = glgui::CRootPanel::Get()->GetHasCursor();
-	if (DigitanksGame()->GetDigitanksCamera()->HasCameraGuidedMissile())
+	if (DigitanksGame()->GetOverheadCamera()->HasCameraGuidedMissile())
 	{
 		DigitanksWindow()->SetMouseCursor(MOUSECURSOR_NONE);
 		SetTooltip(_T(""));
@@ -966,7 +966,7 @@ void CHUD::Think()
 	else
 		m_pTurnButton->SetAlpha(1.0f);
 
-	SetVisible(hud_enable.GetBool() || DigitanksGame()->GetDigitanksCamera()->HasCameraGuidedMissile());
+	SetVisible(hud_enable.GetBool() || DigitanksGame()->GetOverheadCamera()->HasCameraGuidedMissile());
 }
 
 #ifdef _DEBUG
@@ -1013,7 +1013,7 @@ void CHUD::Paint(float x, float y, float w, float h)
 		}
 	}
 
-	if (DigitanksGame()->GetDigitanksCamera()->HasCameraGuidedMissile())
+	if (DigitanksGame()->GetOverheadCamera()->HasCameraGuidedMissile())
 	{
 		PaintCameraGuidedMissile(x, y, w, h);
 		return;
@@ -1828,7 +1828,7 @@ void CHUD::Paint(float x, float y, float w, float h)
 
 void CHUD::PaintCameraGuidedMissile(float x, float y, float w, float h)
 {
-	CCameraGuidedMissile* pMissile = DigitanksGame()->GetDigitanksCamera()->GetCameraGuidedMissile();
+	CCameraGuidedMissile* pMissile = DigitanksGame()->GetOverheadCamera()->GetCameraGuidedMissile();
 
 	if (!pMissile->GetOwner())
 		return;
@@ -2795,8 +2795,8 @@ void CHUD::NewCurrentSelection()
 	if (DigitanksGame()->GetPrimarySelection())
 	{
 		Vector vecTarget = DigitanksGame()->GetPrimarySelection()->GetGlobalOrigin();
-		EAngle angCamera = DigitanksGame()->GetDigitanksCamera()->GetAngles();
-		float flDistance = DigitanksGame()->GetDigitanksCamera()->GetDistance();
+		EAngle angCamera = DigitanksGame()->GetOverheadCamera()->GetAngles();
+		float flDistance = DigitanksGame()->GetOverheadCamera()->GetDistance();
 		int iRotations = 0;
 		while (iRotations++ < 4)
 		{
@@ -2812,7 +2812,7 @@ void CHUD::NewCurrentSelection()
 			angCamera.y += 90;
 		}
 
-		DigitanksGame()->GetDigitanksCamera()->SetAngle(angCamera);
+		DigitanksGame()->GetOverheadCamera()->SetAngle(angCamera);
 	}
 }
 
@@ -3373,9 +3373,9 @@ void CHUD::ChooseActionItemCallback(const tstring& sArgs)
 		if (hSelection != NULL)
 		{
 			DigitanksGame()->GetCurrentPlayer()->SetPrimarySelection(hSelection);
-			DigitanksGame()->GetDigitanksCamera()->SetTarget(hSelection->GetGlobalOrigin());
-			if (DigitanksGame()->GetDigitanksCamera()->GetDistance() > 250)
-				DigitanksGame()->GetDigitanksCamera()->SetDistance(250);
+			DigitanksGame()->GetOverheadCamera()->SetTarget(hSelection->GetGlobalOrigin());
+			if (DigitanksGame()->GetOverheadCamera()->GetDistance() > 250)
+				DigitanksGame()->GetOverheadCamera()->SetDistance(250);
 		}
 	}
 

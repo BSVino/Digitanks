@@ -58,8 +58,8 @@ void CResourceNode::Think()
 	{
 		pInstance->SetOrigin(GetGlobalOrigin());
 
-		if (HasCollector() && GetCollector()->GetTeam())
-			pInstance->SetColor(GetCollector()->GetTeam()->GetColor());
+		if (HasCollector() && GetCollector()->GetPlayerOwner())
+			pInstance->SetColor(GetCollector()->GetPlayerOwner()->GetColor());
 		else
 			pInstance->SetColor(Color(195,176,78));
 	}

@@ -736,11 +736,11 @@ void CDigitanksPlayer::Bot_ExecuteTurn()
 		if (!pTank && !pStructure)
 			continue;
 
-		if (pEntity->GetTeam() == pHeadTank->GetTeam())
+		if (pDTEntity->GetPlayerOwner() == pHeadTank->GetPlayerOwner())
 			continue;
 
 		// Don't fire on neutral structures.
-		if (pEntity->GetTeam() == NULL)
+		if (pDTEntity->GetPlayerOwner() == NULL)
 			continue;
 
 		// Don't make targets out of barbarians or we'll spend the whole game fighting them.
@@ -885,7 +885,7 @@ void CDigitanksPlayer::Bot_ExecuteTurn()
 				if (!pClosestInfantry)
 					break;
 
-				if (pClosestInfantry->GetTeam() == pTank->GetTeam())
+				if (pClosestInfantry->GetPlayerOwner() == pTank->GetPlayerOwner())
 					continue;
 
 				if (!pClosestInfantry->IsInsideMaxRange(pTank->GetGlobalOrigin()))
@@ -907,10 +907,10 @@ void CDigitanksPlayer::Bot_ExecuteTurn()
 				if (!pClosestSupply)
 					break;
 
-				if (pClosestSupply->GetTeam() == pTank->GetTeam())
+				if (pClosestSupply->GetPlayerOwner() == pTank->GetPlayerOwner())
 					continue;
 
-				if (!pClosestSupply->GetTeam())
+				if (!pClosestSupply->GetPlayerOwner())
 					continue;
 
 				if (!pClosestSupply->GetSupplier() || !pClosestSupply->GetEntity())
@@ -966,7 +966,7 @@ void CDigitanksPlayer::Bot_ExecuteTurn()
 					if (pClosestEnemy->IsScout())
 						continue;
 
-					if (pClosestEnemy->GetTeam() == pTank->GetTeam())
+					if (pClosestEnemy->GetPlayerOwner() == pTank->GetPlayerOwner())
 						continue;
 
 					if (!pTank->IsInsideMaxRange(pClosestEnemy->GetGlobalOrigin()))
@@ -1108,7 +1108,7 @@ void CDigitanksPlayer::Bot_ExecuteTurn()
 					if (!pClosestEnemy)
 						break;
 
-					if (pClosestEnemy->GetTeam() == pTank->GetTeam())
+					if (pClosestEnemy->GetPlayerOwner() == pTank->GetPlayerOwner())
 						continue;
 
 					if (!pTank->IsInsideMaxRange(pClosestEnemy->GetGlobalOrigin()))
@@ -1175,7 +1175,7 @@ void CDigitanksPlayer::Bot_ExecuteTurn()
 				if (!pClosestEnemy)
 					break;
 
-				if (pClosestEnemy->GetTeam() == pTank->GetTeam())
+				if (pClosestEnemy->GetPlayerOwner() == pTank->GetPlayerOwner())
 					continue;
 
 				if (pClosestEnemy->GetUnitType() == UNIT_ARTILLERY)
@@ -1272,7 +1272,7 @@ void CDigitanksPlayer::Bot_ExecuteTurn()
 				if (!pClosestEnemy)
 					break;
 
-				if (pClosestEnemy->GetTeam() == pTank->GetTeam())
+				if (pClosestEnemy->GetPlayerOwner() == pTank->GetPlayerOwner())
 					continue;
 
 				if (pClosestEnemy->IsImprisoned())
@@ -1344,7 +1344,7 @@ void CDigitanksPlayer::Bot_ExecuteTurn()
 					if (!pClosestEnemy)
 						break;
 
-					if (pClosestEnemy->GetTeam() == pTank->GetTeam())
+					if (pClosestEnemy->GetPlayerOwner() == pTank->GetPlayerOwner())
 						continue;
 
 					if (pClosestEnemy->IsImprisoned())
@@ -1422,11 +1422,13 @@ void CDigitanksPlayer::Bot_ExecuteTurnArtillery()
 			if (!dynamic_cast<CDigitank*>(pEntity) && !dynamic_cast<CStructure*>(pEntity))
 				continue;
 
-			if (pEntity->GetTeam() == pTank->GetTeam())
+			CDigitanksEntity* pDTEntity = static_cast<CDigitanksEntity*>(pEntity);
+
+			if (pDTEntity->GetPlayerOwner() == pTank->GetPlayerOwner())
 				continue;
 
 			// Don't fire on neutral structures.
-			if (pEntity->GetTeam() == NULL)
+			if (pDTEntity->GetPlayerOwner() == NULL)
 				continue;
 
 			if (!pClosestEnemy)

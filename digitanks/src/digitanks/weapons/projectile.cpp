@@ -117,7 +117,7 @@ void CProjectile::Think()
 			if (pClosest == m_hOwner)
 				continue;
 
-			if (m_hOwner != NULL && pClosest->GetTeam() == m_hOwner->GetTeam())
+			if (m_hOwner != NULL && pClosest->GetPlayerOwner() == m_hOwner->GetOwner())
 				continue;
 
 			if (pClosest->CanFireMissileDefense())
@@ -202,7 +202,7 @@ void CProjectile::Fragment()
 		DigitanksGame()->AddProjectileToWaitFor();
 
 		if (i == 0)
-			DigitanksGame()->GetDigitanksCamera()->ReplaceProjectileTarget(pProjectile);
+			DigitanksGame()->GetOverheadCamera()->ReplaceProjectileTarget(pProjectile);
 	}
 
 	Delete();
@@ -254,13 +254,16 @@ bool CProjectile::ShouldTouch(CBaseEntity* pOther) const
 	if (pOther->GetCollisionGroup() == CG_PROP)
 		return true;
 
+	TStubbed("CProjectile::ShouldTouch");
+#if 0
 	if (pOther->GetCollisionGroup() == CG_ENTITY)
 	{
-		if (m_hOwner != NULL && pOther->GetTeam() == m_hOwner->GetTeam())
+		if (m_hOwner != NULL && pOther->GetPlayerOwner() == m_hOwner->GetPlayerOwner())
 			return false;
 
 		return true;
 	}
+#endif
 
 	if (pOther->GetCollisionGroup() == CG_TERRAIN)
 		return true;
@@ -637,7 +640,7 @@ void CDaisyChain::OnExplode(CBaseEntity* pInstigator)
 	pProjectile->m_flDamage = m_flDamage - 1.0f;
 	DigitanksGame()->AddProjectileToWaitFor();
 
-	DigitanksGame()->GetDigitanksCamera()->ReplaceProjectileTarget(pProjectile);
+	DigitanksGame()->GetOverheadCamera()->ReplaceProjectileTarget(pProjectile);
 }
 
 REGISTER_ENTITY(CClusterBomb);
@@ -1030,7 +1033,7 @@ void CTorpedo::Explode(CBaseEntity* pInstigator)
 		if (!pClosest)
 			break;
 
-		if (pClosest->GetTeam() == GetTeam())
+		if (pClosest->GetPlayerOwner() == GetOwner()->GetPlayerOwner())
 			continue;
 
 		if (!pClosest->GetSupplier() || !pClosest->GetEntity())
@@ -1056,7 +1059,7 @@ void CTorpedo::Explode(CBaseEntity* pInstigator)
 		if (!pClosestTank)
 			break;
 
-		if (pClosestTank->GetTeam() == GetTeam())
+		if (pClosestTank->GetPlayerOwner() == GetOwner()->GetPlayerOwner())
 			continue;
 
 		if (pClosestTank->Distance(GetGlobalOrigin()) > ExplosionRadius())

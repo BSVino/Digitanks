@@ -82,19 +82,23 @@ void CDigitanksRenderer::SetupFrame(class CRenderingContext* pContext)
 {
 	TPROF("CDigitanksRenderer::SetupFrame");
 
-	CRenderingContext c(this);
+	{
+		CRenderingContext c(this);
 
-	c.UseFrameBuffer(&m_oExplosionBuffer);
-	c.ClearColor();
+		c.UseFrameBuffer(&m_oExplosionBuffer);
+		c.ClearColor();
 
-	c.UseFrameBuffer(&m_oVisibility2Buffer);
-	c.ClearColor();
+		c.UseFrameBuffer(&m_oVisibility2Buffer);
+		c.ClearColor();
 
-	c.UseFrameBuffer(&m_oVisibilityMaskedBuffer);
-	c.ClearColor();
+		c.UseFrameBuffer(&m_oVisibilityMaskedBuffer);
+		c.ClearColor();
 
-	c.UseFrameBuffer(&m_oAvailableAreaBuffer);
-	c.ClearColor();
+		c.UseFrameBuffer(&m_oAvailableAreaBuffer);
+		c.ClearColor();
+	}
+
+	pContext->UseFrameBuffer(&m_oSceneBuffer);
 
 	BaseClass::SetupFrame(pContext);
 }
@@ -114,11 +118,16 @@ void CDigitanksRenderer::DrawSkybox(class CRenderingContext* pContext)
 		return;
 
 	if (DigitanksGame()->GetGameType() == GAMETYPE_MENU || DigitanksGame()->GetGameType() == GAMETYPE_EMPTY)
+	{
+		BaseClass::DrawBackground(pContext);
 		return;
+	}
 
 	TPROF("CDigitanksRenderer::DrawSkybox");
 
 	BaseClass::DrawSkybox(pContext);
+
+	m_bRenderingTransparent = true;
 
 	CGameRenderingContext r(this, true);
 
@@ -147,6 +156,8 @@ void CDigitanksRenderer::DrawSkybox(class CRenderingContext* pContext)
 		r.SetBlend(BLEND_ALPHA);
 		r.RenderModel(m_iDigiverse);
 	}
+
+	m_bRenderingTransparent = false;
 
 	if (true)
 	{
@@ -227,6 +238,8 @@ void CDigitanksRenderer::DrawSkybox(class CRenderingContext* pContext)
 		r.Translate(Vector(Gain(Oscillate(flGameTime, 4.0f), 0.2f), Gain(Oscillate(flGameTime, 5.0f), 0.2f), Gain(Oscillate(flGameTime, 6.2f), 0.2f)));
 		r.RenderModel(m_iFloaters[14]);
 	}
+
+	m_bRenderingTransparent = true;
 
 	if (true)
 	{
@@ -854,8 +867,8 @@ void CDigitanksRenderer::RenderTendrilBatches()
 		if (!pSupplier)
 			continue;
 
-		CDigitanksCamera* pCamera = DigitanksGame()->GetDigitanksCamera();
-		Vector vecCamera = pCamera->GetCameraPosition();
+		COverheadCamera* pCamera = DigitanksGame()->GetOverheadCamera();
+		Vector vecCamera = pCamera->GetGlobalOrigin();
 		float flDistanceSqr = pSupplier->GetGlobalOrigin().DistanceSqr(vecCamera);
 		float flFadeDistance = CVar::GetCVarFloat("perf_tendril_fade_distance");
 

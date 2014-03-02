@@ -628,7 +628,7 @@ void CTerrain::GenerateTerrainCallList(int i, int j)
 	tvector<CTerrainTriangle> avecPoints;
 	avecPoints.reserve(TERRAIN_CHUNK_SIZE*TERRAIN_CHUNK_SIZE);
 
-	for (int x = TERRAIN_CHUNK_SIZE*i; x < TERRAIN_CHUNK_SIZE*(i+1); x++)
+	for (int x = TERRAIN_CHUNK_SIZE*i; x < TERRAIN_CHUNK_SIZE*(i+1)+1; x++)
 	{
 		float flX = ArrayToWorldSpace((int)x);
 		float flUVY0 = RemapVal((float)x, (float)TERRAIN_CHUNK_SIZE*i, (float)TERRAIN_CHUNK_SIZE*(i+1), 0, 1);
@@ -638,11 +638,8 @@ void CTerrain::GenerateTerrainCallList(int i, int j)
 
 		int xbit = x%TERRAIN_CHUNK_SIZE;
 
-		for (int y = TERRAIN_CHUNK_SIZE*j; y < TERRAIN_CHUNK_SIZE*(j+1); y++)
+		for (int y = TERRAIN_CHUNK_SIZE*j; y < TERRAIN_CHUNK_SIZE*(j+1)+1; y++)
 		{
-			if (y >= TERRAIN_SIZE-1)
-				continue;
-
 			int ybit = y%TERRAIN_CHUNK_SIZE;
 
 			float flY = ArrayToWorldSpace((int)y);
@@ -657,14 +654,21 @@ void CTerrain::GenerateTerrainCallList(int i, int j)
 			avecPoints.back().vecPosition = Vector(flX, flY, GetRealHeight(x, y));
 			avecPoints.back().vecColor = (vecColor + m_avecQuadMods[0]) * flVisibility * GetAOValue(x, y);
 			avecPoints.back().vecUV = Vector2D(flUVX0, flUVY0);
-			avecPoints.back().iCoordX = xbit;
-			avecPoints.back().iCoordY = ybit;
+			//avecPoints.back().iCoordX = xbit;
+			//avecPoints.back().iCoordY = ybit;
 		}
 	}
 
-	tvector<unsigned int> aiTris;
+	int iPointsSize = avecPoints.size();
+
+	pChunk->m_iTerrainVerts = CRenderer::LoadVertexDataIntoGL(avecPoints.size() * sizeof(CTerrainTriangle), (float*)avecPoints.data());
+	avecPoints.clear();
+
+#define TRI_TYPE unsigned int
+	tvector<TRI_TYPE> aiTris;
 	aiTris.reserve(TERRAIN_CHUNK_SIZE*TERRAIN_CHUNK_SIZE*6);
 
+	int iMeshRowSize = TERRAIN_CHUNK_SIZE + 1;
 	for (int x = TERRAIN_CHUNK_SIZE*i; x < TERRAIN_CHUNK_SIZE*(i+1); x++)
 	{
 		if (x >= TERRAIN_SIZE-1)
@@ -682,20 +686,19 @@ void CTerrain::GenerateTerrainCallList(int i, int j)
 			if (pChunk->GetBit(xbit, ybit, TB_HOLE))
 				continue;
 
-			aiTris.push_back((x+0)*TERRAIN_CHUNK_SIZE + y);
-			aiTris.push_back((x+0)*TERRAIN_CHUNK_SIZE + y+1);
-			aiTris.push_back((x+1)*TERRAIN_CHUNK_SIZE + y+1);
+			TAssert((xbit+1)*iMeshRowSize + ybit+1 < iPointsSize);
 
-			aiTris.push_back((x+0)*TERRAIN_CHUNK_SIZE + y);
-			aiTris.push_back((x+1)*TERRAIN_CHUNK_SIZE + y+1);
-			aiTris.push_back((x+1)*TERRAIN_CHUNK_SIZE + y);
+			aiTris.push_back((xbit+0)*iMeshRowSize + ybit);
+			aiTris.push_back((xbit+0)*iMeshRowSize + ybit+1);
+			aiTris.push_back((xbit+1)*iMeshRowSize + ybit+1);
+
+			aiTris.push_back((xbit+0)*iMeshRowSize + ybit);
+			aiTris.push_back((xbit+1)*iMeshRowSize + ybit+1);
+			aiTris.push_back((xbit+1)*iMeshRowSize + ybit);
 		}
 	}
 
-	pChunk->m_iTerrainVerts = CRenderer::LoadVertexDataIntoGL(avecPoints.size() * sizeof(CTerrainTriangle), (float*)avecPoints.data());
-	avecPoints.clear();
-
-	pChunk->m_iOpaqueIndices = CRenderer::LoadIndexDataIntoGL(aiTris.size() * sizeof(CTerrainTriangle), aiTris.data());
+	pChunk->m_iOpaqueIndices = CRenderer::LoadIndexDataIntoGL(aiTris.size() * sizeof(TRI_TYPE), aiTris.data());
 	pChunk->m_iOpaqueIndicesVerts = aiTris.size();
 	aiTris.clear();
 
@@ -980,7 +983,7 @@ void CTerrain::GenerateTerrainTexture(int i, int j)
 			if (!pEntity)
 				continue;
 
-			if (!pEntity->GetTeam())
+			if (!pEntity->GetOwner())
 				continue;
 
 			CSupplier* pSupplier = dynamic_cast<CSupplier*>(pEntity);
@@ -1365,6 +1368,8 @@ void CTerrain::RenderWithShaders() const
 
 	c.UseProgram("terrain");
 
+	c.SetWinding(false);
+
 	CDigitank* pCurrentTank = DigitanksGame()->GetPrimarySelectionTank();
 
 	bool bIsCurrentTeam = false;
@@ -1478,8 +1483,10 @@ void CTerrain::RenderWithShaders() const
 	c.SetUniform("iDiffuse", 0);
 
 	CTerrainTriangle t;
-	int iCoordXOffset = ((int)&t.iCoordX) - ((int)&t);
-	int iCoordYOffset = ((int)&t.iCoordY) - ((int)&t);
+	//int iCoordXOffset = ((int)&t.iCoordX) - ((int)&t);
+	//int iCoordYOffset = ((int)&t.iCoordY) - ((int)&t);
+	int iColorOffset = ((int)&t.vecColor) - ((int)&t);
+	int iUVOffset = ((int)&t.vecUV) - ((int)&t);
 
 	for (size_t i = 0; i < TERRAIN_CHUNKS; i++)
 	{
@@ -1488,8 +1495,10 @@ void CTerrain::RenderWithShaders() const
 			c.BindTexture(m_aTerrainChunks[i][j].m_hChunkTexture->m_iGLID);
 			c.BeginRenderVertexArray(m_aTerrainChunks[i][j].m_iTerrainVerts);
 				c.SetPositionBuffer(0u, sizeof(CTerrainTriangle));
-				c.SetCustomIntBuffer("iCoordX", sizeof(t.iCoordX), iCoordXOffset, sizeof(CTerrainTriangle));
-				c.SetCustomIntBuffer("iCoordY", sizeof(t.iCoordY), iCoordYOffset, sizeof(CTerrainTriangle));
+				c.SetColorBuffer(iColorOffset, sizeof(CTerrainTriangle));
+				c.SetTexCoordBuffer(iUVOffset, sizeof(CTerrainTriangle));
+				//c.SetCustomIntBuffer("iCoordX", sizeof(t.iCoordX), iCoordXOffset, sizeof(CTerrainTriangle));
+				//c.SetCustomIntBuffer("iCoordY", sizeof(t.iCoordY), iCoordYOffset, sizeof(CTerrainTriangle));
 			c.EndRenderVertexArrayIndexed(m_aTerrainChunks[i][j].m_iOpaqueIndices, m_aTerrainChunks[i][j].m_iOpaqueIndicesVerts);
 		}
 	}
@@ -1722,12 +1731,12 @@ Vector CTerrain::ConstrainVectorToMap(Vector v)
 {
 	if (v.x < GetMinX())
 		v.x = GetMinX();
-	if (v.z < GetMinY())
-		v.z = GetMinY();
+	if (v.y < GetMinY())
+		v.y = GetMinY();
 	if (v.x > GetMaxX())
 		v.x = GetMaxX();
-	if (v.z > GetMaxY())
-		v.z = GetMaxY();
+	if (v.y > GetMaxY())
+		v.y = GetMaxY();
 
 	return v;
 }
