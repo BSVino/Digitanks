@@ -159,7 +159,7 @@ void CMainMenu::Paint(float x, float y, float w, float h)
 
 	if (DigitanksGame() && DigitanksGame()->GetGameType() == GAMETYPE_MENU)
 	{
-		CRenderingContext c(GameServer()->GetRenderer());
+		CRenderingContext c(GameServer()->GetRenderer(), true);
 
 		c.SetBlend(BLEND_ALPHA);
 		CHUD::PaintHUDSheet("MainMenu", 20, 20, 350, 730);

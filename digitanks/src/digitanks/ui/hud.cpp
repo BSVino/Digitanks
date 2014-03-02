@@ -1246,7 +1246,7 @@ void CHUD::Paint(float x, float y, float w, float h)
 
 		if (pTank && pTank->IsDisabled())
 		{
-			CRenderingContext c(GameServer()->GetRenderer());
+			CRenderingContext c(GameServer()->GetRenderer(), true);
 			c.SetBlend(BLEND_ALPHA);
 
 			int iWidth = 77*2/3;
@@ -4507,7 +4507,7 @@ void CSpeechBubble::Paint(float x, float y, float w, float h)
 		return;
 
 	do {
-		CRenderingContext c(GameServer()->GetRenderer());
+		CRenderingContext c(GameServer()->GetRenderer(), true);
 		c.SetBlend(BLEND_ALPHA);
 		CHUD::PaintHUDSheet("SpeechBubble", x, y, w, h, Color(255, 255, 255, GetAlpha()));
 	} while (false);
