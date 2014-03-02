@@ -944,7 +944,8 @@ void CTerrain::GenerateTerrainTexture(int i, int j)
 			int y = TERRAIN_CHUNK_SIZE*j + b * TERRAIN_CHUNK_SIZE / TERRAIN_CHUNK_TEXTURE_SIZE;
 			int ybit = y%TERRAIN_CHUNK_SIZE;
 
-			if (pChunk->GetBit(xbit, ybit, TB_LAVA))
+			terrainbit_t iBits = pChunk->GetBits(xbit, ybit);
+			if (iBits & TB_LAVA)
 			{
 				Color clrLava = Color(255 - RandomInt(0, 20), RandomInt(0, 20), RandomInt(0, 20));
 				Color clrLava2 = Color(214 + RandomInt(-10, 10), 55 + RandomInt(-10, 10), RandomInt(0, 20));
@@ -956,7 +957,7 @@ void CTerrain::GenerateTerrainTexture(int i, int j)
 				float flRamp = Bias(RandomFloat(0, 1), flBias);
 				pChunk->m_aclrTexture[a][b] = LerpValue(clrLava, clrLava2, flRamp);
 			}
-			else if (pChunk->GetBit(xbit, ybit, TB_WATER))
+			else if (iBits & TB_WATER)
 			{
 				float flRandom = RandomFloat(0, 0.15f);
 				Vector vecWaterColor = m_vecTerrainColor + Vector(flRandom, flRandom, flRandom*2);
@@ -2670,6 +2671,11 @@ void CTerrainChunk::Think()
 bool CTerrainChunk::GetBit(int x, int y, terrainbit_t b)
 {
 	return !!(m_aiSpecialData[x][y] & b);
+}
+
+terrainbit_t CTerrainChunk::GetBits(int x, int y)
+{
+	return (terrainbit_t)m_aiSpecialData[x][y];
 }
 
 void CTerrainChunk::SetBit(int x, int y, terrainbit_t b, bool v)

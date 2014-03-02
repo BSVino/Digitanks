@@ -23,7 +23,6 @@ LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON A
 
 Color::Color()
 {
-	SetColor(0, 0, 0, 255);
 }
 
 Color::Color(Vector v)

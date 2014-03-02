@@ -64,6 +64,7 @@ public:
 	void							Think();
 
 	bool							GetBit(int x, int y, terrainbit_t b);
+	terrainbit_t					GetBits(int x, int y);
 	void							SetBit(int x, int y, terrainbit_t b, bool v);
 
 protected:
