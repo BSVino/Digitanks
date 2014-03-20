@@ -1,6 +1,7 @@
 #include "geppetto.h"
 
 #include <stdio.h>
+#include <memory>
 
 #include <tinker_platform.h>
 #include <files.h>

@@ -20,7 +20,7 @@ public:
 	~CToy();
 
 public:
-	bool        ReadFromStream(std::fstream& stream);
+	bool        ReadFromFile(FILE* fp);
 
 	const AABB& GetVisBounds();
 	const AABB& GetPhysBounds();

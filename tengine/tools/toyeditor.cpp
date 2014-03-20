@@ -1770,8 +1770,8 @@ void CToySource::Open(const tstring& sFile)
 {
 	Clear();
 
-	std::basic_ifstream<tchar> f((sFile).c_str());
-	if (!f.is_open())
+	FILE* fp = tfopen_asset(sFile, "r");
+	if (!fp)
 	{
 		TError("Could not read input script '" + sFile + "'\n");
 		return;
@@ -1780,7 +1780,7 @@ void CToySource::Open(const tstring& sFile)
 	m_sFilename = sFile;
 
 	std::shared_ptr<CData> pData(new CData());
-	CDataSerializer::Read(f, pData.get());
+	CDataSerializer::Read(fp, pData.get());
 
 	CData* pOutput = pData->FindChild("Output");
 	CData* pSceneAreas = pData->FindChild("SceneAreas");

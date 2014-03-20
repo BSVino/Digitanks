@@ -48,13 +48,13 @@ void CInstructor::Initialize()
 
 	Clear();
 
-	std::basic_ifstream<tchar> f("scripts/instructor.txt");
+	FILE* fp = tfopen_asset("scripts/instructor.txt", "r");
 
-	if (!f.is_open())
+	if (!fp)
 		return;
 
 	std::shared_ptr<CData> pData(new CData());
-	CDataSerializer::Read(f, pData.get());
+	CDataSerializer::Read(fp, pData.get());
 
 	for (size_t i = 0; i < pData->GetNumChildren(); i++)
 	{

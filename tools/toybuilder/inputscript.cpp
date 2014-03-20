@@ -1,5 +1,7 @@
 #include "geppetto.h"
 
+#include <memory>
+
 #include <tinker_platform.h>
 #include <files.h>
 #include <stb_image.h>
@@ -181,15 +183,15 @@ bool CGeppetto::LoadSceneAreas(CData* pData)
 
 bool CGeppetto::BuildFromInputScript(const tstring& sScript)
 {
-	std::basic_ifstream<tchar> f((GetPath(sScript)).c_str());
-	if (!f.is_open())
+	FILE* fp = tfopen_asset(GetPath(sScript), "r");
+	if (!fp)
 	{
 		TError("Could not read input script '" + sScript + "'\n");
 		return false;
 	}
 
 	std::shared_ptr<CData> pData(new CData());
-	CDataSerializer::Read(f, pData.get());
+	CDataSerializer::Read(fp, pData.get());
 
 	CData* pOutput = pData->FindChild("Output");
 	if (!pOutput)

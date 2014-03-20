@@ -40,11 +40,11 @@ void CDigitanksRenderer::Initialize()
 		CTextureLibrary::AddTexture("textures/skybox/standard-up.png", 2)
 		);
 
-	m_oExplosionBuffer = CreateFrameBuffer("explosion", m_iWidth, m_iHeight, (fb_options_e)(FB_TEXTURE|FB_SCENE_DEPTH));
-	m_oVisibility1Buffer = CreateFrameBuffer("vis1", m_iWidth, m_iHeight, (fb_options_e)(FB_TEXTURE|FB_SCENE_DEPTH));
-	m_oVisibility2Buffer = CreateFrameBuffer("vis2", m_iWidth, m_iHeight, (fb_options_e)(FB_TEXTURE));
-	m_oVisibilityMaskedBuffer = CreateFrameBuffer("vismasked", m_iWidth, m_iHeight, (fb_options_e)(FB_TEXTURE|FB_SCENE_DEPTH));
-	m_oAvailableAreaBuffer = CreateFrameBuffer("availablearea", m_iWidth, m_iHeight, (fb_options_e)(FB_TEXTURE));
+	m_oExplosionBuffer = CreateFrameBuffer("explosion", m_iViewportWidth, m_iViewportHeight, (fb_options_e)(FB_TEXTURE|FB_SCENE_DEPTH));
+	m_oVisibility1Buffer = CreateFrameBuffer("vis1", m_iViewportWidth, m_iViewportHeight, (fb_options_e)(FB_TEXTURE | FB_SCENE_DEPTH));
+	m_oVisibility2Buffer = CreateFrameBuffer("vis2", m_iViewportWidth, m_iViewportHeight, (fb_options_e)(FB_TEXTURE));
+	m_oVisibilityMaskedBuffer = CreateFrameBuffer("vismasked", m_iViewportWidth, m_iViewportHeight, (fb_options_e)(FB_TEXTURE | FB_SCENE_DEPTH));
+	m_oAvailableAreaBuffer = CreateFrameBuffer("availablearea", m_iViewportWidth, m_iViewportHeight, (fb_options_e)(FB_TEXTURE));
 
 	m_hNoise = CTextureLibrary::AddTexture("textures/noise.png");
 

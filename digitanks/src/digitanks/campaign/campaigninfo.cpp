@@ -11,10 +11,10 @@
 
 CCampaignInfo::CCampaignInfo(tstring sScript)
 {
-	std::basic_ifstream<tchar> f(convertstring<tchar, char>(sScript).c_str());
+	FILE* fp = tfopen_asset(sScript, "r");
 
 	CData* pData = new CData();
-	CDataSerializer::Read(f, pData);
+	CDataSerializer::Read(fp, pData);
 
 	ReadFromData(pData);
 

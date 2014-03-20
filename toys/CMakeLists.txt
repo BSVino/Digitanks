@@ -1,7 +1,7 @@
 include_directories (
 	${PROJECT_SOURCE_DIR}/../ext-deps/EASTL/include
-	${PROJECT_SOURCE_DIR}/../ext-deps/protobuf-2.5.0/vsprojects/include
-	${PROJECT_SOURCE_DIR}/../ext-deps/protobuf-2.5.0/src
+	${PROJECT_SOURCE_DIR}/../ext-deps/protobuf-2.5.0-vs2013/vsprojects/include
+	${PROJECT_SOURCE_DIR}/../ext-deps/protobuf-2.5.0-vs2013/src
 	${CMAKE_SOURCE_DIR}/common
 	${CMAKE_SOURCE_DIR}/common/math
 	${CMAKE_SOURCE_DIR}/tinker

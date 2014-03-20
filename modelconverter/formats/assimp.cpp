@@ -24,7 +24,7 @@ bool CModelConverter::ReadAssImp(const tstring& sFilename)
 	return false;
 }
 
-void CModelConverter::ReadAssImpSceneTree(FCDSceneNode* pNode, CConversionSceneNode* pScene)
+void CModelConverter::ReadAssImpSceneTree(const struct aiScene* pAIScene, struct aiNode* pNode, CConversionSceneNode* pScene)
 {
 }
 

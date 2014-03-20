@@ -341,9 +341,9 @@ void CDigitanksGame::ReadGameScript(tstring sScript)
 	for (size_t i = 0; i < m_aflUpgradeCosts.size(); i++)
 		m_aflUpgradeCosts[i] = 0;
 
-	std::basic_ifstream<tchar> f((tstring("scripts/") + convertstring<tchar, char>(sScript)).c_str());
+	FILE* fp = tfopen_asset(tstring("scripts/") + sScript, "r");
 	CData* pData = new CData();
-	CDataSerializer::Read(f, pData);
+	CDataSerializer::Read(fp, pData);
 
 	CData* pConstructionCosts = pData->FindChild("ConstructionCosts");
 
@@ -1466,7 +1466,7 @@ void CDigitanksGame::Autosave(const tvector<tstring>& sArgs)
 
 void CDigitanksGame::Autosave()
 {
-	GameServer()->SaveToFile(GetAppDataDirectory(DigitanksWindow()->AppDirectory(), "autosave.sav").c_str());
+	GameServer()->SaveToFile(DigitanksWindow()->GetAppDataDirectory("autosave.sav").c_str());
 
 	DigitanksWindow()->GetChatBox()->PrintChat("Autosave...\n");
 }

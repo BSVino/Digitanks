@@ -7,8 +7,8 @@ include_directories (
 	${PROJECT_SOURCE_DIR}/../ext-deps/EASTL/include
 	${PROJECT_SOURCE_DIR}/../ext-deps/enet-1.3.0/include
 	${PROJECT_SOURCE_DIR}/../ext-deps/enet-1.3.3/include
-	${PROJECT_SOURCE_DIR}/../ext-deps/protobuf-2.5.0/vsprojects/include
-	${PROJECT_SOURCE_DIR}/../ext-deps/protobuf-2.5.0/src
+	${PROJECT_SOURCE_DIR}/../ext-deps/protobuf-2.5.0-vs2013/vsprojects/include
+	${PROJECT_SOURCE_DIR}/../ext-deps/protobuf-2.5.0-vs2013/src
 	${PROJECT_SOURCE_DIR}/../ext-deps/bullet-2.81/src
 	${CMAKE_SOURCE_DIR}/
 	${CMAKE_SOURCE_DIR}/common
@@ -22,7 +22,7 @@ if (WIN32)
 	include_directories(${CMAKE_SOURCE_DIR}/../ext-deps/glfw-1.3/include)
 	include_directories(${CMAKE_SOURCE_DIR}/../ext-deps/pthreads-w32-2-8-0-release)
 	include_directories(${CMAKE_SOURCE_DIR}/../ext-deps/SDL-1.2.14/include)
-	include_directories(${CMAKE_SOURCE_DIR}/../ext-deps/SDL_mixer-1.2.11/include)
+	include_directories(${CMAKE_SOURCE_DIR}/../ext-deps/SDL2_mixer-2.0.0/include)
 endif (WIN32)
 
 set (TENGINE_GAME_SOURCES
@@ -158,39 +158,44 @@ add_library(tengine STATIC ${TENGINE_SOURCES})
 target_link_libraries (tengine tinker modelconverter toys geppetto)
 
 if (WIN32)
-	target_link_libraries(tengine debug ${CMAKE_SOURCE_DIR}/../ext-deps/pthreads-w32-2-8-0-release/Debug/pthread.lib)
 	if (WITH_NETWORKING)
 		target_link_libraries(tengine debug ${CMAKE_SOURCE_DIR}/../ext-deps/enet-1.3.0/Debug/enet.lib)
+		target_link_libraries(tengine optimized ${CMAKE_SOURCE_DIR}/../ext-deps/enet-1.3.0/Release/enet.lib)
 	endif (WITH_NETWORKING)
+
+	if (WITH_COLLADA)
+		target_link_libraries(tengine debug ${CMAKE_SOURCE_DIR}/../ext-deps/fcollada/fcollada-2010/Debug/fcollada-2010.lib)
+		target_link_libraries(tengine debug ${CMAKE_SOURCE_DIR}/../ext-deps/fcollada/fcollada-2010/Debug/farchivexml-2010.lib)
+		target_link_libraries(tengine debug ${CMAKE_SOURCE_DIR}/../ext-deps/fcollada/fcollada-2010/Debug/libxml-2010.lib)
+		target_link_libraries(tengine optimized ${CMAKE_SOURCE_DIR}/../ext-deps/fcollada/fcollada-2010/Release/fcollada-2010.lib)
+		target_link_libraries(tengine optimized ${CMAKE_SOURCE_DIR}/../ext-deps/fcollada/fcollada-2010/Release/farchivexml-2010.lib)
+		target_link_libraries(tengine optimized ${CMAKE_SOURCE_DIR}/../ext-deps/fcollada/fcollada-2010/Release/libxml-2010.lib)
+	endif()
+
+	if (WITH_ASSIMP)
+		target_link_libraries(tengine debug ${CMAKE_SOURCE_DIR}/../ext-deps/assimp/code/Debug/assimp.lib)
+		target_link_libraries(tengine optimized ${CMAKE_SOURCE_DIR}/../ext-deps/assimp/code/RelWithDebInfo/assimp.lib)
+	endif()
+
 	target_link_libraries(tengine debug ${CMAKE_SOURCE_DIR}/../ext-deps/bullet-2.81/lib/Debug/BulletDynamics_Debug.lib)
 	target_link_libraries(tengine debug ${CMAKE_SOURCE_DIR}/../ext-deps/bullet-2.81/lib/Debug/BulletCollision_Debug.lib)
 	target_link_libraries(tengine debug ${CMAKE_SOURCE_DIR}/../ext-deps/bullet-2.81/lib/Debug/LinearMath_Debug.lib)
-	target_link_libraries(tengine debug ${CMAKE_SOURCE_DIR}/../ext-deps/fcollada/fcollada-2010/Debug/fcollada-2010.lib)
-	target_link_libraries(tengine debug ${CMAKE_SOURCE_DIR}/../ext-deps/fcollada/fcollada-2010/Debug/farchivexml-2010.lib)
-	target_link_libraries(tengine debug ${CMAKE_SOURCE_DIR}/../ext-deps/fcollada/fcollada-2010/Debug/libxml-2010.lib)
-	target_link_libraries(tengine debug ${CMAKE_SOURCE_DIR}/../ext-deps/assimp/code/Debug/assimp.lib)
-	target_link_libraries(tengine debug ${CMAKE_SOURCE_DIR}/../ext-deps/protobuf-2.5.0/vsprojects/Debug/libprotobuf.lib)
-
-	target_link_libraries(tengine optimized ${CMAKE_SOURCE_DIR}/../ext-deps/pthreads-w32-2-8-0-release/Release/pthread.lib)
-	if (WITH_NETWORKING)
-		target_link_libraries(tengine optimized ${CMAKE_SOURCE_DIR}/../ext-deps/enet-1.3.0/Release/enet.lib)
-	endif (WITH_NETWORKING)
 	target_link_libraries(tengine optimized ${CMAKE_SOURCE_DIR}/../ext-deps/bullet-2.81/lib/RelWithDebInfo/BulletDynamics_RelWithDebugInfo.lib)
 	target_link_libraries(tengine optimized ${CMAKE_SOURCE_DIR}/../ext-deps/bullet-2.81/lib/RelWithDebInfo/BulletCollision_RelWithDebugInfo.lib)
 	target_link_libraries(tengine optimized ${CMAKE_SOURCE_DIR}/../ext-deps/bullet-2.81/lib/RelWithDebInfo/LinearMath_RelWithDebugInfo.lib)
-	target_link_libraries(tengine optimized ${CMAKE_SOURCE_DIR}/../ext-deps/fcollada/fcollada-2010/Release/fcollada-2010.lib)
-	target_link_libraries(tengine optimized ${CMAKE_SOURCE_DIR}/../ext-deps/fcollada/fcollada-2010/Release/farchivexml-2010.lib)
-	target_link_libraries(tengine optimized ${CMAKE_SOURCE_DIR}/../ext-deps/fcollada/fcollada-2010/Release/libxml-2010.lib)
-	target_link_libraries(tengine optimized ${CMAKE_SOURCE_DIR}/../ext-deps/assimp/code/RelWithDebInfo/assimp.lib)
-	target_link_libraries(tengine optimized ${CMAKE_SOURCE_DIR}/../ext-deps/protobuf-2.5.0/vsprojects/Release/libprotobuf.lib)
+
+	target_link_libraries(tengine debug ${CMAKE_SOURCE_DIR}/../ext-deps/protobuf-2.5.0-vs2013/vsprojects/Debug/libprotobuf.lib)
+	target_link_libraries(tengine optimized ${CMAKE_SOURCE_DIR}/../ext-deps/protobuf-2.5.0-vs2013/vsprojects/Release/libprotobuf.lib)
+
+	target_link_libraries(tengine debug ${CMAKE_SOURCE_DIR}/../ext-deps/pthreads-w32-2-8-0-release/Debug/pthread.lib)
+	target_link_libraries(tengine optimized ${CMAKE_SOURCE_DIR}/../ext-deps/pthreads-w32-2-8-0-release/Release/pthread.lib)
 
 	target_link_libraries(tengine iphlpapi ws2_32 Winmm)
 
-	target_link_libraries(tengine
-		${CMAKE_SOURCE_DIR}/../ext-deps/SDL-1.2.14/lib/sdl.lib
-		${CMAKE_SOURCE_DIR}/../ext-deps/SDL-1.2.14/lib/sdlmain.lib
-		${CMAKE_SOURCE_DIR}/../ext-deps/SDL_mixer-1.2.11/lib/sdl_mixer.lib
-	)
+	target_link_libraries(tengine ${CMAKE_SOURCE_DIR}/../ext-deps/SDL2-2.0.2/lib/x86/SDL2.lib)
+	target_link_libraries(tengine ${CMAKE_SOURCE_DIR}/../ext-deps/SDL2-2.0.2/lib/x86/SDL2main.lib)
+	target_link_libraries(tengine ${CMAKE_SOURCE_DIR}/../ext-deps/SDL2_image-2.0.0/lib/x86/SDL2_image.lib)
+	target_link_libraries(tengine ${CMAKE_SOURCE_DIR}/../ext-deps/SDL2_mixer-2.0.0/lib/x86/SDL2_mixer.lib)
 endif (WIN32)
 
 if (${CMAKE_SYSTEM_NAME} MATCHES "Linux")
@@ -199,7 +204,7 @@ if (${CMAKE_SYSTEM_NAME} MATCHES "Linux")
 	endif (WITH_NETWORKING)
 	target_link_libraries (tengine /usr/lib/libpng.a)
 	target_link_libraries (tengine /usr/lib/libz.a)
-	target_link_libraries (tengine SDL SDL_mixer)
-	target_link_libraries (tengine ${CMAKE_SOURCE_DIR}/../ext-deps/protobuf-2.5.0/src/.libs/libprotobuf.a)
+	target_link_libraries (tengine SDL2 SDL2_mixer)
+	target_link_libraries (tengine ${CMAKE_SOURCE_DIR}/../ext-deps/protobuf-2.5.0-vs2013/src/.libs/libprotobuf.a)
 endif (${CMAKE_SYSTEM_NAME} MATCHES "Linux")
 

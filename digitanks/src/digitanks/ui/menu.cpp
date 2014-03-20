@@ -51,9 +51,6 @@ CMainMenu::CMainMenu()
 	m_pMultiplayer->SetClickedListener(this, OpenMultiplayerPanel);
 	m_pMultiplayer->SetFont(_T("header"), 28);
 	m_pMultiplayer->SetButtonColor(Color(0,0,0));
-#if !defined(TINKER_UNLOCKED)
-	m_pMultiplayer->SetEnabled(false);
-#endif
 
 	m_pOptions = AddControl(new CButton(0, 0, 100, 100, _T("OPTIONS")));
 	m_pOptions->SetClickedListener(this, OpenOptionsPanel);
@@ -120,10 +117,6 @@ void CMainMenu::Layout()
 	m_pVersion->SetPos(-GetLeft()+5, -GetTop());
 	m_pVersion->SetSize(120, 20);
 	m_pVersion->SetText(DIGITANKS_VERSION);
-
-#ifndef TINKER_UNLOCKED
-	m_pVersion->AppendText(" Demo");
-#endif
 
 	BaseClass::Layout();
 }
@@ -201,10 +194,6 @@ void CMainMenu::OpenGamesPanelCallback(const tstring& sArgs)
 
 void CMainMenu::OpenMultiplayerPanelCallback(const tstring& sArgs)
 {
-#if !defined(TINKER_UNLOCKED)
-	return;
-#endif
-
 	CDockPanel* pDock = GetDockPanel();
 	pDock->SetDockedPanel(new CMultiplayerPanel());
 	pDock->SetVisible(true);
@@ -384,10 +373,6 @@ CGamesPanel::CGamesPanel()
 	m_pLoad->SetClickedListener(this, Load);
 	m_pLoad->SetFont(_T("header"), 18);
 
-#if !defined(TINKER_UNLOCKED)
-	m_pLoad->SetEnabled(false);
-#endif
-
 	m_pDockPanel = AddControl(new CDockPanel());
 	m_pDockPanel->SetBGColor(Color(12, 13, 12, 255));
 }
@@ -421,7 +406,7 @@ void CGamesPanel::StrategyCallback(const tstring& sArgs)
 
 void CGamesPanel::LoadCallback(const tstring& sArgs)
 {
-	glgui::CFileDialog::ShowOpenDialog(GetAppDataDirectory(DigitanksWindow()->AppDirectory(), _T("")), ".sav", this, Open);
+	glgui::CFileDialog::ShowOpenDialog(DigitanksWindow()->GetAppDataDirectory(), ".sav", this, Open);
 }
 
 void CGamesPanel::OpenCallback(const tstring& sArgs)
@@ -429,10 +414,6 @@ void CGamesPanel::OpenCallback(const tstring& sArgs)
 	tstring sFilename = glgui::CFileDialog::GetFile();
 	if (!sFilename.length())
 		return;
-
-#if !defined(TINKER_UNLOCKED)
-	return;
-#endif
 
 	DigitanksWindow()->RenderLoading();
 
@@ -511,7 +492,7 @@ void CMultiplayerPanel::CreateStrategyLobbyCallback(const tstring& sArgs)
 
 void CMultiplayerPanel::LoadCallback(const tstring& sArgs)
 {
-	glgui::CFileDialog::ShowOpenDialog(GetAppDataDirectory(DigitanksWindow()->AppDirectory(), _T("")), ".sav", this, Open);
+	glgui::CFileDialog::ShowOpenDialog(DigitanksWindow()->GetAppDataDirectory(""), ".sav", this, Open);
 }
 
 void CMultiplayerPanel::OpenCallback(const tstring& sArgs)
@@ -519,10 +500,6 @@ void CMultiplayerPanel::OpenCallback(const tstring& sArgs)
 	tstring sFilename = glgui::CFileDialog::GetFile();
 	if (!sFilename.length())
 		return;
-
-#if !defined(TINKER_UNLOCKED)
-	return;
-#endif
 
 	GameServer()->SetServerType(SERVER_HOST);
 

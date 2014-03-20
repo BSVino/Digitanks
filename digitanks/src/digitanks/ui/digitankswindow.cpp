@@ -11,7 +11,6 @@
 #include <strutils.h>
 
 #include <mtrand.h>
-#include <configfile.h>
 #include <tinker_platform.h>
 #include <network/network.h>
 #include <network/commands.h>
@@ -48,8 +47,6 @@ static Display* g_pDisplay = NULL;
 static Window g_iWindow = 0;
 #endif
 
-ConfigFile c( GetAppDataDirectory("Digitanks", "options.cfg") );
-
 CDigitanksWindow::CDigitanksWindow(int argc, char** argv)
 	: CGameWindow(argc, argv)
 {
@@ -72,7 +69,8 @@ CDigitanksWindow::CDigitanksWindow(int argc, char** argv)
 
 	GetScreenSize(iScreenWidth, iScreenHeight);
 
-	if (c.isFileValid())
+	TStubbed("Config");
+	/*if (c.isFileValid())
 	{
 		m_iWindowWidth = c.read<int>("width", 1024);
 		m_iWindowHeight = c.read<int>("height", 768);
@@ -91,7 +89,7 @@ CDigitanksWindow::CDigitanksWindow(int argc, char** argv)
 		m_sNickname = c.read<tstring>("nickname", "");
 	}
 	else
-	{
+	{*/
 		m_iWindowWidth = iScreenWidth*2/3;
 		m_iWindowHeight = iScreenHeight*2/3;
 
@@ -108,7 +106,7 @@ CDigitanksWindow::CDigitanksWindow(int argc, char** argv)
 		m_iInstallID = RandomInt(10000000, 99999999);
 
 		m_sNickname = "";
-	}
+	//}
 
 	CNetwork::SetClientInfo(m_iInstallID, m_sNickname);
 
@@ -118,10 +116,10 @@ CDigitanksWindow::CDigitanksWindow(int argc, char** argv)
 	if (m_iWindowHeight < 768)
 		m_iWindowHeight = 768;
 
-	if (IsFile(GetAppDataDirectory("Digitanks", "campaign.txt")))
+	if (IsFile(GetAppDataDirectory("campaign.txt")))
 	{
 		m_pCampaign = new CCampaignData(CCampaignInfo::GetCampaignInfo());
-		m_pCampaign->ReadData(GetAppDataDirectory("Digitanks", "campaign.txt"));
+		m_pCampaign->ReadData(GetAppDataDirectory("campaign.txt"));
 	}
 
 	m_iTotalProgress = 0;
@@ -310,7 +308,7 @@ void CDigitanksWindow::NextCampaignLevel()
 		Restart(GAMETYPE_CAMPAIGN);
 	}
 
-	m_pCampaign->SaveData(GetAppDataDirectory("Digitanks", "campaign.txt"));
+	m_pCampaign->SaveData(GetAppDataDirectory("campaign.txt"));
 }
 
 void CDigitanksWindow::ContinueCampaign()
@@ -323,7 +321,7 @@ void CDigitanksWindow::ContinueCampaign()
 		Restart(GAMETYPE_CAMPAIGN);
 	}
 
-	m_pCampaign->SaveData(GetAppDataDirectory("Digitanks", "campaign.txt"));
+	m_pCampaign->SaveData(GetAppDataDirectory("campaign.txt"));
 }
 
 SERVER_GAME_COMMAND(RestartLevel)
@@ -527,6 +525,9 @@ void CDigitanksWindow::CloseApplication()
 
 void CDigitanksWindow::SaveConfig()
 {
+	TStubbed("SaveConfig()");
+
+#if 0
 	c.add<float>("soundvolume", GetSoundVolume());
 	c.add<float>("musicvolume", GetMusicVolume());
 	c.add<bool>("windowed", !m_bCfgFullscreen);
@@ -542,6 +543,7 @@ void CDigitanksWindow::SaveConfig()
 	o << c;
 
 	TMsg("Saved config.\n");
+#endif
 }
 
 CHUD* CDigitanksWindow::GetHUD()

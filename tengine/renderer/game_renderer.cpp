@@ -212,7 +212,7 @@ void CGameRenderer::DrawSkybox(class CRenderingContext* pContext)
 
 	c.SetProjection(Matrix4x4::ProjectPerspective(
 			m_flCameraFOV,
-			(float)m_iWidth/(float)m_iHeight,
+			(float)m_iViewportWidth/(float)m_iViewportHeight,
 			m_flCameraNear,
 			m_flCameraFar
 		));
@@ -307,7 +307,7 @@ void CGameRenderer::DrawWeaponViewModel()
 
 	c.SetProjection(Matrix4x4::ProjectPerspective(
 			m_flCameraFOV,
-			(float)m_iWidth/(float)m_iHeight,
+			(float)m_iViewportWidth / (float)m_iViewportHeight,
 			0.001f,
 			1
 		));

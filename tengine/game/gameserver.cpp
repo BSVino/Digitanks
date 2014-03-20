@@ -5,7 +5,6 @@
 
 #include <mtrand.h>
 #include <tinker_platform.h>
-#include <configfile.h>
 #include <strutils.h>
 #include <worklistener.h>
 
@@ -35,8 +34,6 @@
 tmap<tstring, CPrecacheItem> CGameServer::s_aPrecacheClasses;
 CGameServer* CGameServer::s_pGameServer = NULL;
 
-ConfigFile g_cfgEngine("scripts/engine.cfg");
-
 CGameServer::CGameServer(IWorkListener* pWorkListener)
 {
 	TAssert(!s_pGameServer);
@@ -48,7 +45,7 @@ CGameServer::CGameServer(IWorkListener* pWorkListener)
 
 	m_pWorkListener = pWorkListener;
 
-	m_iMaxEnts = g_cfgEngine.read("MaxEnts", 1024);
+	m_iMaxEnts = 1024;
 
 	CBaseEntity::s_apEntityList.resize(m_iMaxEnts);
 
@@ -308,10 +305,10 @@ void CGameServer::LoadLevel(tstring sFile)
 		LoadLevel(pLevel);
 	else
 	{
-		std::basic_ifstream<tchar> f(sFile.c_str());
+		FILE* fp = tfopen_asset(sFile, "r");
 
 		CData* pData = new CData();
-		CDataSerializer::Read(f, pData);
+		CDataSerializer::Read(fp, pData);
 
 		pLevel->CreateEntitiesFromData(pData);
 
@@ -506,10 +503,10 @@ void CGameServer::ReadLevels(tstring sDirectory)
 
 void CGameServer::ReadLevelInfo(tstring sFile)
 {
-	std::basic_ifstream<tchar> f(sFile.c_str());
+	FILE* fp = tfopen_asset(sFile, "r");
 
 	CData* pData = new CData();
-	CDataSerializer::Read(f, pData);
+	CDataSerializer::Read(fp, pData);
 
 	CResource<CLevel> pLevel = CreateLevel();
 	pLevel->SetFile(sFile.replace("\\", "/"));

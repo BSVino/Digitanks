@@ -1,5 +1,7 @@
 ﻿#include "toy_util.h"
 
+#include <fstream>
+
 #include <common.h>
 #include <files.h>
 #include <tinker_platform.h>
@@ -580,12 +582,12 @@ bool CToyUtil::Read(const tstring& sFilename, CToy* pToy)
 	if (!pToy)
 		return false;
 
-	std::fstream input(sFilename.c_str(), std::ios::in | std::ios::binary);
+	FILE* fp = tfopen_asset(sFilename, "rb");
 
-	if (!input)
+	if (!fp)
 		return false;
 
-	if (!pToy->ReadFromStream(input))
+	if (!pToy->ReadFromFile(fp))
 		return false;
 
 	return true;

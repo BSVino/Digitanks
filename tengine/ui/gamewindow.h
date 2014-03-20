@@ -70,7 +70,7 @@ protected:
 	tstring						m_sRestartGameMode;
 	bool                        m_bReloadLevel;
 
-	float						m_flLastClick;
+	double                      m_flLastClick;
 };
 
 inline CGameWindow* GameWindow()

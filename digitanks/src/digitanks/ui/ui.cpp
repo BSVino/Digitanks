@@ -66,16 +66,10 @@ CDigitanksMenu::CDigitanksMenu()
 	m_pSaveGame = AddControl(new CButton(0, 0, 100, 100, _T("SAVE GAME")));
 	m_pSaveGame->SetClickedListener(this, Save);
 	m_pSaveGame->SetFont(_T("header"));
-#if !defined(TINKER_UNLOCKED)
-	m_pSaveGame->SetEnabled(false);
-#endif
 
 	m_pLoadGame = AddControl(new CButton(0, 0, 100, 100, _T("LOAD GAME")));
 	m_pLoadGame->SetClickedListener(this, Load);
 	m_pLoadGame->SetFont(_T("header"));
-#if !defined(TINKER_UNLOCKED)
-	m_pLoadGame->SetEnabled(false);
-#endif
 
 	m_pOptions = AddControl(new CButton(0, 0, 100, 100, _T("OPTIONS")));
 	m_pOptions->SetClickedListener(this, Options);
@@ -167,11 +161,7 @@ void CDigitanksMenu::CloseCallback(const tstring& sArgs)
 
 void CDigitanksMenu::SaveCallback(const tstring& sArgs)
 {
-#if !defined(TINKER_UNLOCKED)
-	return;
-#endif
-
-	glgui::CFileDialog::ShowSaveDialog(GetAppDataDirectory(DigitanksWindow()->AppDirectory(), _T("")), ".sav", this, SaveFile);
+	glgui::CFileDialog::ShowSaveDialog(DigitanksWindow()->GetAppDataDirectory(), ".sav", this, SaveFile);
 }
 
 void CDigitanksMenu::SaveFileCallback(const tstring& sArgs)
@@ -185,14 +175,10 @@ void CDigitanksMenu::SaveFileCallback(const tstring& sArgs)
 
 void CDigitanksMenu::LoadCallback(const tstring& sArgs)
 {
-#if !defined(TINKER_UNLOCKED)
-	return;
-#endif
-
 	if (!GameServer())
 		DigitanksWindow()->CreateGame("empty");
 
-	glgui::CFileDialog::ShowOpenDialog(GetAppDataDirectory(DigitanksWindow()->AppDirectory(), _T("")), ".sav", this, Open);
+	glgui::CFileDialog::ShowOpenDialog(DigitanksWindow()->GetAppDataDirectory(), ".sav", this, Open);
 }
 
 void CDigitanksMenu::OpenCallback(const tstring& sArgs)

@@ -749,8 +749,6 @@ void CRenderer::SetSize(int w, int h)
 
 Vector CRenderer::ScreenPosition(Vector vecWorld)
 {
-	TUnimplemented(); // Untested.
-
 	Vector4D v;
 
 	v.x = vecWorld.x;

@@ -18,13 +18,8 @@ set (MODELCONVERTER_SOURCES_FORMATS
 	formats/obj.cpp
 	formats/silo.cpp
 	formats/smd.cpp
+	formats/assimp.cpp
 )
-
-if (WITH_ASSIMP)
-	set (MODELCONVERTER_SOURCES_FORMATS ${MODELCONVERTER_SOURCES_FORMATS}
-		formats/assimp.cpp
-	)
-endif (WITH_ASSIMP)
 
 
 source_group(Formats FILES ${MODELCONVERTER_SOURCES_FORMATS})

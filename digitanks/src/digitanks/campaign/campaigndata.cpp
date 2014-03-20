@@ -45,9 +45,9 @@ tstring CCampaignData::GetLevel(size_t i)
 
 void CCampaignData::ReadData(const tstring& sFile)
 {
-	std::basic_ifstream<tchar> f(convertstring<tchar, char>(sFile).c_str());
+	FILE* fp = tfopen_asset(sFile, "r");
 	CData* pData = new CData();
-	CDataSerializer::Read(f, pData);
+	CDataSerializer::Read(fp, pData);
 
 	CData* pCampaign = pData->FindChild("Campaign");
 	m_iHighestLevelReached = pCampaign->FindChild("HighestLevel")->GetValueInt();
@@ -58,14 +58,14 @@ void CCampaignData::ReadData(const tstring& sFile)
 
 void CCampaignData::SaveData(const tstring& sFile)
 {
-	std::basic_ofstream<tchar> f(convertstring<tchar, char>(sFile).c_str());
+	FILE* fp = tfopen_asset(sFile, "w");
 	CData* pData = new CData();
 
 	CData* pCampaign = pData->AddChild("Campaign");
 	pCampaign->AddChild("HighestLevel")->SetValue(m_iHighestLevelReached);
 	pCampaign->AddChild("CurrentLevel")->SetValue(m_iCurrentLevel);
 
-	CDataSerializer::Save(f, pData);
+	CDataSerializer::Save(fp, pData);
 
 	delete pData;
 }
