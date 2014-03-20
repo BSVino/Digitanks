@@ -17,7 +17,8 @@ LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON A
 
 #include "rootpanel.h"
 
-#include <tinker/shell.h>
+#include <tinker/application.h>
+#include <renderer/renderer.h>
 #include <renderer/renderingcontext.h>
 
 #include "menu.h"
@@ -60,7 +61,12 @@ CRootPanel::~CRootPanel( )
 CRootPanel*	CRootPanel::Get()
 {
 	if (!s_pRootPanel)
+	{
 		s_pRootPanel = (new CRootPanel())->shared_from_this();
+
+		// Go ahead and set the proper size now so that the console shows up in the right place.
+		s_pRootPanel->SetSize(Application()->GetWindowWidth() * Application()->GetGUIScale(), Application()->GetWindowHeight() * Application()->GetGUIScale());
+	}
 
 	if (!s_bRootPanelValid)
 		return nullptr;
@@ -117,7 +123,7 @@ void CRootPanel::Paint(float x, float y, float w, float h)
 
 	Matrix4x4 mProjection = Matrix4x4::ProjectOrthographic(x, x+w, y+h, y, -1000, 1000);
 
-	::CRenderingContext c;
+	::CRenderingContext c(Application()->GetRenderer());
 	m_pRenderingContext = &c;
 
 	c.SetProjection(mProjection);
@@ -168,6 +174,9 @@ bool CRootPanel::MousePressed(int code, int mx, int my, bool bInsideControl)
 {
 	TAssert(!m_pDragging);
 
+	mx = (int)(mx * Application()->GetGUIScale());
+	my = (int)(my * Application()->GetGUIScale());
+
 	if (CPanel::MousePressed(code, mx, my))
 		return true;
 
@@ -199,6 +208,9 @@ bool CRootPanel::MousePressed(int code, int mx, int my, bool bInsideControl)
 
 bool CRootPanel::MouseReleased(int code, int mx, int my)
 {
+	mx = (int)(mx * Application()->GetGUIScale());
+	my = (int)(my * Application()->GetGUIScale());
+
 	if (m_pDragging)
 	{
 		if (DropDraggable())
@@ -219,6 +231,9 @@ bool CRootPanel::MouseReleased(int code, int mx, int my)
 
 bool CRootPanel::MouseDoubleClicked(int code, int mx, int my)
 {
+	mx = (int)(mx * Application()->GetGUIScale());
+	my = (int)(my * Application()->GetGUIScale());
+
 	TAssert(!m_pDragging);
 
 	if (CPanel::MouseDoubleClicked(code, mx, my))
@@ -229,13 +244,14 @@ bool CRootPanel::MouseDoubleClicked(int code, int mx, int my)
 
 void CRootPanel::CursorMoved(int x, int y)
 {
+	int dx = (int)((x - m_iMX) * Application()->GetGUIScale());
+	int dy = (int)((y - m_iMY) * Application()->GetGUIScale());
+
 	m_iMX = x;
 	m_iMY = y;
 
 	if (!m_pDragging)
-	{
-		CPanel::CursorMoved(x, y);
-	}
+		CPanel::CursorMoved(x, y, dx, dy);
 }
 
 void CRootPanel::DragonDrop(IDroppable* pDroppable)
@@ -331,6 +347,6 @@ bool CRootPanel::SetFocus(CControlHandle hFocus)
 
 void CRootPanel::GetFullscreenMousePos(int& mx, int& my)
 {
-	mx = Get()->m_iMX;
-	my = Get()->m_iMY;
+	mx = (int)(Get()->m_iMX * Application()->GetGUIScale());
+	my = (int)(Get()->m_iMY * Application()->GetGUIScale());
 }

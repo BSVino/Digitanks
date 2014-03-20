@@ -68,6 +68,7 @@ CMovablePanel::CMovablePanel(const tstring& sName)
 	m_flNonMinimizedHeight = GetHeight();
 
 	SetBackgroundColor(g_clrPanel);
+	m_clrHeader = Color(74, 80, 90, 255);
 	SetBorder(glgui::CPanel::BT_SOME);
 	SetClearBackground(false);
 
@@ -112,6 +113,11 @@ void CMovablePanel::Layout()
 
 	if (!m_bMinimized)
 		m_flNonMinimizedHeight = GetHeight();
+}
+
+void CMovablePanel::MoveToCenter()
+{
+	SetPos(RootPanel()->GetWidth() / 2 - GetWidth() / 2, RootPanel()->GetHeight() / 2 - GetHeight() / 2);
 }
 
 void CMovablePanel::Think()

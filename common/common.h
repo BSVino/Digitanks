@@ -83,8 +83,16 @@ extern void DebugPrint(const char* pszText);
 
 #endif
 
+#if defined(__ANDROID__)
+// If you hit this, the code is either incomplete or untested.
+#define TUnimplemented() {TAssertNoMsg(false); \
+	char s[1000]; \
+	sprintf(s, "TUnimplemented file " __FILE__ " line %d\n", __LINE__); \
+	DebugPrint(s); }
+#else
 // If you hit this, the code is either incomplete or untested.
 #define TUnimplemented() TAssertNoMsg(false)
+#endif
 
 #ifdef _DEBUG
 
@@ -105,7 +113,7 @@ extern void DebugPrint(const char* pszText);
 
 #endif
 
-#ifdef __GNUC__
+#if defined(__GNUC__) && !defined(__clang__)
 #if __GNUC__ < 4 || __GNUC_MINOR__ < 6
 
 const                        // this is a const object...

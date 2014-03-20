@@ -44,7 +44,7 @@ namespace glgui
 		virtual bool	SetFocus(bool bFocus);
 
 		virtual bool	MousePressed(int iButton, int mx, int my);
-		virtual void	CursorMoved(int x, int y);
+		virtual void	CursorMoved(int x, int y, int dx, int dy);
 		virtual bool	CharPressed(int iKey);
 		virtual bool	KeyPressed(int iKey, bool bCtrlDown = false);
 

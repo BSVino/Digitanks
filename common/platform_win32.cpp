@@ -64,12 +64,6 @@ void GetMACAddresses(unsigned char*& paiAddresses, size_t& iAddresses)
 	paiAddresses = &aiAddresses[0][0];
 }
 
-void GetScreenSize(int& iWidth, int& iHeight)
-{
-	iWidth = GetSystemMetrics(SM_CXSCREEN);
-	iHeight = GetSystemMetrics(SM_CYSCREEN);
-}
-
 size_t GetNumberOfProcessors()
 {
 	SYSTEM_INFO SystemInfo;
@@ -197,35 +191,12 @@ void SetClipboard(const tstring& sBuf)
 	CloseClipboard();
 }
 
-tstring GetAppDataDirectory(const tstring& sDirectory, const tstring& sFile)
+tvector<tstring> ListDirectory(const tstring& sFullDirectory, bool bDirectories)
 {
-	size_t iSize;
-	_wgetenv_s(&iSize, NULL, 0, L"APPDATA");
+	tstring sDirectory = sFullDirectory;
+	if (sDirectory.startswith("$ASSETS/"))
+		sDirectory = sDirectory.substr(8);
 
-	tstring sSuffix;
-	sSuffix.append(sDirectory).append("\\").append(sFile);
-
-	if (!iSize)
-		return sSuffix;
-
-	wchar_t* pszVar = (wchar_t*)malloc(iSize * sizeof(wchar_t));
-	if (!pszVar)
-		return sSuffix;
-
-	_wgetenv_s(&iSize, pszVar, iSize, L"APPDATA");
-
-	tstring sReturn = convert_from_wstring(pszVar);
-
-	free(pszVar);
-
-	CreateDirectory(convert_to_wstring(tstring(sReturn).append("\\").append(sDirectory)).c_str(), NULL);
-
-	sReturn.append("\\").append(sSuffix);
-	return sReturn;
-}
-
-tvector<tstring> ListDirectory(const tstring& sDirectory, bool bDirectories)
-{
 	tvector<tstring> asResult;
 
 	wchar_t szPath[MAX_PATH];
@@ -442,3 +413,25 @@ int TranslateKeyFromQwerty(int iKey)
 	UINT i = MapVirtualKeyEx(GetVKForChar(iKey), MAPVK_VK_TO_VSC, g_iEnglish);
 	return (int)GetCharForVK(MapVirtualKeyEx(i, MAPVK_VSC_TO_VK, iCurrent));
 }
+
+void GetScreenDPI(float& xdpi, float& ydpi)
+{
+	HDC hdc = GetDC(NULL);
+	if (hdc)
+	{
+		xdpi = (float)GetDeviceCaps(hdc, LOGPIXELSX);
+		ydpi = (float)GetDeviceCaps(hdc, LOGPIXELSY);
+		ReleaseDC(NULL, hdc);
+	}
+	else
+	{
+		xdpi = 96;
+		ydpi = 96;
+	}
+}
+
+// Don't need to.
+void EnableMulticast() {}
+
+
+

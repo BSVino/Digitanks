@@ -133,7 +133,7 @@ public:
 	void					BeginRenderLines();
 	void					BeginRenderLineLoop();
 	void					BeginRenderLineStrip();
-	void					BeginRenderPoints(float flSize=1);
+	void					BeginRenderPoints();
 	void					BeginRenderDebugLines();
 	void					TexCoord(float s, float t, int iChannel = 0);
 	void					TexCoord(const Vector2D& v, int iChannel = 0);

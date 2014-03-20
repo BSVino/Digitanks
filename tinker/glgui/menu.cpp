@@ -271,12 +271,16 @@ void CMenu::ClickedCallback(const tstring& sArgs)
 
 void CMenu::OpenMenu()
 {
+	OnOpenMenu();
+
 	m_flMenuHighlightGoal = 1;
 	m_flMenuHeightGoal = 1;
 }
 
 void CMenu::CloseMenu()
 {
+	OnCloseMenu();
+
 	m_flMenuHighlightGoal = 0;
 	m_flMenuHeightGoal = 0;
 	SetState(false, false);

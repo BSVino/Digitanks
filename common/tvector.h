@@ -57,22 +57,22 @@ public:
 	T& push_back()
 	{
 		TVECTOR_BASE::push_back(T());
-		return back();
+		return TVECTOR_BASE::back();
 	}
 
-	void set_capacity(size_type n = ~0)
+	void set_capacity(size_t n = ~0)
 	{
-		size_type iSize = size();
+		size_t iSize = TVECTOR_BASE::size();
 		if((n == ~0) || (n <= iSize))
 		{
 			if(n < iSize)
-				resize(n);
+				TVECTOR_BASE::resize(n);
 
 			tvector temp(*this); 
 			swap(temp);
 		}
 		else
-			resize(n);
+			TVECTOR_BASE::resize(n);
 	}
 #endif
 };

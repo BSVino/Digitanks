@@ -28,10 +28,12 @@ LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON A
 
 CTextureSheet::CTextureSheet(tstring sFile)
 {
-	std::basic_ifstream<tchar> f(sFile.c_str());
+	FILE* fp = tfopen_asset(sFile, "r");
+
+	TAssertNoMsg(fp);
 
 	CData* pFile = new CData();
-	CDataSerializer::Read(f, pFile);
+	CDataSerializer::Read(fp, pFile);
 
 	for (size_t i = 0; i < pFile->GetNumChildren(); i++)
 	{
@@ -146,9 +148,23 @@ size_t CTextureSheet::GetSheetHeight(const tstring& sArea) const
 			return 0;
 
 		TAssertNoMsg(m_hDefaultSheet->m_ahTextures.size());
+		if (!m_hDefaultSheet->m_ahTextures.size())
+			return 0;
+
+		TAssertNoMsg(m_hDefaultSheet->m_ahTextures.size());
+		if (!m_hDefaultSheet->m_ahTextures[0])
+			return 0;
+
 		return m_hDefaultSheet->m_ahTextures[0]->m_iHeight;
 	}
 
 	TAssertNoMsg(it->second.m_hSheet->m_ahTextures.size());
+	if (!it->second.m_hSheet->m_ahTextures.size())
+		return 0;
+
+	TAssertNoMsg(it->second.m_hSheet->m_ahTextures.size());
+	if (!it->second.m_hSheet->m_ahTextures[0])
+		return 0;
+
 	return it->second.m_hSheet->m_ahTextures[0]->m_iHeight;
 }

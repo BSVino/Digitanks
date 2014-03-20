@@ -75,11 +75,11 @@ void CTextField::Paint(float x, float y, float w, float h)
 
 	if (HasFocus())
 	{
-		float flCursor = CLabel::GetFont("sans-serif", m_iFontFaceSize)->Advance(m_sText.c_str(), m_iCursor);
+		float flCursor = CLabel::GetTextWidth(m_sText, m_iCursor, CLabel::GetFont("sans-serif", m_iFontFaceSize));
 
 		if (m_iCursor != m_iSelection)
 		{
-			float flSelection = CLabel::GetFont("sans-serif", m_iFontFaceSize)->Advance(m_sText.c_str(), m_iSelection);
+			float flSelection = CLabel::GetTextWidth(m_sText, m_iSelection, CLabel::GetFont("sans-serif", m_iFontFaceSize));
 			float flStart = std::min(flCursor, flSelection);
 			float flEnd = std::max(flCursor, flSelection);
 			glgui::CRootPanel::PaintRect(x + 4 + flStart + m_flRenderOffset, y+3, flEnd-flStart, h-6, Color(50, 50, 200, 155), 1);
@@ -172,10 +172,15 @@ void CTextField::DrawLine(const tchar* pszText, unsigned iLength, float x, float
 
 	FTFont* pFont = CLabel::GetFont("sans-serif", m_iFontFaceSize);
 
-	float flMargin = (h-pFont->LineHeight())/2;
-	Vector vecPosition = Vector((float)x + m_flRenderOffset, (float)CRootPanel::Get()->GetBottom() - y + flMargin - pFont->LineHeight(), 0);
+	float flMargin = (h - CLabel::GetFontHeight(pFont)) / 2;
+	Vector vecPosition = Vector((float)x + m_flRenderOffset, (float)CRootPanel::Get()->GetBottom() - y + flMargin - CLabel::GetFontHeight(pFont), 0);
 
-	Matrix4x4 mFontProjection = Matrix4x4::ProjectOrthographic(0, CRootPanel::Get()->GetWidth(), 0, CRootPanel::Get()->GetHeight(), -1, 1);
+	// Intentionally using the viewport size instead of the root panel size to render.
+	// We scaled the font size requested by the gui scale factor and now ftgl can render
+	// it as if it were regular sized, meaning it will look larger.
+	size_t vw, vh;
+	Application()->GetViewportSize(vw, vh);
+	Matrix4x4 mFontProjection = Matrix4x4::ProjectOrthographic(0, (float)vw, 0, (float)vh, -1, 1);
 
 	float cx, cy;
 	GetAbsPos(cx, cy);
@@ -221,10 +226,10 @@ void CTextField::DrawLine(const tchar* pszText, unsigned iLength, float x, float
 	c.SetBlend(BLEND_ALPHA);
 	c.UseProgram("text");
 	c.SetUniform("bScissor", true);
-	c.SetUniform("vecScissor", vecStencil);
+	c.SetUniform("vecScissor", vecStencil / Application()->GetGUIScale());
 	c.SetUniform("vecColor", m_FGColor);
 	c.SetProjection(mFontProjection);
-	c.Translate(vecPosition);
+	c.Translate(vecPosition / Application()->GetGUIScale());
 
 	c.RenderText(pszText, iLength, "sans-serif", m_iFontFaceSize);
 }
@@ -236,13 +241,10 @@ bool CTextField::TakesFocus()
 
 bool CTextField::SetFocus(bool bFocus)
 {
-	CBaseControl::SetFocus(bFocus);
+	bool bResult = CBaseControl::SetFocus(bFocus);
 
-	if (!TakesFocus())
+	if (!bResult)
 		return false;
-
-	if (HasFocus())
-		return true;
 
 	m_iAutoComplete = -1;
 
@@ -252,10 +254,16 @@ bool CTextField::SetFocus(bool bFocus)
 
 		m_iSelection = m_iCursor = m_sText.length();
 
+		FRect r = GetAbsDimensions();
+		r /= Application()->GetGUIScale();
+		Application()->ActivateKeyboard(r);
+
 		return true;
 	}
 
-	return false;
+	Application()->DeactivateKeyboard();
+
+	return HasFocus();
 }
 
 bool CTextField::MousePressed(int iButton, int mx, int my)
@@ -274,7 +282,7 @@ bool CTextField::MousePressed(int iButton, int mx, int my)
 	float flCursor = (float)(mx-cx);
 	for (size_t i = 1; i < m_sText.length(); i++)
 	{
-		float flText = CLabel::GetFont("sans-serif", m_iFontFaceSize)->Advance(convertstring<tchar, FTGLchar>(m_sText).c_str(), i);
+		float flText = CLabel::GetTextWidth(m_sText, i, CLabel::GetFont("sans-serif", m_iFontFaceSize));
 		if (flCursor < flText)
 		{
 			m_iCursor = i-1;
@@ -294,7 +302,7 @@ bool CTextField::MousePressed(int iButton, int mx, int my)
 	return true;
 }
 
-void CTextField::CursorMoved(int x, int y)
+void CTextField::CursorMoved(int x, int y, int dx, int dy)
 {
 	if (!Application()->IsMouseLeftDown())
 		return;
@@ -311,7 +319,7 @@ void CTextField::CursorMoved(int x, int y)
 	float flCursor = (float)(x-cx);
 	for (size_t i = 1; i < m_sText.length(); i++)
 	{
-		float flText = CLabel::GetFont("sans-serif", m_iFontFaceSize)->Advance(convertstring<tchar, FTGLchar>(m_sText).c_str(), i);
+		float flText = CLabel::GetTextWidth(m_sText, i, CLabel::GetFont("sans-serif", m_iFontFaceSize));
 		if (flCursor < flText)
 		{
 			m_iCursor = i-1;
@@ -525,8 +533,8 @@ void CTextField::FindRenderOffset()
 	float cx, cy;
 	GetAbsPos(cx, cy);
 
-	float flTextWidth = CLabel::GetFont("sans-serif", m_iFontFaceSize)->Advance(convertstring<tchar, FTGLchar>(m_sText).c_str());
-	float flCursorOffset = CLabel::GetFont("sans-serif", m_iFontFaceSize)->Advance(convertstring<tchar, FTGLchar>(m_sText).c_str(), m_iCursor);
+	float flTextWidth = CLabel::GetTextWidth(m_sText, m_sText.length(), CLabel::GetFont("sans-serif", m_iFontFaceSize));
+	float flCursorOffset = CLabel::GetTextWidth(m_sText, m_iCursor, CLabel::GetFont("sans-serif", m_iFontFaceSize));
 
 	float flTextLeft = (cx + 4) + m_flRenderOffset;
 	float flTextRight = flTextLeft + flTextWidth + m_flRenderOffset;
@@ -710,12 +718,12 @@ void CTextField::SetFontFaceSize(int iSize)
 
 float CTextField::GetTextWidth()
 {
-	return CLabel::GetFont("sans-serif", m_iFontFaceSize)->Advance(convertstring<tchar, FTGLchar>(m_sText).c_str());
+	return CLabel::GetTextWidth(m_sText, m_sText.length(), CLabel::GetFont("sans-serif", m_iFontFaceSize));
 }
 
 float CTextField::GetTextHeight()
 {
-	return CLabel::GetFont("sans-serif", m_iFontFaceSize)->LineHeight();
+	return CLabel::GetFontHeight(CLabel::GetFont("sans-serif", m_iFontFaceSize));
 }
 
 // Make the label tall enough for one line of text to fit inside.

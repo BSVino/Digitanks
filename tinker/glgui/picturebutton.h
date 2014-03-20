@@ -20,6 +20,7 @@ LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON A
 
 #include "button.h"
 
+#include <textures/materiallibrary.h>
 #include <textures/materialhandle.h>
 
 namespace glgui

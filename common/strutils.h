@@ -125,7 +125,7 @@ inline tstring implode(const tstring& sGlue, tvector<tstring>& asStrings)
 	return sResult;
 }
 
-inline int isspace(int i)
+inline int tinker_isspace(int i)
 {
 	if (i == ' ')
 		return true;
@@ -144,13 +144,13 @@ inline int isspace(int i)
 
 inline tstring ltrim(tstring s)
 {
-	s.erase(s.begin(), STL_NAMESPACE::find_if(s.begin(), s.end(), not1(ptr_fun<int, int>(isspace))));
+	s.erase(s.begin(), STL_NAMESPACE::find_if(s.begin(), s.end(), not1(ptr_fun<int, int>(tinker_isspace))));
 	return s;
 }
 
 inline tstring rtrim(tstring s)
 {
-	s.erase(STL_NAMESPACE::find_if(s.rbegin(), s.rend(), not1(ptr_fun<int, int>(isspace))).base(), s.end());
+	s.erase(STL_NAMESPACE::find_if(s.rbegin(), s.rend(), not1(ptr_fun<int, int>(tinker_isspace))).base(), s.end());
 	return s;
 }
 
@@ -399,6 +399,25 @@ inline FILE* tfopen(const tstring& sFile, const tstring& sMode)
 		sBinaryMode = sMode + "b";
 
 	return fopen(sFile.c_str(), convertstring<tchar, char>(sBinaryMode).c_str());
+}
+
+#ifdef __ANDROID__
+extern FILE* Tinker_Android_tfopen(const tstring& sFile, const tstring& sMode);
+#else
+inline FILE* Tinker_Android_tfopen(const tstring& sFile, const tstring& sMode)
+{
+	return nullptr;
+}
+#endif
+
+// Try to open the file from the package assets folder first. (eg if we're on Android.)
+inline FILE* tfopen_asset(const tstring& sFile, const tstring& sMode)
+{
+	FILE* fp = Tinker_Android_tfopen(sFile, sMode);
+	if (fp)
+		return fp;
+
+	return tfopen(sFile, sMode);
 }
 
 inline bool fgetts(tstring& str, FILE* fp)

@@ -17,7 +17,6 @@ LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON A
 
 #include "renderingcontext.h"
 
-#include <GL3/gl3w.h>
 #include <FTGL/ftgl.h>
 
 #include <maths.h>
@@ -31,6 +30,8 @@ LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON A
 #include <textures/texturelibrary.h>
 #include <textures/materiallibrary.h>
 #include <renderer/renderer.h>
+
+#include "tinker_gl.h"
 
 tvector<Vector2D> CRenderingContext::s_avecTexCoord;
 tvector<tvector<Vector2D> > CRenderingContext::s_aavecTexCoords;
@@ -88,7 +89,10 @@ CRenderingContext::CRenderingContext(CRenderer* pRenderer, bool bInherit)
 		UseFrameBuffer(NULL);
 		UseProgram("");
 
-		SetViewport(Rect(0, 0, Application()->GetWindowWidth(), Application()->GetWindowHeight()));
+		if (m_pRenderer)
+			SetViewport(Rect(0, 0, m_pRenderer->GetViewportWidth(), m_pRenderer->GetViewportHeight()));
+		else
+			SetViewport(Rect(0, 0, Application()->GetWindowWidth(), Application()->GetWindowHeight()));
 		SetBlend(BLEND_NONE);
 		SetAlpha(1);
 		SetDepthMask(true);
@@ -137,13 +141,13 @@ CRenderingContext::~CRenderingContext()
 
 		glBindFramebuffer(GL_FRAMEBUFFER, 0);
 		if (m_pRenderer)
-			glViewport(0, 0, (GLsizei)m_pRenderer->m_iWidth, (GLsizei)m_pRenderer->m_iHeight);
+			glViewport(0, 0, (GLsizei)m_pRenderer->m_iViewportWidth, (GLsizei)m_pRenderer->m_iViewportHeight);
 		else
 			glViewport(0, 0, (GLsizei)Application()->GetWindowWidth(), (GLsizei)Application()->GetWindowHeight());
 
 		glUseProgram(0);
 
-		glDisablei(GL_BLEND, 0);
+		glDisable(GL_BLEND);
 
 		glDepthMask(true);
 		glEnable(GL_DEPTH_TEST);
@@ -232,7 +236,7 @@ void CRenderingContext::SetBlend(blendtype_t eBlend)
 {
 	if (eBlend)
 	{
-		glEnablei(GL_BLEND, 0);
+		glEnable(GL_BLEND);
 
 		if (eBlend == BLEND_ALPHA)
 			glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
@@ -244,7 +248,7 @@ void CRenderingContext::SetBlend(blendtype_t eBlend)
 			TUnimplemented();
 	}
 	else
-		glDisablei(GL_BLEND, 0);
+		glDisable(GL_BLEND);
 
 	GetContext().m_eBlend = eBlend;
 }
@@ -331,10 +335,10 @@ void CRenderingContext::RenderSphere()
 			// A row.
 			for (int j = 0; j < iColumns; j++)
 			{
-				float i0 = RemapVal((float)i,   0, (float)iRows, 0, M_PI);
-				float i1 = RemapVal((float)i+1, 0, (float)iRows, 0, M_PI);
-				float j0 = RemapVal((float)j,   0, (float)iColumns, 0, 2*M_PI);
-				float j1 = RemapVal((float)j+1, 0, (float)iColumns, 0, 2*M_PI);
+				float i0 = RemapVal((float)i,   0.0f, (float)iRows,    0.0f, (float)M_PI);
+				float i1 = RemapVal((float)i+1, 0.0f, (float)iRows,    0.0f, (float)M_PI);
+				float j0 = RemapVal((float)j,   0.0f, (float)iColumns, 0.0f, (float)(2*M_PI));
+				float j1 = RemapVal((float)j+1, 0.0f, (float)iColumns, 0.0f, (float)(2*M_PI));
 
 				float ci0 = cos(i0);
 				float si0 = sin(i0);
@@ -439,7 +443,7 @@ void CRenderingContext::UseFrameBuffer(const CFrameBuffer* pBuffer)
 	{
 		glBindFramebuffer(GL_FRAMEBUFFER, 0);
 		if (m_pRenderer)
-			glViewport(0, 0, (GLsizei)m_pRenderer->m_iWidth, (GLsizei)m_pRenderer->m_iHeight);
+			glViewport(0, 0, (GLsizei)m_pRenderer->m_iViewportWidth, (GLsizei)m_pRenderer->m_iViewportHeight);
 		else
 			glViewport(0, 0, (GLsizei)Application()->GetWindowWidth(), (GLsizei)Application()->GetWindowHeight());
 	}
@@ -849,7 +853,7 @@ void CRenderingContext::BeginRenderDebugLines()
 	BeginRenderLines();
 }
 
-void CRenderingContext::BeginRenderPoints(float flSize)
+void CRenderingContext::BeginRenderPoints()
 {
 	s_avecTexCoord.clear();
 	for (size_t i = 0; i < s_aavecTexCoords.size(); i++)
@@ -862,7 +866,6 @@ void CRenderingContext::BeginRenderPoints(float flSize)
 	m_bNormal = false;
 	m_bColor = false;
 
-	glPointSize( flSize );
 	m_iDrawMode = GL_POINTS;
 }
 
@@ -987,7 +990,7 @@ void CRenderingContext::EndRender()
 	if (m_bColor && m_pShader->m_iColorAttribute != ~0)
 	{
 		glEnableVertexAttribArray(m_pShader->m_iColorAttribute);
-		glVertexAttribPointer(m_pShader->m_iColorAttribute, 3, GL_UNSIGNED_BYTE, true, sizeof(::Color), s_aclrColors.data());
+		glVertexAttribPointer(m_pShader->m_iColorAttribute, 4, GL_UNSIGNED_BYTE, true, sizeof(::Color), s_aclrColors.data());
 	}
 
 	TAssert(m_pShader->m_iPositionAttribute != ~0);
@@ -1186,7 +1189,13 @@ void CRenderingContext::SetCustomIntBuffer(const char* pszName, size_t iSize, si
 
 	TAssert(iOffset%4 == 0);	// Should be multiples of four because it's offsets in bytes and we're always working with floats or doubles
 	glEnableVertexAttribArray(iAttribute);
+
+#if defined(TINKER_OPENGLES_2)
+	TUnimplemented();
+	//glVertexAttribIPointer(iAttribute, iSize, GL_INT, iStride, BUFFER_OFFSET(iOffset));
+#else
 	glVertexAttribIPointer(iAttribute, iSize, GL_INT, iStride, BUFFER_OFFSET(iOffset));
+#endif
 }
 
 void CRenderingContext::EndRenderVertexArray(size_t iVertices, bool bWireframe)

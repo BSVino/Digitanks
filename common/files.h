@@ -151,7 +151,7 @@ inline bool IsAbsolutePath(const tstring& sPath)
 	tstring sTrimmedPath = trim(sPath);
 
 	tchar cFirst = sTrimmedPath[0];
-	if (cFirst > 'A' && cFirst < 'Z' || cFirst > 'a' && cFirst < 'z')
+	if ((cFirst > 'A' && cFirst < 'Z') || (cFirst > 'a' && cFirst < 'z'))
 	{
 		if (sTrimmedPath[1] == ':')
 		{

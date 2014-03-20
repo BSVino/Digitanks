@@ -90,6 +90,11 @@ inline T RemapVal(T flInput, T flInLo, T flInHi, T flOutLo, T flOutHi)
 	return (((flInput-flInLo) / (flInHi-flInLo)) * (flOutHi-flOutLo)) + flOutLo;
 }
 
+inline double RemapBiased(double flInput, double flInLo, double flInHi, double flOutLo, double flOutHi, double flBias)
+{
+	return (Bias((float)((flInput - flInLo) / (flInHi - flInLo)), (float)flBias) * (flOutHi - flOutLo)) + flOutLo;
+}
+
 template <class T>
 inline void TSwap(T& l, T& r)
 {

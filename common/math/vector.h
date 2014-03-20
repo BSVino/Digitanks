@@ -24,6 +24,7 @@ LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON A
 #include <stdlib.h>
 
 #include "common.h"
+#include "maths.h"
 
 #ifndef M_PI
 #define M_PI 3.14159265f
@@ -460,8 +461,8 @@ inline const EAngle VectorAngles( const Vector& vecForward )
 {
 	EAngle angReturn(0, 0, 0);
 
-	angReturn.p = atan2(vecForward.z, sqrt(vecForward.x*vecForward.x + vecForward.y*vecForward.y)) * 180/M_PI;
-	angReturn.y = atan2(vecForward.y, vecForward.x) * 180/M_PI;
+	angReturn.p = atan2(vecForward.z, sqrt(vecForward.x*vecForward.x + vecForward.y*vecForward.y)) * (float)(180/M_PI);
+	angReturn.y = atan2(vecForward.y, vecForward.x) * (float)(180/M_PI);
 
 	return angReturn;
 }
@@ -639,6 +640,9 @@ public:
 	const Vector4D	operator+(const Vector4D& v) const;
 	const Vector4D	operator-(const Vector4D& v) const;
 
+	const Vector4D  operator*(float s) const;
+	const Vector4D  operator/(float s) const;
+
 	bool	operator==(const Vector4D& v) const
 	{
 		float flEp = 0.000001f;
@@ -698,6 +702,16 @@ inline const Vector4D Vector4D::operator+(const Vector4D& v) const
 inline const Vector4D Vector4D::operator-(const Vector4D& v) const
 {
 	return Vector4D(x-v.x, y-v.y, z-v.z, w-v.w);
+}
+
+inline const Vector4D Vector4D::operator*(float s) const
+{
+	return Vector4D(x*s, y*s, z*s, w*s);
+}
+
+inline const Vector4D Vector4D::operator/(float s) const
+{
+	return Vector4D(x/s, y/s, z/s, w/s);
 }
 
 #endif

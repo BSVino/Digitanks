@@ -135,6 +135,8 @@ public:
 	void		InvertRT();
 	Matrix4x4	InvertedRT() const;
 
+	const Matrix4x4 Inverted() const;
+
 	float		Trace() const;
 
 	operator float*()
@@ -147,7 +149,10 @@ public:
 		return(&m[0][0]);
 	}
 
-	float		m[4][4];
+	union {
+		float m[4][4];
+		float mm[16];
+	};
 };
 
 // Yes, I know, templates do this, but I really want to avoid moving all the matrix stuff into a header file.

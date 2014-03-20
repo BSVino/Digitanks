@@ -18,10 +18,9 @@ LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON A
 #include "application.h"
 
 #include <time.h>
-#include <GL3/gl3w.h>
-#include <GL/glfw3.h>
 #include <iostream>
 #include <fstream>
+#include <SDL.h>
 
 #include <strutils.h>
 #include <tinker_platform.h>
@@ -32,9 +31,18 @@ LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON A
 #include <tinker/cvar.h>
 #include <glgui/rootpanel.h>
 #include <tinker/renderer/renderer.h>
-#include <tools/manipulator/manipulator.h>
+#include <profiler.h>
 
+#ifndef TINKER_NO_TOOLS
+#include <tools/manipulator/manipulator.h>
+#endif
+
+#include "renderer/tinker_gl.h"
 #include "console.h"
+
+#if !defined(__ANDROID__)
+#define NO_GL_DEBUG
+#endif
 
 CApplication* CApplication::s_pApplication = NULL;
 
@@ -42,6 +50,25 @@ CApplication::CApplication(int argc, char** argv)
 	: CShell(argc, argv)
 {
 	s_pApplication = this;
+
+	m_pWindow = nullptr;
+
+	int iMode = SDL_INIT_VIDEO | SDL_INIT_TIMER;
+
+#ifdef _DEBUG
+	iMode |= SDL_INIT_NOPARACHUTE;
+#endif
+
+	SDL_Init(iMode);
+
+	m_flGUIScale = 1;
+
+	// SDL has no support for Android high DPI, so we'll just scale it.
+#ifdef __ANDROID__
+	float xdpi, ydpi;
+	GetScreenDPI(xdpi, ydpi);
+	m_flGUIScale = 96.0f / ((xdpi + ydpi) / 2);
+#endif
 
 	srand((unsigned int)time(NULL));
 	mtsrand((size_t)time(NULL));
@@ -65,6 +92,8 @@ CApplication::CApplication(int argc, char** argv)
 			CCommand::Run(&m_apszCommandLine[i][1]);
 	}
 }
+
+#if defined(NO_GL_DEBUG)
 
 #ifdef _DEBUG
 #define GL_DEBUG_VALUE "1"
@@ -128,11 +157,10 @@ void CALLBACK GLDebugCallback(GLenum iSource, GLenum iType, GLuint id, GLenum iS
 		TMsg(convertstring<GLchar, tchar>(sMessage).c_str());
 	}
 }
+#endif
 
 void CApplication::OpenWindow(size_t iWidth, size_t iHeight, bool bFullscreen, bool bResizeable)
 {
-	glfwInit();
-
 	m_bFullscreen = bFullscreen;
 
 	if (HasCommandLineSwitch("--fullscreen"))
@@ -144,73 +172,70 @@ void CApplication::OpenWindow(size_t iWidth, size_t iHeight, bool bFullscreen, b
 	m_iWindowWidth = iWidth;
 	m_iWindowHeight = iHeight;
 
-    glfwOpenWindowHint(GLFW_OPENGL_VERSION_MAJOR, 3);
-    glfwOpenWindowHint(GLFW_OPENGL_VERSION_MINOR, 0);
-    glfwOpenWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_FALSE);
-
-	glfwOpenWindowHint(GLFW_WINDOW_RESIZABLE, bResizeable?GL_TRUE:GL_FALSE);
-
-	if (m_bMultisampling)
-		glfwOpenWindowHint(GLFW_FSAA_SAMPLES, 4);
-
-	if (HasCommandLineSwitch("--debug-gl"))
-	{
-		glfwOpenWindowHint(GLFW_OPENGL_DEBUG_CONTEXT, GL_TRUE);
-
-		if (!glDebugMessageCallbackARB)
-			TMsg("Your drivers do not support GL_ARB_debug_output, so no GL debug output will be shown.\n");
-	}
-
-	glfwOpenWindowHint(GLFW_DEPTH_BITS, 16);
-	glfwOpenWindowHint(GLFW_RED_BITS, 8);
-	glfwOpenWindowHint(GLFW_GREEN_BITS, 8);
-	glfwOpenWindowHint(GLFW_BLUE_BITS, 8);
-	glfwOpenWindowHint(GLFW_ALPHA_BITS, 8);
-
 	TMsg(sprintf(tstring("Opening %dx%d %s %s window.\n"), iWidth, iHeight, bFullscreen?"fullscreen":"windowed", bResizeable?"resizeable":"fixed-size"));
-
-	if (!(m_pWindow = (size_t)glfwOpenWindow(iWidth, iHeight, m_bFullscreen?GLFW_FULLSCREEN:GLFW_WINDOWED, WindowTitle().c_str(), NULL)))
-	{
-		glfwTerminate();
-		return;
-	}
 
 	int iScreenWidth;
 	int iScreenHeight;
 
 	GetScreenSize(iScreenWidth, iScreenHeight);
 
-	if (!m_bFullscreen)
-	{
-		// The taskbar is at the bottom of the screen. Pretend the screen is smaller so the window doesn't clip down into it.
-		// Also the window's title bar at the top takes up space.
-		iScreenHeight -= 70;
+	int iModes = SDL_WINDOW_SHOWN | SDL_WINDOW_OPENGL | SDL_WINDOW_ALLOW_HIGHDPI;
 
-		int iWindowX = (int)(iScreenWidth/2-m_iWindowWidth/2);
-		int iWindowY = (int)(iScreenHeight/2-m_iWindowHeight/2);
-		glfwSetWindowPos((GLFWwindow)m_pWindow, iWindowX, iWindowY);
+	if (m_bFullscreen)
+		iModes |= SDL_WINDOW_FULLSCREEN;
+
+	if (bResizeable)
+		iModes |= SDL_WINDOW_RESIZABLE;
+
+	if (!(m_pWindow = SDL_CreateWindow(WindowTitle().c_str(), SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, iWidth, iHeight, iModes)))
+	{
+		SDL_Quit();
+		return;
 	}
 
-	glfwSetWindowCloseCallback(&CApplication::WindowCloseCallback);
-	glfwSetWindowSizeCallback(&CApplication::WindowResizeCallback);
-	glfwSetKeyCallback(&CApplication::KeyEventCallback);
-	glfwSetCharCallback(&CApplication::CharEventCallback);
-	glfwSetMousePosCallback(&CApplication::MouseMotionCallback);
-	glfwSetMouseButtonCallback(&CApplication::MouseInputCallback);
-	glfwSetScrollCallback(&CApplication::MouseWheelCallback);
-	glfwSwapInterval( 1 );
-	glfwSetTime( 0.0 );
+	if (!bResizeable)
+		SDL_SetWindowBordered(m_pWindow, SDL_FALSE);
+
+	SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 3);
+	SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 0);
+
+	if (m_bMultisampling)
+		SDL_GL_SetAttribute(SDL_GL_MULTISAMPLESAMPLES, 4);
+
+	SDL_GL_SetAttribute(SDL_GL_RED_SIZE, 8);
+	SDL_GL_SetAttribute(SDL_GL_GREEN_SIZE, 8);
+	SDL_GL_SetAttribute(SDL_GL_BLUE_SIZE, 8);
+	SDL_GL_SetAttribute(SDL_GL_ALPHA_SIZE, 8);
+	SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);
+	SDL_GL_SetAttribute(SDL_GL_DEPTH_SIZE, 16);
+
+#if defined(NO_GL_DEBUG)
+	if (HasCommandLineSwitch("--debug-gl"))
+	{
+		SDL_GL_SetAttribute(SDL_GL_CONTEXT_FLAGS, SDL_GL_CONTEXT_DEBUG_FLAG);
+
+		if (!glDebugMessageCallbackARB)
+			TMsg("Your drivers do not support GL_ARB_debug_output, so no GL debug output will be shown.\n");
+	}
+#endif
+
+	SDL_GLContext glcontext = SDL_GL_CreateContext(m_pWindow);
+
+	SDL_GL_SetSwapInterval(1);
+
+#if defined(__gl3w_h_)
+	GLenum err = gl3wInit();
+	if (0 != err)
+		exit(0);
+#endif
 
 	InitJoystickInput();
 
 	SetMouseCursorEnabled(true);
 
-	GLenum err = gl3wInit();
-	if (0 != err)
-		exit(0);
-
 	DumpGLInfo();
 
+#if defined(NO_GL_DEBUG)
 	if (glDebugMessageCallbackARB)
 	{
 		glDebugMessageCallbackARB(GLDebugCallback, nullptr);
@@ -218,6 +243,7 @@ void CApplication::OpenWindow(size_t iWidth, size_t iHeight, bool bFullscreen, b
 		tstring sMessage("OpenGL Debug Output Activated");
 		glDebugMessageInsertARB(GL_DEBUG_SOURCE_APPLICATION_ARB, GL_DEBUG_TYPE_OTHER_ARB, 0, GL_DEBUG_SEVERITY_LOW_ARB, sMessage.length(), sMessage.c_str());
 	}
+#endif
 
 	glEnable(GL_CULL_FACE);
 	glEnable(GL_DEPTH_TEST);
@@ -228,12 +254,14 @@ void CApplication::OpenWindow(size_t iWidth, size_t iHeight, bool bFullscreen, b
 	m_pRenderer = CreateRenderer();
 	m_pRenderer->Initialize();
 
-	glgui::RootPanel()->SetSize((float)m_iWindowWidth, (float)m_iWindowHeight);
+	glgui::RootPanel()->SetSize((float)m_pRenderer->GetDrawableWidth(), (float)m_pRenderer->GetDrawableHeight());
+	glgui::RootPanel()->Layout();
 }
 
 CApplication::~CApplication()
 {
-	glfwTerminate();
+	SDL_DestroyWindow(m_pWindow);
+	SDL_Quit();
 }
 
 #define MAKE_PARAMETER(name) \
@@ -241,14 +269,19 @@ CApplication::~CApplication()
 
 void CApplication::DumpGLInfo()
 {
+#if defined(__gl3w_h_)
 	gl3wInit();
+#endif
 
-	std::ifstream i(GetAppDataDirectory(AppDirectory(), "glinfo.txt").c_str());
+	if (!GetAppDataDirectory("glinfo.txt").length())
+		return;
+
+	std::ifstream i(GetAppDataDirectory("glinfo.txt").c_str());
 	if (i)
 		return;
 	i.close();
 
-	std::ofstream o(GetAppDataDirectory(AppDirectory(), "glinfo.txt").c_str());
+	std::ofstream o(GetAppDataDirectory("glinfo.txt").c_str());
 	if (!o || !o.is_open())
 		return;
 
@@ -289,36 +322,39 @@ void CApplication::DumpGLInfo()
 		MAKE_PARAMETER(GL_MAX_TEXTURE_IMAGE_UNITS),
 		MAKE_PARAMETER(GL_MAX_VERTEX_UNIFORM_COMPONENTS),
 		MAKE_PARAMETER(GL_MAX_FRAGMENT_UNIFORM_COMPONENTS),
-		MAKE_PARAMETER(GL_MAX_VARYING_FLOATS),
 		MAKE_PARAMETER(GL_MAX_VERTEX_TEXTURE_IMAGE_UNITS),
 		MAKE_PARAMETER(GL_MAX_COMBINED_TEXTURE_IMAGE_UNITS),
-		MAKE_PARAMETER(GL_MAX_CLIP_DISTANCES),
 		MAKE_PARAMETER(GL_MAX_ARRAY_TEXTURE_LAYERS),
 		MAKE_PARAMETER(GL_MAX_VARYING_COMPONENTS),
+		MAKE_PARAMETER(GL_MAX_VERTEX_OUTPUT_COMPONENTS),
+		MAKE_PARAMETER(GL_MAX_RENDERBUFFER_SIZE),
+		MAKE_PARAMETER(GL_MAX_COLOR_ATTACHMENTS),
+		MAKE_PARAMETER(GL_MAX_SAMPLES),
+		MAKE_PARAMETER(GL_MAX_VERTEX_UNIFORM_BLOCKS),
+		MAKE_PARAMETER(GL_MAX_FRAGMENT_UNIFORM_BLOCKS),
+		MAKE_PARAMETER(GL_MAX_COMBINED_UNIFORM_BLOCKS),
+		MAKE_PARAMETER(GL_MAX_UNIFORM_BUFFER_BINDINGS),
+		MAKE_PARAMETER(GL_MAX_UNIFORM_BLOCK_SIZE),
+		MAKE_PARAMETER(GL_MAX_COMBINED_VERTEX_UNIFORM_COMPONENTS),
+		MAKE_PARAMETER(GL_MAX_COMBINED_FRAGMENT_UNIFORM_COMPONENTS),
+
+#ifndef __ANDROID__
+		MAKE_PARAMETER(GL_MAX_VARYING_FLOATS),
+		MAKE_PARAMETER(GL_MAX_CLIP_DISTANCES),
 		MAKE_PARAMETER(GL_MAX_TEXTURE_BUFFER_SIZE),
 		MAKE_PARAMETER(GL_MAX_RECTANGLE_TEXTURE_SIZE),
 		MAKE_PARAMETER(GL_MAX_GEOMETRY_TEXTURE_IMAGE_UNITS),
 		MAKE_PARAMETER(GL_MAX_GEOMETRY_UNIFORM_COMPONENTS),
 		MAKE_PARAMETER(GL_MAX_GEOMETRY_OUTPUT_VERTICES),
 		MAKE_PARAMETER(GL_MAX_GEOMETRY_TOTAL_OUTPUT_COMPONENTS),
-		MAKE_PARAMETER(GL_MAX_VERTEX_OUTPUT_COMPONENTS),
 		MAKE_PARAMETER(GL_MAX_GEOMETRY_INPUT_COMPONENTS),
 		MAKE_PARAMETER(GL_MAX_GEOMETRY_OUTPUT_COMPONENTS),
-		MAKE_PARAMETER(GL_MAX_RENDERBUFFER_SIZE),
-		MAKE_PARAMETER(GL_MAX_COLOR_ATTACHMENTS),
-		MAKE_PARAMETER(GL_MAX_SAMPLES),
-		MAKE_PARAMETER(GL_MAX_VERTEX_UNIFORM_BLOCKS),
 		MAKE_PARAMETER(GL_MAX_GEOMETRY_UNIFORM_BLOCKS),
-		MAKE_PARAMETER(GL_MAX_FRAGMENT_UNIFORM_BLOCKS),
-		MAKE_PARAMETER(GL_MAX_COMBINED_UNIFORM_BLOCKS),
-		MAKE_PARAMETER(GL_MAX_UNIFORM_BUFFER_BINDINGS),
-		MAKE_PARAMETER(GL_MAX_UNIFORM_BLOCK_SIZE),
-		MAKE_PARAMETER(GL_MAX_COMBINED_VERTEX_UNIFORM_COMPONENTS),
 		MAKE_PARAMETER(GL_MAX_COMBINED_GEOMETRY_UNIFORM_COMPONENTS),
-		MAKE_PARAMETER(GL_MAX_COMBINED_FRAGMENT_UNIFORM_COMPONENTS),
 		MAKE_PARAMETER(GL_MAX_COLOR_TEXTURE_SAMPLES),
 		MAKE_PARAMETER(GL_MAX_DEPTH_TEXTURE_SAMPLES),
 		MAKE_PARAMETER(GL_MAX_INTEGER_SAMPLES),
+#endif
 	};
 
 	// Clear it
@@ -338,22 +374,106 @@ void CApplication::DumpGLInfo()
 	}
 }
 
-void CApplication::SwapBuffers()
+tstring CApplication::GetAppDataDirectory(const tstring& sFile)
 {
-	glfwSwapBuffers();
-	glfwPollEvents();
+	const char* pszPath = SDL_GetPrefPath("Tinker", AppDirectory().c_str());
+
+	if (!pszPath)
+	{
+#ifdef __ANDROID__
+		const char* p = SDL_AndroidGetExternalStoragePath();
+		tstring sPath = tstring(p) + "/" + sFile;
+		return sPath;
+#endif
+
+		return "";
+	}
+
+	tstring sPath = tstring(pszPath) + sFile;
+
+	SDL_free((void*)pszPath);
+
+	return sPath;
+}
+
+tinker_keys_t MapMouseKey(Uint8 c);
+
+void CApplication::PollEvents()
+{
+	SDL_Event e;
+
+	while (SDL_PollEvent(&e))
+	{
+		switch (e.type)
+		{
+		case SDL_QUIT:
+			if (WindowClose())
+				exit(0);
+			break;
+
+		case SDL_WINDOWEVENT:
+			switch (e.window.event) {
+			case SDL_WINDOWEVENT_RESIZED:
+			case SDL_WINDOWEVENT_SIZE_CHANGED:
+				WindowResize(e.window.data1, e.window.data2);
+				break;
+			}
+			break;
+
+		case SDL_KEYDOWN:
+			KeyEvent((int)e.key.keysym.scancode, e.key.state);
+			break;
+
+		case SDL_KEYUP:
+			KeyEvent((int)e.key.keysym.scancode, e.key.state);
+			break;
+
+		case SDL_TEXTINPUT:
+			// This won't support unicode very well.
+			for (size_t i = 0; i < strlen(e.text.text); i++)
+				CharEvent((int)e.text.text[i]);
+			break;
+
+		case SDL_MOUSEMOTION:
+			MouseMotion(e.motion.x, e.motion.y);
+			break;
+
+		case SDL_MOUSEBUTTONUP:
+			MouseInput(MapMouseKey(e.button.button), TINKER_MOUSE_RELEASED);
+			break;
+
+		case SDL_MOUSEBUTTONDOWN:
+			if (e.button.clicks == 2)
+				MouseInput(MapMouseKey(e.button.button), TINKER_MOUSE_DOUBLECLICK);
+			else
+				MouseInput(MapMouseKey(e.button.button), TINKER_MOUSE_PRESSED);
+			break;
+
+		case SDL_MOUSEWHEEL:
+			MouseWheel(e.wheel.x, e.wheel.y);
+			break;
+		}
+	}
 
 	ProcessJoystickInput();
 }
 
+void CApplication::SwapBuffers()
+{
+	SDL_GL_SwapWindow(m_pWindow);
+}
+
 double CApplication::GetTime()
 {
-	return glfwGetTime();
+	return (double)(SDL_GetTicks())/1000;
 }
 
 bool CApplication::IsOpen()
 {
-	return !!glfwIsWindow((GLFWwindow)m_pWindow) && m_bIsOpen;
+	if (m_pWindow)
+		return (!!(SDL_GetWindowFlags(m_pWindow)&SDL_WINDOW_SHOWN)) && m_bIsOpen;
+	else
+		return m_bIsOpen;
 }
 
 void Quit(class CCommand* pCommand, tvector<tstring>& asTokens, const tstring& sCommand)
@@ -370,11 +490,21 @@ void CApplication::Close()
 
 bool CApplication::HasFocus()
 {
-	return glfwGetWindowParam((GLFWwindow)m_pWindow, GLFW_ACTIVE) == GL_TRUE;
+	return !!(SDL_GetWindowFlags(m_pWindow)&SDL_WINDOW_MOUSE_FOCUS);
 }
 
 void CApplication::Render()
 {
+	TPROF("CApplication::Render");
+
+	if (GetRenderer())
+		GetRenderer()->RenderFrame();
+
+	if (CShaderLibrary::IsCompiled())
+	{
+		glgui::RootPanel()->Think(GetTime());
+		glgui::RootPanel()->Paint(0, 0, (float)GetRenderer()->GetDrawableWidth(), (float)GetRenderer()->GetDrawableHeight());
+	}
 }
 
 int CApplication::WindowClose()
@@ -388,9 +518,15 @@ void CApplication::WindowResize(int w, int h)
 	m_iWindowHeight = h;
 
 	if (m_pRenderer)
-		m_pRenderer->WindowResize(w, h);
+	{
+		size_t x, y;
+		GetViewportSize(x, y);
+		m_pRenderer->ViewportResize(x, y);
+		glgui::RootPanel()->SetSize((float)x, (float)y);
+	}
+	else
+		glgui::RootPanel()->SetSize((float)w, (float)h);
 
-	glgui::RootPanel()->SetSize((float)w, (float)h);
 	glgui::RootPanel()->Layout();
 
 	Render();
@@ -402,7 +538,9 @@ void CApplication::MouseMotion(int x, int y)
 {
 	glgui::CRootPanel::Get()->CursorMoved(x, y);
 
+#ifndef TINKER_NO_TOOLS
 	CManipulatorTool::MouseMoved(x, y);
+#endif
 }
 
 bool CApplication::MouseInput(int iButton, tinker_mouse_state_t iState)
@@ -442,192 +580,211 @@ bool CApplication::MouseInput(int iButton, tinker_mouse_state_t iState)
 		}
 	}
 
+#ifndef TINKER_NO_TOOLS
 	if (CManipulatorTool::MouseInput(iButton, iState, mx, my))
 		return true;
+#endif
 
 	return false;
 }
 
-tinker_keys_t MapKey(int c)
+tinker_keys_t MapScancode(SDL_Scancode c)
 {
 	switch (c)
 	{
-	case GLFW_KEY_ESC:
+	case SDL_SCANCODE_AC_BACK:
+		return TINKER_KEY_APP_BACK;
+
+	case SDL_SCANCODE_MENU:
+		return TINKER_KEY_APP_MENU;
+
+	case SDL_SCANCODE_ESCAPE:
 		return TINKER_KEY_ESCAPE;
 
-	case GLFW_KEY_F1:
+	case SDL_SCANCODE_F1:
 		return TINKER_KEY_F1;
 
-	case GLFW_KEY_F2:
+	case SDL_SCANCODE_F2:
 		return TINKER_KEY_F2;
 
-	case GLFW_KEY_F3:
+	case SDL_SCANCODE_F3:
 		return TINKER_KEY_F3;
 
-	case GLFW_KEY_F4:
+	case SDL_SCANCODE_F4:
 		return TINKER_KEY_F4;
 
-	case GLFW_KEY_F5:
+	case SDL_SCANCODE_F5:
 		return TINKER_KEY_F5;
 
-	case GLFW_KEY_F6:
+	case SDL_SCANCODE_F6:
 		return TINKER_KEY_F6;
 
-	case GLFW_KEY_F7:
+	case SDL_SCANCODE_F7:
 		return TINKER_KEY_F7;
 
-	case GLFW_KEY_F8:
+	case SDL_SCANCODE_F8:
 		return TINKER_KEY_F8;
 
-	case GLFW_KEY_F9:
+	case SDL_SCANCODE_F9:
 		return TINKER_KEY_F9;
 
-	case GLFW_KEY_F10:
+	case SDL_SCANCODE_F10:
 		return TINKER_KEY_F10;
 
-	case GLFW_KEY_F11:
+	case SDL_SCANCODE_F11:
 		return TINKER_KEY_F11;
 
-	case GLFW_KEY_F12:
+	case SDL_SCANCODE_F12:
 		return TINKER_KEY_F12;
 
-	case GLFW_KEY_UP:
+	case SDL_SCANCODE_UP:
 		return TINKER_KEY_UP;
 
-	case GLFW_KEY_DOWN:
+	case SDL_SCANCODE_DOWN:
 		return TINKER_KEY_DOWN;
 
-	case GLFW_KEY_LEFT:
+	case SDL_SCANCODE_LEFT:
 		return TINKER_KEY_LEFT;
 
-	case GLFW_KEY_RIGHT:
+	case SDL_SCANCODE_RIGHT:
 		return TINKER_KEY_RIGHT;
 
-	case GLFW_KEY_LSHIFT:
+	case SDL_SCANCODE_LSHIFT:
 		return TINKER_KEY_LSHIFT;
 
-	case GLFW_KEY_RSHIFT:
+	case SDL_SCANCODE_RSHIFT:
 		return TINKER_KEY_RSHIFT;
 
-	case GLFW_KEY_LCTRL:
+	case SDL_SCANCODE_LCTRL:
 		return TINKER_KEY_LCTRL;
 
-	case GLFW_KEY_RCTRL:
+	case SDL_SCANCODE_RCTRL:
 		return TINKER_KEY_RCTRL;
 
-	case GLFW_KEY_LALT:
+	case SDL_SCANCODE_LALT:
 		return TINKER_KEY_LALT;
 
-	case GLFW_KEY_RALT:
+	case SDL_SCANCODE_RALT:
 		return TINKER_KEY_RALT;
 
-	case GLFW_KEY_TAB:
+	case SDL_SCANCODE_TAB:
 		return TINKER_KEY_TAB;
 
-	case GLFW_KEY_ENTER:
+	case SDL_SCANCODE_RETURN:
 		return TINKER_KEY_ENTER;
 
-	case GLFW_KEY_BACKSPACE:
+	case SDL_SCANCODE_BACKSPACE:
 		return TINKER_KEY_BACKSPACE;
 
-	case GLFW_KEY_INSERT:
+	case SDL_SCANCODE_INSERT:
 		return TINKER_KEY_INSERT;
 
-	case GLFW_KEY_DEL:
+	case SDL_SCANCODE_DELETE:
 		return TINKER_KEY_DEL;
 
-	case GLFW_KEY_PAGEUP:
+	case SDL_SCANCODE_PAGEUP:
 		return TINKER_KEY_PAGEUP;
 
-	case GLFW_KEY_PAGEDOWN:
+	case SDL_SCANCODE_PAGEDOWN:
 		return TINKER_KEY_PAGEDOWN;
 
-	case GLFW_KEY_HOME:
+	case SDL_SCANCODE_HOME:
 		return TINKER_KEY_HOME;
 
-	case GLFW_KEY_END:
+	case SDL_SCANCODE_END:
 		return TINKER_KEY_END;
 
-	case GLFW_KEY_KP_0:
+	case SDL_SCANCODE_KP_0:
 		return TINKER_KEY_KP_0;
 
-	case GLFW_KEY_KP_1:
+	case SDL_SCANCODE_KP_1:
 		return TINKER_KEY_KP_1;
 
-	case GLFW_KEY_KP_2:
+	case SDL_SCANCODE_KP_2:
 		return TINKER_KEY_KP_2;
 
-	case GLFW_KEY_KP_3:
+	case SDL_SCANCODE_KP_3:
 		return TINKER_KEY_KP_3;
 
-	case GLFW_KEY_KP_4:
+	case SDL_SCANCODE_KP_4:
 		return TINKER_KEY_KP_4;
 
-	case GLFW_KEY_KP_5:
+	case SDL_SCANCODE_KP_5:
 		return TINKER_KEY_KP_5;
 
-	case GLFW_KEY_KP_6:
+	case SDL_SCANCODE_KP_6:
 		return TINKER_KEY_KP_6;
 
-	case GLFW_KEY_KP_7:
+	case SDL_SCANCODE_KP_7:
 		return TINKER_KEY_KP_7;
 
-	case GLFW_KEY_KP_8:
+	case SDL_SCANCODE_KP_8:
 		return TINKER_KEY_KP_8;
 
-	case GLFW_KEY_KP_9:
+	case SDL_SCANCODE_KP_9:
 		return TINKER_KEY_KP_9;
 
-	case GLFW_KEY_KP_DIVIDE:
+	case SDL_SCANCODE_KP_DIVIDE:
 		return TINKER_KEY_KP_DIVIDE;
 
-	case GLFW_KEY_KP_MULTIPLY:
+	case SDL_SCANCODE_KP_MULTIPLY:
 		return TINKER_KEY_KP_MULTIPLY;
 
-	case GLFW_KEY_KP_SUBTRACT:
+	case SDL_SCANCODE_KP_MINUS:
 		return TINKER_KEY_KP_SUBTRACT;
 
-	case GLFW_KEY_KP_ADD:
+	case SDL_SCANCODE_KP_PLUS:
 		return TINKER_KEY_KP_ADD;
 
-	case GLFW_KEY_KP_DECIMAL:
+	case SDL_SCANCODE_KP_PERIOD:
 		return TINKER_KEY_KP_DECIMAL;
 
-	case GLFW_KEY_KP_EQUAL:
+	case SDL_SCANCODE_KP_EQUALS:
 		return TINKER_KEY_KP_EQUAL;
 
-	case GLFW_KEY_KP_ENTER:
+	case SDL_SCANCODE_KP_ENTER:
 		return TINKER_KEY_KP_ENTER;
+
+	default:
+		break;
 	}
 
-	if (c < 256)
-		return (tinker_keys_t)TranslateKeyToQwerty(c);
+	if (c >= SDL_SCANCODE_A && c <= SDL_SCANCODE_Z)
+		return (tinker_keys_t)('A' + c - SDL_SCANCODE_A);
 
-	return TINKER_KEY_UKNOWN;
+	if (c >= SDL_SCANCODE_1 && c <= SDL_SCANCODE_9)
+		return (tinker_keys_t)('1' + c - SDL_SCANCODE_1);
+
+	if (c == SDL_SCANCODE_0)
+		return (tinker_keys_t)'0';
+
+	return TINKER_KEY_UNKNOWN;
 }
 
-tinker_keys_t MapMouseKey(int c)
+tinker_keys_t MapMouseKey(Uint8 c)
 {
 	switch (c)
 	{
-	case GLFW_MOUSE_BUTTON_LEFT:
+	case SDL_BUTTON_LEFT:
 		return TINKER_KEY_MOUSE_LEFT;
 
-	case GLFW_MOUSE_BUTTON_RIGHT:
+	case SDL_BUTTON_RIGHT:
 		return TINKER_KEY_MOUSE_RIGHT;
 
-	case GLFW_MOUSE_BUTTON_MIDDLE:
+	case SDL_BUTTON_MIDDLE:
 		return TINKER_KEY_MOUSE_MIDDLE;
 	}
 
-	return TINKER_KEY_UKNOWN;
+	return TINKER_KEY_UNKNOWN;
 }
 
 tinker_keys_t MapJoystickKey(int c)
 {
 	switch (c)
 	{
-	case GLFW_JOYSTICK_1:
+	case 0:
+	default:;
+	/*case GLFW_JOYSTICK_1:
 		return TINKER_KEY_JOYSTICK_1;
 
 	case GLFW_JOYSTICK_2:
@@ -655,15 +812,10 @@ tinker_keys_t MapJoystickKey(int c)
 		return TINKER_KEY_JOYSTICK_9;
 
 	case GLFW_JOYSTICK_10:
-		return TINKER_KEY_JOYSTICK_10;
+		return TINKER_KEY_JOYSTICK_10;*/
 	}
 
-	return TINKER_KEY_UKNOWN;
-}
-
-void CApplication::MouseInputCallback(void*, int iButton, int iState)
-{
-	Get()->MouseInputCallback(MapMouseKey(iButton), (tinker_mouse_state_t)iState);
+	return TINKER_KEY_UNKNOWN;
 }
 
 void CApplication::MouseInputCallback(int iButton, tinker_mouse_state_t iState)
@@ -680,17 +832,12 @@ void CApplication::MouseInputCallback(int iButton, tinker_mouse_state_t iState)
 		MouseInput(iButton, iState);
 }
 
-void CApplication::MouseWheelCallback(void*, int x, int y)
-{
-	Get()->MouseWheel(x, y);
-}
-
 void CApplication::KeyEvent(int c, int e)
 {
-	if (e == GLFW_PRESS)
-		KeyPress(MapKey(c));
+	if (e == SDL_PRESSED)
+		KeyPress(MapScancode((SDL_Scancode)c));
 	else
-		KeyRelease(MapKey(c));
+		KeyRelease(MapScancode((SDL_Scancode)c));
 }
 
 void CApplication::CharEvent(int c)
@@ -709,6 +856,19 @@ void CApplication::CharEvent(int c)
 
 bool CApplication::KeyPress(int c)
 {
+#ifdef __ANDROID__
+	if (c == TINKER_KEY_APP_BACK)
+	{
+		if (GetConsole()->IsOpen())
+			ToggleConsole();
+		else
+			Close();
+	}
+
+	if (c == TINKER_KEY_APP_MENU)
+		ToggleConsole();
+#endif
+
 	if (glgui::CRootPanel::Get()->KeyPressed(c, IsCtrlDown()))
 		return true;
 
@@ -725,37 +885,37 @@ void CApplication::KeyRelease(int c)
 
 bool CApplication::IsCtrlDown()
 {
-	return glfwGetKey((GLFWwindow)m_pWindow, GLFW_KEY_LCTRL) || glfwGetKey((GLFWwindow)m_pWindow, GLFW_KEY_RCTRL);
+	return !!(SDL_GetModState()&(KMOD_LCTRL | KMOD_RCTRL));
 }
 
 bool CApplication::IsAltDown()
 {
-	return glfwGetKey((GLFWwindow)m_pWindow, GLFW_KEY_LALT) || glfwGetKey((GLFWwindow)m_pWindow, GLFW_KEY_RALT);
+	return !!(SDL_GetModState()&(KMOD_LALT | KMOD_RALT));
 }
 
 bool CApplication::IsShiftDown()
 {
-	return glfwGetKey((GLFWwindow)m_pWindow, GLFW_KEY_LSHIFT) || glfwGetKey((GLFWwindow)m_pWindow, GLFW_KEY_RSHIFT);
+	return !!(SDL_GetModState()&(KMOD_LSHIFT | KMOD_RSHIFT));
 }
 
 bool CApplication::IsMouseLeftDown()
 {
-	return glfwGetMouseButton((GLFWwindow)m_pWindow, GLFW_MOUSE_BUTTON_LEFT) == GLFW_PRESS;
+	return !!(SDL_BUTTON(SDL_BUTTON_LEFT)&SDL_GetMouseState(NULL, NULL));
 }
 
 bool CApplication::IsMouseRightDown()
 {
-	return glfwGetMouseButton((GLFWwindow)m_pWindow, GLFW_MOUSE_BUTTON_RIGHT) == GLFW_PRESS;
+	return !!(SDL_BUTTON(SDL_BUTTON_RIGHT)&SDL_GetMouseState(NULL, NULL));
 }
 
 bool CApplication::IsMouseMiddleDown()
 {
-	return glfwGetMouseButton((GLFWwindow)m_pWindow, GLFW_MOUSE_BUTTON_MIDDLE) == GLFW_PRESS;
+	return !!(SDL_BUTTON(SDL_BUTTON_MIDDLE)&SDL_GetMouseState(NULL, NULL));
 }
 
 void CApplication::GetMousePosition(int& x, int& y)
 {
-	glfwGetMousePos((GLFWwindow)m_pWindow, &x, &y);
+	SDL_GetMouseState(&x, &y);
 }
 
 class CJoystick
@@ -778,7 +938,8 @@ static const size_t MAX_JOYSTICKS = 16; // This is how many GLFW supports.
 
 void CApplication::InitJoystickInput()
 {
-	g_aJoysticks.resize(MAX_JOYSTICKS);
+	return;
+	/*g_aJoysticks.resize(MAX_JOYSTICKS);
 
 	for (size_t i = 0; i < MAX_JOYSTICKS; i++)
 	{
@@ -795,12 +956,14 @@ void CApplication::InitJoystickInput()
 
 			TAssert(g_aJoysticks[i].m_iButtons < sizeof(g_aJoysticks[i].m_aiButtonStates)*8);
 		}
-	}
+	}*/
 }
 
 void CApplication::ProcessJoystickInput()
 {
-	if (g_aJoysticks.size() != MAX_JOYSTICKS)
+	return;
+
+	/*if (g_aJoysticks.size() != MAX_JOYSTICKS)
 		return;
 
 	for (size_t i = 0; i < MAX_JOYSTICKS; i++)
@@ -839,15 +1002,12 @@ void CApplication::ProcessJoystickInput()
 			else
 				oJoystick.m_aiButtonStates &= ~iButtonMask;
 		}
-	}
+	}*/
 }
 
 void CApplication::SetMouseCursorEnabled(bool bEnabled)
 {
-	if (bEnabled)
-		glfwSetCursorMode( (GLFWwindow)m_pWindow, GLFW_CURSOR_NORMAL );
-	else
-		glfwSetCursorMode( (GLFWwindow)m_pWindow, GLFW_CURSOR_CAPTURED );
+	SDL_ShowCursor(bEnabled);
 
 	m_bMouseEnabled = bEnabled;
 }
@@ -855,6 +1015,30 @@ void CApplication::SetMouseCursorEnabled(bool bEnabled)
 bool CApplication::IsMouseCursorEnabled()
 {
 	return m_bMouseEnabled;
+}
+
+void CApplication::ActivateKeyboard(const FRect& rInputArea)
+{
+	SDL_Rect r;
+	r.x = (int)rInputArea.x;
+	r.y = (int)rInputArea.y;
+	r.w = (int)rInputArea.w;
+	r.h = (int)rInputArea.h;
+	SDL_SetTextInputRect(&r);
+	SDL_StartTextInput();
+}
+
+void CApplication::DeactivateKeyboard()
+{
+	SDL_StopTextInput();
+}
+
+void CApplication::GetViewportSize(size_t& w, size_t& h)
+{
+	int x, y;
+	SDL_GL_GetDrawableSize(m_pWindow, &x, &y);
+	w = x;
+	h = y;
 }
 
 void CApplication::PrintConsole(const tstring& sText)
@@ -867,4 +1051,30 @@ void CApplication::PrintError(const tstring& sText)
 	tstring sTrimmedText = trim(sText);
 
 	GetConsole()->PrintConsole(tstring("[color=FF0000]ERROR: ") + sTrimmedText + "[/color]" + (sText.endswith("\n")?"\n":""));
+}
+
+bool CApplication::PlatformHasMenuKey()
+{
+#ifdef __ANDROID__
+	return true;
+#else
+	return false;
+#endif
+}
+
+void CApplication::GetScreenSize(int& w, int& h)
+{
+	TAssert(SDL_GetNumVideoDisplays() > 0);
+
+	if (SDL_GetNumVideoDisplays() == 0)
+	{
+		w = h = 0;
+		return;
+	}
+
+	SDL_DisplayMode current;
+	SDL_GetCurrentDisplayMode(0, &current);
+
+	w = current.w;
+	h = current.h;
 }

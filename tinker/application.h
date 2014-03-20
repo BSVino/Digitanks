@@ -22,7 +22,7 @@ LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON A
 #include <common.h>
 #include <vector.h>
 #include <color.h>
-#include <configfile.h>
+#include <geometry.h>
 
 #include "shell.h"
 #include "keys.h"
@@ -43,6 +43,9 @@ public:
 	virtual tstring				WindowTitle() { return "Tinker"; }
 	virtual tstring				AppDirectory() { return "Tinker"; }
 
+	tstring                     GetAppDataDirectory(const tstring& sFile = "");
+
+	void                        PollEvents();
 	void						SwapBuffers();
 	double						GetTime();
 
@@ -54,28 +57,15 @@ public:
 	static void					RenderCallback() { Get()->Render(); };
 	virtual void				Render();
 
-	static int					WindowCloseCallback(void*) { return Get()->WindowClose(); };
 	virtual int					WindowClose();
-
-	static void					WindowResizeCallback(void*, int x, int y) { Get()->WindowResize(x, y); };
 	virtual void				WindowResize(int x, int y);
-
-	static void					MouseMotionCallback(void*, int x, int y) { Get()->MouseMotion(x, y); };
 	virtual void				MouseMotion(int x, int y);
-
-	static void					MouseInputCallback(void*, int iButton, int iState);
 	void						MouseInputCallback(int iButton, tinker_mouse_state_t iState);
 	virtual bool				MouseInput(int iButton, tinker_mouse_state_t iState);
-
-	static void					MouseWheelCallback(void*, int x, int y);
 	virtual void				MouseWheel(int x, int y) {};
-
-	static void					KeyEventCallback(void*, int c, int e) { Get()->KeyEvent(c, e); };
 	void						KeyEvent(int c, int e);
 	virtual bool				KeyPress(int c);
 	virtual void				KeyRelease(int c);
-
-	static void					CharEventCallback(void*, int c) { Get()->CharEvent(c); };
 	void						CharEvent(int c);
 
 	virtual bool				DoKeyPress(int c) { return false; };
@@ -102,8 +92,14 @@ public:
 	void						SetMouseCursorEnabled(bool bEnabled);
 	bool						IsMouseCursorEnabled();
 
+	void                        ActivateKeyboard(const FRect& rInputArea);
+	void                        DeactivateKeyboard();
+
 	int							GetWindowWidth() { return (int)m_iWindowWidth; };
 	int							GetWindowHeight() { return (int)m_iWindowHeight; };
+	float                       GetGUIScale() const { return m_flGUIScale; }
+
+	void                        GetViewportSize(size_t& w, size_t& h);
 
 	bool						IsFullscreen() { return m_bFullscreen; };
 
@@ -111,6 +107,8 @@ public:
 
 	virtual class CRenderer*	CreateRenderer()=0;
 	class CRenderer*			GetRenderer() { return m_pRenderer; }
+
+	static bool                 PlatformHasMenuKey();
 
 	static void					OpenConsole();
 	static void					CloseConsole();
@@ -120,20 +118,19 @@ public:
 	virtual void				PrintError(const tstring& sText);
 	class CConsole*				GetConsole();
 
+	static void                 GetScreenSize(int& w, int& h);
+
 	static CApplication*		Get() { return s_pApplication; };
 
 protected:
-	size_t						m_pWindow;
+	struct SDL_Window*          m_pWindow;
 	size_t						m_iWindowWidth;
 	size_t						m_iWindowHeight;
 	bool						m_bFullscreen;
 	bool						m_bIsOpen;
+	float                       m_flGUIScale;
 
 	bool						m_bMultisampling;
-
-	ConfigFile					m_oRegFile;
-	tstring						m_sCode;
-	tstring						m_sKey;
 
 	bool						m_bMouseEnabled;
 	bool						m_bMouseDownInGUI;

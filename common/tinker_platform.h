@@ -22,7 +22,6 @@ LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON A
 #include <tvector.h>
 
 void GetMACAddresses(unsigned char*& paiAddresses, size_t& iAddresses);
-void GetScreenSize(int& iWidth, int& iHeight);
 size_t GetNumberOfProcessors();
 void SleepMS(size_t iMS);
 void OpenBrowser(const tstring& sURL);
@@ -31,7 +30,6 @@ void Alert(const tstring& sMessage);
 void CreateMinidump(void* pInfo, tchar* pszDirectory);
 tstring GetClipboard();
 void SetClipboard(const tstring& sBuf);
-tstring GetAppDataDirectory(const tstring& sDirectory, const tstring& sFile = "");
 tvector<tstring> ListDirectory(const tstring& sDirectory, bool bDirectories = true);
 bool IsFile(const tstring& sPath);
 bool IsDirectory(const tstring& sPath);
@@ -43,11 +41,19 @@ void DebugPrint(const char* pszText);
 void Exec(const tstring& sLine);
 int TranslateKeyToQwerty(int iKey);
 int TranslateKeyFromQwerty(int iKey);
+void GetScreenDPI(float& xdpi, float& ydpi); // The number of physical pixels per inch.
+void EnableMulticast();
 
 #ifdef _WIN32
 #define DIR_SEP "\\"
 #else
 #define DIR_SEP "/"
+#endif
+
+#ifdef __ANDROID__
+#define T_ASSETS_PREFIX "$ASSETS/"
+#else
+#define T_ASSETS_PREFIX ""
 #endif
 
 #endif

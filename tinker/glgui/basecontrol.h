@@ -83,6 +83,12 @@ namespace glgui
 		virtual void	CenterX();
 		virtual void	CenterY();
 
+		virtual void    SetDimensionsAnimate(const FRect& rDims, double flAnimTime);
+		virtual bool    IsAnimatingDimensions() const;
+		virtual float   GetAnimationLerp() const;
+		virtual FRect   GetAnimateFrom() const { return m_rAnimateFrom; }
+		virtual void    GetPaintPos(float &x, float &y) const;
+
 		virtual float	GetDefaultMargin() { return 0; }
 		virtual float	Layout_GetMargin(float flMargin);
 		virtual void	Layout_FullWidth(float flMargin=g_flLayoutDefault);
@@ -91,6 +97,7 @@ namespace glgui
 		virtual void    Layout_AlignRight(float flMargin=g_flLayoutDefault);
 		virtual void	Layout_Column(int iTotalColumns, int iColumn, float flMargin=g_flLayoutDefault);						// Take up all horizontal space, save for the margins
 		virtual void	Layout_ColumnFixed(int iTotalColumns, int iColumn, float flWidth, float flMargin=g_flLayoutDefault);	// Use a fixed width for each column and center columns
+		virtual void    Layout_CenterHorizontal();
 
 		virtual void	SetVisible(bool bVis);
 		virtual bool	IsVisible();
@@ -106,7 +113,7 @@ namespace glgui
 		virtual bool	MouseReleased(int iButton, int mx, int my) { return false; };
 		virtual bool	MouseDoubleClicked(int iButton, int mx, int my) { return false; };
 		virtual bool	IsCursorListener();
-		virtual void	CursorMoved(int x, int y) {};
+		virtual void	CursorMoved(int x, int y, int dx, int dy) {};
 		virtual void	CursorIn();
 		virtual void	CursorOut();
 
@@ -137,7 +144,7 @@ namespace glgui
 
 		static tmap<CBaseControl*, CControlResource>& GetControls();
 
-		static void		PaintRect(float x, float y, float w, float h, const Color& c = g_clrBox, int iBorder = 0, bool bHighlight = false);
+		static void		PaintRect(float x, float y, float w, float h, const Color& c = g_clrBox, float flBorder = 0, bool bHighlight = false);
 		static void		PaintTexture(const CMaterialHandle& hTexture, float x, float y, float w, float h, const Color& c = Color(255, 255, 255, 255));
 		static void		PaintSheet(const CMaterialHandle& hTexture, float x, float y, float w, float h, int sx, int sy, int sw, int sh, int tw, int th, const Color& c = Color(255, 255, 255, 255));
 		static void		MakeQuad();
@@ -149,6 +156,10 @@ namespace glgui
 		float			m_flY;
 		float			m_flW;
 		float			m_flH;
+
+		FRect           m_rAnimateFrom;
+		double          m_flAnimationTime;
+		double          m_flAnimationStart;
 
 		int				m_iAlpha;
 

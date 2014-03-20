@@ -21,7 +21,7 @@ LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON A
 #include <common.h>
 #include <vector.h>
 #include <color.h>
-#include <configfile.h>
+#include <tstring.h>
 
 class CShell
 {

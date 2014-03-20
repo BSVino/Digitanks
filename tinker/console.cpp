@@ -184,7 +184,7 @@ bool CConsole::KeyPressed(int code, bool bCtrlDown)
 		{
 			if (m_iHistory == -1)
 				m_iHistory = m_asHistory.size()-1;
-			else if (m_iHistory > 1)
+			else if (m_iHistory > 0)
 				m_iHistory--;
 
 			m_hInput->SetText(m_asHistory[m_iHistory]);

@@ -21,23 +21,37 @@ LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON A
 
 #include "data.h"
 
-void CDataSerializer::Read(std::basic_istream<tchar>& sStream, CData* pData)
+void CDataSerializer::Read(FILE* fp, CData* pData)
 {
-	if (!sStream.good())
+	if (!fp)
 		return;
 
 	if (!pData)
 		return;
 
-	tchar szLine[1024];
-	tstring sLine;
-
 	CData* pCurrentData = pData;
 	CData* pLastData = NULL;
 
-	while (sStream.getline(szLine, 1024))
+	fseek(fp, 0, SEEK_END);
+	int iSize = ftell(fp);
+	rewind(fp);
+
+	tstring sFile;
+
+	sFile.resize(iSize);
+
+	int iRead = fread((void*)sFile.data(), 1, iSize, fp);
+	TAssertNoMsg(iRead == iSize);
+
+	// Just in case.
+	sFile.append("\0");
+
+	tvector<tstring> asTokens;
+	tstrtok(sFile, asTokens, "\r\n");
+
+	for (size_t i = 0; i < asTokens.size(); i++)
 	{
-		sLine = tstring(szLine);
+		tstring sLine = asTokens[i];
 
 		size_t iComment = sLine.find("//");
 		if (iComment != tstring::npos)
@@ -66,11 +80,11 @@ void CDataSerializer::Read(std::basic_istream<tchar>& sStream, CData* pData)
 		if (asTokens.size() == 1)
 			pLastData = pCurrentData->AddChild(trim(sLine));
 		else if (asTokens.size() >= 2)
-			pLastData = pCurrentData->AddChild(trim(asTokens[0]), trim(sLine.substr(sLine.find(':')+1)));
+			pLastData = pCurrentData->AddChild(trim(asTokens[0]), trim(sLine.substr(sLine.find(':') + 1)));
 	}
 }
 
-static void SaveData(std::basic_ostream<tchar>& sStream, CData* pData, size_t iLevel)
+static void SaveData(FILE* fp, CData* pData, size_t iLevel)
 {
 	tstring sTabs;
 	for (size_t i = 0; i < iLevel; i++)
@@ -81,26 +95,26 @@ static void SaveData(std::basic_ostream<tchar>& sStream, CData* pData, size_t iL
 		CData* pChild = pData->GetChild(i);
 
 		if (pChild->GetValueString().length())
-			sStream << (sTabs + pChild->GetKey() + ": " + pChild->GetValueString() + "\n").c_str();
+			fputs((sTabs + pChild->GetKey() + ": " + pChild->GetValueString() + "\n").c_str(), fp);
 		else
-			sStream << (sTabs + pChild->GetKey() + "\n").c_str();
+			fputs((sTabs + pChild->GetKey() + "\n").c_str(), fp);
 
 		if (pChild->GetNumChildren())
 		{
-			sStream << (sTabs + "{\n").c_str();
-			SaveData(sStream, pChild, iLevel+1);
-			sStream << (sTabs + "}\n").c_str();
+			fputs((sTabs + "{\n").c_str(), fp);
+			SaveData(fp, pChild, iLevel + 1);
+			fputs((sTabs + "}\n").c_str(), fp);
 		}
 	}
 }
 
-void CDataSerializer::Save(std::basic_ostream<tchar>& sStream, CData* pData)
+void CDataSerializer::Save(FILE* fp, CData* pData)
 {
-	if (!sStream)
+	if (!fp)
 		return;
 
 	if (!pData)
 		return;
 
-	SaveData(sStream, pData, 0);
+	SaveData(fp, pData, 0);
 }

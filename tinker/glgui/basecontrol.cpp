@@ -75,6 +75,7 @@ CBaseControl::CBaseControl(float x, float y, float w, float h)
 	m_bFocus = false;
 
 	m_flMouseInTime = 0;
+	m_flAnimationTime = -1;
 }
 
 CBaseControl::CBaseControl(const FRect& Rect)
@@ -203,6 +204,73 @@ void CBaseControl::CenterY()
 	SetTop(GetParent()->GetHeight()/2-GetHeight()/2);
 }
 
+void CBaseControl::SetDimensionsAnimate(const FRect& rDims, double flAnimationTime)
+{
+	m_rAnimateFrom = GetAbsDimensions();
+
+	m_flX = rDims.x;
+	m_flY = rDims.y;
+	m_flW = rDims.w;
+	m_flH = rDims.h;
+
+	m_flAnimationTime = flAnimationTime;
+	m_flAnimationStart = RootPanel()->GetTime();
+}
+
+bool CBaseControl::IsAnimatingDimensions() const
+{
+	if (m_flAnimationTime < 0)
+		return false;
+
+	if (RootPanel()->GetTime() > m_flAnimationStart + m_flAnimationTime)
+		return false;
+
+	return RootPanel()->GetTime() > m_flAnimationStart;
+}
+
+float CBaseControl::GetAnimationLerp() const
+{
+	if (!IsAnimatingDimensions())
+		return 0;
+
+	double flTime = RootPanel()->GetTime();
+	double flAnimationStart = m_flAnimationStart;
+	double flAnimationEnd = m_flAnimationStart + m_flAnimationTime;
+
+	return Bias((float)RemapVal(flTime, flAnimationStart, flAnimationEnd, 0.0, 1.0), 0.8f);
+}
+
+void CBaseControl::GetPaintPos(float &x, float &y) const
+{
+	float px = 0;
+	float py = 0;
+
+	CPanel *pPanel = GetParent().Downcast<CPanel>();
+	if (pPanel)
+	{
+		pPanel->GetPaintPos(px, py);
+
+		if (pPanel->ShouldControlOffset(this))
+		{
+			px += pPanel->GetControlOffset().x;
+			py += pPanel->GetControlOffset().y;
+		}
+	}
+
+	if (IsAnimatingDimensions())
+	{
+		float flLerp = GetAnimationLerp();
+
+		x = LerpValue(GetAnimateFrom().x, m_flX + px, flLerp);
+		y = LerpValue(GetAnimateFrom().y, m_flY + py, flLerp);
+	}
+	else
+	{
+		x = m_flX + px;
+		y = m_flY + py;
+	}
+}
+
 float CBaseControl::Layout_GetMargin(float flMargin)
 {
 	if (flMargin == g_flLayoutDefault)
@@ -291,6 +359,14 @@ void CBaseControl::Layout_ColumnFixed(int iTotalColumns, int iColumn, float flWi
 	SetWidth(flWidth);
 }
 
+void CBaseControl::Layout_CenterHorizontal()
+{
+	if (!GetParent())
+		return;
+
+	SetLeft(GetParent()->GetWidth() / 2 - GetWidth() / 2);
+}
+
 void CBaseControl::SetVisible(bool bVis)
 {
 	bool bWasVisible = m_bVisible;
@@ -355,12 +431,31 @@ void CBaseControl::Paint()
 {
 	float x = 0, y = 0;
 	GetAbsPos(x, y);
+
+	if (IsAnimatingDimensions())
+	{
+		float flLerp = GetAnimationLerp();
+
+		x = LerpValue(m_rAnimateFrom.x, x, flLerp);
+		y = LerpValue(m_rAnimateFrom.y, y, flLerp);
+	}
+
 	Paint(x, y);
 }
 
 void CBaseControl::Paint(float x, float y)
 {
-	Paint(x, y, m_flW, m_flH);
+	if (IsAnimatingDimensions())
+	{
+		float flLerp = GetAnimationLerp();
+
+		float w = LerpValue(m_rAnimateFrom.w, m_flW, flLerp);
+		float h = LerpValue(m_rAnimateFrom.h, m_flH, flLerp);
+
+		Paint(x, y, w, h);
+	}
+	else
+		Paint(x, y, m_flW, m_flH);
 }
 
 void CBaseControl::Paint(float x, float y, float w, float h)
@@ -389,17 +484,17 @@ void CBaseControl::PaintBackground(float x, float y, float w, float h)
 	if (m_eBorder == BT_NONE && m_clrBackground.a() == 0)
 		return;
 
-	PaintRect(x, y, w, h, m_clrBackground, (m_eBorder == BT_SOME)?5:0, true);
+	PaintRect(x, y, w, h, m_clrBackground, (m_eBorder == BT_SOME)?2.0f:0.0f, true);
 }
 
-void CBaseControl::PaintRect(float x, float y, float w, float h, const Color& c, int iBorder, bool bHighlight)
+void CBaseControl::PaintRect(float x, float y, float w, float h, const Color& c, float flBorder, bool bHighlight)
 {
 	MakeQuad();
 
 	::CRenderingContext r(nullptr, true);
 
 	r.SetBlend(BLEND_ALPHA);
-	r.SetUniform("iBorder", iBorder);
+	r.SetUniform("flBorder", flBorder);
 	r.SetUniform("bHighlight", bHighlight);
 	r.SetUniform("vecColor", c);
 	r.SetUniform("bDiffuse", false);
@@ -408,9 +503,8 @@ void CBaseControl::PaintRect(float x, float y, float w, float h, const Color& c,
 	r.SetUniform("vecDimensions", Vector4D(x, y, w, h));
 
 	r.BeginRenderVertexArray(s_iQuad);
-	r.SetPositionBuffer((size_t)0u, 24);
-	r.SetTexCoordBuffer(12, 24);
-	r.SetCustomIntBuffer("iVertex", 1, 20, 24);
+	r.SetPositionBuffer((size_t)0u, 20);
+	r.SetTexCoordBuffer(12, 20);
 	r.EndRenderVertexArray(6);
 }
 
@@ -426,7 +520,7 @@ void CBaseControl::PaintTexture(const CMaterialHandle& hMaterial, float x, float
 	r.UseMaterial(hMaterial);
 
 	r.SetBlend(BLEND_ALPHA);
-	r.SetUniform("iBorder", 0);
+	r.SetUniform("flBorder", 0.0f);
 	r.SetUniform("bHighlight", false);
 	r.SetUniform("vecColor", c);
 	r.SetUniform("bDiffuse", true);
@@ -435,9 +529,8 @@ void CBaseControl::PaintTexture(const CMaterialHandle& hMaterial, float x, float
 	r.SetUniform("vecDimensions", Vector4D(x, y, w, h));
 
 	r.BeginRenderVertexArray(s_iQuad);
-	r.SetPositionBuffer((size_t)0u, 24);
-	r.SetTexCoordBuffer(12, 24);
-	r.SetCustomIntBuffer("iVertex", 1, 20, 24);
+	r.SetPositionBuffer((size_t)0u, 20);
+	r.SetTexCoordBuffer(12, 20);
 	r.EndRenderVertexArray(6);
 
 	r.SetBackCulling(true);
@@ -455,19 +548,19 @@ void CBaseControl::PaintSheet(const CMaterialHandle& hMaterial, float x, float y
 	r.UseMaterial(hMaterial);
 
 	r.SetBlend(BLEND_ALPHA);
-	r.SetUniform("iBorder", 0);
+	r.SetUniform("flBorder", 0.0f);
 	r.SetUniform("bHighlight", false);
 	r.SetUniform("vecColor", c);
 	r.SetUniform("bDiffuse", true);
 	r.SetUniform("bTexCoords", true);
+	r.SetUniform("bScissor", false);
 
 	r.SetUniform("vecDimensions", Vector4D(x, y, w, h));
 	r.SetUniform("vecTexCoords", Vector4D((float)sx/(float)tw, (float)sy/(float)th, (float)sw/(float)tw, (float)sh/(float)th));
 
 	r.BeginRenderVertexArray(s_iQuad);
-	r.SetPositionBuffer((size_t)0u, 24);
-	r.SetTexCoordBuffer(12, 24);
-	r.SetCustomIntBuffer("iVertex", 1, 20, 24);
+	r.SetPositionBuffer((size_t)0u, 20);
+	r.SetTexCoordBuffer(12, 20);
 	r.EndRenderVertexArray(6);
 
 	r.SetBackCulling(true);
@@ -481,15 +574,14 @@ void CBaseControl::MakeQuad()
 	struct {
 		Vector vecPosition;
 		Vector2D vecTexCoord;
-		int iIndex;
 	} avecData[] =
 	{
-		{ Vector(0, 0, 0),		Vector2D(0, 0),		0 },
-		{ Vector(0, 1, 0),		Vector2D(0, 1),		1 },
-		{ Vector(1, 1, 0),		Vector2D(1, 1),		2 },
-		{ Vector(0, 0, 0),		Vector2D(0, 0),		0 },
-		{ Vector(1, 1, 0),		Vector2D(1, 1),		2 },
-		{ Vector(1, 0, 0),		Vector2D(1, 0),		3 },
+		{ Vector(0, 0, 0), Vector2D(0, 0) },
+		{ Vector(0, 1, 0), Vector2D(0, 1) },
+		{ Vector(1, 1, 0), Vector2D(1, 1) },
+		{ Vector(0, 0, 0), Vector2D(0, 0) },
+		{ Vector(1, 1, 0), Vector2D(1, 1) },
+		{ Vector(1, 0, 0), Vector2D(1, 0) },
 	};
 
 	s_iQuad = CRenderer::LoadVertexDataIntoGL(sizeof(avecData), (float*)&avecData[0]);

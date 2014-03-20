@@ -89,6 +89,8 @@ protected:
 	static CPerfBlock*			s_pTopBlock;
 
 	static bool					s_bProfiling;
+
+	static double               s_flProfilerTime;
 };
 
 #endif

@@ -27,8 +27,8 @@ LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON A
 class CDataSerializer
 {
 public:
-	static void			Read(std::basic_istream<tchar>& sStream, class CData* pData);
-	static void			Save(std::basic_ostream<tchar>& sStream, class CData* pData);
+	static void			Read(FILE* fp, class CData* pData);
+	static void			Save(FILE* fp, class CData* pData);
 };
 
 #endif

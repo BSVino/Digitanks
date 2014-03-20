@@ -21,7 +21,12 @@ LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON A
 #include <glgui/button.h>
 #include <glgui/selector.h>
 
+#ifdef __ANDROID__
+// Nice fat finger friendly header size.
+#define HEADER_HEIGHT 32
+#else
 #define HEADER_HEIGHT 16
+#endif
 
 namespace glgui
 {
@@ -55,6 +60,7 @@ namespace glgui
 
 	public:
 		virtual void			Layout();
+		virtual void			MoveToCenter();
 
 		virtual void			Think();
 

@@ -198,21 +198,13 @@ void CManipulatorTool::Render(CRenderer* pRenderer)
 	if (!s_pManipulatorTool->IsActive())
 		return;
 
-	const double* pflModelView = pRenderer->GetModelView();
-	const double* pflProjection = pRenderer->GetProjection();
+	Matrix4x4 mModelView = pRenderer->GetModelView();
+	Matrix4x4 mProjection = pRenderer->GetProjection();
 	const int* piViewport = pRenderer->GetViewport();
 
-	float aflModelView[16];
-	float aflProjection[16];
-	for (size_t i = 0; i < 16; i++)
-	{
-		aflModelView[i] = (float)pflModelView[i];
-		aflProjection[i] = (float)pflProjection[i];
-	}
-
-	s_pManipulatorTool->m_pTranslateGizmo->SetCameraMatrix(aflModelView, aflProjection);
-	s_pManipulatorTool->m_pRotateGizmo->SetCameraMatrix(aflModelView, aflProjection);
-	s_pManipulatorTool->m_pScaleGizmo->SetCameraMatrix(aflModelView, aflProjection);
+	s_pManipulatorTool->m_pTranslateGizmo->SetCameraMatrix(mModelView, mProjection);
+	s_pManipulatorTool->m_pRotateGizmo->SetCameraMatrix(mModelView, mProjection);
+	s_pManipulatorTool->m_pScaleGizmo->SetCameraMatrix(mModelView, mProjection);
 
 	s_pManipulatorTool->m_pTranslateGizmo->SetScreenDimension(piViewport[2], piViewport[3]);
 	s_pManipulatorTool->m_pRotateGizmo->SetScreenDimension(piViewport[2], piViewport[3]);

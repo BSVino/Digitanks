@@ -17,6 +17,9 @@ LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON A
 
 #include "materiallibrary.h"
 
+#include <memory>
+#include <fstream>
+
 #include <files.h>
 
 #include <tinker/shell.h>
@@ -61,13 +64,13 @@ CMaterial* CMaterialLibrary::AddAsset(const tstring& sMaterial, int iClamp)
 	if (!sMaterial.endswith(".mat"))
 		return nullptr;
 
-	std::basic_ifstream<tchar> f(sMaterial.c_str());
+	FILE* fp = tfopen_asset(sMaterial, "r");
 
-	if (!f.is_open())
+	if (!fp)
 		return nullptr;
 
 	std::shared_ptr<CData> pData(new CData());
-	CDataSerializer::Read(f, pData.get());
+	CDataSerializer::Read(fp, pData.get());
 
 	return CreateMaterial(pData.get(), sMaterial);
 }
@@ -232,14 +235,14 @@ void CMaterial::Save() const
 
 void CMaterial::Reload()
 {
-	std::basic_ifstream<tchar> f(m_sFile.c_str());
+	FILE* fp = tfopen_asset(m_sFile, "r");
 
-	TAssert(f.is_open());
-	if (!f.is_open())
+	TAssert(fp);
+	if (!fp)
 		return;
 
 	std::shared_ptr<CData> pData(new CData());
-	CDataSerializer::Read(f, pData.get());
+	CDataSerializer::Read(fp, pData.get());
 
 	CMaterialLibrary::CreateMaterial(pData.get(), m_sFile);
 }

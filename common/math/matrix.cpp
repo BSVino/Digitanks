@@ -576,7 +576,7 @@ EAngle Matrix4x4::GetAngles() const
 		return EAngle(asin(Clamp(m[0][2], -1.0f, 1.0f)) * 180/M_PI, -atan2(m[1][0], m[1][1]) * 180/M_PI, 0);
 
 	// Clamp to [-1, 1] looping
-	float flPitch = fmod(m[0][2], 2);
+	float flPitch = fmod(m[0][2], 2.0f);
 	if (flPitch > 1)
 		flPitch -= 2;
 	else if (flPitch < -1)
@@ -718,6 +718,56 @@ Matrix4x4 Matrix4x4::InvertedRT() const
 			r.m[h][v] = m[v][h];
 
 	r.SetTranslation(r*(-GetTranslation()));
+
+	return r;
+}
+
+const Matrix4x4 Matrix4x4::Inverted() const
+{
+	Matrix4x4 r;
+
+	float D;
+
+	r.mm[0] =   mm[5]*mm[10]*mm[15] - mm[5]*mm[11]*mm[14] - mm[9]*mm[6]*mm[15]
+	          + mm[9]*mm[7]*mm[14]  + mm[13]*mm[6]*mm[11] - mm[13]*mm[7]*mm[10];
+	r.mm[4] =  -mm[4]*mm[10]*mm[15] + mm[4]*mm[11]*mm[14] + mm[8]*mm[6]*mm[15]
+	          - mm[8]*mm[7]*mm[14]  - mm[12]*mm[6]*mm[11] + mm[12]*mm[7]*mm[10];
+	r.mm[8] =   mm[4]*mm[9]*mm[15]  - mm[4]*mm[11]*mm[13] - mm[8]*mm[5]*mm[15]
+	          + mm[8]*mm[7]*mm[13]  + mm[12]*mm[5]*mm[11] - mm[12]*mm[7]*mm[9];
+	r.mm[12] = -mm[4]*mm[9]*mm[14]  + mm[4]*mm[10]*mm[13] + mm[8]*mm[5]*mm[14]
+	          - mm[8]*mm[6]*mm[13]  - mm[12]*mm[5]*mm[10] + mm[12]*mm[6]*mm[9];
+	r.mm[1] =  -mm[1]*mm[10]*mm[15] + mm[1]*mm[11]*mm[14] + mm[9]*mm[2]*mm[15]
+	          - mm[9]*mm[3]*mm[14]  - mm[13]*mm[2]*mm[11] + mm[13]*mm[3]*mm[10];
+	r.mm[5] =   mm[0]*mm[10]*mm[15] - mm[0]*mm[11]*mm[14] - mm[8]*mm[2]*mm[15]
+	          + mm[8]*mm[3]*mm[14]  + mm[12]*mm[2]*mm[11] - mm[12]*mm[3]*mm[10];
+	r.mm[9] =  -mm[0]*mm[9]*mm[15]  + mm[0]*mm[11]*mm[13] + mm[8]*mm[1]*mm[15]
+	          - mm[8]*mm[3]*mm[13]  - mm[12]*mm[1]*mm[11] + mm[12]*mm[3]*mm[9];
+	r.mm[13] =  mm[0]*mm[9]*mm[14]  - mm[0]*mm[10]*mm[13] - mm[8]*mm[1]*mm[14]
+	          + mm[8]*mm[2]*mm[13]  + mm[12]*mm[1]*mm[10] - mm[12]*mm[2]*mm[9];
+	r.mm[2] =   mm[1]*mm[6]*mm[15]  - mm[1]*mm[7]*mm[14]  - mm[5]*mm[2]*mm[15]
+	          + mm[5]*mm[3]*mm[14]  + mm[13]*mm[2]*mm[7]  - mm[13]*mm[3]*mm[6];
+	r.mm[6] =  -mm[0]*mm[6]*mm[15]  + mm[0]*mm[7]*mm[14]  + mm[4]*mm[2]*mm[15]
+	          - mm[4]*mm[3]*mm[14]  - mm[12]*mm[2]*mm[7]  + mm[12]*mm[3]*mm[6];
+	r.mm[10] =  mm[0]*mm[5]*mm[15]  - mm[0]*mm[7]*mm[13]  - mm[4]*mm[1]*mm[15]
+	          + mm[4]*mm[3]*mm[13]  + mm[12]*mm[1]*mm[7]  - mm[12]*mm[3]*mm[5];
+	r.mm[14] = -mm[0]*mm[5]*mm[14]  + mm[0]*mm[6]*mm[13]  + mm[4]*mm[1]*mm[14]
+	          - mm[4]*mm[2]*mm[13]  - mm[12]*mm[1]*mm[6]  + mm[12]*mm[2]*mm[5];
+	r.mm[3] =  -mm[1]*mm[6]*mm[11]  + mm[1]*mm[7]*mm[10]  + mm[5]*mm[2]*mm[11]
+	          - mm[5]*mm[3]*mm[10]  - mm[9]*mm[2]*mm[7]   + mm[9]*mm[3]*mm[6];
+	r.mm[7] =   mm[0]*mm[6]*mm[11]  - mm[0]*mm[7]*mm[10]  - mm[4]*mm[2]*mm[11]
+	          + mm[4]*mm[3]*mm[10]  + mm[8]*mm[2]*mm[7]   - mm[8]*mm[3]*mm[6];
+	r.mm[11] = -mm[0]*mm[5]*mm[11]  + mm[0]*mm[7]*mm[9]   + mm[4]*mm[1]*mm[11]
+	          - mm[4]*mm[3]*mm[9]   - mm[8]*mm[1]*mm[7]   + mm[8]*mm[3]*mm[5];
+	r.mm[15] =  mm[0]*mm[5]*mm[10]  - mm[0]*mm[6]*mm[9]   - mm[4]*mm[1]*mm[10]
+	          + mm[4]*mm[2]*mm[9]   + mm[8]*mm[1]*mm[6]   - mm[8]*mm[2]*mm[5];
+
+	D = mm[0] * r.mm[0] + mm[1] * r.mm[4] + mm[2] * r.mm[8] + mm[3] * r.mm[12];
+
+	if (D == 0)
+		return Matrix4x4();
+
+	for (int i = 0; i < 16; i++)
+		r.mm[i] = r.mm[i] / D;
 
 	return r;
 }

@@ -18,5 +18,7 @@ int main(int argc, char** args)
 	test_mesh();
 	test_eangles();
 	test_matrix();
+#ifdef TINKER_BUILD_ENGINE
 	test_toys();
+#endif
 }

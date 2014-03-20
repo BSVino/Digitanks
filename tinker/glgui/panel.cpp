@@ -191,7 +191,7 @@ bool CPanel::MouseDoubleClicked(int code, int mx, int my)
 	return false;
 }
 
-void CPanel::CursorMoved(int mx, int my)
+void CPanel::CursorMoved(int mx, int my, int dx, int dy)
 {
 	bool bFoundControlWithCursor = false;
 
@@ -232,7 +232,7 @@ void CPanel::CursorMoved(int mx, int my)
 				m_hHasCursor->CursorIn();
 			}
 
-			pControl->CursorMoved(mx, my);
+			pControl->CursorMoved(mx, my, dx, dy);
 
 			bFoundControlWithCursor = true;
 			break;
@@ -437,16 +437,22 @@ void CPanel::UpdateScene( void )
 		m_apControls[i]->UpdateScene();
 }
 
+void CPanel::PaintBackground(float x, float y, float w, float h)
+{
+	if (m_eBorder == BT_NONE && m_clrBackground.a() == 0)
+		return;
+
+	PaintRect(x, y, w, h, m_clrBackground, (m_eBorder == BT_SOME) ? 3.0f : 0.0f, IsHighlighted());
+}
+
 void CPanel::Paint()
 {
-	float x = 0, y = 0;
-	GetAbsPos(x, y);
-	Paint(x, y);
+	BaseClass::Paint();
 }
 
 void CPanel::Paint(float x, float y)
 {
-	Paint(x, y, m_flW, m_flH);
+	BaseClass::Paint(x, y);
 }
 
 void CPanel::Paint(float x, float y, float w, float h)
@@ -483,8 +489,24 @@ void CPanel::Paint(float x, float y, float w, float h)
 		float cx, cy, ax, ay;
 		pControl->GetAbsPos(cx, cy);
 		GetAbsPos(ax, ay);
-		pControl->PaintBackground(cx+x-ax, cy+y-ay, pControl->GetWidth(), pControl->GetHeight());
-		pControl->Paint(cx+x-ax, cy+y-ay);
+
+		if (pControl->IsAnimatingDimensions())
+		{
+			float flLerp = pControl->GetAnimationLerp();
+
+			float anim_x = LerpValue(pControl->GetAnimateFrom().x, cx + x - ax, flLerp);
+			float anim_y = LerpValue(pControl->GetAnimateFrom().y, cy + y - ay, flLerp);
+			float anim_w = LerpValue(pControl->GetAnimateFrom().w, pControl->GetWidth(), flLerp);
+			float anim_h = LerpValue(pControl->GetAnimateFrom().h, pControl->GetHeight(), flLerp);
+
+			pControl->PaintBackground(anim_x, anim_y, anim_w, anim_h);
+			pControl->Paint(anim_x, anim_y);
+		}
+		else
+		{
+			pControl->PaintBackground(cx + x - ax, cy + y - ay, pControl->GetWidth(), pControl->GetHeight());
+			pControl->Paint(cx + x - ax, cy + y - ay);
+		}
 	}
 
 	if (bScissor)

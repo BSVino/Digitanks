@@ -1,7 +1,7 @@
 include_directories (
 	${PROJECT_SOURCE_DIR}/../ext-deps/EASTL/include
-	${PROJECT_SOURCE_DIR}/../ext-deps/protobuf-2.5.0/vsprojects/include
-	${PROJECT_SOURCE_DIR}/../ext-deps/protobuf-2.5.0/src
+	${PROJECT_SOURCE_DIR}/../ext-deps/protobuf-2.5.0-vs2013/vsprojects/include
+	${PROJECT_SOURCE_DIR}/../ext-deps/protobuf-2.5.0-vs2013/src
 	../
 	../common
 	math
@@ -10,12 +10,11 @@ include_directories (
 
 if (WIN32)
 	include_directories (
-		${PROJECT_SOURCE_DIR}/../ext-deps/pthreads-w32-2-8-0-release
+		${PROJECT_SOURCE_DIR}/../ext-deps/pthreads-w32-2-8-0-release-vs2013
 	)
 endif (WIN32)
 
 set (LWBASE_SOURCES
-	configfile.cpp
 	mempool.cpp
 	mtrand.cpp
 	stb_image.cpp

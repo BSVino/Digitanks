@@ -46,6 +46,11 @@ public:
 
 	CResource(CHandle<C>& c);
 
+	CResource(const CResource& c)
+		: std::shared_ptr<C>(c)
+	{
+	}
+
 public:
 	// No run-time checking. Use only if you're sure about the type.
 	template <class T>
@@ -71,7 +76,7 @@ public:
 			return *this;
 
 		reset();
-		swap(c);
+		std::shared_ptr<C>::swap(c);
 
 		return *this;
 	}

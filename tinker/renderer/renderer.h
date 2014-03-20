@@ -74,13 +74,11 @@ public:
 	bool			m_bMultiSample;
 
 public:
-	static tvector<CFrameBuffer>& GetFrameBuffers() { return s_aFrameBuffers; }
+	static tvector<CFrameBuffer>& GetFrameBuffers();
 
 private:
 	static void AddToBufferList(CFrameBuffer*);
 	static void RemoveFromBufferList(CFrameBuffer*);
-
-	static tvector<CFrameBuffer> s_aFrameBuffers;
 };
 
 #define BLOOM_FILTERS 3
@@ -96,7 +94,11 @@ public:
 	virtual void	Initialize();
 	void			LoadShaders();
 
-	virtual void	WindowResize(int w, int h);
+	virtual void	ViewportResize(size_t w, size_t h);
+	size_t          GetViewportWidth() { return m_iViewportWidth; }
+	size_t          GetViewportHeight() { return m_iViewportHeight; }
+	size_t          GetDrawableWidth();
+	size_t          GetDrawableHeight();
 
 	CFrameBuffer	CreateFrameBuffer(const tstring& sName, size_t iWidth, size_t iHeight, fb_options_e eOptions);
 	void			DestroyFrameBuffer(CFrameBuffer* pBuffer);
@@ -105,8 +107,11 @@ public:
 	virtual void	PreFrame();
 	virtual void	PostFrame();
 
+	virtual void    RenderFrame();
+
 	// PreRender is run before the primary rendering starts. Good time to render targets, ie cameras mirrors etc.
 	virtual void	PreRender();
+	virtual void    Render(class CRenderingContext* pContext) {};
 	virtual void	PostRender();
 
 	virtual void	ModifyContext(class CRenderingContext* pContext);
@@ -139,8 +144,8 @@ public:
 	void			SetCustomProjection(bool bCustomProjection) { m_bCustomProjection = bCustomProjection; }
 	void			SetCustomProjection(const Matrix4x4& mCustomProjection) { m_mCustomProjection = mCustomProjection; }
 
-	const double*   GetModelView() const;
-	const double*   GetProjection() const;
+	const Matrix4x4& GetModelView() const;
+	const Matrix4x4& GetProjection() const;
 	const int*      GetViewport() const;
 
 	Vector			GetCameraPosition() { return m_vecCameraPosition; };
@@ -200,8 +205,8 @@ public:
 	static void		AllowNPO2TextureLoads() { s_bNPO2TextureLoads = true; }
 
 protected:
-	size_t			m_iWidth;
-	size_t			m_iHeight;
+	size_t			m_iViewportWidth;
+	size_t			m_iViewportHeight;
 
 	Vector			m_vecCameraPosition;
 	Vector			m_vecCameraDirection;
@@ -221,8 +226,8 @@ protected:
 	float			m_flFrustumNear;
 	float			m_flFrustumFar;
 
-	double			m_aflModelView[16];
-	double			m_aflProjection[16];
+	Matrix4x4       m_aflModelView;
+	Matrix4x4       m_aflProjection;
 	int				m_aiViewport[4];
 
 	Frustum			m_oFrustum;
@@ -240,6 +245,9 @@ protected:
 
 	bool			m_bUseMultisampleTextures;
 	int				m_iScreenSamples;
+
+private:
+	static tvector<struct SDL_Surface*> s_apSurfaces;
 
 	static size_t	s_iTexturesLoaded;
 	static bool		s_bNPO2TextureLoads;

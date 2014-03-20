@@ -17,7 +17,7 @@ LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON A
 
 #include "shaders.h"
 
-#include <GL3/gl3w.h>
+#include <memory>
 #include <time.h>
 
 #include <common.h>
@@ -29,37 +29,14 @@ LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON A
 #include <datamanager/data.h>
 #include <datamanager/dataserializer.h>
 
+#include "tinker_gl.h"
+
 CShaderLibrary* CShaderLibrary::s_pShaderLibrary = NULL;
 static CShaderLibrary g_ShaderLibrary = CShaderLibrary();
 
 CShaderLibrary::CShaderLibrary()
 {
 	s_pShaderLibrary = this;
-
-	m_bCompiled = false;
-	m_iSamples = -1;
-
-	FILE* f = tfopen("shaders/functions.si", "r");
-
-	if (f)
-	{
-		tstring sLine;
-		while (fgetts(sLine, f))
-			m_sFunctions += sLine;
-
-		fclose(f);
-	}
-
-	f = tfopen("shaders/header.si", "r");
-
-	if (f)
-	{
-		tstring sLine;
-		while (fgetts(sLine, f))
-			m_sHeader += sLine;
-
-		fclose(f);
-	}
 }
 
 CShaderLibrary::~CShaderLibrary()
@@ -77,22 +54,89 @@ CShaderLibrary::~CShaderLibrary()
 	s_pShaderLibrary = NULL;
 }
 
+void CShaderLibrary::Initialize()
+{
+	s_pShaderLibrary->InitializeNonStatic();
+}
+
+void CShaderLibrary::InitializeNonStatic()
+{
+	m_bCompiled = false;
+	m_iSamples = -1;
+
+	tstring sFunctions = "shaders/functions.si";
+	FILE* f = tfopen_asset(sFunctions, "r");
+
+	if (f)
+	{
+		tstring sLine;
+		while (fgetts(sLine, f))
+			m_sFunctions += sLine;
+
+		fclose(f);
+	}
+	else
+		TMsg(tstring("Warning: Couldn't find shader functions file: ") + sFunctions + "\n");
+
+#if defined(TINKER_OPENGLES_3)
+	tstring sHeader = "shaders/header_gles3.si";
+#elif defined(TINKER_OPENGLES_2)
+	tstring sHeader = "shaders/header_gles2.si";
+#else
+	tstring sHeader = "shaders/header_gl3.si";
+#endif
+
+	f = tfopen_asset(sHeader, "r");
+
+	if (f)
+	{
+		tstring sLine;
+		while (fgetts(sLine, f))
+			m_sHeader += sLine;
+
+		fclose(f);
+	}
+	else
+		TMsg(tstring("Warning: Couldn't find shader header file: ") + sHeader + "\n");
+
+#if defined(TINKER_OPENGLES_3)
+	tstring sMain = "shaders/main_gles3.si";
+#elif defined(TINKER_OPENGLES_2)
+	tstring sMain = "shaders/main_gles2.si";
+#else
+	tstring sMain = "shaders/main_gl3.si";
+#endif
+
+	f = tfopen_asset(sMain, "r");
+
+	if (f)
+	{
+		tstring sLine;
+		while (fgetts(sLine, f))
+			m_sMain += sLine;
+
+		fclose(f);
+	}
+	else
+		TMsg(tstring("Warning: Couldn't find shader main file: ") + sMain + "\n");
+}
+
 void CShaderLibrary::AddShader(const tstring& sFile)
 {
 	TAssert(!Get()->m_bCompiled);
 	if (Get()->m_bCompiled)
 		return;
 
-	std::basic_ifstream<tchar> f(sFile.c_str());
+	FILE* fp = tfopen_asset(sFile, "r");
 
-	if (!f.is_open())
+	if (!fp)
 	{
 		TError("Couldn't open shader file: " + sFile + "\n");
 		return;
 	}
 
 	std::shared_ptr<CData> pData(new CData());
-	CDataSerializer::Read(f, pData.get());
+	CDataSerializer::Read(fp, pData.get());
 
 	CData* pName = pData->FindChild("Name");
 	CData* pVertex = pData->FindChild("Vertex");
@@ -232,7 +276,9 @@ void CShaderLibrary::WriteLog(const tstring& sFile, const char* pszLog, const ch
 	if (!pszLog || strlen(pszLog) == 0)
 		return;
 
-	tstring sLogFile = GetAppDataDirectory(Application()->AppDirectory(), "shaders.txt");
+	tstring sLogFile = Application()->GetAppDataDirectory("shaders.txt");
+
+	TMsg(sprintf(tstring("Log file location: %s"), sLogFile.c_str()));
 
 	if (m_bLogNeedsClearing)
 	{
@@ -242,14 +288,18 @@ void CShaderLibrary::WriteLog(const tstring& sFile, const char* pszLog, const ch
 		m_bLogNeedsClearing = false;
 	}
 
-	char szText[100];
-	strncpy(szText, pszShaderText, 99);
-	szText[99] = '\0';
-
 	FILE* fp = tfopen(sLogFile, "a");
 	fprintf(fp, ("Shader compile output for file: " + sFile + " timestamp: %d\n").c_str(), (int)time(NULL));
 	fprintf(fp, "%s\n\n", pszLog);
-	fprintf(fp, "%s...\n\n", szText);
+	fprintf(fp, "Shader text follows:\n\n");
+
+	tvector<tstring> asTokens;
+	explode(pszShaderText, asTokens, "\n");
+	for (size_t i = 0; i < asTokens.size(); i++)
+		fprintf(fp, "%d: %s\n", i, asTokens[i].c_str());
+
+	fprintf(fp, "\n\n");
+
 	fclose(fp);
 }
 
@@ -302,13 +352,25 @@ bool CShader::Compile()
 
 	sShaderHeader += CShaderLibrary::GetShaderFunctions();
 
-	FILE* f = tfopen("shaders/" + m_sVertexFile + ".vs", "r");
+	tstring sVertexHeader;
+	sVertexHeader += sShaderHeader;
+	sVertexHeader += "#define VERTEX_PROGRAM\n";
+
+	tstring sFragmentHeader;
+	sFragmentHeader += sShaderHeader;
+	sFragmentHeader += "#define FRAGMENT_PROGRAM\n";
+
+	tstring sVertexFile = tstring("shaders/") + m_sVertexFile + ".vs";
+	FILE* f = tfopen_asset(sVertexFile, "r");
 
 	TAssert(f);
 	if (!f)
+	{
+		TMsg(tstring("Could not open vertex program source: ") + sVertexFile + "\n");
 		return false;
+	}
 
-	tstring sVertexShader = sShaderHeader;
+	tstring sVertexShader;
 	sVertexShader += "uniform mat4x4 mProjection;\n";
 	sVertexShader += "uniform mat4x4 mView;\n";
 	sVertexShader += "uniform mat4x4 mGlobal;\n";
@@ -319,23 +381,28 @@ bool CShader::Compile()
 
 	fclose(f);
 
-	f = tfopen("shaders/" + m_sFragmentFile + ".fs", "r");
+	tstring sFragmentFile = tstring("shaders/") + m_sFragmentFile + ".fs";
+	f = tfopen_asset(sFragmentFile, "r");
 
 	TAssert(f);
 	if (!f)
+	{
+		TMsg(tstring("Could not open fragment program source: ") + sFragmentFile + "\n");
 		return false;
+	}
 
-	tstring sFragmentShader = sShaderHeader;
-	sFragmentShader += "out vec4 vecOutputColor;\n";
+	tstring sFragmentShader;
 
 	while (fgetts(sLine, f))
 		sFragmentShader += sLine;
 
 	fclose(f);
 
+	tstring sFullVertexShader = sVertexHeader + sVertexShader + CShaderLibrary::Get()->m_sMain;
+	const char* pszFullVertexShader = sFullVertexShader.c_str();
+
 	size_t iVShader = glCreateShader(GL_VERTEX_SHADER);
-	const char* pszStr = sVertexShader.c_str();
-	glShaderSource((GLuint)iVShader, 1, &pszStr, NULL);
+	glShaderSource((GLuint)iVShader, 1, &pszFullVertexShader, NULL);
 	glCompileShader((GLuint)iVShader);
 
 	int iVertexCompiled;
@@ -346,12 +413,14 @@ bool CShader::Compile()
 		int iLogLength = 0;
 		char szLog[1024];
 		glGetShaderInfoLog((GLuint)iVShader, 1024, &iLogLength, szLog);
-		CShaderLibrary::Get()->WriteLog(m_sVertexFile + ".vs", szLog, pszStr);
+		CShaderLibrary::Get()->WriteLog(m_sVertexFile + ".vs", szLog, pszFullVertexShader);
 	}
 
+	tstring sFullFragmentShader = sFragmentHeader + sFragmentShader + CShaderLibrary::Get()->m_sMain;
+	const char* pszFullFragmentShader = sFullFragmentShader.c_str();
+
 	size_t iFShader = glCreateShader(GL_FRAGMENT_SHADER);
-	pszStr = sFragmentShader.c_str();
-	glShaderSource((GLuint)iFShader, 1, &pszStr, NULL);
+	glShaderSource((GLuint)iFShader, 1, &pszFullFragmentShader, NULL);
 	glCompileShader((GLuint)iFShader);
 
 	int iFragmentCompiled;
@@ -362,7 +431,7 @@ bool CShader::Compile()
 		int iLogLength = 0;
 		char szLog[1024];
 		glGetShaderInfoLog((GLuint)iFShader, 1024, &iLogLength, szLog);
-		CShaderLibrary::Get()->WriteLog(m_sFragmentFile + ".fs", szLog, pszStr);
+		CShaderLibrary::Get()->WriteLog(m_sFragmentFile + ".fs", szLog, pszFullFragmentShader);
 	}
 
 	size_t iProgram = glCreateProgram();
@@ -404,8 +473,6 @@ bool CShader::Compile()
 	for (size_t i = 0; i < MAX_TEXTURE_CHANNELS; i++)
 		m_aiTexCoordAttributes[i] = glGetAttribLocation(m_iProgram, sprintf("vecTexCoord%d", i).c_str());
 	m_iColorAttribute = glGetAttribLocation(m_iProgram, "vecVertexColor");
-
-	glBindFragDataLocation(m_iProgram, 0, "vecOutputColor");
 
 	TAssert(m_iPositionAttribute != ~0);
 

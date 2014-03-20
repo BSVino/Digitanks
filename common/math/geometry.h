@@ -75,6 +75,14 @@ public:
 	bool	Intersects(const TRect<T>& F) const;
 	bool	Union(const TRect<T>& r);
 
+	void	operator/=(T s)
+	{
+		x /= s;
+		y /= s;
+		w /= s;
+		h /= s;
+	}
+
 public:
 	T x, y, w, h;
 };

@@ -28,6 +28,10 @@ LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON A
 #define TSTRING_BASE std::basic_string<char>
 #endif
 
+#ifdef __clang__
+#include <cctype>
+#endif
+
 #include "common.h"
 
 class tstring : public TSTRING_BASE

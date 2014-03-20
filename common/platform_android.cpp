@@ -27,7 +27,11 @@ LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON A
 #include <fcntl.h>
 #include <netinet/in.h>
 #include <linux/if.h>
-#include <X11/Xlib.h>
+#include <android/log.h>
+#include <android/asset_manager_jni.h>
+#include <jni.h>
+#include <SDL.h>
+#include <asm-generic/errno-base.h>
 
 #include <strutils.h>
 
@@ -106,24 +110,72 @@ void CreateMinidump(void* pInfo, tchar* pszDirectory)
 
 tstring GetClipboard()
 {
+	TUnimplemented();
+	return tstring();
 }
 
 void SetClipboard(const tstring& sBuf)
 {
+	TUnimplemented();
+}
+
+static jobject global_asset_manager = 0;
+static AAssetManager* g_pAssetManager = 0;
+
+void InitializeAssetManager()
+{
+	if (!global_asset_manager)
+	{
+		JNIEnv* env = (JNIEnv*)SDL_AndroidGetJNIEnv();
+
+		jobject activity = (jobject)SDL_AndroidGetActivity();
+
+		jclass activity_class = env->GetObjectClass(activity);
+
+		jmethodID activity_class_getAssets = env->GetMethodID(activity_class, "getAssets", "()Landroid/content/res/AssetManager;");
+		jobject asset_manager = env->CallObjectMethod(activity, activity_class_getAssets); // activity.getAssets();
+		global_asset_manager = env->NewGlobalRef(asset_manager);
+
+		g_pAssetManager = AAssetManager_fromJava(env, global_asset_manager);
+	}
+}
+
+tvector<tstring> ListAndroidAssetsDirectory(const tstring& sDirectory, bool bDirectories)
+{
+	InitializeAssetManager();
+
+	AAssetDir* pAssetDir = AAssetManager_openDir(g_pAssetManager, sDirectory.c_str());
+
+	if (!pAssetDir)
+		return tvector<tstring>();
+
+	tvector<tstring> asResult;
+	const char* pszDir;
+	while ((pszDir = AAssetDir_getNextFileName(pAssetDir)) != NULL)
+		asResult.push_back(pszDir);
+
+	AAssetDir_close(pAssetDir);
+
+	return asResult;
 }
 
 tvector<tstring> ListDirectory(const tstring& sFullDirectory, bool bDirectories)
 {
 	tstring sDirectory = sFullDirectory;
+
 	if (sDirectory.startswith("$ASSETS/"))
-		sDirectory = sDirectory.substr(8);
+		return ListAndroidAssetsDirectory(sDirectory.substr(8), bDirectories);
 
 	tvector<tstring> asResult;
 
 	struct dirent *dp;
 
 	DIR *dir = opendir((sDirectory).c_str());
-	while ((dp=readdir(dir)) != NULL)
+
+	if (!dir)
+		return asResult;
+
+	while ((dp = readdir(dir)) != NULL)
 	{
 		if (!bDirectories && (dp->d_type == DT_DIR))
 			continue;
@@ -142,8 +194,48 @@ tvector<tstring> ListDirectory(const tstring& sFullDirectory, bool bDirectories)
 	return asResult;
 }
 
+static int android_read(void* asset, char* buf, int size) {
+	return AAsset_read((AAsset*)asset, buf, size);
+}
+
+static int android_write(void* asset, const char* buf, int size) {
+	return EACCES; // can't provide write access to the apk
+}
+
+static fpos_t android_seek(void* asset, fpos_t offset, int whence) {
+	return AAsset_seek((AAsset*)asset, offset, whence);
+}
+
+static int android_close(void* asset) {
+	AAsset_close((AAsset*)asset);
+	return 0;
+}
+
+FILE* Tinker_Android_tfopen(const tstring& sFile, const tstring& sMode)
+{
+	if (sMode[0] == 'w')
+		return nullptr;
+
+	InitializeAssetManager();
+
+	AAsset* pAsset = AAssetManager_open(g_pAssetManager, sFile.c_str(), AASSET_MODE_STREAMING);
+	if (!pAsset)
+		return nullptr;
+
+	return funopen(pAsset, android_read, android_write, android_seek, android_close);
+}
+
 bool IsFile(const tstring& sPath)
 {
+	InitializeAssetManager();
+
+	AAsset* pAsset = AAssetManager_open(g_pAssetManager, sPath.c_str(), AASSET_MODE_STREAMING);
+	if (pAsset)
+	{
+		AAsset_close(pAsset);
+		return true;
+	}
+
 	struct stat stFileInfo;
 	bool blnReturn;
 	int intStat;
@@ -232,7 +324,7 @@ time_t GetFileModificationTime(const char* pszFile)
 
 void DebugPrint(const char* pszText)
 {
-	puts(pszText);
+	__android_log_print(ANDROID_LOG_INFO, "TinkerDebug", "%s", pszText);
 }
 
 void Exec(const tstring& sLine)
@@ -250,5 +342,81 @@ int TranslateKeyFromQwerty(int iKey)
 {
 	return iKey;
 }
+
+void GetScreenDPI(float& xdpi, float& ydpi)
+{
+	JNIEnv* env = (JNIEnv*)SDL_AndroidGetJNIEnv();
+	jobject activity = (jobject)SDL_AndroidGetActivity();
+
+	jclass activity_class = env->GetObjectClass(activity);
+	jmethodID activity_class_getResources = env->GetMethodID(activity_class, "getResources", "()Landroid/content/res/Resources;");
+	jobject resources = env->CallObjectMethod(activity, activity_class_getResources); // activity.getResources();
+
+	jclass resources_class = env->GetObjectClass(resources);
+	jmethodID resources_class_getDisplayMetrics = env->GetMethodID(resources_class, "getDisplayMetrics", "()Landroid/util/DisplayMetrics;");
+	jobject display_metrics = env->CallObjectMethod(resources, resources_class_getDisplayMetrics); // resources.getDisplayMetrics();
+
+	jclass display_metrics_class = env->GetObjectClass(display_metrics);
+	jfieldID xdpi_field = env->GetFieldID(display_metrics_class, "xdpi", "F");
+	jfieldID ydpi_field = env->GetFieldID(display_metrics_class, "ydpi", "F");
+
+	xdpi = env->GetFloatField(display_metrics, xdpi_field);
+	ydpi = env->GetFloatField(display_metrics, ydpi_field);
+}
+
+void EnableMulticast()
+{
+	//WifiManager.MulticastLock mclock;
+	//WifiManager wifimanager = (WifiManager)getSystemService(Context.WIFI_SERVICE);
+	//if (wifimanager != null)
+	//{
+	//	mclock = wifimanager.createMulticastLock("lock");
+	//	mcLock.acquire();
+	//}
+
+	JNIEnv* env = (JNIEnv*)SDL_AndroidGetJNIEnv();
+	jobject activity = (jobject)SDL_AndroidGetActivity();
+
+	jclass activity_class = env->GetObjectClass(activity);
+	jmethodID activity_class_getSystemService = env->GetMethodID(activity_class, "getSystemService", "(Ljava/lang/String;)Ljava/lang/Object;");
+	jstring getSystemService_wifi = env->NewStringUTF("wifi");
+	jobject wifimanager = env->CallObjectMethod(activity, activity_class_getSystemService, getSystemService_wifi); // activity.getSystemService(Context.WIFI_SERVICE);
+	env->DeleteLocalRef(getSystemService_wifi);
+
+	if (wifimanager == nullptr)
+	{
+		DebugPrint("ERROR: Couldn't get WifiManager to enable multicast.\n");
+		return;
+	}
+
+	jclass wifimanager_class = env->GetObjectClass(wifimanager);
+	jmethodID wifimanager_class_createMulticastLock = env->GetMethodID(wifimanager_class, "createMulticastLock", "(Ljava/lang/String;)Landroid/net/wifi/WifiManager$MulticastLock;");
+	jstring createMulticastLock_lock = env->NewStringUTF("tinker_multicast_lock");
+	jobject mclock = env->CallObjectMethod(wifimanager, wifimanager_class_createMulticastLock, createMulticastLock_lock); // wifimanager.createMulticastLock("lock");
+	env->DeleteLocalRef(createMulticastLock_lock);
+
+	if (mclock == nullptr)
+	{
+		DebugPrint("ERROR: Couldn't get multicast lock object.\n");
+		return;
+	}
+
+	jobject global_mclock = env->NewGlobalRef(mclock);
+
+	jclass mclock_class = env->GetObjectClass(mclock);
+	jmethodID mclock_class_acquire = env->GetMethodID(mclock_class, "acquire", "()V");
+	env->CallVoidMethod(mclock, mclock_class_acquire); // mclock.acquire();
+
+	DebugPrint("Acquired multicast lock.\n");
+}
+
+void DisableMulticast()
+{
+	//if (mclock.isHeld())
+	//{
+	//	mclock.release();
+	//}
+}
+
 
 

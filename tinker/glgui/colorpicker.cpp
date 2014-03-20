@@ -140,9 +140,8 @@ void CColorPicker::Paint(float x, float y, float w, float h)
 	r.SetUniform("vecMouse", Vector((float)mx, (float)my, 0));
 
 	r.BeginRenderVertexArray(s_iQuad);
-	r.SetPositionBuffer((size_t)0u, 24);
-	r.SetTexCoordBuffer(12, 24);
-	r.SetCustomIntBuffer("iVertex", 1, 20, 24);
+	r.SetPositionBuffer((size_t)0u, 20);
+	r.SetTexCoordBuffer(12, 20);
 	r.EndRenderVertexArray(6);
 
 	r.UseProgram("colorvalue");
@@ -155,9 +154,8 @@ void CColorPicker::Paint(float x, float y, float w, float h)
 	r.SetUniform("vecMouse", Vector((float)mx, (float)my, 0));
 
 	r.BeginRenderVertexArray(s_iQuad);
-	r.SetPositionBuffer((size_t)0u, 24);
-	r.SetTexCoordBuffer(12, 24);
-	r.SetCustomIntBuffer("iVertex", 1, 20, 24);
+	r.SetPositionBuffer((size_t)0u, 20);
+	r.SetTexCoordBuffer(12, 20);
 	r.EndRenderVertexArray(6);
 }
 
@@ -191,7 +189,7 @@ bool CColorPicker::MousePressed(int code, int mx, int my)
 	return BaseClass::MousePressed(code, mx, my);
 }
 
-void CColorPicker::CursorMoved(int mx, int my)
+void CColorPicker::CursorMoved(int mx, int my, int dx, int dy)
 {
 	if (Application()->IsMouseLeftDown())
 		Update(mx, my);

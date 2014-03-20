@@ -36,7 +36,7 @@ namespace glgui
 		virtual void		SetVisible(bool bVisible);
 
 		virtual bool		MousePressed(int code, int mx, int my);
-		virtual void		CursorMoved(int mx, int my);
+		virtual void		CursorMoved(int mx, int my, int dx, int dy);
 		virtual bool		Update(int x, int y);
 
 		EVENT_CALLBACK(CColorPicker, ValueChanged);

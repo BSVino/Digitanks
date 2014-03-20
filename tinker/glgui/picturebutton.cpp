@@ -17,8 +17,6 @@ LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON A
 
 #include "picturebutton.h"
 
-#include <GL3/gl3w.h>
-
 using namespace glgui;
 
 CPictureButton::CPictureButton(const tstring& sText, const CMaterialHandle& hMaterial, bool bToggle)
@@ -47,8 +45,9 @@ void CPictureButton::Paint(float x, float y, float w, float h)
 	}
 	else if (m_hMaterial.IsValid())
 	{
-		glEnablei(GL_BLEND, 0);
-		glBlendFunc (GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+		TUnimplemented();
+		//glEnable(GL_BLEND);
+		//glBlendFunc (GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
 		PaintTexture(m_hMaterial, x, y, w, h, Color(255,255,255,(unsigned char)(GetAlpha()*flHighlight)));
 	}
