@@ -269,11 +269,14 @@ CVar game_difficulty("game_difficulty", "1");
 
 void CDigitanksGame::SetupGame(tstring sGameType)
 {
+	GameServer()->SetupFromLobby(false);
+
 	if (sGameType == "from_cvar")
 		sGameType = CVar::GetCVarValue("game_type");
 	else if (sGameType == "from_lobby")
 	{
 		TUnimplemented(); // This info value will be an integer string, eg "1". Will have to be changed.
+		GameServer()->SetupFromLobby(true);
 		sGameType = CGameLobbyClient::L_GetInfoValue("gametype");
 	}
 
@@ -313,6 +316,8 @@ void CDigitanksGame::SetupGame(tstring sGameType)
 	SetCurrentLevel(CVar::GetCVarValue("game_level"));
 
 	m_hInstructor = GameServer()->Create<CInstructorEntity>("CInstructorEntity");
+
+	GameServer()->Create<COverheadCamera>("COverheadCamera");
 
 	if (m_eGameType == GAMETYPE_STANDARD)
 		SetupStrategy();
@@ -918,8 +923,6 @@ void CDigitanksGame::SetupMenuMarch()
 
 	CTeam* pTeam = GameServer()->Create<CTeam>("CTeam");
 	pTeam->SetColor(Color(0, 0, 255));
-
-	GameServer()->Create<COverheadCamera>("COverheadCamera");
 
 	GetOverheadCamera()->SnapTarget(Vector(0,0,0));
 	GetOverheadCamera()->SnapAngle(EAngle(55,40,0));
@@ -1747,17 +1750,17 @@ void CDigitanksGame::TurnTanks(Vector vecLookAt)
 			continue;
 
 		if (bNoTurn)
-			pTank->SetPreviewTurn(pTank->GetAngles().y);
+			pTank->SetPreviewTurn(pTank->GetGlobalAngles().y);
 		else
 		{
 			Vector vecDirection = (vecLookAt - pTank->GetGlobalOrigin()).Normalized();
 			float flYaw = atan2(vecDirection.z, vecDirection.x) * 180/M_PI;
 
-			float flTankTurn = AngleDifference(flYaw, pTank->GetAngles().y);
+			float flTankTurn = AngleDifference(flYaw, pTank->GetGlobalAngles().y);
 			if (fabs(flTankTurn)/pTank->TurnPerPower() > pTank->GetRemainingMovementEnergy())
 				flTankTurn = (flTankTurn / fabs(flTankTurn)) * pTank->GetRemainingTurningDistance() * 0.95f;
 
-			pTank->SetPreviewTurn(pTank->GetAngles().y + flTankTurn);
+			pTank->SetPreviewTurn(pTank->GetGlobalAngles().y + flTankTurn);
 		}
 
 		pTank->Turn();

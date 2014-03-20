@@ -514,7 +514,7 @@ void COverheadCamera::CameraThink()
 	if (m_hTankTarget != NULL)
 	{
 		if (m_hTankTarget->GetCurrentWeapon() == WEAPON_CHARGERAM)
-			SetGlobalAngles(VectorAngles(m_hTankTarget->GetGlobalOrigin() + AngleVector(m_hTankTarget->GetAngles()) * 10 - GetGlobalOrigin()));
+			SetGlobalAngles(VectorAngles(m_hTankTarget->GetGlobalOrigin() + AngleVector(m_hTankTarget->GetGlobalAngles()) * 10 - GetGlobalOrigin()));
 		else
 			SetGlobalAngles(VectorAngles(m_hTankTarget->GetLastAim() - GetGlobalOrigin()));
 	}

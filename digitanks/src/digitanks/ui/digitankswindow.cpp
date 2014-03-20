@@ -175,7 +175,7 @@ void CDigitanksWindow::OpenWindow()
 
 	GameServer()->SetLoading(false);
 
-	CApplication::Get()->SetMouseCursorEnabled(false);
+	CApplication::Get()->SetMouseCursorEnabled(true);
 
 #ifdef __linux__
 	g_pDisplay = XOpenDisplay(NULL);

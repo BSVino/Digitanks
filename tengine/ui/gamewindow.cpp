@@ -267,6 +267,8 @@ void CGameWindow::Run()
 		{
 			TPROF("CGameWindow::Run");
 
+			PollEvents();
+
 			PreFrame();
 
 			double flTime = GetTime();

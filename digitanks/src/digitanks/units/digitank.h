@@ -263,7 +263,7 @@ public:
 
 	virtual const TVector		GetGlobalOrigin() const;
 	virtual Vector				GetRealOrigin() const;
-	virtual EAngle				GetAngles() const;
+	virtual const EAngle        GetGlobalAngles() const;
 
 	virtual void				PreRender() const;
 	virtual Vector				GetRenderOrigin() const;

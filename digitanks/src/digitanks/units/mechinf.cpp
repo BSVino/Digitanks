@@ -66,7 +66,7 @@ void CMechInfantry::PostRender() const
 		float flTimeSinceFortify = (float)(GameServer()->GetGameTime() - m_flFortifyTime);
 		CGameRenderingContext c(GameServer()->GetRenderer());
 		c.Translate(GetGlobalOrigin() - Vector(0, 0, RemapValClamped(flTimeSinceFortify, 0, 1, 5.0f, 0)));
-		c.Rotate(-GetAngles().y, Vector(0, 0, 1));
+		c.Rotate(-GetGlobalAngles().y, Vector(0, 0, 1));
 		float flAlpha = GetVisibility() * RemapValClamped(flTimeSinceFortify, 0, 2, 0.5f, 1);
 		flAlpha *= RemapValClamped(GetShieldStrength(), 0.0f, 1.0f, 0.5f, 1);
 		if (flAlpha < 1.0f)
@@ -91,7 +91,7 @@ void CMechInfantry::PostRender() const
 		float flShieldScale = RemapValClamped(flTimeSinceFortify, 0, 1, 0.0f, 1);
 		CGameRenderingContext c(GameServer()->GetRenderer());
 		c.Translate(GetGlobalOrigin());
-		c.Rotate(-GetAngles().y, Vector(0, 0, 1));
+		c.Rotate(-GetGlobalAngles().y, Vector(0, 0, 1));
 		c.Scale(flShieldScale, flShieldScale, flShieldScale);
 		c.SetBlend(BLEND_ADDITIVE);
 		c.SetAlpha(GetVisibility() * RemapValClamped(flTimeSinceFortify, 0, 2, 0.5f, 1) * GetShieldStrength());

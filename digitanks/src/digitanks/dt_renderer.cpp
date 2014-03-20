@@ -331,7 +331,7 @@ void CDigitanksRenderer::RenderPreviewModes()
 		{
 			if (DigitanksGame()->GetControlMode() == MODE_TURN)
 			{
-				EAngle angTurn = EAngle(0, pTank->GetAngles().y, 0);
+				EAngle angTurn = EAngle(0, pTank->GetGlobalAngles().y, 0);
 				if (pTank->TurnsWith(pCurrentTank))
 				{
 					bool bNoTurn = bMouseOK && (vecLookAt - DigitanksGame()->GetPrimarySelectionTank()->GetGlobalOrigin()).LengthSqr() < 3*3;
@@ -341,16 +341,16 @@ void CDigitanksRenderer::RenderPreviewModes()
 						Vector vecDirection = (vecLookAt - pTank->GetGlobalOrigin()).Normalized();
 						float flYaw = atan2(vecDirection.z, vecDirection.x) * 180/M_PI;
 
-						float flTankTurn = AngleDifference(flYaw, pTank->GetAngles().y);
+						float flTankTurn = AngleDifference(flYaw, pTank->GetGlobalAngles().y);
 						if (fabs(flTankTurn)/pTank->TurnPerPower() > pTank->GetRemainingMovementEnergy())
 							flTankTurn = (flTankTurn / fabs(flTankTurn)) * pTank->GetRemainingMovementEnergy() * pTank->TurnPerPower() * 0.95f;
 
-						angTurn = EAngle(0, pTank->GetAngles().y + flTankTurn, 0);
+						angTurn = EAngle(0, pTank->GetGlobalAngles().y + flTankTurn, 0);
 					}
 
 					CGameRenderingContext r(GameServer()->GetRenderer());
 					r.Translate(pTank->GetRenderOrigin());
-					r.Rotate(-pTank->GetAngles().y, Vector(0, 0, 1));
+					r.Rotate(-pTank->GetGlobalAngles().y, Vector(0, 0, 1));
 					r.SetAlpha(50.0f/255);
 					r.SetBlend(BLEND_ALPHA);
 					r.SetUniform("bColorSwapInAlpha", true);

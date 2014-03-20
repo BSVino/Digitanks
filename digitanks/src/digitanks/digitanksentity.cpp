@@ -308,8 +308,12 @@ void CDigitanksEntity::InterceptSupplyLines()
 
 CDigitanksPlayer* CDigitanksEntity::GetDigitanksPlayer() const
 {
-	TAssert(dynamic_cast<CDigitanksPlayer*>(GetOwner()));
-	return static_cast<CDigitanksPlayer*>(GetOwner());
+	CBaseEntity* pOwner = GetOwner();
+	if (!pOwner)
+		return nullptr;
+
+	TAssert(dynamic_cast<CDigitanksPlayer*>(pOwner));
+	return static_cast<CDigitanksPlayer*>(pOwner);
 }
 
 bool CDigitanksEntity::ShouldRender() const
@@ -675,6 +679,10 @@ void CDigitanksEntity::SetOwner(CDigitanksPlayer* pOwner)
 
 CDigitanksPlayer* CDigitanksEntity::GetPlayerOwner() const
 {
-	TAssert(dynamic_cast<CDigitanksPlayer*>(GetOwner()));
-	return static_cast<CDigitanksPlayer*>(GetOwner());
+	CBaseEntity* pOwner = GetOwner();
+	if (!pOwner)
+		return nullptr;
+
+	TAssert(dynamic_cast<CDigitanksPlayer*>(pOwner));
+	return static_cast<CDigitanksPlayer*>(pOwner);
 }

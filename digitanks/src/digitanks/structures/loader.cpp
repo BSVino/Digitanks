@@ -284,13 +284,13 @@ void CLoader::CompleteProduction()
 
 		m_bProducing = false;
 
-		pTank->Move(pTank->GetGlobalOrigin() + AngleVector(pTank->GetAngles())*9);
+		pTank->Move(pTank->GetGlobalOrigin() + AngleVector(pTank->GetGlobalAngles()) * 9);
 		pTank->Turn(VectorAngles(-GetGlobalOrigin().Normalized()));
 
 		if (!GetPlayerOwner()->IsHumanControlled() && GameNetwork()->IsHost())
 			// It's not a real move but i dun care
 			// We just need to get them spaced out around the loader, like a rally point
-			pTank->Move(pTank->GetGlobalOrigin() + AngleVector(pTank->GetAngles())*9 + AngleVector(EAngle(0, RandomFloat(0, 360), 0))*10);
+			pTank->Move(pTank->GetGlobalOrigin() + AngleVector(pTank->GetGlobalAngles()) * 9 + AngleVector(EAngle(0, RandomFloat(0, 360), 0)) * 10);
 
 		pTank->StartTurn();
 	}

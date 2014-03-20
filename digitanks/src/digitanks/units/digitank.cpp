@@ -588,7 +588,7 @@ float CDigitank::GetPreviewBaseMovePower() const
 
 float CDigitank::GetPreviewBaseTurnPower() const
 {
-	return fabs(AngleDifference(m_flPreviewTurn, GetAngles().y)/TurnPerPower());
+	return fabs(AngleDifference(m_flPreviewTurn, GetGlobalAngles().y) / TurnPerPower());
 }
 
 bool CDigitank::IsPreviewMoveValid() const
@@ -644,7 +644,7 @@ void CDigitank::StartTurn()
 	}
 
 	m_vecPreviewMove = GetGlobalOrigin();
-	m_flPreviewTurn = GetAngles().y;
+	m_flPreviewTurn = GetGlobalAngles().y;
 
 	if (GameNetwork()->IsHost())
 	{
@@ -780,7 +780,7 @@ void CDigitank::SetPreviewTurn(float flPreviewTurn)
 
 void CDigitank::ClearPreviewTurn()
 {
-	m_flPreviewTurn = GetAngles().y;
+	m_flPreviewTurn = GetGlobalAngles().y;
 }
 
 void CDigitank::SetPreviewAim(Vector vecPreviewAim)
@@ -811,7 +811,7 @@ void CDigitank::SetPreviewAim(Vector vecPreviewAim)
 		vecPreviewAim.z = DigitanksGame()->GetTerrain()->GetHeight(vecPreviewAim.x, vecPreviewAim.y);
 	}
 
-	if (fabs(AngleDifference(GetAngles().y, VectorAngles((vecPreviewAim-GetGlobalOrigin()).Normalized()).y)) > FiringCone())
+	if (fabs(AngleDifference(GetGlobalAngles().y, VectorAngles((vecPreviewAim - GetGlobalOrigin()).Normalized()).y)) > FiringCone())
 	{
 		m_bPreviewAim = false;
 		return;
@@ -1177,7 +1177,7 @@ bool CDigitank::IsTurning()
 
 void CDigitank::Turn(EAngle angNewTurn)
 {
-	m_flPreviousTurn = GetAngles().y;
+	m_flPreviousTurn = GetGlobalAngles().y;
 	m_flStartedTurn = GameServer()->GetGameTime();
 	SetGlobalAngles(angNewTurn);
 
@@ -1679,7 +1679,7 @@ void CDigitank::Think()
 				vecTankAim.z = DigitanksGame()->GetTerrain()->GetHeight(vecTankAim.x, vecTankAim.y);
 			}
 
-			if (fabs(AngleDifference(GetAngles().y, VectorAngles((vecTankAim-GetGlobalOrigin()).Normalized()).y)) > FiringCone())
+			if (fabs(AngleDifference(GetGlobalAngles().y, VectorAngles((vecTankAim - GetGlobalOrigin()).Normalized()).y)) > FiringCone())
 				m_bDisplayAim = false;
 			else
 			{
@@ -1765,11 +1765,11 @@ void CDigitank::Think()
 				Vector vecLookAt = (GetGlobalOrigin() - pDigitank->GetGlobalOrigin()).Normalized();
 				pDigitank->m_flGoalTurretYaw = atan2(vecLookAt.y, vecLookAt.x) * 180/M_PI - pDigitank->GetRenderAngles().y;
 
-				CNetworkedEffect::AddInstance("charge-burst", GetGlobalOrigin() + vecLookAt*3, GetAngles());
+				CNetworkedEffect::AddInstance("charge-burst", GetGlobalOrigin() + vecLookAt * 3, GetGlobalAngles());
 			}
 
 			RockTheBoat(1, vecPushDirection);
-			Turn(EAngle(0, GetAngles().y, 0));
+			Turn(EAngle(0, GetGlobalAngles().y, 0));
 
 			m_flGoalTurretYaw = 0;
 
@@ -1882,7 +1882,7 @@ void CDigitank::OnControlModeChange(controlmode_t eOldMode, controlmode_t eNewMo
 	{
 		if (IsArtillery())
 		{
-			Vector vecCenter = DigitanksGame()->GetTerrain()->GetPointHeight(GetGlobalOrigin() + AngleVector(GetAngles()) * GetMaxRange()/2);
+			Vector vecCenter = DigitanksGame()->GetTerrain()->GetPointHeight(GetGlobalOrigin() + AngleVector(GetGlobalAngles()) * GetMaxRange() / 2);
 			DigitanksGame()->GetOverheadCamera()->SetTarget(vecCenter);
 		}
 	}
@@ -1994,7 +1994,7 @@ bool CDigitank::NeedsOrders()
 				if (pClosestEnemy->GetVisibility() == 0)
 					continue;
 
-				if (IsArtillery() && fabs(AngleDifference(GetAngles().y, VectorAngles((pClosestEnemy->GetGlobalOrigin()-GetGlobalOrigin()).Normalized()).y)) > FiringCone())
+				if (IsArtillery() && fabs(AngleDifference(GetGlobalAngles().y, VectorAngles((pClosestEnemy->GetGlobalOrigin() - GetGlobalOrigin()).Normalized()).y)) > FiringCone())
 					continue;
 			}
 			break;
@@ -2338,7 +2338,7 @@ void CDigitank::Fire()
 	if (flDistanceSqr < GetMinRange()*GetMinRange())
 		return;
 
-	if (fabs(AngleDifference(GetAngles().y, VectorAngles((GetPreviewAim()-GetRealOrigin()).Normalized()).y)) > FiringCone())
+	if (fabs(AngleDifference(GetGlobalAngles().y, VectorAngles((GetPreviewAim() - GetRealOrigin()).Normalized()).y)) > FiringCone())
 		return;
 
 	if (m_bFiredWeapon || m_bActionTaken)
@@ -2922,7 +2922,10 @@ void CDigitank::OnKilled(CBaseEntity* pKilledBy)
 
 const TVector CDigitank::GetGlobalOrigin() const
 {
-	TUnimplemented();
+	TStubbed("CDigitank::GetGlobalOrigin()");
+	return BaseClass::GetGlobalOrigin();
+
+#if 0
 	float flTransitionTime = GetTransitionTime();
 
 	if (!GameNetwork()->IsConnected() || GetDigitanksPlayer() && !GetDigitanksPlayer()->IsHumanControlled())
@@ -2953,6 +2956,7 @@ const TVector CDigitank::GetGlobalOrigin() const
 	}
 
 	return BaseClass::GetGlobalOrigin();
+#endif
 }
 
 Vector CDigitank::GetRealOrigin() const
@@ -2960,9 +2964,12 @@ Vector CDigitank::GetRealOrigin() const
 	return BaseClass::GetGlobalOrigin();
 }
 
-EAngle CDigitank::GetAngles() const
+const EAngle CDigitank::GetGlobalAngles() const
 {
-	TUnimplemented();
+	TStubbed("CDigitank::GetGlobalAngles()");
+	return BaseClass::GetGlobalAngles();
+
+#if 0
 	float flTransitionTime = GetTransitionTime();
 
 	if (!GameNetwork()->IsConnected() || GetDigitanksPlayer() && !GetDigitanksPlayer()->IsHumanControlled())
@@ -2981,6 +2988,7 @@ EAngle CDigitank::GetAngles() const
 	}
 
 	return BaseClass::GetGlobalAngles();
+#endif
 }
 
 void CDigitank::PreRender() const
@@ -3117,11 +3125,11 @@ EAngle CDigitank::GetRenderAngles() const
 				Vector vecDirection = (vecLookAt - GetGlobalOrigin()).Normalized();
 				float flYaw = atan2(vecDirection.z, vecDirection.x) * 180/M_PI;
 
-				float flTankTurn = AngleDifference(flYaw, GetAngles().y);
+				float flTankTurn = AngleDifference(flYaw, GetGlobalAngles().y);
 				if (fabs(flTankTurn)/TurnPerPower() > GetRemainingMovementEnergy())
 					flTankTurn = (flTankTurn / fabs(flTankTurn)) * GetRemainingMovementEnergy() * TurnPerPower() * 0.95f;
 
-				return EAngle(0, GetAngles().y + flTankTurn, 0);
+				return EAngle(0, GetGlobalAngles().y + flTankTurn, 0);
 			}
 		}
 	}
@@ -3129,10 +3137,10 @@ EAngle CDigitank::GetRenderAngles() const
 	if (IsRocking())
 	{
 		EAngle angReturn;
-		angReturn.y = GetAngles().y;
+		angReturn.y = GetGlobalAngles().y;
 
 		Vector vecForward, vecRight;
-		AngleVectors(GetAngles(), &vecForward, &vecRight, NULL);
+		AngleVectors(GetGlobalAngles(), &vecForward, &vecRight, NULL);
 		float flDotForward = -m_vecRockDirection.Get().Dot(vecForward.Normalized());
 		float flDotRight = -m_vecRockDirection.Get().Dot(vecRight.Normalized());
 
@@ -3144,7 +3152,7 @@ EAngle CDigitank::GetRenderAngles() const
 		return angReturn;
 	}
 
-	return GetAngles();
+	return GetGlobalAngles();
 }
 
 void CDigitank::ModifyContext(CRenderingContext* pContext) const
@@ -3297,7 +3305,7 @@ bool CDigitank::IsAvailableAreaActive(int iArea) const
 	if (GetVisibility(pTank->GetDigitanksPlayer()) < 0.4f)
 		return false;
 
-	if (pTank->FiringCone() < 360 && fabs(AngleDifference(pTank->GetAngles().y, VectorAngles((GetGlobalOrigin()-pTank->GetGlobalOrigin()).Normalized()).y)) > pTank->FiringCone())
+	if (pTank->FiringCone() < 360 && fabs(AngleDifference(pTank->GetGlobalAngles().y, VectorAngles((GetGlobalOrigin() - pTank->GetGlobalOrigin()).Normalized()).y)) > pTank->FiringCone())
 		return false;
 
 	return true;

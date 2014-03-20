@@ -1007,9 +1007,15 @@ void CApplication::ProcessJoystickInput()
 
 void CApplication::SetMouseCursorEnabled(bool bEnabled)
 {
-	SDL_ShowCursor(bEnabled);
+	int iShown = SDL_ShowCursor(bEnabled);
 
-	m_bMouseEnabled = bEnabled;
+	if (iShown < 0)
+	{
+		TError("Couldn't change mouse state: " + tstring(SDL_GetError()));
+		return;
+	}
+
+	m_bMouseEnabled = !!iShown;
 }
 
 bool CApplication::IsMouseCursorEnabled()

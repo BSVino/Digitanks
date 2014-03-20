@@ -786,7 +786,7 @@ void CHUD::Think()
 				pCurrentTank->SetPreviewTurn(flTurn);
 			}
 			else
-				pCurrentTank->SetPreviewTurn(pCurrentTank->GetAngles().y);
+				pCurrentTank->SetPreviewTurn(pCurrentTank->GetGlobalAngles().y);
 		}
 
 		if (DigitanksGame()->GetControlMode() == MODE_AIM)

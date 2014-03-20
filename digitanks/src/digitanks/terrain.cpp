@@ -283,14 +283,20 @@ void CTerrain::GenerateTerrain(float flHeight)
 		if (hTerrainHeight)
 			pclrTerrainHeight = CRenderer::LoadTextureData(hTerrainHeight.GetName(), w, h);
 
-		TAssert(w == TERRAIN_SIZE);
-		TAssert(h == TERRAIN_SIZE);
+		if (pclrTerrainHeight)
+		{
+			TAssert(w == TERRAIN_SIZE);
+			TAssert(h == TERRAIN_SIZE);
+		}
 
 		if (hTerrainData)
 			pclrTerrainData = CRenderer::LoadTextureData(hTerrainData.GetName(), w, h);
 
-		TAssert(w == TERRAIN_SIZE);
-		TAssert(h == TERRAIN_SIZE);
+		if (pclrTerrainData)
+		{
+			TAssert(w == TERRAIN_SIZE);
+			TAssert(h == TERRAIN_SIZE);
+		}
 	}
 
 	CSimplexNoise<float> n1(m_iSpawnSeed);
@@ -575,7 +581,7 @@ void CTerrain::GenerateCollision()
 						Vector v3 = Vector(flX1, GetRealHeight(ax1, ay1), flY1);
 						Vector v4 = Vector(flX1, GetRealHeight(ax1, ay), flY);
 
-						TUnimplemented();
+						TStubbed("Generate collision triangles");
 						//pChunk->m_pTracer->AddTriangle(v1, v2, v3);
 						//pChunk->m_pTracer->AddTriangle(v1, v3, v4);
 					}
@@ -1402,13 +1408,13 @@ void CTerrain::RenderWithShaders() const
 		{
 			c.SetUniform("vecTankOrigin", pCurrentTank->GetGlobalOrigin());
 			c.SetUniform("vecTurnPosition", vecPoint);
-			c.SetUniform("flTankYaw", pCurrentTank->GetAngles().y);
+			c.SetUniform("flTankYaw", pCurrentTank->GetGlobalAngles().y);
 			c.SetUniform("flTankMaxYaw", pCurrentTank->GetRemainingTurningDistance());
 
 			Vector vecDirection = (vecPoint - pCurrentTank->GetGlobalOrigin()).Normalized();
 			float flYaw = atan2(vecDirection.z, vecDirection.x) * 180/M_PI;
 
-			float flTankTurn = AngleDifference(flYaw, pCurrentTank->GetAngles().y);
+			float flTankTurn = AngleDifference(flYaw, pCurrentTank->GetGlobalAngles().y);
 
 			if (!pCurrentTank->IsPreviewMoveValid())
 				c.SetUniform("bTurnValid", true);
@@ -1442,7 +1448,7 @@ void CTerrain::RenderWithShaders() const
 		if (bIsCurrentTeam && DigitanksGame()->GetControlMode() == MODE_TURN)
 			c.SetUniform("flTankYaw", pCurrentTank->GetPreviewTurn());
 		else
-			c.SetUniform("flTankYaw", pCurrentTank->GetAngles().y);
+			c.SetUniform("flTankYaw", pCurrentTank->GetGlobalAngles().y);
 
 		c.SetUniform("flTankFiringCone", pCurrentTank->FiringCone());
 	}

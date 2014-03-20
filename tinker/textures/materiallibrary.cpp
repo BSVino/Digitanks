@@ -53,6 +53,9 @@ CMaterialHandle CMaterialLibrary::AddMaterial(const class CData* pData, const ts
 		return hMaterial;
 
 	CMaterial* pMaterial = CreateMaterial(pData, sMaterial);
+	if (!pMaterial)
+		return CMaterialHandle();
+
 	return CMaterialHandle(pMaterial->m_sFile, pMaterial);
 }
 

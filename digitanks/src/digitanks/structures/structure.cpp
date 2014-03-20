@@ -250,7 +250,7 @@ bool CStructure::IsAvailableAreaActive(int iArea) const
 	if (GetVisibility(pTank->GetDigitanksPlayer()) < 0.1f)
 		return false;
 
-	if (pTank->FiringCone() < 360 && fabs(AngleDifference(pTank->GetAngles().y, VectorAngles((GetGlobalOrigin()-pTank->GetGlobalOrigin()).Normalized()).y)) > pTank->FiringCone())
+	if (pTank->FiringCone() < 360 && fabs(AngleDifference(pTank->GetGlobalAngles().y, VectorAngles((GetGlobalOrigin() - pTank->GetGlobalOrigin()).Normalized()).y)) > pTank->FiringCone())
 		return false;
 
 	if (pTank->GetCurrentWeapon() == PROJECTILE_TREECUTTER)
