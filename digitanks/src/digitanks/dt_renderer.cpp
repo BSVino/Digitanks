@@ -243,7 +243,7 @@ void CDigitanksRenderer::DrawSkybox(class CRenderingContext* pContext)
 
 	if (true)
 	{
-		CGameRenderingContext r(this);
+		CGameRenderingContext r(this, true);
 
 		r.SetBlend(BLEND_ADDITIVE);
 		r.SetDepthMask(false);
@@ -256,7 +256,7 @@ void CDigitanksRenderer::DrawSkybox(class CRenderingContext* pContext)
 
 	if (true)
 	{
-		CGameRenderingContext r(this);
+		CGameRenderingContext r(this, true);
 
 		r.SetBlend(BLEND_ADDITIVE);
 		r.SetDepthMask(false);
@@ -269,7 +269,7 @@ void CDigitanksRenderer::DrawSkybox(class CRenderingContext* pContext)
 
 	if (true)
 	{
-		CGameRenderingContext r(this);
+		CGameRenderingContext r(this, true);
 
 		r.SetBlend(BLEND_ADDITIVE);
 		r.SetDepthMask(false);
@@ -680,7 +680,7 @@ void CDigitanksRenderer::RenderAvailableAreas()
 			if (!pDTEntity->IsAvailableAreaActive(j))
 				continue;
 
-			CRenderingContext c(this);
+			CRenderingContext c(this, true);
 			c.UseFrameBuffer(&m_oVisibility1Buffer);
 			c.ClearColor();
 			c.SetDepthMask(false);
@@ -847,7 +847,7 @@ void CDigitanksRenderer::RenderTendrilBatches()
 	if (!DigitanksGame())
 		return;
 
-	CRenderingContext r(GameServer()->GetRenderer());
+	CRenderingContext r(GameServer()->GetRenderer(), true);
 
 	r.UseProgram("scroll");
 

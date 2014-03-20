@@ -41,11 +41,11 @@ void CGameRenderingContext::RenderModel(size_t iModel, const CBaseEntity* pEntit
 		bBatchThis = false;
 	else if (!pEntity->ShouldBatch())
 		bBatchThis = false;
+	else if (GetContext().m_eBlend != BLEND_NONE)
+		bBatchThis = false;
 
 	if (bBatchThis)
 	{
-		TAssert(GetContext().m_eBlend == BLEND_NONE);
-
 		m_pRenderer->AddToBatch(pModel, pEntity, GetContext().m_mTransformations, m_clrRender, GetContext().m_bWinding);
 	}
 	else

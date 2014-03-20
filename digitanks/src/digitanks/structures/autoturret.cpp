@@ -72,7 +72,7 @@ void CAutoTurret::OnRender(CGameRenderingContext* pContext) const
 	if (GetHealth() < GetTotalHealth()/2)
 		flFlicker = Flicker("zzzzmmzzztzzzzzznzzz", (float)GameServer()->GetGameTime() + ((float)GetSpawnSeed()/100), 1.0f);
 
-	CGameRenderingContext r(GameServer()->GetRenderer());
+	CGameRenderingContext r(GameServer()->GetRenderer(), true);
 
 	float flFinalAlpha = flFlicker*GetVisibility()*0.4f;
 

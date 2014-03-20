@@ -991,7 +991,7 @@ void CHUD::Paint(float x, float y, float w, float h)
 #ifdef DT_COMPETITION
 	if (true)
 	{
-		CRenderingContext c(GameServer()->GetRenderer());
+		CRenderingContext c(GameServer()->GetRenderer(), true);
 		c.SetBlend(BLEND_ALPHA);
 		CRootPanel::PaintTexture(m_iCompetitionWatermark, 70, 20, 128/2, 128/2);
 	}
@@ -1029,7 +1029,7 @@ void CHUD::Paint(float x, float y, float w, float h)
 
 	if ((DigitanksGame()->GetGameType() == GAMETYPE_STANDARD || DigitanksGame()->GetGameType() == GAMETYPE_CAMPAIGN) && pCurrentLocalPlayer && pCurrentLocalPlayer->GetPrimaryCPU())
 	{
-		CRenderingContext c(GameServer()->GetRenderer());
+		CRenderingContext c(GameServer()->GetRenderer(), true);
 		c.SetBlend(BLEND_ALPHA);
 
 		PaintHUDSheet("TeamInfoBackground", iWidth - 208, 0, 208, 341);
@@ -1064,7 +1064,7 @@ void CHUD::Paint(float x, float y, float w, float h)
 			float flWidth = CLabel::GetTextWidth(sText, sText.length(), _T("text"), 13);
 			CLabel::PaintText(sText, sText.length(), _T("text"), 13, vecScreen.x - flWidth/2, vecScreen.y + 60);
 
-			CRenderingContext c(GameServer()->GetRenderer());
+			CRenderingContext c(GameServer()->GetRenderer(), true);
 			c.SetBlend(BLEND_ADDITIVE);
 			PaintSheet(&m_HUDSheet, "Objective", (int)vecScreen.x - 50, (int)vecScreen.y - 50, 100, 100);
 		}
@@ -1110,7 +1110,7 @@ void CHUD::Paint(float x, float y, float w, float h)
 
 			if (pTank && pTank->GetPlayerOwner() == pCurrentLocalPlayer)
 			{
-				CRenderingContext c(GameServer()->GetRenderer());
+				CRenderingContext c(GameServer()->GetRenderer(), true);
 				c.SetBlend(BLEND_ALPHA);
 
 				int iSize = 20;
@@ -1181,7 +1181,7 @@ void CHUD::Paint(float x, float y, float w, float h)
 			float flXPosition = vecScreen.x + flWidth/2;
 			float flIconSize = 10;
 
-			CRenderingContext c(GameServer()->GetRenderer());
+			CRenderingContext c(GameServer()->GetRenderer(), true);
 			c.SetBlend(BLEND_ALPHA);
 
 			Rect rArea = m_ButtonSheet.GetArea("Fortify");
@@ -1281,7 +1281,7 @@ void CHUD::Paint(float x, float y, float w, float h)
 		m_pCloseActionItems->Paint();
 
 	do {
-		CRenderingContext c(GameServer()->GetRenderer());
+		CRenderingContext c(GameServer()->GetRenderer(), true);
 		c.SetBlend(BLEND_ALPHA);
 
 		// Main control pannel
@@ -1430,7 +1430,7 @@ void CHUD::Paint(float x, float y, float w, float h)
 		m_pSpacebarHint->SetPos(iX, iY + 50);
 		m_pSpacebarHint->SetWrap(false);
 
-		CRenderingContext c(GameServer()->GetRenderer());
+		CRenderingContext c(GameServer()->GetRenderer(), true);
 		c.SetBlend(BLEND_ALPHA);
 
 		iY -= (int)(Bias(Oscillate(GameServer()->GetGameTime(), 0.5f), 0.2f) * 10);
@@ -1446,7 +1446,7 @@ void CHUD::Paint(float x, float y, float w, float h)
 	{
 		if (DigitanksGame()->GetAimType() == AIM_NORMAL)
 		{
-			CRenderingContext c(GameServer()->GetRenderer());
+			CRenderingContext c(GameServer()->GetRenderer(), true);
 			c.SetBlend(BLEND_ALPHA);
 
 			int iX = GetWidth()/2 - 150;
@@ -1505,7 +1505,7 @@ void CHUD::Paint(float x, float y, float w, float h)
 
 	if (pSelection)
 	{
-		CRenderingContext c(GameServer()->GetRenderer());
+		CRenderingContext c(GameServer()->GetRenderer(), true);
 		c.SetBlend(BLEND_ALPHA);
 
 		int iSize = 100;
@@ -1528,7 +1528,7 @@ void CHUD::Paint(float x, float y, float w, float h)
 	{
 		if (pTank->GetShieldValue() > 5)
 		{
-			CRenderingContext c(GameServer()->GetRenderer());
+			CRenderingContext c(GameServer()->GetRenderer(), true);
 
 			c.SetBlend(BLEND_ADDITIVE);
 
@@ -1565,7 +1565,7 @@ void CHUD::Paint(float x, float y, float w, float h)
 
 			size_t iTankOffset = (size_t)(Bias(1-flWarpIn, 0.2f) * iTankWidth*2);
 
-			CRenderingContext c(GameServer()->GetRenderer());
+			CRenderingContext c(GameServer()->GetRenderer(), true);
 			c.SetBlend(BLEND_ALPHA);
 
 			PaintSheet(m_hActionTanksSheet, iTotalWidth-iTankWidth*3/2 + iTankOffset, iTotalHeight/2-iTankHeight/2, iTankWidth, iTankHeight, 0, 0, 512, 256, 512, 512, Color(255, 255, 255, (int)(flAlpha*255)));
@@ -1590,7 +1590,7 @@ void CHUD::Paint(float x, float y, float w, float h)
 
 	if (m_iCurrentSmallActionItem < m_apActionItemButtons.size() && m_flSmallActionItemLerp > 0)
 	{
-		CRenderingContext c(GameServer()->GetRenderer());
+		CRenderingContext c(GameServer()->GetRenderer(), true);
 		c.SetBlend(BLEND_ALPHA);
 
 		CPictureButton* pActionItem = m_apActionItemButtons[m_iCurrentSmallActionItem];
@@ -1623,7 +1623,7 @@ void CHUD::Paint(float x, float y, float w, float h)
 
 		if (DigitanksGame()->GetCurrentLocalDigitanksPlayer()->GetActionItem(i)->bHandled)
 		{
-			CRenderingContext c(GameServer()->GetRenderer());
+			CRenderingContext c(GameServer()->GetRenderer(), true);
 			c.SetBlend(BLEND_ALPHA);
 			PaintHUDSheet("CheckMark", pButton->GetLeft(), pButton->GetTop(), pButton->GetWidth(), pButton->GetHeight(), Color(255, 255, 255));
 		}
@@ -1633,7 +1633,7 @@ void CHUD::Paint(float x, float y, float w, float h)
 	{
 		// Don't clear it in the start, we want dead tanks to remain in the list so we can mark them asploded.
 
-		CRenderingContext c(GameServer()->GetRenderer());
+		CRenderingContext c(GameServer()->GetRenderer(), true);
 		c.SetBlend(BLEND_ALPHA);
 
 		for (size_t i = 0; i < DigitanksGame()->GetNumPlayers(); i++)
@@ -1723,7 +1723,7 @@ void CHUD::Paint(float x, float y, float w, float h)
 			else
 				sText = _T("Tank Upgrade Received!");
 
-			CRenderingContext c(GameServer()->GetRenderer());
+			CRenderingContext c(GameServer()->GetRenderer(), true);
 			c.SetAlpha(RemapValClamped(GameServer()->GetGameTime() - pNotification->flTime, 1.5, 2, 1.0, 0));
 			c.SetColor(Color(255, 255, 255, 255));
 			glgui::CLabel::PaintText(sText, sText.length(), _T("header"), 18, (float)(iX + iNotificationHeight + 20), (float)(iY + iNotificationHeight - 15));
@@ -1758,7 +1758,7 @@ void CHUD::Paint(float x, float y, float w, float h)
 		else
 			sArea = "Upgrade";
 
-		CRenderingContext c(GameServer()->GetRenderer());
+		CRenderingContext c(GameServer()->GetRenderer(), true);
 		c.SetBlend(BLEND_ADDITIVE);
 		Color clrPowerup(255, 255, 255, 255);
 		clrPowerup.SetAlpha((float)RemapValClamped(GameServer()->GetGameTime() - pNotification->flTime, 2.5, 3.0, 1.0, 0));
@@ -1778,7 +1778,7 @@ void CHUD::Paint(float x, float y, float w, float h)
 
 		Color clrMedal = Color(255, 255, 255, (int)(255*flAlpha));
 
-		CRenderingContext c(GameServer()->GetRenderer());
+		CRenderingContext c(GameServer()->GetRenderer(), true);
 		c.SetBlend(BLEND_ALPHA);
 		glgui::CBaseControl::PaintTexture(m_hSelectorMedalTexture, w/2-128, h/2-128, 256, 256, clrMedal);
 
@@ -1802,7 +1802,7 @@ void CHUD::Paint(float x, float y, float w, float h)
 
 		Color clrFile = Color(255, 255, 255, (int)(255*flAlpha));
 
-		CRenderingContext c(GameServer()->GetRenderer());
+		CRenderingContext c(GameServer()->GetRenderer(), true);
 		c.SetBlend(BLEND_ALPHA);
 		glgui::CBaseControl::PaintTexture(CMaterialLibrary::FindAsset(m_sFileRescueTexture), w/2-128, h/2-128, 256, 256, clrFile);
 
@@ -1817,7 +1817,7 @@ void CHUD::Paint(float x, float y, float w, float h)
 	{
 		tstring sChooseHint = _T("Choose a promotion for this unit below.");
 
-		CRenderingContext c(GameServer()->GetRenderer());
+		CRenderingContext c(GameServer()->GetRenderer(), true);
 		c.SetBlend(BLEND_ALPHA);
 		c.SetColor(Color(255, 255, 255, (int)(255*RemapVal(Oscillate(GameServer()->GetGameTime(), 1), 0, 1, 0.5f, 1))));
 
@@ -1835,7 +1835,7 @@ void CHUD::PaintCameraGuidedMissile(float x, float y, float w, float h)
 
 	Color clrWhite = Color(255, 255, 255, 120);
 
-	CRenderingContext c(GameServer()->GetRenderer());
+	CRenderingContext c(GameServer()->GetRenderer(), true);
 	c.SetBlend(BLEND_ADDITIVE);
 	c.SetColor(clrWhite);
 
@@ -2025,7 +2025,7 @@ void CHUD::PaintCameraGuidedMissile(float x, float y, float w, float h)
 		m_pSpacebarHint->SetPos(iX, iY + 50);
 		m_pSpacebarHint->SetWrap(false);
 
-		CRenderingContext c(GameServer()->GetRenderer());
+		CRenderingContext c(GameServer()->GetRenderer(), true);
 		c.SetBlend(BLEND_ALPHA);
 
 		iY -= (int)(Bias(Oscillate(GameServer()->GetGameTime(), 0.5f), 0.2f) * 10);

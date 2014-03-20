@@ -119,7 +119,7 @@ void CLaser::PostRender() const
 	if (!m_hOwner)
 		return;
 
-	CRenderingContext r(DigitanksGame()->GetDigitanksRenderer());
+	CRenderingContext r(DigitanksGame()->GetDigitanksRenderer(), true);
 
 	r.SetBlend(BLEND_ADDITIVE);
 

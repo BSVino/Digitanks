@@ -891,7 +891,7 @@ void CCPU::RenderAvailableArea(int iArea)
 	if (m_ePreviewStructure == STRUCTURE_FIREWALL)
 		flRadius = CAutoTurret::DefenseRadius();
 
-	CRenderingContext c(GameServer()->GetRenderer());
+	CRenderingContext c(GameServer()->GetRenderer(), true);
 	c.Translate(GetPreviewBuild());
 	c.Scale(flRadius, flRadius, flRadius);
 	c.RenderSphere();

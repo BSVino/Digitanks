@@ -123,7 +123,7 @@ void CWreckage::OnRender(class CGameRenderingContext* pContext) const
 	if (!GameServer()->GetRenderer()->IsRenderingTransparent())
 		return;
 
-	CGameRenderingContext r(GameServer()->GetRenderer());
+	CGameRenderingContext r(GameServer()->GetRenderer(), true);
 
 	r.SetAlpha(pContext->GetAlpha() * flVisibility);
 	r.SetBlend(BLEND_ALPHA);

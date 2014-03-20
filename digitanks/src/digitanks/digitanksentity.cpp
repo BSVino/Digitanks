@@ -492,7 +492,7 @@ void CDigitanksEntity::RenderAvailableArea(int iArea)
 	if (dynamic_cast<CStructure*>(this) && DigitanksGame()->GetControlMode() == MODE_AIM)
 		flScoutScale = 10;
 
-	CGameRenderingContext c(GameServer()->GetRenderer());
+	CGameRenderingContext c(GameServer()->GetRenderer(), true);
 	c.Translate(GetGlobalOrigin());
 	c.Scale(flAvailableArea, flAvailableArea*flScoutScale, flAvailableArea);
 	c.RenderSphere();
@@ -586,7 +586,7 @@ void CDigitanksEntity::OnRender(CGameRenderingContext* pContext) const
 
 	if (GameServer()->GetRenderer()->IsRenderingTransparent() && IsImprisoned())
 	{
-		CGameRenderingContext c(GameServer()->GetRenderer());
+		CGameRenderingContext c(GameServer()->GetRenderer(), true);
 		c.SetBackCulling(false);
 		c.SetBlend(BLEND_ADDITIVE);
 		c.Scale(GetBoundingRadius(), GetBoundingRadius(), GetBoundingRadius());
@@ -604,7 +604,7 @@ void CDigitanksEntity::OnRender(CGameRenderingContext* pContext) const
 
 	if (GameServer()->GetRenderer()->IsRenderingTransparent() && IsImprisoned())
 	{
-		CGameRenderingContext c(GameServer()->GetRenderer());
+		CGameRenderingContext c(GameServer()->GetRenderer(), true);
 		c.SetBackCulling(false);
 		c.SetBlend(BLEND_ADDITIVE);
 		c.Scale(GetBoundingRadius()+1, GetBoundingRadius()+1, GetBoundingRadius()+1);
@@ -629,7 +629,7 @@ void CDigitanksEntity::OnRender(CGameRenderingContext* pContext) const
 	if (GetVisibility() < 0.6f)
 		return;
 
-	CGameRenderingContext c(GameServer()->GetRenderer());
+	CGameRenderingContext c(GameServer()->GetRenderer(), true);
 	c.SetBlend(BLEND_NONE);
 	c.SetAlpha(1);
 	c.BindTexture(0);

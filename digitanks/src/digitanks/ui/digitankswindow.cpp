@@ -210,7 +210,7 @@ void CDigitanksWindow::RenderLoading()
 	if (!m_hLunarWorkshop)
 		m_hLunarWorkshop = CMaterialLibrary::AddMaterial("textures/lunar-workshop.mat");
 
-	CRenderingContext c(GetRenderer());
+	CRenderingContext c(GetRenderer(), true);
 
 	c.ClearColor();
 	c.ClearDepth();
@@ -242,7 +242,7 @@ void CDigitanksWindow::RenderMouseCursor()
 	if (m_eMouseCursor == MOUSECURSOR_NONE)
 		return;
 
-	CRenderingContext c(GetRenderer());
+	CRenderingContext c(GetRenderer(), true);
 
 	c.ClearColor();
 	c.ClearDepth();
@@ -499,7 +499,7 @@ bool CDigitanksWindow::GetMouseGridPosition(Vector& vecPoint, CBaseEntity** pHit
 
 	Vector vecRay = (vecWorld - vecCameraVector).Normalized();
 
-	TUnimplemented();
+	TStubbed("GetMouseGridPosition");
 	return false;//GameServer()->GetGame()->TraceLine(vecCameraVector, vecCameraVector+vecRay*1000, vecPoint, pHit, iCollisionGroup);
 }
 

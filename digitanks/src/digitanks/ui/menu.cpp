@@ -773,7 +773,7 @@ void CArtilleryGamePanel::Paint(float x, float y, float w, float h)
 {
 	if (true)
 	{
-		CRenderingContext c(GameServer()->GetRenderer());
+		CRenderingContext c(GameServer()->GetRenderer(), true);
 		c.SetBlend(BLEND_ALPHA);
 
 		float ax, ay;
@@ -1050,7 +1050,7 @@ void CStrategyGamePanel::Paint(float x, float y, float w, float h)
 {
 	if (true)
 	{
-		CRenderingContext c(GameServer()->GetRenderer());
+		CRenderingContext c(GameServer()->GetRenderer(), true);
 		c.SetBlend(BLEND_ALPHA);
 
 		float ax, ay;

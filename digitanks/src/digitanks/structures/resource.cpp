@@ -124,7 +124,7 @@ void CResourceNode::PostRender() const
 
 		if (bShowPreview)
 		{
-			CGameRenderingContext r(GameServer()->GetRenderer());
+			CGameRenderingContext r(GameServer()->GetRenderer(), true);
 			r.Translate(GetGlobalOrigin());
 
 			r.SetUniform("bColorSwapInAlpha", true);

@@ -1300,7 +1300,7 @@ void CTerrain::OnRender(CGameRenderingContext* pContext) const
 #ifdef DEBUG_RENDERQUADTREE
 	if (!bTransparent)
 	{
-		CRenderingContext c(GameServer()->GetRenderer());
+		CRenderingContext c(GameServer()->GetRenderer(), true);
 		c.SetDepthTest(false);
 		DebugRenderQuadTree();
 
@@ -1344,7 +1344,7 @@ void CTerrain::RenderTransparentTerrain() const
 		if (pRunner->avecPoints.size() < 2)
 			continue;
 
-		CRenderingContext c(GameServer()->GetRenderer());
+		CRenderingContext c(GameServer()->GetRenderer(), true);
 		c.SetBlend(BLEND_ADDITIVE);
 
 		CRopeRenderer oRope(GameServer()->GetRenderer(), s_iBeamTexture, pRunner->avecPoints.front(), 0.5f);

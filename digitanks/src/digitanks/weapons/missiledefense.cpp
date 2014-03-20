@@ -74,7 +74,7 @@ void CMissileDefense::OnRender(class CGameRenderingContext* pContext)
 	if (GameServer()->GetRenderer()->IsRenderingTransparent())
 		return;
 
-	CRenderingContext r(DigitanksGame()->GetDigitanksRenderer());
+	CRenderingContext r(DigitanksGame()->GetDigitanksRenderer(), true);
 
 	r.RenderSphere();
 }

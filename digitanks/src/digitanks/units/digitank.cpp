@@ -3002,7 +3002,7 @@ void CDigitank::PreRender() const
 		Vector vecForward, vecRight, vecUp;
 		pRenderer->GetCameraVectors(&vecForward, &vecRight, &vecUp);
 
-		CRenderingContext c(pRenderer);
+		CRenderingContext c(pRenderer, true);
 
 		Vector vecOrigin = GetRenderOrigin();
 		Vector vecParticleUp, vecParticleRight;
@@ -3162,6 +3162,9 @@ void CDigitank::ModifyContext(CRenderingContext* pContext) const
 	if (!GetPlayerOwner())
 		return;
 
+	if (!pContext->GetActiveShader())
+		return;
+
 	pContext->SetUniform("bColorSwapInAlpha", true);
 	pContext->SetUniform("vecColorSwap", GetPlayerOwner()->GetColor());
 }
@@ -3192,7 +3195,9 @@ void CDigitank::RenderTurret(float flAlpha) const
 	if (!GameServer()->GetRenderer()->IsRenderingTransparent() && flVisibility < 1)
 		return;
 
-	CGameRenderingContext r(GameServer()->GetRenderer());
+	CGameRenderingContext r(GameServer()->GetRenderer(), true);
+
+	r.UseProgram("model");
 
 	if (GameServer()->GetRenderer()->IsRenderingTransparent() && flVisibility < 1)
 	{
@@ -3235,7 +3240,7 @@ void CDigitank::RenderShield() const
 	if (GetShieldValue() < GetShieldMaxStrength()*3/4)
 		flFlicker = Flicker("zzzzmmzzztzzzzzznzzz", (float)GameServer()->GetGameTime() + ((float)GetSpawnSeed()/100), 1.0f);
 
-	CGameRenderingContext r(GameServer()->GetRenderer());
+	CGameRenderingContext r(GameServer()->GetRenderer(), true);
 
 	if (m_flShieldPulse == 0.0)
 		return;
@@ -3313,7 +3318,7 @@ bool CDigitank::IsAvailableAreaActive(int iArea) const
 
 void CDigitank::DrawSchema(float x, float y, float w, float h)
 {
-	CRenderingContext c(GameServer()->GetRenderer());
+	CRenderingContext c(GameServer()->GetRenderer(), true);
 	c.SetBlend(BLEND_ALPHA);
 
 	float flSize = 36;
@@ -3629,7 +3634,10 @@ void CDigitank::Speak(size_t iSpeech)
 	if (DigitanksGame()->GetTerrain()->IsPointInTrees(GetGlobalOrigin()))
 		return;
 
-	size_t iLine = g_aiSpeechLines[iSpeech][rand()%g_aiSpeechLines[iSpeech].size()];
+	if (!g_aiSpeechLines.size())
+		return;
+
+	size_t iLine = g_aiSpeechLines[iSpeech][rand() % g_aiSpeechLines[iSpeech].size()];
 
 	m_flLastSpeech = GameServer()->GetGameTime();
 	m_flNextIdle = GameServer()->GetGameTime() + RandomFloat(10, 20);
@@ -3661,7 +3669,7 @@ float CDigitank::FindHoverHeight(Vector vecPosition) const
 	float flHighestTerrain = pTerrain->GetHeight(vecPosition.x, vecPosition.y);
 	bool bHit;
 
-	TUnimplemented();
+	TStubbed("FindHoverHeight");
 	bHit = false;//Game()->TraceLine(vecPosition + Vector(0, 0, 100), vecPosition + Vector(0, 0, -100), vecHit, NULL, CG_TERRAIN|CG_PROP);
 	if (bHit)
 		flHighestTerrain = vecHit.z;

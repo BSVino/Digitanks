@@ -51,7 +51,10 @@ void CInstructor::Initialize()
 	FILE* fp = tfopen_asset("scripts/instructor.txt", "r");
 
 	if (!fp)
+	{
+		TMsg("Couldn't load instructor script.\n");
 		return;
+	}
 
 	std::shared_ptr<CData> pData(new CData());
 	CDataSerializer::Read(fp, pData.get());
@@ -295,6 +298,12 @@ void CInstructor::FinishedLesson(tstring sLesson, bool bForceNext)
 	if (sLesson != m_sCurrentLesson)
 		return;
 
+	if (!m_apLessons.size())
+		return;
+
+	if (m_apLessons.find(sLesson) == m_apLessons.end())
+		return;
+
 	if (m_pCurrentPanel)
 		// Only play the sound if the current panel is showing so we don't play it multiple times.
 		CSoundLibrary::PlaySound(NULL, "sound/lesson-learned.wav");
@@ -415,6 +424,12 @@ void CPlayer::Instructor_Think()
 		{
 			CLessonProgress* pLessonProgress = &it->second;
 			CLesson* pLesson = GameWindow()->GetInstructor()->GetLesson(it->first);
+
+			if (!pLesson)
+			{
+				TMsg("Couldn't find lesson '" + it->first + "'\n");
+				continue;
+			}
 
 			if (pLesson->m_iLessonType == CLesson::LESSON_ENVIRONMENT)
 				continue;

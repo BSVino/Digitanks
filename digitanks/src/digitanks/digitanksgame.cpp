@@ -523,6 +523,7 @@ void CDigitanksGame::ScatterNeutralUnits()
 	pPlayer->Bot_UseArtilleryAI();
 	pPlayer->SetNotHumanPlayable();
 	pPlayer->DontIncludeInScoreboard();
+	pPlayer->SetClient(NETWORK_BOT);
 
 	for (int i = (int)-m_hTerrain->GetMapSize(); i < (int)m_hTerrain->GetMapSize(); i += 100)
 	{
@@ -1333,6 +1334,7 @@ void CDigitanksGame::SetupArtilleryRound()
 	tvector<tstring> asSpare;
 	asSpare.push_back("CDigitanksGame");
 	asSpare.push_back("CDigitanksPlayer");
+	asSpare.push_back("COverheadCamera");
 
 	GameServer()->DestroyAllEntities(asSpare);
 

@@ -127,7 +127,7 @@ void CWeaponPanel::Paint(float x, float y, float w, float h)
 		if (DigitanksGame()->GetPrimarySelectionTank()->GetPlayerOwner())
 			clrTeam = DigitanksGame()->GetPrimarySelectionTank()->GetPlayerOwner()->GetColor();
 
-		CRenderingContext c(GameServer()->GetRenderer());
+		CRenderingContext c(GameServer()->GetRenderer(), true);
 
 		c.SetBlend(BLEND_ALPHA);
 		DigitanksWindow()->GetHUD()->PaintUnitSheet(DigitanksGame()->GetPrimarySelectionTank()->GetUnitType(), iWindowWidth/4 - iTankSize/2, iWindowHeight/2 - iTankSize/2, iTankSize, iTankSize, clrTeam);

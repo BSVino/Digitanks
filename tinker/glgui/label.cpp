@@ -609,6 +609,9 @@ void CLabel::ComputeLines(float w, float h)
 		oLine.m_flLineWidth = 0;
 		m_aLines.push_back(oLine);
 
+		if (!aSectionStack.size())
+			continue;
+
 		// Default the line height to whatever's on the top of the section stack.
 		CLineSection& oTopSection = aSectionStack.back();
 		auto pFont = oTopSection.m_pFont;
@@ -700,8 +703,12 @@ void CLabel::ComputeLines(float w, float h)
 			}
 			else if (tstrncmp(&sLine[iChar], "[/color]", 8) == 0)
 			{
-				TAssert(aSectionStack.size());
-				TAssert(aSectionStack.back().m_bColor);
+				// If we have a [/color] without a [color], just skip it.
+				if (!aSectionStack.size() || !aSectionStack.back().m_bColor)
+				{
+					iChar += 8;
+					continue;
+				}
 
 				// We're ending a section, push our line.
 				PushSection(aSectionStack.back(), tstring(&sLine[iLastBreak], &sLine[iChar]));

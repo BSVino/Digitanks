@@ -219,7 +219,7 @@ void CProjectile::OnRender(class CGameRenderingContext* pContext) const
 	{
 		if (!GameServer()->GetRenderer()->IsRenderingTransparent())
 		{
-			CRenderingContext c(GameServer()->GetRenderer());
+			CRenderingContext c(GameServer()->GetRenderer(), true);
 			c.Scale(ShellRadius(), ShellRadius(), ShellRadius());
 			c.SetColor(GetBonusDamageColor());
 			c.RenderSphere();
@@ -230,7 +230,7 @@ void CProjectile::OnRender(class CGameRenderingContext* pContext) const
 		float flAlpha = RemapValClamped((float)(GameServer()->GetGameTime()-m_flTimeExploded), 0.2f, 1.2f, 1, 0);
 		if (flAlpha > 0 && GameServer()->GetRenderer()->IsRenderingTransparent())
 		{
-			CRenderingContext c(GameServer()->GetRenderer());
+			CRenderingContext c(GameServer()->GetRenderer(), true);
 			c.UseFrameBuffer(DigitanksGame()->GetDigitanksRenderer()->GetExplosionBuffer());
 			c.Scale(ExplosionRadius(), ExplosionRadius(), ExplosionRadius());
 			c.SetAlpha(flAlpha);

@@ -254,7 +254,7 @@ void CSceneTreeGroup::Paint(float x, float y, float w, float h, bool bFloating)
 
 	CDigitanksPlayer* pCurrentLocalTeam = DigitanksGame()->GetCurrentLocalDigitanksPlayer();
 
-	CRenderingContext c(GameServer()->GetRenderer());
+	CRenderingContext c(GameServer()->GetRenderer(), true);
 	c.SetBlend(BLEND_ALPHA);
 
 	CHUD::PaintUnitSheet(m_eUnit, x+h, y, h, h, pCurrentLocalTeam?pCurrentLocalTeam->GetColor():Color(255,255,255,255));
@@ -294,7 +294,7 @@ void CSceneTreeUnit::Paint(float x, float y, float w, float h, bool bFloating)
 	if (!m_hEntity)
 		return;
 
-	CRenderingContext c(GameServer()->GetRenderer());
+	CRenderingContext c(GameServer()->GetRenderer(), true);
 	c.SetBlend(BLEND_ALPHA);
 
 	Color clrTeam = m_hEntity->GetPlayerOwner()?m_hEntity->GetPlayerOwner()->GetColor():Color(255,255,255,255);

@@ -104,7 +104,7 @@ void CLoader::PostRender() const
 
 	if (GameServer()->GetRenderer()->IsRenderingTransparent() && IsProducing() && GetVisibility() > 0)
 	{
-		CGameRenderingContext c(GameServer()->GetRenderer());
+		CGameRenderingContext c(GameServer()->GetRenderer(), true);
 		c.Translate(GetGlobalOrigin());
 		c.SetAlpha(GetVisibility() * 0.3f);
 		c.SetBlend(BLEND_ADDITIVE);
@@ -476,7 +476,7 @@ void CLoader::DrawQueue(float x, float y, float w, float h)
 
 	glgui::CRootPanel::PaintRect(x + w/2 - flSize/2, y + h/2 + flSize/2, flSize*iTurnsProgressed/iTotalTurns, 3, Color(255, 255, 0));
 
-	CRenderingContext c(GameServer()->GetRenderer());
+	CRenderingContext c(GameServer()->GetRenderer(), true);
 	c.SetColor(Color(255,255,255));
 	tstring sTurns = sprintf(tstring(":%d"), GetTurnsRemainingToProduce());
 	glgui::CLabel::PaintText(sTurns, sTurns.length(), "text", 10, (float)(x + w/2 + flSize/2), (float)(y + h/2 - flSize/2 - 2));

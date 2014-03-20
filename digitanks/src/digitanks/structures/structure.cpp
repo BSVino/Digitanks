@@ -206,7 +206,7 @@ void CStructure::PostRender() const
 
 	if (GameServer()->GetRenderer()->IsRenderingTransparent() && (m_flConstructionStartTime > 0) && GetVisibility() > 0)
 	{
-		CGameRenderingContext c(GameServer()->GetRenderer());
+		CGameRenderingContext c(GameServer()->GetRenderer(), true);
 		c.Translate(GetGlobalOrigin());
 		c.Scale(m_flScaffoldingSize, m_flScaffoldingSize, m_flScaffoldingSize);
 		c.SetBlend(BLEND_ADDITIVE);
@@ -261,7 +261,7 @@ bool CStructure::IsAvailableAreaActive(int iArea) const
 
 void CStructure::DrawSchema(int x, int y, int w, int h)
 {
-	CRenderingContext c(GameServer()->GetRenderer());
+	CRenderingContext c(GameServer()->GetRenderer(), true);
 	c.SetBlend(BLEND_ALPHA);
 	c.SetColor(Color(255, 255, 255));
 
@@ -1002,7 +1002,7 @@ void CSupplier::PostRender() const
 	if (DigitanksGame()->GetTerrain()->GetBit(CTerrain::WorldToArraySpace(GetGlobalOrigin().x), CTerrain::WorldToArraySpace(GetGlobalOrigin().y), TB_TREE))
 		flTreeAlpha = 0.3f;
 
-	CRenderingContext r(GameServer()->GetRenderer());
+	CRenderingContext r(GameServer()->GetRenderer(), true);
 	if (DigitanksGame()->ShouldRenderFogOfWar())
 		r.UseFrameBuffer(DigitanksGame()->GetDigitanksRenderer()->GetVisibilityMaskedBuffer());
 	r.SetDepthMask(false);

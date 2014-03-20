@@ -141,7 +141,7 @@ void CMobileCPU::OnRender(class CGameRenderingContext* pContext) const
 	if (GetVisibility() == 0)
 		return;
 
-	CGameRenderingContext r(GameServer()->GetRenderer());
+	CGameRenderingContext r(GameServer()->GetRenderer(), true);
 
 	r.SetUniform("bColorSwapInAlpha", true);
 
