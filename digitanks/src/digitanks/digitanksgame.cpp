@@ -1388,8 +1388,8 @@ void CDigitanksGame::SetupArtilleryRound()
 				float flSectionPositionX = -GetTerrain()->GetMapSize() + flMapBuffer + flSectionSize*x;
 				float flSectionPositionY = -GetTerrain()->GetMapSize() + flMapBuffer + flSectionSize*y;
 
-				Vector vecSectionPosition(flSectionPositionX, 0, flSectionPositionY);
-				Vector vecSectionRandomize(RandomFloat(0, flSectionSize), 0, RandomFloat(0, flSectionSize));
+				Vector vecSectionPosition(flSectionPositionX, flSectionPositionY, 0);
+				Vector vecSectionRandomize(RandomFloat(0, flSectionSize), RandomFloat(0, flSectionSize), 0);
 
 				Vector vecTank = vecSectionPosition + vecSectionRandomize;
 
