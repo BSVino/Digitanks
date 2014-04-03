@@ -209,7 +209,9 @@ void CPanel::CursorMoved(int mx, int my, int dx, int dy)
 
 		if (m_hVerticalScrollBar && pControl != m_hVerticalScrollBar)
 		{
-			if (mx >= m_hVerticalScrollBar->GetLeft())
+			float sx, sy, sw, sh;
+			m_hVerticalScrollBar->GetAbsDimensions(sx, sy, sw, sh);
+			if (mx >= sx && my >= sy)
 				continue;
 		}
 
@@ -384,6 +386,36 @@ void CPanel::MoveToTop(CBaseControl* pControl)
 	}
 }
 
+void CPanel::ClearControls()
+{
+	tvector<CControlHandle> ahDeleteControls;
+
+	for (auto& pControl : m_apControls)
+	{
+		if (!ShouldClearControl(pControl))
+			continue;
+
+		ahDeleteControls.push_back(pControl);
+	}
+
+	while (ahDeleteControls.size())
+	{
+		RemoveControl(ahDeleteControls.back());
+		ahDeleteControls.pop_back();
+	}
+}
+
+bool CPanel::ShouldClearControl(CBaseControl* pControl)
+{
+	if (pControl == m_hHorizontalScrollBar)
+		return false;
+
+	if (pControl == m_hVerticalScrollBar)
+		return false;
+
+	return true;
+}
+
 void CPanel::DirtyVisible()
 {
 	BaseClass::DirtyVisible();
@@ -395,20 +427,38 @@ void CPanel::DirtyVisible()
 void CPanel::Layout( void )
 {
 	FRect rPanelBounds = GetAbsDimensions();
-	FRect rAllBounds = GetAbsDimensions();
+	FRect rAllBounds(0, 0, 0, 0);
+
+	if (m_apControls.size())
+		rAllBounds = m_apControls[0]->GetAbsDimensions();
 
 	size_t iCount = m_apControls.size();
-	for (size_t i = 0; i < iCount; i++)
+	for (size_t i = 1; i < iCount; i++)
 	{
-		m_apControls[i]->Layout();
+		CBaseControl* pControl = m_apControls[i];
+		if (pControl == m_hHorizontalScrollBar)
+			continue;
 
-		FRect rControlBounds = m_apControls[i]->GetAbsDimensions();
+		if (pControl == m_hVerticalScrollBar)
+			continue;
+
+		pControl->Layout();
+
+		FRect rControlBounds = pControl->GetAbsDimensions();
 
 		if (rControlBounds.x < rAllBounds.x)
-			rAllBounds.x = rControlBounds.x;
+		{
+			float flDifference = rAllBounds.x - rControlBounds.x;
+			rAllBounds.x -= flDifference;
+			rAllBounds.w += flDifference;
+		}
 
 		if (rControlBounds.y < rAllBounds.y)
-			rAllBounds.y = rControlBounds.y;
+		{
+			float flDifference = rAllBounds.y - rControlBounds.y;
+			rAllBounds.y -= flDifference;
+			rAllBounds.h += flDifference;
+		}
 
 		if (rControlBounds.Right() > rAllBounds.Right())
 			rAllBounds.w = rControlBounds.Right() - rAllBounds.x;
@@ -417,17 +467,16 @@ void CPanel::Layout( void )
 			rAllBounds.h = rControlBounds.Bottom() - rAllBounds.y;
 	}
 
+	rAllBounds.w += 5;
+	rAllBounds.h += 5;
+
 	m_rControlBounds = rAllBounds;
 
 	if (m_hVerticalScrollBar)
-	{
 		m_hVerticalScrollBar->SetVisible((rAllBounds.y < rPanelBounds.y) || (rAllBounds.Bottom() > rPanelBounds.Bottom()));
-	}
 
 	if (m_hHorizontalScrollBar)
-	{
 		m_hHorizontalScrollBar->SetVisible((rAllBounds.x < rPanelBounds.x) || (rAllBounds.Right() > rPanelBounds.Right()));
-	}
 }
 
 void CPanel::UpdateScene( void )
@@ -439,10 +488,10 @@ void CPanel::UpdateScene( void )
 
 void CPanel::PaintBackground(float x, float y, float w, float h)
 {
-	if (m_eBorder == BT_NONE && m_clrBackground.a() == 0)
+	if (m_flBorder == 0 && m_clrBackground.a() == 0)
 		return;
 
-	PaintRect(x, y, w, h, m_clrBackground, (m_eBorder == BT_SOME) ? 3.0f : 0.0f, IsHighlighted());
+	PaintRect(x, y, w, h, m_clrBackground, m_flBorder, IsHighlighted());
 }
 
 void CPanel::Paint()
@@ -464,10 +513,7 @@ void CPanel::Paint(float x, float y, float w, float h)
 	FRect rScissor;
 	if (bScissor)
 	{
-		float sx, sy;
-		GetAbsPos(sx, sy);
-
-		rScissor = FRect(sx, sy, GetWidth(), GetHeight());
+		rScissor = GetScissorArea();
 
 		//CRootPanel::PaintRect(rScissor.x, rScissor.y, rScissor.w, rScissor.h, Color(0, 0, 100, 50));
 	}
@@ -521,15 +567,15 @@ void CPanel::PostPaint()
 		return;
 
 	bool bScissor = m_bScissoring;
-	float sx, sy;
+	FRect rScissor;
 	if (bScissor)
 	{
-		GetAbsPos(sx, sy);
+		rScissor = GetScissorArea();
 
 		//CRootPanel::PaintRect(sx, sy, GetWidth(), GetHeight(), Color(0, 0, 100, 50));
 
 		CRootPanel::GetContext()->SetUniform("bScissor", true);
-		CRootPanel::GetContext()->SetUniform("vecScissor", Vector4D(sx, sy, GetWidth(), GetHeight()));
+		CRootPanel::GetContext()->SetUniform("vecScissor", Vector4D(&rScissor.x));
 	}
 
 	size_t iCount = m_apControls.size();
@@ -542,7 +588,7 @@ void CPanel::PostPaint()
 		if (bScissor)
 		{
 			CRootPanel::GetContext()->SetUniform("bScissor", true);
-			CRootPanel::GetContext()->SetUniform("vecScissor", Vector4D(sx, sy, GetWidth(), GetHeight()));
+			CRootPanel::GetContext()->SetUniform("vecScissor", Vector4D(&rScissor.x));
 		}
 
 		pControl->PostPaint();
@@ -552,6 +598,14 @@ void CPanel::PostPaint()
 		CRootPanel::GetContext()->SetUniform("bScissor", false);
 
 	BaseClass::PostPaint();
+}
+
+const FRect CPanel::GetScissorArea()
+{
+	float sx, sy;
+	GetAbsPos(sx, sy);
+
+	return FRect(sx, sy, GetWidth(), GetHeight());
 }
 
 bool CPanel::ShouldControlOffset(const CBaseControl* pControl) const
@@ -591,6 +645,14 @@ bool CPanel::IsScissoring() const
 		return false;
 
 	return m_bScissoring;
+}
+
+void CPanel::SetBorder(Border b)
+{
+	if (b == BT_SOME)
+		m_flBorder = 2;
+	else
+		m_flBorder = 0;
 }
 
 void CPanel::SetVerticalScrollBarEnabled(bool b)

@@ -29,8 +29,8 @@ using namespace glgui;
 CTree::CTree(const CMaterialHandle& hArrowMaterial, const CMaterialHandle& hEditMaterial, const CMaterialHandle& hVisibilityMaterial)
 	: CPanel(0, 0, 10, 10)
 {
-	m_iHilighted = ~0;
-	m_iSelected = ~0;
+	m_iHilighted = (size_t)~0;
+	m_iSelected = (size_t)~0;
 
 	m_hArrowMaterial = hArrowMaterial;
 	m_hVisibilityMaterial = hVisibilityMaterial;
@@ -76,7 +76,7 @@ void CTree::Think()
 	int mx, my;
 	CRootPanel::GetFullscreenMousePos(mx, my);
 
-	m_iHilighted = ~0;
+	m_iHilighted = (size_t)~0;
 	for (size_t i = 0; i < m_ahAllNodes.size(); i++)
 	{
 		CBaseControl* pNode = m_ahAllNodes[i];
@@ -160,7 +160,7 @@ bool CTree::MousePressed(int code, int mx, int my)
 	if (CPanel::MousePressed(code, mx, my))
 		return true;
 
-	m_iSelected = ~0;
+	m_iSelected = (size_t)~0;
 	for (size_t i = 0; i < m_ahAllNodes.size(); i++)
 	{
 		CBaseControl* pNode = m_ahAllNodes[i];
@@ -201,7 +201,7 @@ bool CTree::MouseDoubleClicked(int code, int mx, int my)
 	if (CPanel::MouseDoubleClicked(code, mx, my))
 		return true;
 
-	m_iSelected = ~0;
+	m_iSelected = (size_t)~0;
 	for (size_t i = 0; i < m_ahAllNodes.size(); i++)
 	{
 		CBaseControl* pNode = m_ahAllNodes[i];
@@ -219,7 +219,7 @@ bool CTree::MouseDoubleClicked(int code, int mx, int my)
 			pTreeNode->Selected();
 
 			if (m_pfnConfirmedCallback)
-				m_pfnConfirmedCallback(m_pConfirmedListener, sprintf("%d", GetSelectedNodeId()));
+				m_pfnConfirmedCallback(m_pConfirmedListener, tsprintf("%d", GetSelectedNodeId()));
 
 			return true;
 		}
@@ -263,8 +263,8 @@ void CTree::RemoveControl(CBaseControl* pControl)
 
 void CTree::ClearTree()
 {
-	m_iHilighted = ~0;
-	m_iSelected = ~0;
+	m_iHilighted = (size_t)~0;
+	m_iSelected = (size_t)~0;
 
 	if (m_pSelectedListener)
 		m_pfnSelectedCallback(m_pSelectedListener, "-1");
@@ -307,8 +307,8 @@ void CTree::RemoveNode(CTreeNode* pNode)
 	if (m_iSelected != ~0)
 		pSelected = m_ahAllNodes[m_iSelected];
 
-	m_iHilighted = ~0;
-	m_iSelected = ~0;
+	m_iHilighted = (size_t)~0;
+	m_iSelected = (size_t)~0;
 
 	for (size_t i = 0; i < m_ahNodes.size(); i++)
 	{
@@ -353,7 +353,7 @@ void CTree::SetSelectedNode(size_t iNode)
 	m_iSelected = iNode;
 
 	if (m_pSelectedListener)
-		m_pfnSelectedCallback(m_pSelectedListener, sprintf("%d", GetSelectedNodeId()));
+		m_pfnSelectedCallback(m_pSelectedListener, tsprintf("%d", GetSelectedNodeId()));
 }
 
 void CTree::SetSelectedListener(IEventListener* pListener, IEventListener::Callback pfnCallback)
@@ -377,7 +377,7 @@ void CTree::SetDroppedListener(IEventListener* pListener, IEventListener::Callba
 	m_pfnDroppedCallback = pfnCallback;
 }
 
-void CTree::SetDraggable(IDraggable* pDraggable, bool bDelete)
+void CTree::SetDraggable(IDraggable* pDraggable, bool)
 {
 	if (m_pDroppedListener)
 		m_pfnDroppedCallback(m_pDroppedListener, "");
@@ -555,7 +555,7 @@ CControl<CTreeNode> CTreeNode::GetNode(size_t i)
 void CTreeNode::Selected()
 {
 	if (m_hTree->m_pSelectedListener)
-		m_hTree->m_pfnSelectedCallback(m_hTree->m_pSelectedListener, sprintf("%d", m_hTree->GetSelectedNodeId()));
+		m_hTree->m_pfnSelectedCallback(m_hTree->m_pSelectedListener, tsprintf("%d", m_hTree->GetSelectedNodeId()));
 }
 
 bool CTreeNode::IsVisible()
@@ -591,11 +591,11 @@ IDroppable* CTreeNode::GetDroppable()
 	return NULL;
 }
 
-void CTreeNode::SetDroppable(IDroppable* pDroppable)
+void CTreeNode::SetDroppable(IDroppable*)
 {
 }
 
-void CTreeNode::ExpandCallback(const tstring& sArgs)
+void CTreeNode::ExpandCallback(const tstring&)
 {
 	SetExpanded(!IsExpanded());
 	m_hTree->Layout();
@@ -617,8 +617,6 @@ CVar glgui_spinnyarrows("glgui_spinnyarrows", "off");
 
 void CTreeNode::CExpandButton::Paint(float x, float y, float w, float h)
 {
-	MakeQuad();
-
 	::CRenderingContext r(nullptr, true);
 
 	if ((w < 0) ^ (h < 0))
@@ -642,7 +640,7 @@ void CTreeNode::CExpandButton::Paint(float x, float y, float w, float h)
 	if (glgui_spinnyarrows.GetBool())
 		r.Rotate((float)RootPanel()->GetTime()*200, Vector(0, 0, 1));
 
-	r.BeginRenderVertexArray(s_iQuad);
+	r.BeginRenderVertexArray(RootPanel()->GetQuad());
 	r.SetPositionBuffer((size_t)0u, 20);
 	r.SetTexCoordBuffer(12, 20);
 	r.EndRenderVertexArray(6);

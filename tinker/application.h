@@ -62,16 +62,16 @@ public:
 	virtual void				MouseMotion(int x, int y);
 	void						MouseInputCallback(int iButton, tinker_mouse_state_t iState);
 	virtual bool				MouseInput(int iButton, tinker_mouse_state_t iState);
-	virtual void				MouseWheel(int x, int y) {};
+	virtual void				MouseWheel(int /*x*/, int /*y*/) {};
 	void						KeyEvent(int c, int e);
 	virtual bool				KeyPress(int c);
 	virtual void				KeyRelease(int c);
 	void						CharEvent(int c);
 
-	virtual bool				DoKeyPress(int c) { return false; };
-	virtual void				DoKeyRelease(int c) {};
+	virtual bool				DoKeyPress(int /*c*/) { return false; };
+	virtual void				DoKeyRelease(int /*c*/) {};
 
-	virtual bool				DoCharPress(int c) { return false; };
+	virtual bool				DoCharPress(int /*c*/) { return false; };
 
 	bool						IsCtrlDown();
 	bool						IsAltDown();
@@ -84,10 +84,10 @@ public:
 	void						InitJoystickInput();
 	void						ProcessJoystickInput();
 
-	virtual bool				JoystickButtonPress(int iJoystick, int c) { return false; };
-	virtual void				JoystickButtonRelease(int iJoystick, int c) {};
+	virtual bool				JoystickButtonPress(int /*iJoystick*/, int /*c*/) { return false; };
+	virtual void				JoystickButtonRelease(int /*iJoystick*/, int /*c*/) {};
 
-	virtual void				JoystickAxis(int iJoystick, int iAxis, float flValue, float flChange) {};
+	virtual void				JoystickAxis(int /*iJoystick*/, int /*iAxis*/, float /*flValue*/, float /*flChange*/) {};
 
 	void						SetMouseCursorEnabled(bool bEnabled);
 	bool						IsMouseCursorEnabled();
@@ -103,7 +103,7 @@ public:
 
 	bool						IsFullscreen() { return m_bFullscreen; };
 
-	virtual void				OnClientDisconnect(int iClient) {};
+	virtual void				OnClientDisconnect(int /*iClient*/) {};
 
 	virtual class CRenderer*	CreateRenderer()=0;
 	class CRenderer*			GetRenderer() { return m_pRenderer; }

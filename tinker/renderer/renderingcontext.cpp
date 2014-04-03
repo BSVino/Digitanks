@@ -22,6 +22,7 @@ LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON A
 #include <maths.h>
 #include <simplex.h>
 
+#include <glgui/rootpanel.h>
 #include <glgui/label.h>
 #include <renderer/shaders.h>
 #include <tinker/application.h>
@@ -477,7 +478,7 @@ void CRenderingContext::UseProgram(class CShader* pShader)
 		return;
 	}
 
-	tstrncpy(oContext.m_szProgram, PROGRAM_LEN, pShader->m_sName.c_str(), PROGRAM_LEN);
+	tstrncpy(oContext.m_szProgram, PROGRAM_LEN, pShader->m_sName.c_str(), pShader->m_sName.length()+1);
 
 	m_iProgram = m_pShader->m_iProgram;
 	glUseProgram((GLuint)m_pShader->m_iProgram);
@@ -1315,12 +1316,12 @@ void CRenderingContext::EndRenderVertexArrayIndexed(size_t iBuffer, size_t iVert
 
 void CRenderingContext::RenderText(const tstring& sText, unsigned iLength, const tstring& sFontName, int iFontFaceSize)
 {
-	FTFont* pFont = glgui::CLabel::GetFont(sFontName, iFontFaceSize);
+	FTFont* pFont = glgui::RootPanel()->GetFont(sFontName, iFontFaceSize);
 
 	if (!pFont)
 	{
-		glgui::CLabel::AddFontSize(sFontName, iFontFaceSize);
-		pFont = glgui::CLabel::GetFont(sFontName, iFontFaceSize);
+		glgui::RootPanel()->AddFontSize(sFontName, iFontFaceSize);
+		pFont = glgui::RootPanel()->GetFont(sFontName, iFontFaceSize);
 	}
 
 	RenderText(sText, iLength, pFont);

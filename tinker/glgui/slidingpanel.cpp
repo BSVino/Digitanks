@@ -136,9 +136,9 @@ void CSlidingContainer::Layout()
 	for (size_t i = 0; i < iCount; i++)
 	{
 		m_apControls[i]->SetPos(0, y);
-		m_apControls[i]->SetSize(GetWidth(), (i == m_iCurrent)?flCurrentHeight:CSlidingPanel::SLIDER_COLLAPSED_HEIGHT);
+		m_apControls[i]->SetSize(GetWidth(), (i == (size_t)m_iCurrent)?flCurrentHeight:CSlidingPanel::SLIDER_COLLAPSED_HEIGHT);
 
-		y += (i == m_iCurrent)?flCurrentHeight:CSlidingPanel::SLIDER_COLLAPSED_HEIGHT;
+		y += (i == (size_t)m_iCurrent) ? flCurrentHeight : CSlidingPanel::SLIDER_COLLAPSED_HEIGHT;
 	}
 
 	CPanel::Layout();

@@ -18,6 +18,13 @@ LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON A
 
 #include "basecontrol.h"
 
+#ifdef T_TOUCH_PLATFORM
+// Nice fat finger friendly size.
+#define T_SCROLLBAR_THICKNESS 24
+#else
+#define T_SCROLLBAR_THICKNESS 16
+#endif
+
 namespace glgui
 {
 	class CScrollBar : public CBaseControl

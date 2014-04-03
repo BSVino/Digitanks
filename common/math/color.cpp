@@ -52,43 +52,43 @@ Color::Color(float _r, float _g, float _b, float _a)
 
 void Color::SetColor(int _r, int _g, int _b, int _a)
 {
-	red = _r;
-	green = _g;
-	blue = _b;
-	alpha = _a;
+	red = (unsigned char)_r;
+	green = (unsigned char)_g;
+	blue = (unsigned char)_b;
+	alpha = (unsigned char)_a;
 }
 
 void Color::SetColor(float _r, float _g, float _b, float _a)
 {
-	red = (int)(_r*255);
-	green = (int)(_g*255);
-	blue = (int)(_b*255);
-	alpha = (int)(_a*255);
+	red = (unsigned char)(_r * 255);
+	green = (unsigned char)(_g * 255);
+	blue = (unsigned char)(_b * 255);
+	alpha = (unsigned char)(_a * 255);
 }
 
 void Color::SetRed(int _r)
 {
-	red = _r;
+	red = (unsigned char)_r;
 }
 
 void Color::SetGreen(int _g)
 {
-	green = _g;
+	green = (unsigned char)_g;
 }
 
 void Color::SetBlue(int _b)
 {
-	blue = _b;
+	blue = (unsigned char)_b;
 }
 
 void Color::SetAlpha(int _a)
 {
-	alpha = _a;
+	alpha = (unsigned char)_a;
 }
 
 void Color::SetAlpha(float f)
 {
-	alpha = (int)(f*255);
+	alpha = (unsigned char)(f * 255);
 }
 
 // From: http://en.wikipedia.org/wiki/HSL_and_HSV#Converting_to_RGB
@@ -210,16 +210,16 @@ void Color::operator-=(const Color& v)
 
 void Color::operator*=(float s)
 {
-	red = (int)(s*red);
-	green = (int)(s*green);
-	blue = (int)(s*blue);
+	red = (unsigned char)(s*red);
+	green = (unsigned char)(s*green);
+	blue = (unsigned char)(s*blue);
 }
 
 void Color::operator/=(float s)
 {
-	red = (int)(red/s);
-	green = (int)(green/s);
-	blue = (int)(blue/s);
+	red = (unsigned char)(red / s);
+	green = (unsigned char)(green / s);
+	blue = (unsigned char)(blue / s);
 }
 
 Color Color::operator*(const Color& v) const

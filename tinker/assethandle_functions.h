@@ -80,6 +80,9 @@ void CAssetHandle<C, L>::Reset()
 	TAssertNoMsg(m_pAsset->m_iReferences);
 	m_pAsset->m_iReferences--;
 
+	if (m_pAsset->m_iReferences == 0)
+		L::RemoveAsset(m_sName);
+
 	m_pAsset = nullptr;
 }
 

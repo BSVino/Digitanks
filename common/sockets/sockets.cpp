@@ -42,7 +42,7 @@ CClientSocket::~CClientSocket()
 
 void CClientSocket::Initialize()
 {
-	m_iSocket = -1;
+	m_iSocket = INVALID_SOCKET;
 	m_sError = "";
 
 #ifdef _WIN32
@@ -64,7 +64,7 @@ bool CClientSocket::Connect(const char* pszHostname, int iPort)
 	hints.ai_socktype = SOCK_STREAM;
 	hints.ai_protocol = IPPROTO_TCP;
 
-	tstring sPort = sprintf("%d", iPort);
+	tstring sPort = tsprintf("%d", iPort);
 
 	int iResult = getaddrinfo(pszHostname, sPort.c_str(), &hints, &pResult);
 	if ( iResult != 0 )
@@ -161,7 +161,7 @@ void CClientSocket::Close()
 	close(GetSocket());
 #endif
 
-	m_iSocket = -1;
+	m_iSocket = INVALID_SOCKET;
 
 	m_bOpen = false;
 }
@@ -191,7 +191,7 @@ void CHTTPPostSocket::SendHTTP11(const char* pszPage)
 
 	sOutput  = tstring("POST ") + pszPage + " HTTP/1.1\n";
 	sOutput += "Host: " + m_sHostname + "\n";
-	sOutput += sprintf("Content-Length: %d\n", m_sPostContent.length());
+	sOutput += tsprintf("Content-Length: %d\n", m_sPostContent.length());
 	sOutput += "Content-Type: application/x-www-form-urlencoded\n\n";
 	Send(sOutput);
 

@@ -29,7 +29,7 @@ void ThreadMain(void* pData)
 
 void CParallelizeThread::Process()
 {
-	while (true)
+	for (;;)
 	{
 		if (m_pParallelizer->m_bShuttingDown)
 		{
@@ -127,7 +127,7 @@ CParallelizer::CParallelizer(JobCallback pfnCallback, int iThreads)
 
 	m_pfnCallback = pfnCallback;
 
-	m_iLastAssigned = -1;
+	m_iLastAssigned = (size_t)~0;
 	m_iLastExecuted = 0;
 	m_aJobs.resize(100);
 

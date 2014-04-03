@@ -124,6 +124,7 @@ public:
 	static CMaterial*		CreateMaterial(const class CData* pData, const tstring& sMaterial="");
 	static CMaterialHandle  CreateBlankMaterial(const tstring& sName);
 	static CMaterialHandle	FindAsset(const tstring& sMaterial);
+	static void             RemoveAsset(const tstring& sName);
 
 	static size_t			GetNumMaterialsLoaded() { return Get()->m_aMaterials.size(); };
 	static bool				IsAssetLoaded(const tstring& sMaterial);

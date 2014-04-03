@@ -45,7 +45,7 @@ void CColorPickerButton::Paint(float x, float y, float w, float h)
 	CBaseControl::PaintRect(x + 3, y + 3, w - 6, h - 6, GetColorPicker()->GetColorVector());
 }
 
-void CColorPickerButton::OpenCallback(const tstring& sArgs)
+void CColorPickerButton::OpenCallback(const tstring&)
 {
 	RootPanel()->AddControl(m_pColorPicker, true);
 
@@ -64,7 +64,7 @@ void CColorPickerButton::OpenCallback(const tstring& sArgs)
 	m_pColorPicker->SetVisible(true);
 }
 
-void CColorPickerButton::CloseCallback(const tstring& sArgs)
+void CColorPickerButton::CloseCallback(const tstring&)
 {
 	m_pColorPicker.DowncastStatic<CColorPicker>()->Close();
 
@@ -139,7 +139,7 @@ void CColorPicker::Paint(float x, float y, float w, float h)
 	RootPanel()->GetFullscreenMousePos(mx, my);
 	r.SetUniform("vecMouse", Vector((float)mx, (float)my, 0));
 
-	r.BeginRenderVertexArray(s_iQuad);
+	r.BeginRenderVertexArray(RootPanel()->GetQuad());
 	r.SetPositionBuffer((size_t)0u, 20);
 	r.SetTexCoordBuffer(12, 20);
 	r.EndRenderVertexArray(6);
@@ -153,7 +153,7 @@ void CColorPicker::Paint(float x, float y, float w, float h)
 
 	r.SetUniform("vecMouse", Vector((float)mx, (float)my, 0));
 
-	r.BeginRenderVertexArray(s_iQuad);
+	r.BeginRenderVertexArray(RootPanel()->GetQuad());
 	r.SetPositionBuffer((size_t)0u, 20);
 	r.SetTexCoordBuffer(12, 20);
 	r.EndRenderVertexArray(6);
@@ -189,7 +189,7 @@ bool CColorPicker::MousePressed(int code, int mx, int my)
 	return BaseClass::MousePressed(code, mx, my);
 }
 
-void CColorPicker::CursorMoved(int mx, int my, int dx, int dy)
+void CColorPicker::CursorMoved(int mx, int my, int, int)
 {
 	if (Application()->IsMouseLeftDown())
 		Update(mx, my);
@@ -202,10 +202,10 @@ bool CColorPicker::Update(int x, int y)
 		m_flLightness = RemapVal((float)y, BarY(), BarY() + BarH(), 1, 0);
 		m_clrRGB.SetHSL(m_flHue, m_flSaturation, m_flLightness);
 
-		m_hValue->SetText(sprintf("%i %i %i", m_clrRGB.r(), m_clrRGB.g(), m_clrRGB.b()));
+		m_hValue->SetText(tsprintf("%i %i %i", m_clrRGB.r(), m_clrRGB.g(), m_clrRGB.b()));
 
 		if (m_pfnChangedCallback)
-			m_pfnChangedCallback(m_pChangedListener, sprintf("%f %f %f", GetColorVector().x, GetColorVector().y, GetColorVector().z));
+			m_pfnChangedCallback(m_pChangedListener, tsprintf("%f %f %f", GetColorVector().x, GetColorVector().y, GetColorVector().z));
 
 		return true;
 	}
@@ -227,15 +227,15 @@ bool CColorPicker::Update(int x, int y)
 
 	m_clrRGB.SetHSL(m_flHue, m_flSaturation, m_flLightness);
 
-	m_hValue->SetText(sprintf("%i %i %i", m_clrRGB.r(), m_clrRGB.g(), m_clrRGB.b()));
+	m_hValue->SetText(tsprintf("%i %i %i", m_clrRGB.r(), m_clrRGB.g(), m_clrRGB.b()));
 
 	if (m_pfnChangedCallback)
-		m_pfnChangedCallback(m_pChangedListener, sprintf("%f %f %f", GetColorVector().x, GetColorVector().y, GetColorVector().z));
+		m_pfnChangedCallback(m_pChangedListener, tsprintf("%f %f %f", GetColorVector().x, GetColorVector().y, GetColorVector().z));
 
 	return true;
 }
 
-void CColorPicker::ValueChangedCallback(const tstring& sArgs)
+void CColorPicker::ValueChangedCallback(const tstring&)
 {
 	tvector<tstring> asArgs;
 	strtok(m_hValue->GetText(), asArgs);
@@ -250,7 +250,7 @@ void CColorPicker::ValueChangedCallback(const tstring& sArgs)
 	m_clrRGB.GetHSL(m_flHue, m_flSaturation, m_flLightness);
 
 	if (m_pfnChangedCallback)
-		m_pfnChangedCallback(m_pChangedListener, sprintf("%f %f %f", GetColorVector().x, GetColorVector().y, GetColorVector().z));
+		m_pfnChangedCallback(m_pChangedListener, tsprintf("%f %f %f", GetColorVector().x, GetColorVector().y, GetColorVector().z));
 }
 
 void CColorPicker::Close()
@@ -273,7 +273,7 @@ void CColorPicker::SetColor(const Vector& vecColor)
 
 	m_clrRGB.GetHSL(m_flHue, m_flSaturation, m_flLightness);
 
-	m_hValue->SetText(sprintf("%i %i %i", m_clrRGB.r(), m_clrRGB.g(), m_clrRGB.b()));
+	m_hValue->SetText(tsprintf("%i %i %i", m_clrRGB.r(), m_clrRGB.g(), m_clrRGB.b()));
 }
 
 Vector CColorPicker::GetColorVector()

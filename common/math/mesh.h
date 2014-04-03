@@ -37,6 +37,9 @@ protected:
 	bool			EdgeExists(size_t p1, size_t p2);
 	void			AddEdge(size_t p1, size_t p2);
 
+private:
+	CConvexHullGenerator operator = (CConvexHullGenerator&) { TUnimplemented(); }
+
 protected:
 	struct EdgePair
 	{

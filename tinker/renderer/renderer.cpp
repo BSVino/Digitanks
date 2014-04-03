@@ -94,7 +94,7 @@ void CFrameBuffer::RemoveFromBufferList(CFrameBuffer* pBuffer)
 
 CRenderer::CRenderer(size_t iWidth, size_t iHeight)
 {
-	TMsg(sprintf("Initializing %dx%d renderer\n", iWidth, iHeight));
+	TMsg(tsprintf("Initializing %dx%d renderer\n", iWidth, iHeight));
 
 	if (!HardwareSupported())
 	{
@@ -117,8 +117,25 @@ CRenderer::CRenderer(size_t iWidth, size_t iHeight)
 	m_bFrustumOverride = false;
 	m_bDrawBackground = true;
 
+	m_bRenderOrthographic = true;
+	m_flCameraOrthoHeight = 10;
+
 	m_vecCameraDirection = Vector(1, 0, 0);
 	m_vecCameraUp = Vector(0, 0, 1);
+}
+
+CRenderer::~CRenderer()
+{
+	CShaderLibrary::Destroy();
+
+	m_oSceneBuffer.Destroy();
+	m_oResolvedSceneBuffer.Destroy();
+
+	for (int i = 0; i < BLOOM_FILTERS; i++)
+	{
+		m_oBloom1Buffers[i].Destroy();
+		m_oBloom2Buffers[i].Destroy();
+	}
 }
 
 void CRenderer::Initialize()
@@ -136,7 +153,7 @@ void CRenderer::Initialize()
 		exit(1);
 	}
 	else
-		TMsg(sprintf("%d shaders loaded.\n", CShaderLibrary::GetNumShaders()));
+		TMsg(tsprintf("%d shaders loaded.\n", CShaderLibrary::GetNumShaders()));
 }
 
 void CRenderer::LoadShaders()
@@ -174,8 +191,8 @@ void CRenderer::ViewportResize(size_t w, size_t h)
 	{
 		m_oBloom1Buffers[i].Destroy();
 		m_oBloom2Buffers[i].Destroy();
-		m_oBloom1Buffers[i] = CreateFrameBuffer(sprintf(tstring("bloom1_%d"), i), iWidth, iHeight, (fb_options_e)(FB_TEXTURE|FB_LINEAR));
-		m_oBloom2Buffers[i] = CreateFrameBuffer(sprintf(tstring("bloom2_%d"), i), iWidth, iHeight, (fb_options_e)(FB_TEXTURE));
+		m_oBloom1Buffers[i] = CreateFrameBuffer(tsprintf("bloom1_%d", i), iWidth, iHeight, (fb_options_e)(FB_TEXTURE|FB_LINEAR));
+		m_oBloom2Buffers[i] = CreateFrameBuffer(tsprintf("bloom2_%d", i), iWidth, iHeight, (fb_options_e)(FB_TEXTURE));
 		iWidth /= 2;
 		iHeight /= 2;
 	}
@@ -291,7 +308,7 @@ CFrameBuffer CRenderer::CreateFrameBuffer(const tstring& sName, size_t iWidth, s
 
 	GLenum status = glCheckFramebufferStatus(GL_FRAMEBUFFER);
 	if (status != GL_FRAMEBUFFER_COMPLETE)
-		TMsg(sprintf("Framebuffer '" + sName + "' (%dx%d) incomplete, options: %d status: %d\n", iWidth, iHeight, eOptions, status));
+		TMsg(tsprintf("Framebuffer '" + sName + "' (%dx%d) incomplete, options: %d status: %d\n", iWidth, iHeight, eOptions, status));
 	TAssert(status == GL_FRAMEBUFFER_COMPLETE);
 
 	GLint iFBSamples;
@@ -436,7 +453,7 @@ void CRenderer::StartRendering(class CRenderingContext* pContext)
 
 CVar show_frustum("debug_show_frustum", "no");
 
-void CRenderer::FinishRendering(class CRenderingContext* pContext)
+void CRenderer::FinishRendering(class CRenderingContext*)
 {
 	if (m_iScreenSamples)
 		glDisable(GL_MULTISAMPLE);
@@ -478,7 +495,7 @@ void CRenderer::FinishFrame(class CRenderingContext* pContext)
 
 CVar r_bloom("r_bloom", "1");
 
-void CRenderer::RenderOffscreenBuffers(class CRenderingContext* pContext)
+void CRenderer::RenderOffscreenBuffers(class CRenderingContext*)
 {
 	if (r_bloom.GetBool())
 	{
@@ -515,7 +532,7 @@ void CRenderer::RenderOffscreenBuffers(class CRenderingContext* pContext)
 
 CVar r_bloom_buffer("r_bloom_buffer", "-1");
 
-void CRenderer::RenderFullscreenBuffers(class CRenderingContext* pContext)
+void CRenderer::RenderFullscreenBuffers(class CRenderingContext*)
 {
 	TPROF("CRenderer::RenderFullscreenBuffers");
 
@@ -585,7 +602,7 @@ void CRenderer::RenderFrameBufferFullscreen(CFrameBuffer* pBuffer)
 		RenderRBFullscreen(pBuffer);
 }
 
-void CRenderer::RenderRBFullscreen(CFrameBuffer* pSource)
+void CRenderer::RenderRBFullscreen(CFrameBuffer* /*pSource*/)
 {
 	TAssert(false);		// ATI cards don't like this at all. Never do it.
 
@@ -829,7 +846,7 @@ bool CRenderer::HardwareSupported()
     GLenum status = glCheckFramebufferStatus(GL_FRAMEBUFFER);
 	if (status != GL_FRAMEBUFFER_COMPLETE)
 	{
-		TError(sprintf("Test framebuffer compile failed. Status: %d\n", status));
+		TError(tsprintf("Test framebuffer compile failed. Status: %d\n", status));
 		glDeleteTextures(1, &oBuffer.m_iMap);
 		glDeleteRenderbuffers(1, &oBuffer.m_iDepth);
 		glDeleteFramebuffers(1, &oBuffer.m_iFB);
@@ -884,8 +901,6 @@ bool CRenderer::HardwareSupported()
 
 	int iVertexCompiled;
 	glGetShaderiv(iVShader, GL_COMPILE_STATUS, &iVertexCompiled);
-
-	bool bNeedsClearing = true;
 
 	if (iVertexCompiled != GL_TRUE)
 	{
@@ -947,15 +962,15 @@ size_t CRenderer::LoadVertexDataIntoGL(size_t iSizeInBytes, const float* aflVert
 
 	glBufferSubData(GL_ARRAY_BUFFER, 0, iSizeInBytes, aflVertices);
 
-    int iSize = 0;
-    glGetBufferParameteriv(GL_ARRAY_BUFFER, GL_BUFFER_SIZE, &iSize);
-    if(iSizeInBytes != iSize)
-    {
-        glDeleteBuffers(1, &iVBO);
+	int iSize = 0;
+	glGetBufferParameteriv(GL_ARRAY_BUFFER, GL_BUFFER_SIZE, &iSize);
+	if(iSizeInBytes != (size_t)iSize)
+	{
+		glDeleteBuffers(1, &iVBO);
 		TAssert(false);
-        TError("CRenderer::LoadVertexDataIntoGL(): Data size is mismatch with input array\n");
+		TError("CRenderer::LoadVertexDataIntoGL(): Data size is mismatch with input array\n");
 		return 0;
-    }
+	}
 
 	return iVBO;
 }
@@ -970,15 +985,15 @@ size_t CRenderer::LoadIndexDataIntoGL(size_t iSizeInBytes, const unsigned int* a
 
 	glBufferSubData(GL_ELEMENT_ARRAY_BUFFER, 0, iSizeInBytes, aiIndices);
 
-    int iSize = 0;
-    glGetBufferParameteriv(GL_ELEMENT_ARRAY_BUFFER, GL_BUFFER_SIZE, &iSize);
-    if(iSizeInBytes != iSize)
-    {
-        glDeleteBuffers(1, &iVBO);
+	int iSize = 0;
+	glGetBufferParameteriv(GL_ELEMENT_ARRAY_BUFFER, GL_BUFFER_SIZE, &iSize);
+	if(iSizeInBytes != (size_t)iSize)
+	{
+		glDeleteBuffers(1, &iVBO);
 		TAssert(false);
-        TError("CRenderer::LoadVertexDataIntoGL(): Data size is mismatch with input array\n");
+		TError("CRenderer::LoadVertexDataIntoGL(): Data size is mismatch with input array\n");
 		return 0;
-    }
+	}
 
 	return iVBO;
 }
@@ -1231,7 +1246,7 @@ Color* CRenderer::LoadTextureData(tstring sFilename, int& x, int& y)
 
 void CRenderer::UnloadTextureData(Color* pData)
 {
-	size_t iFree = ~0;
+	size_t iFree = (size_t)~0;
 
 	// Linear search through our surfaces to find the one we should free.
 	for (size_t i = 0; i < s_apSurfaces.size(); i++)
@@ -1321,7 +1336,7 @@ void CRenderer::WriteTextureToFile(Color* pclrData, int w, int h, tstring sFilen
 		stbi_write_bmp(sFilename.c_str(), w, h, 4, pclrData);
 }
 
-void R_DumpFBO(class CCommand* pCommand, tvector<tstring>& asTokens, const tstring& sCommand)
+void R_DumpFBO(class CCommand*, tvector<tstring>& asTokens, const tstring&)
 {
 	size_t iFBO = 0;
 	if (asTokens.size() > 1)
@@ -1360,17 +1375,17 @@ void R_DumpFBO(class CCommand* pCommand, tvector<tstring>& asTokens, const tstri
 			std::swap(aclrPixels[j*iWidth + i], aclrPixels[iWidth*(iHeight-j-1) + i]);
 	}
 
-	CRenderer::WriteTextureToFile(aclrPixels.data(), iWidth, iHeight, sprintf("fbo-%d.png", iFBO));
+	CRenderer::WriteTextureToFile(aclrPixels.data(), iWidth, iHeight, tsprintf("fbo-%d.png", iFBO));
 }
 
 CCommand r_dumpfbo(tstring("r_dumpfbo"), ::R_DumpFBO);
 
-void R_ListFBOs(class CCommand* pCommand, tvector<tstring>& asTokens, const tstring& sCommand)
+void R_ListFBOs(class CCommand*, tvector<tstring>&, const tstring&)
 {
 	for (size_t i = 0; i < CFrameBuffer::GetFrameBuffers().size(); i++)
 	{
 		auto& oFrameBuffer = CFrameBuffer::GetFrameBuffers()[i];
-		TMsg(sprintf(tstring("Buffer %d \"%s\" (%dx%d): RB:%d, Map:%d, Depth:%d, DepthTexture:%d, Multisample:%s\n"),
+		TMsg(tsprintf("Buffer %d \"%s\" (%dx%d): RB:%d, Map:%d, Depth:%d, DepthTexture:%d, Multisample:%s\n",
 			oFrameBuffer.m_iFB, oFrameBuffer.m_sName.c_str(), oFrameBuffer.m_iWidth, oFrameBuffer.m_iHeight, oFrameBuffer.m_iRB,
 			oFrameBuffer.m_iMap, oFrameBuffer.m_iDepth, oFrameBuffer.m_iDepthTexture, oFrameBuffer.m_bMultiSample?"yes":"no"));
 	}

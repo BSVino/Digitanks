@@ -200,7 +200,7 @@ void CProfiler::Render()
 	glgui::CBaseControl::PaintRect(flCurrLeft, flCurrTop, (float)flProfilerTime * 5000, 1, clrBlock);
 
 	tstring sName = "CProfiler::Render()";
-	sName += sprintf(tstring(": %d ms"), (int)(flProfilerTime * 1000));
+	sName += tsprintf(": %d ms", (int)(flProfilerTime * 1000));
 	glgui::CLabel::PaintText(sName, sName.length(), "sans-serif", 10, (float)flCurrLeft, (float)flCurrTop, clrBlock);
 }
 
@@ -216,7 +216,7 @@ void CProfiler::Render(CPerfBlock* pBlock, float& flLeft, float& flTop)
 	glgui::CBaseControl::PaintRect(flLeft, flTop+1, (float)pBlock->GetTime()*5000, 1, clrBlock);
 
 	tstring sName = pBlock->GetName();
-	sName += sprintf(tstring(": %d ms"), (int)(pBlock->GetTime()*1000));
+	sName += tsprintf(": %d ms", (int)(pBlock->GetTime()*1000));
 	glgui::CLabel::PaintText(sName, sName.length(), "sans-serif", 10, (float)flLeft, (float)flTop, clrBlock);
 
 	for (tmap<const char*, CPerfBlock*>::iterator it = pBlock->m_apPerfBlocks.begin(); it != pBlock->m_apPerfBlocks.end(); it++)

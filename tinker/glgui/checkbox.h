@@ -24,11 +24,14 @@ namespace glgui
 {
 	class CCheckBox : public CButton
 	{
+		DECLARE_CLASS(CCheckBox, CButton);
+
 	public:
 						CCheckBox();
 
 	public:
 		void			Paint(float x, float y, float w, float h);
+		void            PaintButton(float x, float y, float w, float h);
 	};
 };
 

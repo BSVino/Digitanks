@@ -70,7 +70,7 @@ void CCommand::RegisterCommand(CCommand* pCommand)
 	GetCommands()[pCommand->m_sName] = pCommand;
 }
 
-void SetCVar(CCommand* pCommand, tvector<tstring>& asTokens, const tstring& sCommand)
+void SetCVar(CCommand* pCommand, tvector<tstring>& asTokens, const tstring& /*sCommand*/)
 {
 	CVar* pCVar = dynamic_cast<CVar*>(pCommand);
 	TAssert(pCVar);
@@ -80,7 +80,7 @@ void SetCVar(CCommand* pCommand, tvector<tstring>& asTokens, const tstring& sCom
 	if (asTokens.size() > 1)
 		pCVar->SetValue(asTokens[1]);
 
-	TMsg(sprintf(tstring("%s = %s\n"), pCVar->GetName().c_str(), pCVar->GetValue().c_str()));
+	TMsg(tsprintf("%s = %s\n", pCVar->GetName().c_str(), pCVar->GetValue().c_str()));
 }
 
 CVar::CVar(tstring sName, tstring sValue)
@@ -100,14 +100,14 @@ void CVar::SetValue(tstring sValue)
 
 void CVar::SetValue(int iValue)
 {
-	m_sValue = sprintf(tstring("%d"), iValue);
+	m_sValue = tsprintf("%d", iValue);
 
 	m_bDirtyValues = true;
 }
 
 void CVar::SetValue(float flValue)
 {
-	m_sValue = sprintf(tstring("%f"), flValue);
+	m_sValue = tsprintf("%f", flValue);
 
 	m_bDirtyValues = true;
 }

@@ -24,10 +24,15 @@ LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON A
 
 #ifdef __GNUC__
 
+#if defined(__i386__) || defined(__x86_64__)
+#define TDebugBreak() __asm__ __volatile__ ( "int $3\n\t" )
+#else
 #include <csignal>
 
 #define TDebugBreak() \
 	::raise(SIGTRAP); \
+
+#endif
 
 #else
 
@@ -43,7 +48,10 @@ extern void DebugPrint(const char* pszText);
 
 #define TAssert(x) \
 { \
+	__pragma(warning(push)) \
+	__pragma(warning(disable:4127)) /* conditional expression is constant */ \
 	if (!(x)) \
+	__pragma(warning(pop)) \
 	{ \
 		TMsg("Assert failed: " #x "\n"); \
 		TDebugBreak(); \
@@ -52,7 +60,10 @@ extern void DebugPrint(const char* pszText);
 
 #define TAssertNoMsg(x) \
 { \
+	__pragma(warning(push)) \
+	__pragma(warning(disable:4127)) /* conditional expression is constant */ \
 	if (!(x)) \
+	__pragma(warning(pop)) \
 	{ \
 		DebugPrint("Assert failed: " #x "\n"); \
 		TDebugBreak(); \
@@ -85,10 +96,12 @@ extern void DebugPrint(const char* pszText);
 
 #if defined(__ANDROID__)
 // If you hit this, the code is either incomplete or untested.
-#define TUnimplemented() {TAssertNoMsg(false); \
+#define TUnimplemented() { \
 	char s[1000]; \
 	sprintf(s, "TUnimplemented file " __FILE__ " line %d\n", __LINE__); \
-	DebugPrint(s); }
+	DebugPrint(s); \
+	TAssertNoMsg(false); \
+	}
 #else
 // If you hit this, the code is either incomplete or untested.
 #define TUnimplemented() TAssertNoMsg(false)
@@ -138,6 +151,10 @@ private:
 
 #ifndef WITH_EASTL
 #include <stdint.h>
+#endif
+
+#ifdef __ANDROID__
+#define T_TOUCH_PLATFORM
 #endif
 
 #endif

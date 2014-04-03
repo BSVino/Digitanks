@@ -50,7 +50,7 @@ namespace glgui
 		virtual void	Paint(float x, float y);
 		virtual void	Paint(float x, float y, float w, float h);
 		virtual void	PaintBackground(float x, float y, float w, float h);
-		virtual void	PostPaint() {};
+		virtual void	PostPaint();
 		virtual void	Layout() {};
 		virtual void	Think() {};
 		virtual void	UpdateScene() {};
@@ -103,17 +103,17 @@ namespace glgui
 		virtual bool	IsVisible();
 		virtual void    CalculateVisible();
 		virtual void    DirtyVisible();
-		virtual bool	IsChildVisible(CBaseControl* pChild) { return true; }
+		virtual bool	IsChildVisible(CBaseControl* /*pChild*/) { return true; }
 
 		virtual void	LevelShutdown( void ) { return; };
-		virtual bool	KeyPressed(int iKey, bool bCtrlDown = false) { return false; };
-		virtual bool	KeyReleased(int iKey) { return false; };
-		virtual bool	CharPressed(int iKey) { return false; };
+		virtual bool	KeyPressed(int /*iKey*/, bool bCtrlDown = false) { bCtrlDown = bCtrlDown;  return false; };
+		virtual bool	KeyReleased(int /*iKey*/) { return false; };
+		virtual bool	CharPressed(int /*iKey*/) { return false; };
 		virtual bool	MousePressed(int iButton, int mx, int my);
-		virtual bool	MouseReleased(int iButton, int mx, int my) { return false; };
-		virtual bool	MouseDoubleClicked(int iButton, int mx, int my) { return false; };
+		virtual bool	MouseReleased(int /*iButton*/, int /*mx*/, int /*my*/) { return false; };
+		virtual bool	MouseDoubleClicked(int /*iButton*/, int /*mx*/, int /*my*/) { return false; };
 		virtual bool	IsCursorListener();
-		virtual void	CursorMoved(int x, int y, int dx, int dy) {};
+		virtual void	CursorMoved(int /*x*/, int /*y*/, int /*dx*/, int /*dy*/) {};
 		virtual void	CursorIn();
 		virtual void	CursorOut();
 
@@ -137,7 +137,8 @@ namespace glgui
 			BT_SOME = 1
 		} Border;
 
-		void			SetBorder(Border b) { m_eBorder = b; };
+		virtual void    SetBorder(Border b);
+		void            SetBorder(float flBorder);
 
 		CControlHandle	GetHandle() const { return m_hThis; }
 		virtual void	OnSetHandle() {}
@@ -180,7 +181,7 @@ namespace glgui
 		tstring			m_sTip;
 
 		Color			m_clrBackground;
-		Border			m_eBorder;
+		float           m_flBorder;
 
 		CControlHandle	m_hThis;
 
@@ -213,7 +214,7 @@ namespace glgui
 		// What you need to do instead is p->shared_from_this() or CBaseControls::GetControls()[p] or better yet use a different function signature:
 		// void Function(CBaseControl* p)
 		// to avoid the conversion.
-		CControlResource(CBaseControl* p)
+		CControlResource(CBaseControl* /*p*/)
 		{
 		}
 

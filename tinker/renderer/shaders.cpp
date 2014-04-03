@@ -41,15 +41,7 @@ CShaderLibrary::CShaderLibrary()
 
 CShaderLibrary::~CShaderLibrary()
 {
-	for (size_t i = 0; i < m_aShaders.size(); i++)
-	{
-		CShader* pShader = &m_aShaders[i];
-		glDetachShader((GLuint)pShader->m_iProgram, (GLuint)pShader->m_iVShader);
-		glDetachShader((GLuint)pShader->m_iProgram, (GLuint)pShader->m_iFShader);
-		glDeleteProgram((GLuint)pShader->m_iProgram);
-		glDeleteShader((GLuint)pShader->m_iVShader);
-		glDeleteShader((GLuint)pShader->m_iFShader);
-	}
+	DestroyNonStatic();
 
 	s_pShaderLibrary = NULL;
 }
@@ -61,6 +53,10 @@ void CShaderLibrary::Initialize()
 
 void CShaderLibrary::InitializeNonStatic()
 {
+	m_sHeader.clear();
+	m_sFunctions.clear();
+	m_sMain.clear();
+
 	m_bCompiled = false;
 	m_iSamples = -1;
 
@@ -119,6 +115,30 @@ void CShaderLibrary::InitializeNonStatic()
 	}
 	else
 		TMsg(tstring("Warning: Couldn't find shader main file: ") + sMain + "\n");
+}
+
+void CShaderLibrary::Destroy()
+{
+	s_pShaderLibrary->DestroyNonStatic();
+}
+
+void CShaderLibrary::DestroyNonStatic()
+{
+	for (size_t i = 0; i < m_aShaders.size(); i++)
+	{
+		CShader* pShader = &m_aShaders[i];
+		glDetachShader((GLuint)pShader->m_iProgram, (GLuint)pShader->m_iVShader);
+		glDetachShader((GLuint)pShader->m_iProgram, (GLuint)pShader->m_iFShader);
+		glDeleteProgram((GLuint)pShader->m_iProgram);
+		glDeleteShader((GLuint)pShader->m_iVShader);
+		glDeleteShader((GLuint)pShader->m_iFShader);
+	}
+
+	m_aShaderNames.clear();
+	m_aShaders.clear();
+	m_sHeader.clear();
+	m_sFunctions.clear();
+	m_sMain.clear();
 }
 
 void CShaderLibrary::AddShader(const tstring& sFile)
@@ -222,6 +242,7 @@ void CShaderLibrary::CompileShaders(int iSamples)
 {
 	TAssert(Get()->m_sFunctions.length());
 	TAssert(Get()->m_sHeader.length());
+	TAssert(Get()->m_sMain.length());
 
 	if (iSamples != -1)
 		Get()->m_iSamples = iSamples;
@@ -278,7 +299,7 @@ void CShaderLibrary::WriteLog(const tstring& sFile, const char* pszLog, const ch
 
 	tstring sLogFile = Application()->GetAppDataDirectory("shaders.txt");
 
-	TMsg(sprintf(tstring("Log file location: %s"), sLogFile.c_str()));
+	TMsg(tsprintf("Log file location: %s", sLogFile.c_str()));
 
 	if (m_bLogNeedsClearing)
 	{
@@ -471,7 +492,7 @@ bool CShader::Compile()
 	m_iTangentAttribute = glGetAttribLocation(m_iProgram, "vecTangent");
 	m_iBitangentAttribute = glGetAttribLocation(m_iProgram, "vecBitangent");
 	for (size_t i = 0; i < MAX_TEXTURE_CHANNELS; i++)
-		m_aiTexCoordAttributes[i] = glGetAttribLocation(m_iProgram, sprintf("vecTexCoord%d", i).c_str());
+		m_aiTexCoordAttributes[i] = glGetAttribLocation(m_iProgram, tsprintf("vecTexCoord%d", i).c_str());
 	m_iColorAttribute = glGetAttribLocation(m_iProgram, "vecVertexColor");
 
 	TAssert(m_iPositionAttribute != ~0);
@@ -632,10 +653,10 @@ size_t CShader::FindTextureByUniform(const tstring& sUniform) const
 			return i;
 	}
 
-	return ~0;
+	return (size_t)~0;
 }
 
-void ReloadShaders(class CCommand* pCommand, tvector<tstring>& asTokens, const tstring& sCommand)
+void ReloadShaders(class CCommand*, tvector<tstring>&, const tstring&)
 {
 	CShaderLibrary::CompileShaders();
 	if (CShaderLibrary::Get()->IsCompiled())

@@ -34,7 +34,7 @@ void GetMACAddresses(unsigned char*& paiAddresses, size_t& iAddresses)
 
 	DWORD dwBufLen = sizeof(AdapterInfo);
 
-	DWORD dwStatus = GetAdaptersInfo(
+	GetAdaptersInfo(
 		AdapterInfo,
 		&dwBufLen);
 
@@ -59,7 +59,7 @@ void GetMACAddresses(unsigned char*& paiAddresses, size_t& iAddresses)
 
 		memcpy(aiAddresses[iAddresses++], pAdapterInfo->Address, sizeof(char)*8);
 	}
-	while(pAdapterInfo = pAdapterInfo->Next);
+	while((pAdapterInfo = pAdapterInfo->Next) != NULL);
 
 	paiAddresses = &aiAddresses[0][0];
 }
@@ -93,9 +93,13 @@ void Alert(const tstring& sMessage)
 
 static int g_iMinidumpsWritten = 0;
 
+#ifdef _DEBUG
+void CreateMinidump(void* /*pInfo*/, tchar* /*pszDirectory*/)
+{
+}
+#else
 void CreateMinidump(void* pInfo, tchar* pszDirectory)
 {
-#ifndef _DEBUG
 	time_t currTime = ::time( NULL );
 	struct tm * pTime = ::localtime( &currTime );
 
@@ -153,8 +157,8 @@ void CreateMinidump(void* pInfo, tchar* pszDirectory)
 
 		CloseHandle( hFile );
 	}
-#endif
 }
+#endif
 
 tstring GetClipboard()
 {
@@ -207,7 +211,6 @@ tvector<tstring> ListDirectory(const tstring& sFullDirectory, bool bDirectories)
 
 	if (hFind != INVALID_HANDLE_VALUE)
 	{
-		int count = 0;
 		do
 		{
 			if (!bDirectories && (fd.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY))
@@ -230,6 +233,7 @@ bool IsFile(const tstring& sPath)
 {
 	WIN32_FIND_DATA fd;
 	HANDLE hFind = FindFirstFile(convert_to_wstring(sPath).c_str(), &fd);
+	FindClose(hFind);
 
 	if (hFind == INVALID_HANDLE_VALUE)
 		return false;
@@ -249,6 +253,7 @@ bool IsDirectory(const tstring& sPath)
 
 	WIN32_FIND_DATA fd;
 	HANDLE hFind = FindFirstFile(convert_to_wstring(sPathNoSep).c_str(), &fd);
+	FindClose(hFind);
 
 	if (hFind == INVALID_HANDLE_VALUE)
 		return false;

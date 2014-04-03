@@ -110,6 +110,38 @@ void CConsole::Layout()
 	BaseClass::Layout();
 }
 
+void CConsole::Think()
+{
+	BaseClass::Think();
+
+	if (m_hOutput->GetTextHeight() > GetHeight() * 2)
+	{
+		tvector<tstring> asTokens;
+		explode(m_hOutput->GetText(), asTokens, "\n");
+
+		// About how many lines can we fit in the space we have?
+		size_t iLinesInSpace = (int)(GetHeight() / m_hOutput->GetTextHeight() * m_hOutput->GetNumLines());
+
+		iLinesInSpace = (size_t)((float)iLinesInSpace * 1.5f);
+
+		if (asTokens.size() > iLinesInSpace)
+		{
+			asTokens.erase(asTokens.begin(), asTokens.end() - iLinesInSpace);
+
+			tstring sNewOutput;
+			for (size_t i = 0; i < asTokens.size(); i++)
+			{
+				if (!asTokens[i].length())
+					continue;
+
+				sNewOutput += asTokens[i] + "\n";
+			}
+
+			m_hOutput->SetText(sNewOutput);
+		}
+	}
+}
+
 void CConsole::Paint(float x, float y, float w, float h)
 {
 	if (!CApplication::Get()->IsOpen())
@@ -141,9 +173,6 @@ void CConsole::PrintConsole(const tstring& sText)
 
 	m_hOutput->AppendText(sText);
 
-	if (m_hOutput->GetText().length() > 2500)
-		m_hOutput->SetText(m_hOutput->GetText().substr(500));
-
 	if (!CApplication::Get()->IsOpen())
 		return;
 
@@ -172,7 +201,7 @@ bool CConsole::KeyPressed(int code, bool bCtrlDown)
 				m_iHistory++;
 
 				m_hInput->SetText(m_asHistory[m_iHistory]);
-				m_hInput->SetCursorPosition(-1);
+				m_hInput->SetCursorPosition((size_t)-1);
 			}
 			else if (m_iHistory == (int)m_asHistory.size()-1)
 			{
@@ -188,7 +217,7 @@ bool CConsole::KeyPressed(int code, bool bCtrlDown)
 				m_iHistory--;
 
 			m_hInput->SetText(m_asHistory[m_iHistory]);
-			m_hInput->SetCursorPosition(-1);
+			m_hInput->SetCursorPosition((size_t)-1);
 		}
 		else
 			m_iHistory = -1;
@@ -232,7 +261,7 @@ bool CConsole::CharPressed(int iKey)
 	return BaseClass::CharPressed(iKey);
 }
 
-void CConsole::CommandChangedCallback(const tstring& sArgs)
+void CConsole::CommandChangedCallback(const tstring& /*sArgs*/)
 {
 	tstring sInput = m_hInput->GetText();
 	if (sInput.find(' ') != ~0)
@@ -270,7 +299,6 @@ void CApplication::ToggleConsole()
 	if (!Get())
 		return;
 
-	CConsole* pConsole = Get()->GetConsole();
 	if (IsConsoleOpen())
 		CloseConsole();
 	else

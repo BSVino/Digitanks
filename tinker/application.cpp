@@ -107,7 +107,7 @@ CVar gl_debug("gl_debug", GL_DEBUG_VALUE);
 #define CALLBACK
 #endif
 
-void CALLBACK GLDebugCallback(GLenum iSource, GLenum iType, GLuint id, GLenum iSeverity, GLsizei iLength, const GLchar* pszMessage, GLvoid* pUserParam)
+void CALLBACK GLDebugCallback(GLenum iSource, GLenum iType, GLuint /*id*/, GLenum iSeverity, GLsizei /*iLength*/, const GLchar* pszMessage, GLvoid* /*pUserParam*/)
 {
 	if (iType != GL_DEBUG_TYPE_PERFORMANCE_ARB)
 	{
@@ -152,9 +152,9 @@ void CALLBACK GLDebugCallback(GLenum iSource, GLenum iType, GLuint id, GLenum iS
 		else if (iSeverity == GL_DEBUG_SEVERITY_LOW_ARB)
 			sMessage += "Severity: Low) ";
 
-		sMessage += convertstring<GLchar, tchar>(pszMessage) + "\n";
+		sMessage += tstring(pszMessage) + "\n";
 
-		TMsg(convertstring<GLchar, tchar>(sMessage).c_str());
+		TMsg(sMessage.c_str());
 	}
 }
 #endif
@@ -172,7 +172,7 @@ void CApplication::OpenWindow(size_t iWidth, size_t iHeight, bool bFullscreen, b
 	m_iWindowWidth = iWidth;
 	m_iWindowHeight = iHeight;
 
-	TMsg(sprintf(tstring("Opening %dx%d %s %s window.\n"), iWidth, iHeight, bFullscreen?"fullscreen":"windowed", bResizeable?"resizeable":"fixed-size"));
+	TMsg(tsprintf("Opening %dx%d %s %s window.\n", iWidth, iHeight, bFullscreen?"fullscreen":"windowed", bResizeable?"resizeable":"fixed-size"));
 
 	int iScreenWidth;
 	int iScreenHeight;
@@ -187,7 +187,7 @@ void CApplication::OpenWindow(size_t iWidth, size_t iHeight, bool bFullscreen, b
 	if (bResizeable)
 		iModes |= SDL_WINDOW_RESIZABLE;
 
-	if (!(m_pWindow = SDL_CreateWindow(WindowTitle().c_str(), SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, iWidth, iHeight, iModes)))
+	if (NULL == (m_pWindow = SDL_CreateWindow(WindowTitle().c_str(), SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, iWidth, iHeight, iModes)))
 	{
 		SDL_Quit();
 		return;
@@ -219,7 +219,7 @@ void CApplication::OpenWindow(size_t iWidth, size_t iHeight, bool bFullscreen, b
 	}
 #endif
 
-	SDL_GLContext glcontext = SDL_GL_CreateContext(m_pWindow);
+	SDL_GL_CreateContext(m_pWindow);
 
 	SDL_GL_SetSwapInterval(1);
 
@@ -260,6 +260,12 @@ void CApplication::OpenWindow(size_t iWidth, size_t iHeight, bool bFullscreen, b
 
 CApplication::~CApplication()
 {
+	delete m_pRenderer;
+	glgui::RootPanel()->RemoveControl(m_pConsole);
+	m_pConsole = nullptr;
+	glgui::CRootPanel::Reset();
+	s_pApplication = nullptr;
+
 	SDL_DestroyWindow(m_pWindow);
 	SDL_Quit();
 }
@@ -408,7 +414,7 @@ void CApplication::PollEvents()
 		{
 		case SDL_QUIT:
 			if (WindowClose())
-				exit(0);
+				m_bIsOpen = false;
 			break;
 
 		case SDL_WINDOWEVENT:
@@ -476,7 +482,7 @@ bool CApplication::IsOpen()
 		return m_bIsOpen;
 }
 
-void Quit(class CCommand* pCommand, tvector<tstring>& asTokens, const tstring& sCommand)
+void Quit(class CCommand* /*pCommand*/, tvector<tstring>& /*asTokens*/, const tstring& /*sCommand*/)
 {
 	CApplication::Get()->Close();
 }

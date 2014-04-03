@@ -33,7 +33,7 @@ CConvexHullGenerator::CConvexHullGenerator(const tvector<Vector>& avecPoints)
 void CConvexHullGenerator::CreateConvex()
 {
 	size_t i1 = FindLowestPoint();
-	size_t i2 = FindNextPoint(i1, -1);
+	size_t i2 = FindNextPoint(i1, (size_t)~0);
 
 	AddEdge(i2, i1);
 
@@ -106,7 +106,7 @@ size_t CConvexHullGenerator::FindNextPoint(size_t p1, size_t p2)
 
 	Vector vecEdge = (v2 - v1).Normalized();
 
-	size_t iHighest = -1;
+	size_t iHighest = (size_t )~0;
 	Vector vecHighestNormal, vecHighest;
 	bool bFirst = true;
 

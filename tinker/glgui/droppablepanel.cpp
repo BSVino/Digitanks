@@ -105,7 +105,7 @@ void CDroppablePanel::AddDraggable(IDraggable* pDragged)
 	}
 }
 
-void CDroppablePanel::ClearDraggables(bool bDelete)
+void CDroppablePanel::ClearDraggables(bool)
 {
 	m_apDraggables.clear();
 }

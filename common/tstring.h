@@ -93,7 +93,7 @@ public:
 	inline tstring&	tolower()
 	{
 		for (size_t i = 0; i < length(); i++)
-			(*this)[i] = ::tolower((*this)[i]);
+			(*this)[i] = (char)::tolower((*this)[i]);
 
 		return *this;
 	}
@@ -101,7 +101,7 @@ public:
 	inline tstring&	toupper()
 	{
 		for (size_t i = 0; i < length(); i++)
-			(*this)[i] = ::toupper((*this)[i]);
+			(*this)[i] = (char)::toupper((*this)[i]);
 
 		return *this;
 	}

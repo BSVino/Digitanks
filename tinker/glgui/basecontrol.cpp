@@ -28,8 +28,6 @@ LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON A
 
 using namespace glgui;
 
-size_t CBaseControl::s_iQuad = ~0;
-
 tmap<CBaseControl*, CControlResource>* CBaseControl::s_papControls = nullptr;
 
 #ifdef _DEBUG
@@ -85,7 +83,7 @@ CBaseControl::CBaseControl(const FRect& Rect)
 
 CBaseControl::~CBaseControl()
 {
-	TAssert(RootPanel()->IsGarbageCollecting());
+	TAssert(!CRootPanel::Exists() || RootPanel()->IsGarbageCollecting());
 
 	TAssert(!GetParent());
 	if (GetParent())
@@ -422,7 +420,7 @@ void CBaseControl::DirtyVisible()
 	m_bVisibleDirty = true;
 }
 
-bool CBaseControl::MousePressed(int iButton, int mx, int my)
+bool CBaseControl::MousePressed(int /*iButton*/, int /*mx*/, int /*my*/)
 {
 	return CRootPanel::Get()->SetFocus(m_hThis);
 }
@@ -458,14 +456,27 @@ void CBaseControl::Paint(float x, float y)
 		Paint(x, y, m_flW, m_flH);
 }
 
-void CBaseControl::Paint(float x, float y, float w, float h)
+void CBaseControl::Paint(float, float, float, float)
 {
+}
+
+void CBaseControl::PaintBackground(float x, float y, float w, float h)
+{
+	if (m_flBorder == 0 && m_clrBackground.a() == 0)
+		return;
+
+	PaintRect(x, y, w, h, m_clrBackground, m_flBorder, true);
+}
+
+void CBaseControl::PostPaint()
+{
+#ifndef T_TOUCH_PLATFORM
 	if (m_sTip.length() > 0 && m_flMouseInTime > 0 && CRootPanel::Get()->GetTime() > m_flMouseInTime + 0.5f)
 	{
 		int iFontSize = 12;
 
-		float flFontHeight = CLabel::GetFontHeight("sans-serif", iFontSize);
-		float flTextWidth = CLabel::GetTextWidth(m_sTip, m_sTip.length(), "sans-serif", iFontSize);
+		float flFontHeight = RootPanel()->GetFontHeight("sans-serif", iFontSize);
+		float flTextWidth = RootPanel()->GetTextWidth(m_sTip, m_sTip.length(), "sans-serif", iFontSize);
 
 		int mx, my;
 		CRootPanel::GetFullscreenMousePos(mx, my);
@@ -474,23 +485,16 @@ void CBaseControl::Paint(float x, float y, float w, float h)
 		if (iTooltipRight > CRootPanel::Get()->GetWidth())
 			mx -= (int)(iTooltipRight - CRootPanel::Get()->GetWidth());
 
-		PaintRect((float)mx-3, (float)my-3, flTextWidth+6, flFontHeight+6, g_clrBox, 3); 
-		CLabel::PaintText(m_sTip, m_sTip.length(), "sans-serif", iFontSize, (float)mx, (float)my);
+		float y = my - flFontHeight;
+
+		PaintRect((float)mx - 3, y - 3, flTextWidth + 6, flFontHeight + 6, g_clrBox, 3);
+		CLabel::PaintText(m_sTip, m_sTip.length(), "sans-serif", iFontSize, (float)mx, y);
 	}
-}
-
-void CBaseControl::PaintBackground(float x, float y, float w, float h)
-{
-	if (m_eBorder == BT_NONE && m_clrBackground.a() == 0)
-		return;
-
-	PaintRect(x, y, w, h, m_clrBackground, (m_eBorder == BT_SOME)?2.0f:0.0f, true);
+#endif
 }
 
 void CBaseControl::PaintRect(float x, float y, float w, float h, const Color& c, float flBorder, bool bHighlight)
 {
-	MakeQuad();
-
 	::CRenderingContext r(nullptr, true);
 
 	r.SetBlend(BLEND_ALPHA);
@@ -502,7 +506,7 @@ void CBaseControl::PaintRect(float x, float y, float w, float h, const Color& c,
 
 	r.SetUniform("vecDimensions", Vector4D(x, y, w, h));
 
-	r.BeginRenderVertexArray(s_iQuad);
+	r.BeginRenderVertexArray(RootPanel()->GetQuad());
 	r.SetPositionBuffer((size_t)0u, 20);
 	r.SetTexCoordBuffer(12, 20);
 	r.EndRenderVertexArray(6);
@@ -510,8 +514,6 @@ void CBaseControl::PaintRect(float x, float y, float w, float h, const Color& c,
 
 void CBaseControl::PaintTexture(const CMaterialHandle& hMaterial, float x, float y, float w, float h, const Color& c)
 {
-	MakeQuad();
-
 	::CRenderingContext r(nullptr, true);
 
 	if ((w < 0) ^ (h < 0))
@@ -528,7 +530,7 @@ void CBaseControl::PaintTexture(const CMaterialHandle& hMaterial, float x, float
 
 	r.SetUniform("vecDimensions", Vector4D(x, y, w, h));
 
-	r.BeginRenderVertexArray(s_iQuad);
+	r.BeginRenderVertexArray(RootPanel()->GetQuad());
 	r.SetPositionBuffer((size_t)0u, 20);
 	r.SetTexCoordBuffer(12, 20);
 	r.EndRenderVertexArray(6);
@@ -538,8 +540,6 @@ void CBaseControl::PaintTexture(const CMaterialHandle& hMaterial, float x, float
 
 void CBaseControl::PaintSheet(const CMaterialHandle& hMaterial, float x, float y, float w, float h, int sx, int sy, int sw, int sh, int tw, int th, const Color& c)
 {
-	MakeQuad();
-
 	::CRenderingContext r(nullptr, true);
 
 	if ((w < 0) ^ (h < 0))
@@ -558,33 +558,12 @@ void CBaseControl::PaintSheet(const CMaterialHandle& hMaterial, float x, float y
 	r.SetUniform("vecDimensions", Vector4D(x, y, w, h));
 	r.SetUniform("vecTexCoords", Vector4D((float)sx/(float)tw, (float)sy/(float)th, (float)sw/(float)tw, (float)sh/(float)th));
 
-	r.BeginRenderVertexArray(s_iQuad);
+	r.BeginRenderVertexArray(RootPanel()->GetQuad());
 	r.SetPositionBuffer((size_t)0u, 20);
 	r.SetTexCoordBuffer(12, 20);
 	r.EndRenderVertexArray(6);
 
 	r.SetBackCulling(true);
-}
-
-void CBaseControl::MakeQuad()
-{
-	if (s_iQuad != ~0)
-		return;
-
-	struct {
-		Vector vecPosition;
-		Vector2D vecTexCoord;
-	} avecData[] =
-	{
-		{ Vector(0, 0, 0), Vector2D(0, 0) },
-		{ Vector(0, 1, 0), Vector2D(0, 1) },
-		{ Vector(1, 1, 0), Vector2D(1, 1) },
-		{ Vector(0, 0, 0), Vector2D(0, 0) },
-		{ Vector(1, 1, 0), Vector2D(1, 1) },
-		{ Vector(1, 0, 0), Vector2D(1, 0) },
-	};
-
-	s_iQuad = CRenderer::LoadVertexDataIntoGL(sizeof(avecData), (float*)&avecData[0]);
 }
 
 bool CBaseControl::IsCursorListener()
@@ -634,6 +613,19 @@ void CBaseControl::SetTooltip(const tstring& sTip)
 
 	if (m_flMouseInTime > 0)
 		m_flMouseInTime = CRootPanel::Get()->GetTime();
+}
+
+void CBaseControl::SetBorder(Border b)
+{
+	if (b == BT_SOME)
+		m_flBorder = 2;
+	else
+		m_flBorder = 0;
+}
+
+void CBaseControl::SetBorder(float flBorder)
+{
+	m_flBorder = flBorder;
 }
 
 CControlHandle CBaseControl::GetHasCursor() const

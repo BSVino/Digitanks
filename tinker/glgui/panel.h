@@ -49,6 +49,7 @@ namespace glgui
 		virtual void			Paint(float x, float y);
 		virtual void			Paint(float x, float y, float w, float h);
 		virtual void			PostPaint();
+		virtual const FRect     GetScissorArea();
 		virtual void			Layout();
 		virtual void			Think();
 		virtual void			UpdateScene();
@@ -76,6 +77,9 @@ namespace glgui
 		virtual tvector<CControlResource>&	GetControls() { return m_apControls; };
 		virtual void			MoveToTop(CBaseControl* pControl);
 
+		void                    ClearControls();
+		virtual bool            ShouldClearControl(CBaseControl* pControl);
+
 		virtual void            DirtyVisible();
 
 		virtual void			SetHighlighted(bool bHighlight) { m_bHighlight = bHighlight; };
@@ -83,6 +87,8 @@ namespace glgui
 
 		void					SetScissoring(bool b) { m_bScissoring = b; };
 		bool					IsScissoring() const;
+
+		virtual void            SetBorder(Border b);
 
 		FRect					GetControlBounds() const { return m_rControlBounds; };
 		FRect					GetControlOffset() const { return m_rControlOffset; };

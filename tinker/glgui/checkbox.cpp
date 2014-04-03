@@ -23,15 +23,29 @@ LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON A
 
 using namespace glgui;
 
+#ifdef T_TOUCH_PLATFORM
+#define T_CHECKBOX_SIZE 25
+#else
+#define T_CHECKBOX_SIZE 15
+#endif
+
 CCheckBox::CCheckBox()
-	: CButton(0, 0, 10, 10, "", true)
+: CButton(0, 0, T_CHECKBOX_SIZE, T_CHECKBOX_SIZE, "", true)
 {
+	SetAlign(TA_LEFTCENTER);
+	SetBorder(BT_NONE);
 }
 
 void CCheckBox::Paint(float x, float y, float w, float h)
 {
-	PaintRect(x, y, w-1, h-1, glgui::g_clrPanel, 3);
+	PaintRect(x, y, h-1, h-1, glgui::g_clrPanel, 3);
 
 	if (m_bDown)
-		CRootPanel::PaintRect(x+2, y+2, w-4, h-4, g_clrBoxHi);
+		CRootPanel::PaintRect(x+2, y+2, h-4, h-4, g_clrBoxHi);
+
+	BaseClass::Paint(x + h + 4, y, w, h);
+}
+
+void CCheckBox::PaintButton(float, float, float, float)
+{
 }

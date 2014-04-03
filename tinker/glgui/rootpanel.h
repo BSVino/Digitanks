@@ -22,6 +22,7 @@ LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON A
 #include "panel.h"
 
 class CRenderingContext;
+class FTFont;
 
 namespace glgui
 {
@@ -62,15 +63,33 @@ namespace glgui
 		CControl<CMenuBar>			GetMenuBar() { return m_hMenuBar; };
 		CControl<CMenu>				AddMenu(const tstring& sText);
 
-		void						SetLighting(bool bLighting) { m_bUseLighting = bLighting; };
-
 		double						GetFrameTime() { return m_flFrameTime; };
 		double						GetTime() { return m_flTime; };
 
+		void                        CollectGarbage();
+		void                        CollectGarbageFinal();
 		bool						IsGarbageCollecting() const { return m_bGarbageCollecting; }
 		bool						IsDrawingDraggable() const { return m_bDrawingDraggable; }
 
+		::FTFont* GetFont(const tstring& sName, size_t iSize);
+		void      AddFont(const tstring& sName, const tstring& sFile);
+		void      AddFontSize(const tstring& sName, size_t iSize);
+
+		float GetTextWidth(const tstring& sText, unsigned iLength, const tstring& sFontName, int iFontFaceSize);
+		float GetFontHeight(const tstring& sFontName, int iFontFaceSize);
+		float GetFontAscender(const tstring& sFontName, int iFontFaceSize);
+
+		float GetTextWidth(const tstring& sText, unsigned iLength, class ::FTFont* pFont);
+		float GetFontHeight(class ::FTFont* pFont);
+		float GetFontAscender(class ::FTFont* pFont);
+		float GetFontDescender(class ::FTFont* pFont);
+
+		void MakeQuad();
+		size_t GetQuad();
+
 		static CRootPanel*			Get();
+		static bool                 Exists();
+		static void                 Reset();
 
 		static void					GetFullscreenMousePos(int& mx, int& my);
 
@@ -98,11 +117,16 @@ namespace glgui
 		int							m_iMX;
 		int							m_iMY;
 
-		bool						m_bUseLighting;
 		bool						m_bGarbageCollecting;
 		bool						m_bDrawingDraggable;
 
 		::CRenderingContext*		m_pRenderingContext;
+
+		tmap<tstring, tmap<size_t, ::FTFont*> > m_apFonts;
+		tmap<tstring, tstring>                  m_apFontNames;
+
+		// A quad for drawing GUI elements
+		size_t m_iQuad;
 	};
 
 	inline CRootPanel* RootPanel()

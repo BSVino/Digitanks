@@ -162,7 +162,7 @@ void CFileDialog::Layout()
 	BaseClass::Layout();
 }
 
-void CFileDialog::NewDirectoryCallback(const tstring& sArgs)
+void CFileDialog::NewDirectoryCallback(const tstring&)
 {
 	if (m_hDirectory->GetText() == m_sDirectory)
 		return;
@@ -188,26 +188,26 @@ void CFileDialog::NewDirectoryCallback(const tstring& sArgs)
 	}
 }
 
-void CFileDialog::ExploreCallback(const tstring& sArgs)
+void CFileDialog::ExploreCallback(const tstring&)
 {
 	OpenExplorer(m_sDirectory);
 }
 
-void CFileDialog::FileSelectedCallback(const tstring& sArgs)
+void CFileDialog::FileSelectedCallback(const tstring&)
 {
 	m_hNewFile->SetText("");
 
 	m_hSelect->SetEnabled(!!m_hFileList->GetSelectedNode());
 }
 
-void CFileDialog::NewFileChangedCallback(const tstring& sArgs)
+void CFileDialog::NewFileChangedCallback(const tstring&)
 {
 	m_hFileList->Unselect();
 
 	m_hSelect->SetEnabled(m_hNewFile->GetText().length() > 0);
 }
 
-void CFileDialog::SelectCallback(const tstring& sArgs)
+void CFileDialog::SelectCallback(const tstring&)
 {
 	tstring sFile = GetFile();
 	if (sFile.find(DIR_SEP"..") == sFile.length()-3)
@@ -227,7 +227,7 @@ void CFileDialog::SelectCallback(const tstring& sArgs)
 	FileConfirmed(sFile);
 }
 
-void CFileDialog::CloseCallback(const tstring& sArgs)
+void CFileDialog::CloseCallback(const tstring&)
 {
 	SetVisible(false);
 }

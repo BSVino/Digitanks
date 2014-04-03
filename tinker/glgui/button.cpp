@@ -37,6 +37,7 @@ CButton::CButton(const tstring& sText, bool bToggle, const tstring& sFont, size_
 	m_pfnUnclickCallback = NULL;
 	m_clrButton = g_clrBox;
 	m_clrDown = g_clrBoxHi;
+	m_flBorder = 2;
 }
 
 CButton::CButton(float x, float y, float w, float h, const tstring& sText, bool bToggle, const tstring& sFont, size_t iSize)
@@ -52,6 +53,7 @@ CButton::CButton(float x, float y, float w, float h, const tstring& sText, bool 
 	m_pfnUnclickCallback = NULL;
 	m_clrButton = g_clrBox;
 	m_clrDown = g_clrBoxHi;
+	m_flBorder = 2;
 }
 
 void CButton::SetToggleState(bool bState)
@@ -218,6 +220,7 @@ void CButton::PaintButton(float x, float y, float w, float h)
 		Color clrBox = m_clrButton;
 		if (m_bEnabled)
 			clrBox.SetAlpha((int)RemapVal(m_flHighlight, 0, 1, 125, 255));
-		CRootPanel::PaintRect(x, y, w, h, clrBox, 2, m_bEnabled && m_flHighlightGoal > 1);
+
+		CRootPanel::PaintRect(x, y, w, h, clrBox, m_flBorder, m_bEnabled && m_flHighlightGoal > 1);
 	}
 }

@@ -57,7 +57,7 @@ namespace glgui
 		void								SetExpanded(bool bExpanded) { m_hExpandButton->SetExpanded(bExpanded); };
 
 		void								SetIcon(const CMaterialHandle& hMaterial) { m_hIconMaterial = hMaterial; };
-		virtual void						SetDraggable(bool bDraggable) { m_bDraggable = true; };
+		virtual void						SetDraggable(bool) { m_bDraggable = true; };
 
 		virtual bool						IsVisible();
 
@@ -151,7 +151,7 @@ namespace glgui
 
 		virtual CControl<CTreeNode>			GetSelectedNode() const { if (m_iSelected == ~0) return CControl<CTreeNode>(); return m_ahAllNodes[m_iSelected]; };
 		virtual size_t						GetSelectedNodeId() const { return m_iSelected; };
-		virtual void						Unselect() { m_iSelected = ~0; }
+		virtual void						Unselect() { m_iSelected = (size_t)~0; }
 		virtual void						SetSelectedNode(size_t iNode);
 		virtual void						SetSelectedListener(IEventListener* pListener, IEventListener::Callback pfnCallback);
 		virtual void						SetConfirmedListener(IEventListener* pListener, IEventListener::Callback pfnCallback);
@@ -163,11 +163,11 @@ namespace glgui
 
 		virtual void						AddDraggable(IDraggable*) {};
 		virtual void						SetDraggable(IDraggable*, bool bDelete = true);
-		virtual IDraggable*					GetDraggable(int i) { return static_cast<IDraggable*>(m_hDragging.Get()); };
+		virtual IDraggable*					GetDraggable(int) { return static_cast<IDraggable*>(m_hDragging.Get()); };
 		virtual IDraggable*					GetCurrentDraggable() { return static_cast<IDraggable*>(m_hDragging.Get()); };
 
 		// I already know.
-		virtual void						SetGrabbale(bool bGrabbable) {};
+		virtual void						SetGrabbale(bool /*bGrabbable*/) {};
 		virtual bool						IsGrabbale() { return true; };
 
 		virtual bool						CanDropHere(IDraggable*) { return m_bDroppable; };

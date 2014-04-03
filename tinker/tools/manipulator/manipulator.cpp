@@ -114,7 +114,7 @@ void CManipulatorTool::SetTransfromType(TransformType eTransform)
 	m_eTransform = eTransform;
 }
 
-bool CManipulatorTool::MouseInput(int iButton, tinker_mouse_state_t iState, int mx, int my)
+bool CManipulatorTool::MouseInput(int, tinker_mouse_state_t iState, int mx, int my)
 {
 	if (!s_pManipulatorTool)
 		return false;
@@ -247,22 +247,22 @@ TRS CManipulatorTool::GetNewTRS()
 	return m_trsTransform;
 }
 
-void CManipulatorTool::TranslateModeCallback(const tstring& sArgs)
+void CManipulatorTool::TranslateModeCallback(const tstring&)
 {
 	SetTransfromType(MT_TRANSLATE);
 }
 
-void CManipulatorTool::RotateModeCallback(const tstring& sArgs)
+void CManipulatorTool::RotateModeCallback(const tstring&)
 {
 	SetTransfromType(MT_ROTATE);
 }
 
-void CManipulatorTool::ScaleModeCallback(const tstring& sArgs)
+void CManipulatorTool::ScaleModeCallback(const tstring&)
 {
 	SetTransfromType(MT_SCALE);
 }
 
-void CManipulatorTool::TransformLocalCallback(const tstring& sArgs)
+void CManipulatorTool::TransformLocalCallback(const tstring&)
 {
 	m_pTranslateGizmo->SetLocation(IGizmo::LOCATE_LOCAL);
 	m_pRotateGizmo->SetLocation(IGizmo::LOCATE_LOCAL);
@@ -272,7 +272,7 @@ void CManipulatorTool::TransformLocalCallback(const tstring& sArgs)
 	m_pTransformMenu->CloseMenu();
 }
 
-void CManipulatorTool::TransformWorldCallback(const tstring& sArgs)
+void CManipulatorTool::TransformWorldCallback(const tstring&)
 {
 	m_pTranslateGizmo->SetLocation(IGizmo::LOCATE_WORLD);
 	m_pRotateGizmo->SetLocation(IGizmo::LOCATE_WORLD);
@@ -282,7 +282,7 @@ void CManipulatorTool::TransformWorldCallback(const tstring& sArgs)
 	m_pTransformMenu->CloseMenu();
 }
 
-void CManipulatorTool::TransformViewCallback(const tstring& sArgs)
+void CManipulatorTool::TransformViewCallback(const tstring&)
 {
 	m_pTranslateGizmo->SetLocation(IGizmo::LOCATE_VIEW);
 	m_pRotateGizmo->SetLocation(IGizmo::LOCATE_VIEW);

@@ -126,7 +126,7 @@ inline void CreateDirectory(const tstring& sPath)
 		return;
 
 	tvector<tstring> asPaths;
-	while (true)
+	for (;;)
 	{
 		sSubPath = GetDirectory(sSubPath);
 		if (sSubPath == ".")

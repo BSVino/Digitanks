@@ -105,6 +105,8 @@ public:
 public:
 	static void             Initialize();
 	void                    InitializeNonStatic();
+	static void             Destroy();
+	void                    DestroyNonStatic();
 
 	static size_t			GetNumShaders() { return Get()->m_aShaders.size(); };
 

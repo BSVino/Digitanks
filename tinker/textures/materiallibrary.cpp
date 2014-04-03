@@ -38,11 +38,20 @@ CMaterialLibrary::CMaterialLibrary()
 
 CMaterialLibrary::~CMaterialLibrary()
 {
+	// Should be TAssert(m_aMaterials.size() == 0); ?
+	DebugPrint(tsprintf("Material library closing, %d materials\n", m_aMaterials.size()).c_str());
+
+	m_aMaterials.clear();
+
 	s_pMaterialLibrary = NULL;
 }
 
 CMaterialHandle CMaterialLibrary::AddMaterial(const tstring& sMaterial, int iClamp)
 {
+	CMaterialHandle hMaterial = FindAsset(sMaterial);
+	if (hMaterial.IsValid())
+		return hMaterial;
+
 	return CMaterialHandle(sMaterial, AddAsset(sMaterial, iClamp));
 }
 
@@ -59,7 +68,7 @@ CMaterialHandle CMaterialLibrary::AddMaterial(const class CData* pData, const ts
 	return CMaterialHandle(pMaterial->m_sFile, pMaterial);
 }
 
-CMaterial* CMaterialLibrary::AddAsset(const tstring& sMaterial, int iClamp)
+CMaterial* CMaterialLibrary::AddAsset(const tstring& sMaterial, int)
 {
 	if (!sMaterial.length())
 		return nullptr;
@@ -84,7 +93,7 @@ CMaterial* CMaterialLibrary::CreateMaterial(const CData* pData, const tstring& s
 	if (!sMaterialOutput.length())
 	{
 		static int i = 0;
-		sMaterial = sprintf("[from data %x]", i++);
+		sMaterial = tsprintf("[from data %x]", i++);
 	}
 
 	CData* pShaderData = pData->FindChild("Shader");
@@ -177,6 +186,11 @@ CMaterialHandle CMaterialLibrary::FindAsset(const tstring& sMaterial)
 		return CMaterialHandle();
 
 	return CMaterialHandle(sMaterialForward, &it->second);
+}
+
+void CMaterialLibrary::RemoveAsset(const tstring& sName)
+{
+	Get()->m_aMaterials.erase(sName);
 }
 
 bool CMaterialLibrary::IsAssetLoaded(const tstring& sMaterial)
@@ -288,7 +302,7 @@ size_t CMaterial::FindParameter(const tstring& sParameterName, bool bCreate)
 		return m_aParameters.size()-1;
 	}
 
-	return ~0;
+	return (size_t)~0;
 }
 
 void CMaterial::SetParameter(const tstring& sParameterName, const CTextureHandle& hTexture)
@@ -355,12 +369,12 @@ void CMaterial::SetParameter(const tstring& sParameterName, const tstring& sValu
 
 void CMaterial::SetParameter(const tstring& sParameterName, const Vector& vecValue)
 {
-	SetParameter(sParameterName, sprintf("%f %f %f 1", vecValue.x, vecValue.y, vecValue.z));
+	SetParameter(sParameterName, tsprintf("%f %f %f 1", vecValue.x, vecValue.y, vecValue.z));
 }
 
 void CMaterial::SetParameter(const tstring& sParameterName, float flValue)
 {
-	SetParameter(sParameterName, sprintf("%f", flValue));
+	SetParameter(sParameterName, tsprintf("%f", flValue));
 }
 
 void CMaterial::FillParameter(size_t iParameter, const tstring& sData, class CShader* pShader)

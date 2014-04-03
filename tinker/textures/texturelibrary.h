@@ -60,6 +60,7 @@ public:
 	static CTexture*		AddAsset(const tstring& sTexture, Color* clrColors, size_t iWidth, size_t iHeight, bool bMipMaps=true);
 	static CTextureHandle	FindAsset(const tstring& sTexture);
 	static size_t			FindTextureID(const tstring& sTexture);
+	static void             RemoveAsset(const tstring& sName);
 
 	static size_t			GetTextureGLID(const tstring& sTexture);
 	static size_t			GetTextureWidth(const tstring& sTexture);

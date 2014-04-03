@@ -59,6 +59,7 @@ namespace glgui
 		virtual void	SetUnclickedListener(IEventListener* pListener, IEventListener::Callback pfnCallback, const tstring& sArgs="");
 		virtual IEventListener::Callback	GetClickedListenerCallback() { return m_pfnClickCallback; };
 		virtual IEventListener*				GetClickedListener() { return m_pClickListener; };
+		virtual tstring                     GetClickedListenerArgs() { return m_sClickArgs; };
 
 		virtual bool	IsHighlighted() {return m_flHighlight > 0;};
 

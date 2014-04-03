@@ -19,12 +19,24 @@ LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON A
 #define TINKER_MENU_H
 
 #include "panel.h"
-#include "button.h"
+#include "picturebutton.h"
 
 namespace glgui
 {
-#define MENU_SPACING 10
-#define MENU_HEIGHT 22
+#ifdef T_TOUCH_PLATFORM
+// Nice fat finger friendly size.
+#define T_MENU_SPACING 10
+#define T_MENU_HEIGHT 30
+#else
+#define T_MENU_SPACING 10
+#define T_MENU_HEIGHT 22
+#endif
+
+	typedef enum
+	{
+		MENUOPEN_BOTTOM,
+		MENUOPEN_SIDE,
+	} menuopen_t;
 
 	class CMenuBar : public CPanel
 	{
@@ -36,9 +48,9 @@ namespace glgui
 		void						SetActive(class CMenu* pMenu);
 	};
 
-	class CMenu : public CButton, public IEventListener
+	class CMenu : public CPictureButton, public IEventListener
 	{
-		DECLARE_CLASS(CMenu, CButton);
+		DECLARE_CLASS(CMenu, CPictureButton);
 
 	public:
 									CMenu(const tstring& sTitle, bool bSubmenu = false);
@@ -72,6 +84,8 @@ namespace glgui
 		virtual void				ClearSubmenus();
 		virtual size_t              GetNumSubmenus() const { return m_ahEntries.size(); }
 		virtual CControl<CMenu>     GetSubmenu(size_t iMenu) const { if (iMenu >= GetNumSubmenus()) return nullptr; return m_ahEntries[iMenu]; }
+
+		void SetMenuOpen(menuopen_t eMenuOpen) { m_eMenuOpen = eMenuOpen; }
 
 		virtual size_t				GetSelectedMenu();
 
@@ -118,6 +132,8 @@ namespace glgui
 		float						m_flMenuSelectionHighlight;
 		FRect						m_MenuSelectionGoal;
 		FRect						m_MenuSelection;
+
+		menuopen_t                  m_eMenuOpen;
 
 		IEventListener::Callback	m_pfnMenuCallback;
 		IEventListener*				m_pMenuListener;

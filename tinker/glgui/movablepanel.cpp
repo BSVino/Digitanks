@@ -72,13 +72,15 @@ CMovablePanel::CMovablePanel(const tstring& sName)
 	SetBorder(glgui::CPanel::BT_SOME);
 	SetClearBackground(false);
 
-	m_hName = AddControl(new CLabel(0, GetHeight()-HEADER_HEIGHT, GetWidth(), HEADER_HEIGHT, sName));
+	m_hName = AddControl(new CLabel(0, GetHeight() - T_HEADER_HEIGHT, GetWidth(), T_HEADER_HEIGHT, sName));
 
 	m_hCloseButton = AddControl(new CCloseButton());
 	m_hCloseButton->SetClickedListener(this, CloseWindow);
+	m_hCloseButton->SetBorder(0);
 
 	m_hMinimizeButton = AddControl(new CMinimizeButton());
 	m_hMinimizeButton->SetClickedListener(this, MinimizeWindow);
+	m_hMinimizeButton->SetBorder(0);
 
 	RootPanel()->AddControl(this, true);
 }
@@ -89,26 +91,26 @@ CMovablePanel::~CMovablePanel()
 
 void CMovablePanel::Layout()
 {
-	float flButtonSize = HEADER_HEIGHT*2/3;
+	float flButtonSize = T_HEADER_HEIGHT * 2 / 3;
 
-	m_hName->SetDimensions(flButtonSize*4, 0, GetWidth()-flButtonSize*8, HEADER_HEIGHT);
+	m_hName->SetDimensions(flButtonSize * 4, 0, GetWidth() - flButtonSize * 8, T_HEADER_HEIGHT);
 
 	m_hCloseButton->SetVisible(m_bHasCloseButton);
 
 	if (m_bHasCloseButton)
 	{
-		m_hCloseButton->SetDimensions(GetWidth() - HEADER_HEIGHT/2 - flButtonSize/2, HEADER_HEIGHT/2 - flButtonSize/2, flButtonSize, flButtonSize);
-		m_hMinimizeButton->SetDimensions(GetWidth() - HEADER_HEIGHT*3/2 - flButtonSize/2, HEADER_HEIGHT/2 - flButtonSize/2, flButtonSize, flButtonSize);
+		m_hCloseButton->SetDimensions(GetWidth() - T_HEADER_HEIGHT / 2 - flButtonSize / 2, T_HEADER_HEIGHT / 2 - flButtonSize / 2, flButtonSize, flButtonSize);
+		m_hMinimizeButton->SetDimensions(GetWidth() - T_HEADER_HEIGHT * 3 / 2 - flButtonSize / 2, T_HEADER_HEIGHT / 2 - flButtonSize / 2, flButtonSize, flButtonSize);
 	}
 	else
-		m_hMinimizeButton->SetDimensions(GetWidth() - HEADER_HEIGHT/2 - flButtonSize/2, HEADER_HEIGHT/2 - flButtonSize/2, flButtonSize, flButtonSize);
+		m_hMinimizeButton->SetDimensions(GetWidth() - T_HEADER_HEIGHT / 2 - flButtonSize / 2, T_HEADER_HEIGHT / 2 - flButtonSize / 2, flButtonSize, flButtonSize);
 
 	CPanel::Layout();
 
 	if (m_hVerticalScrollBar.Get())
 	{
-		m_hVerticalScrollBar->SetSize(HANDLE_SIZE, GetHeight() - HEADER_HEIGHT);
-		m_hVerticalScrollBar->SetPos(GetWidth()-HANDLE_SIZE, HEADER_HEIGHT);
+		m_hVerticalScrollBar->SetSize(T_SCROLLBAR_THICKNESS, GetHeight() - T_HEADER_HEIGHT);
+		m_hVerticalScrollBar->SetPos(GetWidth() - T_SCROLLBAR_THICKNESS, T_HEADER_HEIGHT);
 	}
 
 	if (!m_bMinimized)
@@ -142,9 +144,9 @@ void CMovablePanel::Think()
 	CPanel::Think();
 }
 
-void CMovablePanel::PaintBackground(float x, float y, float w, float h)
+void CMovablePanel::PaintBackground(float x, float y, float w, float)
 {
-	float flMinimizedHeight = HEADER_HEIGHT;
+	float flMinimizedHeight = T_HEADER_HEIGHT;
 	float flMaximumHeight = m_flNonMinimizedHeight;
 	float flHeight = RemapVal(Bias(m_flMinimizeTransitionLerp, 0.7f), 0, 1, flMinimizedHeight, flMaximumHeight);
 
@@ -153,9 +155,21 @@ void CMovablePanel::PaintBackground(float x, float y, float w, float h)
 
 void CMovablePanel::Paint(float x, float y, float w, float h)
 {
-	CRootPanel::PaintRect(x, y, w, HEADER_HEIGHT, m_clrHeader);
+	m_hCloseButton->SetVisible(false);
+	m_hMinimizeButton->SetVisible(false);
+	m_hName->SetVisible(false);
 
 	CPanel::Paint(x, y, w, h);
+
+	CRootPanel::PaintRect(x, y, w, T_HEADER_HEIGHT, m_clrHeader);
+
+	m_hCloseButton->SetVisible(m_bHasCloseButton);
+	m_hMinimizeButton->SetVisible(true);
+	m_hName->SetVisible(true);
+
+	m_hCloseButton->Paint();
+	m_hMinimizeButton->Paint();
+	m_hName->Paint();
 }
 
 bool CMovablePanel::MousePressed(int iButton, int mx, int my)
@@ -163,7 +177,7 @@ bool CMovablePanel::MousePressed(int iButton, int mx, int my)
 	float x, y;
 	GetAbsPos(x, y);
 
-	if (iButton == TINKER_KEY_MOUSE_LEFT && mx > x && mx < x + GetWidth() - HEADER_HEIGHT*2 && my > y && my < y + HEADER_HEIGHT )
+	if (iButton == TINKER_KEY_MOUSE_LEFT && mx > x && mx < x + GetWidth() - T_HEADER_HEIGHT * 2 && my > y && my < y + T_HEADER_HEIGHT)
 	{
 		m_iMouseStartX = mx;
 		m_iMouseStartY = my;
@@ -199,7 +213,7 @@ void CMovablePanel::Minimize()
 	if (m_bMinimized)
 	{
 		m_flNonMinimizedHeight = GetHeight();
-		SetSize(GetWidth(), HEADER_HEIGHT);
+		SetSize(GetWidth(), T_HEADER_HEIGHT);
 	}
 	else
 	{
@@ -211,6 +225,20 @@ void CMovablePanel::Minimize()
 
 	if (!m_bMinimized)
 		Layout();
+}
+
+bool CMovablePanel::ShouldClearControl(CBaseControl* pControl)
+{
+	if (pControl == m_hMinimizeButton)
+		return false;
+
+	if (pControl == m_hCloseButton)
+		return false;
+
+	if (pControl == m_hName)
+		return false;
+
+	return BaseClass::ShouldClearControl(pControl);
 }
 
 bool CMovablePanel::IsChildVisible(CBaseControl* pChild)
@@ -246,12 +274,12 @@ void CMovablePanel::SetClearBackground(bool bClearBackground)
 	}
 }
 
-void CMovablePanel::CloseWindowCallback(const tstring& sArgs)
+void CMovablePanel::CloseWindowCallback(const tstring&)
 {
 	SetVisible(false);
 }
 
-void CMovablePanel::MinimizeWindowCallback(const tstring& sArgs)
+void CMovablePanel::MinimizeWindowCallback(const tstring&)
 {
 	Minimize();
 }

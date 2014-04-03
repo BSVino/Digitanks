@@ -441,7 +441,6 @@ inline const Vector AngleVector(const EAngle& a)
 
 	float p = (float)(a.p * (M_PI*2 / 360));
 	float y = (float)(a.y * (M_PI*2 / 360));
-	float r = (float)(a.r * (M_PI*2 / 360));
 
 	float sp = sin(p);
 	float cp = cos(p);

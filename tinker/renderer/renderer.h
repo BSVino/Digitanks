@@ -88,7 +88,8 @@ class CRenderer
 	friend class CRenderingContext;
 
 public:
-					CRenderer(size_t iWidth, size_t iHeight);
+	CRenderer(size_t iWidth, size_t iHeight);
+	~CRenderer();
 
 public:
 	virtual void	Initialize();
@@ -111,7 +112,7 @@ public:
 
 	// PreRender is run before the primary rendering starts. Good time to render targets, ie cameras mirrors etc.
 	virtual void	PreRender();
-	virtual void    Render(class CRenderingContext* pContext) {};
+	virtual void    Render(class CRenderingContext* /*pContext*/) {};
 	virtual void	PostRender();
 
 	virtual void	ModifyContext(class CRenderingContext* pContext);

@@ -37,6 +37,7 @@ public:
 	virtual bool			IsCursorListener();
 
 	virtual void			Layout();
+	virtual void            Think();
 	virtual void			Paint() { Paint(GetLeft(), GetTop(), GetWidth(), GetHeight()); };
 	virtual void			Paint(float x, float y, float w, float h);
 

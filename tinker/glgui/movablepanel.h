@@ -21,11 +21,11 @@ LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON A
 #include <glgui/button.h>
 #include <glgui/selector.h>
 
-#ifdef __ANDROID__
+#ifdef T_TOUCH_PLATFORM
 // Nice fat finger friendly header size.
-#define HEADER_HEIGHT 32
+#define T_HEADER_HEIGHT 32
 #else
-#define HEADER_HEIGHT 16
+#define T_HEADER_HEIGHT 16
 #endif
 
 namespace glgui
@@ -72,6 +72,8 @@ namespace glgui
 
 		virtual void			HasCloseButton(bool bHasClose) { m_bHasCloseButton = bHasClose; };
 		virtual void			Minimize();
+
+		virtual bool            ShouldClearControl(CBaseControl* pControl);
 
 		virtual bool			IsChildVisible(CBaseControl* pChild);
 

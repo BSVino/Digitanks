@@ -17,6 +17,8 @@ LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON A
 
 #include "rootpanel.h"
 
+#include <FTGL/ftgl.h>
+
 #include <tinker/application.h>
 #include <renderer/renderer.h>
 #include <renderer/renderingcontext.h>
@@ -42,26 +44,40 @@ CRootPanel::CRootPanel() :
 
 	m_flNextGCSweep = 5;
 
-	m_bUseLighting = true;
 	m_bGarbageCollecting = false;
 	m_bDrawingDraggable = false;
 
 	s_bRootPanelValid = true;
 
 	m_hMenuBar = AddControl(new CMenuBar(), true);
+
+	m_iMX = 0;
+	m_iMY = 0;
+
+	m_iQuad = (size_t)~0;
 }
 
 CRootPanel::~CRootPanel( )
 {
-	s_bRootPanelValid = false;
+	for (auto& aFontMap : m_apFonts)
+	{
+		for (auto& pFont : aFontMap.second)
+			delete pFont.second;
+	}
 
-	TAssert(s_pRootPanel == this);
+	m_apFonts.clear();
+
+	CRenderer::UnloadVertexDataFromGL(m_iQuad);
 }
 
-CRootPanel*	CRootPanel::Get()
+static bool bDeletingRoot = false;
+
+CRootPanel* CRootPanel::Get()
 {
 	if (!s_pRootPanel)
 	{
+		TAssertNoMsg(!bDeletingRoot);
+
 		s_pRootPanel = (new CRootPanel())->shared_from_this();
 
 		// Go ahead and set the proper size now so that the console shows up in the right place.
@@ -72,6 +88,34 @@ CRootPanel*	CRootPanel::Get()
 		return nullptr;
 
 	return s_pRootPanel.DowncastStatic<CRootPanel>();
+}
+
+bool CRootPanel::Exists()
+{
+	return !!s_pRootPanel.get();
+}
+
+void CRootPanel::Reset()
+{
+	TAssert(s_bRootPanelValid);
+
+	CRootPanel* pRootPanel = s_pRootPanel.DowncastStatic<CRootPanel>();
+	while (pRootPanel->GetControls().size())
+		pRootPanel->RemoveControl(pRootPanel->GetControls()[0]);
+
+	// Collect all of the controls we just removed.
+	pRootPanel->CollectGarbage();
+
+	bDeletingRoot = true;
+
+	// This is the last pointer pointing at the root panel.
+	s_pRootPanel.reset();
+
+	// Collect again for the root panel.
+	pRootPanel->CollectGarbageFinal();
+
+	bDeletingRoot = false;
+	s_bRootPanelValid = false;
 }
 
 void CRootPanel::Think(double flNewTime)
@@ -90,23 +134,60 @@ void CRootPanel::Think(double flNewTime)
 	m_flTime = flNewTime;
 
 	if (m_flTime > m_flNextGCSweep)
-	{
-		m_bGarbageCollecting = true;
+		CollectGarbage();
+}
 
+void CRootPanel::CollectGarbage()
+{
+	m_bGarbageCollecting = true;
+
+	bool bSomethingCollected;
+	do
+	{
+		bSomethingCollected = false;
 		auto it = CBaseControl::GetControls().begin();
 		while (it != CBaseControl::GetControls().end())
 		{
-			if (it->second.use_count() == 1)
-				it->second.reset();
+			CControlResource& hControl = it->second;
 
-			if (!it->second.get())
+			if (hControl.use_count() == 1)
+			{
+				hControl.reset();
+				bSomethingCollected = true;
+			}
+
+			if (!hControl.get())
 				CBaseControl::GetControls().erase(it++);
 			else
 				it++;
 		}
+	} while (bSomethingCollected);
 
-		m_bGarbageCollecting = false;
-		m_flNextGCSweep = m_flTime + 5;
+	m_bGarbageCollecting = false;
+	m_flNextGCSweep = m_flTime + 5;
+}
+
+void CRootPanel::CollectGarbageFinal()
+{
+	m_bGarbageCollecting = true;
+
+	TAssert(CBaseControl::GetControls().size() == 1);
+
+	if (!CBaseControl::GetControls().size())
+		return;
+
+	auto it = CBaseControl::GetControls().begin();
+	while (it != CBaseControl::GetControls().end())
+	{
+		CControlResource& hControl = it->second;
+
+		if (hControl.use_count() == 1)
+		{
+			TAssert(hControl.DowncastStatic<CRootPanel>());
+			hControl.reset(); // This deletes the root panel. No more CRootPanel:: accesses after this.
+			CBaseControl::GetControls().clear();
+			return;
+		}
 	}
 }
 
@@ -244,14 +325,17 @@ bool CRootPanel::MouseDoubleClicked(int code, int mx, int my)
 
 void CRootPanel::CursorMoved(int x, int y)
 {
-	int dx = (int)((x - m_iMX) * Application()->GetGUIScale());
-	int dy = (int)((y - m_iMY) * Application()->GetGUIScale());
+	x = (int)(x * Application()->GetGUIScale());
+	y = (int)(y * Application()->GetGUIScale());
+
+	int dx = (int)(x - m_iMX);
+	int dy = (int)(y - m_iMY);
 
 	m_iMX = x;
 	m_iMY = y;
 
 	if (!m_pDragging)
-		CPanel::CursorMoved(x, y, dx, dy);
+		CPanel::CursorMoved(m_iMX, m_iMY, dx, dy);
 }
 
 void CRootPanel::DragonDrop(IDroppable* pDroppable)
@@ -347,6 +431,135 @@ bool CRootPanel::SetFocus(CControlHandle hFocus)
 
 void CRootPanel::GetFullscreenMousePos(int& mx, int& my)
 {
-	mx = (int)(Get()->m_iMX * Application()->GetGUIScale());
-	my = (int)(Get()->m_iMY * Application()->GetGUIScale());
+	mx = Get()->m_iMX;
+	my = Get()->m_iMY;
 }
+
+::FTFont* CRootPanel::GetFont(const tstring& sName, size_t iSize)
+{
+	auto it = m_apFontNames.find(sName);
+	tstring sRealName = sName;
+	if (it == m_apFontNames.end())
+	{
+		sRealName = "sans-serif";
+		it = m_apFontNames.find(sRealName);
+	}
+
+	if (it == m_apFontNames.end())
+	{
+		tstring sFont;
+
+#if defined(__ANDROID__)
+		sFont = "/system/fonts/DroidSans.ttf";
+#elif defined(_WIN32)
+		sFont = tsprintf(tstring("%s\\Fonts\\Arial.ttf"), getenv("windir"));
+#else
+		sFont = "/usr/share/fonts/truetype/freefont/FreeSans.ttf";
+#endif
+
+		AddFont("sans-serif", sFont);
+	}
+
+	return m_apFonts[sRealName][iSize];
+}
+
+void CRootPanel::AddFont(const tstring& sName, const tstring& sFile)
+{
+	m_apFontNames[sName] = sFile;
+}
+
+void CRootPanel::AddFontSize(const tstring& sName, size_t iSize)
+{
+	if (m_apFontNames.find(sName) == m_apFontNames.end())
+		return;
+
+	float flGUIScale = 1;
+	if (Application())
+		flGUIScale = Application()->GetGUIScale();
+
+	FTTextureFont* pFont = new FTTextureFont(m_apFontNames[sName].c_str());
+	pFont->FaceSize((size_t)((float)iSize / flGUIScale));
+	m_apFonts[sName][iSize] = pFont;
+}
+
+float CRootPanel::GetTextWidth(const tstring& sText, unsigned iLength, const tstring& sFontName, int iFontFaceSize)
+{
+	if (!GetFont(sFontName, iFontFaceSize))
+		AddFontSize(sFontName, iFontFaceSize);
+
+	return GetTextWidth(sText, iLength, m_apFonts[sFontName][iFontFaceSize]);
+}
+
+float CRootPanel::GetFontHeight(const tstring& sFontName, int iFontFaceSize)
+{
+	if (!GetFont(sFontName, iFontFaceSize))
+		AddFontSize(sFontName, iFontFaceSize);
+
+	return GetFontHeight(m_apFonts[sFontName][iFontFaceSize]);
+}
+
+float CRootPanel::GetFontAscender(const tstring& sFontName, int iFontFaceSize)
+{
+	if (!GetFont(sFontName, iFontFaceSize))
+		AddFontSize(sFontName, iFontFaceSize);
+
+	return GetFontAscender(m_apFonts[sFontName][iFontFaceSize]);
+}
+
+float CRootPanel::GetTextWidth(const tstring& sText, unsigned iLength, class ::FTFont* pFont)
+{
+	if (!pFont)
+		return 0;
+
+	return pFont->Advance(sText.c_str(), iLength) * Application()->GetGUIScale();
+}
+
+float CRootPanel::GetFontHeight(class ::FTFont* pFont)
+{
+	if (!pFont)
+		return 0;
+
+	return pFont->LineHeight() * Application()->GetGUIScale();
+}
+
+float CRootPanel::GetFontAscender(class ::FTFont* pFont)
+{
+	if (!pFont)
+		return 0;
+
+	return pFont->Ascender() * Application()->GetGUIScale();
+}
+
+float CRootPanel::GetFontDescender(class ::FTFont* pFont)
+{
+	return pFont->Descender() * Application()->GetGUIScale();
+}
+
+void CRootPanel::MakeQuad()
+{
+	if (m_iQuad != ~0)
+		return;
+
+	struct {
+		Vector vecPosition;
+		Vector2D vecTexCoord;
+	} avecData[] =
+	{
+		{ Vector(0, 0, 0), Vector2D(0, 0) },
+		{ Vector(0, 1, 0), Vector2D(0, 1) },
+		{ Vector(1, 1, 0), Vector2D(1, 1) },
+		{ Vector(0, 0, 0), Vector2D(0, 0) },
+		{ Vector(1, 1, 0), Vector2D(1, 1) },
+		{ Vector(1, 0, 0), Vector2D(1, 0) },
+	};
+
+	m_iQuad = CRenderer::LoadVertexDataIntoGL(sizeof(avecData), (float*)&avecData[0]);
+}
+
+size_t CRootPanel::GetQuad()
+{
+	MakeQuad();
+
+	return m_iQuad;
+}
+

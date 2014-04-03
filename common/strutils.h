@@ -97,19 +97,19 @@ inline void tstrtok(const tstring& str, tvector<tstring>& tokens, const tstring&
 // Basically it works like PHP's explode.
 inline void explode(const tstring& str, tvector<tstring>& tokens, const tstring& delimiter = " ")
 {
-    tstring::size_type lastPos = str.find_first_of(delimiter, 0);
-    tstring::size_type pos = 0;
+	tstring::size_type lastPos = str.find_first_of(delimiter, 0);
+	tstring::size_type pos = 0;
 
-    while (true)
-    {
-        tokens.push_back(str.substr(pos, lastPos - pos));
+	for (;;)
+	{
+		tokens.push_back(str.substr(pos, lastPos - pos));
 
 		if (lastPos == tstring::npos)
 			break;
 
 		pos = lastPos+1;
-        lastPos = str.find_first_of(delimiter, pos);
-    }
+		lastPos = str.find_first_of(delimiter, pos);
+	}
 }
 
 inline tstring implode(const tstring& sGlue, tvector<tstring>& asStrings)
@@ -247,7 +247,7 @@ inline tstring convert_from_wstring(const std::wstring& s)
 	return t;
 }
 
-inline tstring sprintf(tstring s, ...)
+inline tstring tsprintf(tstring s, ...)
 {
 	va_list arguments;
 	va_start(arguments, s);
@@ -268,7 +268,7 @@ inline tstring sprintf(tstring s, ...)
 
 	if(iCharacters >= (int)q.length())
 	{
-		q.resize(iCharacters*2);
+		q.resize(iCharacters*2+1);
 		iCharacters = VSNPRINTF8(&q[0], q.size()-1, s.c_str(), arguments);
 	}
 	else if(iCharacters < 0)
@@ -367,7 +367,7 @@ inline C* strdup(const C* s)
 
 inline tstring pretty_float(float f, int iMaxLength=8)
 {
-	tstring s = sprintf("%." + sprintf("%d", iMaxLength) + "f", f);
+	tstring s = tsprintf("%." + tsprintf("%d", iMaxLength) + "f", f);
 
 	size_t i = s.length();
 	while (s[i-1] == '0')
@@ -398,13 +398,13 @@ inline FILE* tfopen(const tstring& sFile, const tstring& sMode)
 	if (!bHasB)
 		sBinaryMode = sMode + "b";
 
-	return fopen(sFile.c_str(), convertstring<tchar, char>(sBinaryMode).c_str());
+	return fopen(sFile.c_str(), sBinaryMode.c_str());
 }
 
 #ifdef __ANDROID__
 extern FILE* Tinker_Android_tfopen(const tstring& sFile, const tstring& sMode);
 #else
-inline FILE* Tinker_Android_tfopen(const tstring& sFile, const tstring& sMode)
+inline FILE* Tinker_Android_tfopen(const tstring&, const tstring&)
 {
 	return nullptr;
 }

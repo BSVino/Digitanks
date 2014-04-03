@@ -30,8 +30,10 @@ CTextureLibrary::CTextureLibrary()
 
 CTextureLibrary::~CTextureLibrary()
 {
-	for (tmap<tstring, CTexture>::iterator it = m_aTextures.begin(); it != m_aTextures.end(); it++)
-		CRenderer::UnloadTextureFromGL(it->second.m_iGLID);
+	// Should be TAssert(m_aTextures.size() == 0); ?
+	DebugPrint(tsprintf("Texture library closing, %d textures\n", m_aTextures.size()).c_str());
+
+	m_aTextures.clear();
 
 	s_pTextureLibrary = NULL;
 }
@@ -48,14 +50,14 @@ CTextureHandle CTextureLibrary::AddTexture(const tstring& sTexture, int iClamp)
 CTextureHandle CTextureLibrary::AddTexture(Vector* vecColors, size_t iWidth, size_t iHeight, bool bMipMaps)
 {
 	static int i = 0;
-	tstring sName = sprintf("[generated vector texture %d]", i++);
+	tstring sName = tsprintf("[generated vector texture %d]", i++);
 	return CTextureHandle(sName, AddAsset(sName, vecColors, iWidth, iHeight, bMipMaps));
 }
 
 CTextureHandle CTextureLibrary::AddTexture(Color* clrColors, size_t iWidth, size_t iHeight, bool bMipMaps)
 {
 	static int i = 0;
-	tstring sName = sprintf("[generated vector texture %d]", i++);
+	tstring sName = tsprintf("[generated vector texture %d]", i++);
 	return CTextureHandle(sName, AddAsset(sName, clrColors, iWidth, iHeight, bMipMaps));
 }
 
@@ -137,11 +139,22 @@ size_t CTextureLibrary::FindTextureID(const tstring& sTexture)
 	return FindAsset(sTexture)->m_iGLID;
 }
 
+void CTextureLibrary::RemoveAsset(const tstring& sName)
+{
+	tmap<tstring, CTexture>::iterator it = Get()->m_aTextures.find(sName);
+	if (it == Get()->m_aTextures.end())
+		return;
+
+	CRenderer::UnloadTextureFromGL(it->second.m_iGLID);
+
+	Get()->m_aTextures.erase(it);
+}
+
 size_t CTextureLibrary::GetTextureGLID(const tstring& sTexture)
 {
 	tmap<tstring, CTexture>::iterator it = Get()->m_aTextures.find(sTexture);
 	if (it == Get()->m_aTextures.end())
-		return ~0;
+		return (size_t)~0;
 
 	return it->second.m_iGLID;
 }

@@ -913,7 +913,7 @@ inline bool LineSegmentIntersectsTriangle(const TemplateVector<F>& s0, const Tem
 	return true;
 }
 
-inline bool LineSegmentIntersectsSphere(const Vector& v1, const Vector& v2, const Vector& s, float flRadius, Vector& vecPoint, Vector& vecNormal)
+inline bool LineSegmentIntersectsSphere(const Vector& v1, const Vector& v2, const Vector& s, float flRadius, Vector& vecPoint, Vector& /*vecNormal*/)
 {
 	Vector vecLine = v2 - v1;
 	Vector vecSphere = v1 - s;
@@ -1178,7 +1178,6 @@ inline void FindLaunchVelocity(const Vector& vecOrigin, const Vector& vecTarget,
 	float flA = flCurve;
 	float flH = (flX*flX - (flZ/flA))/(2*flX);
 	float flK = -flA*flH*flH;
-	float flB = -2*flH*flA;
 
 	float flForce = sqrt(2*-flGravity*flK);
 
