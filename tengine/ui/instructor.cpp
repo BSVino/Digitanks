@@ -447,7 +447,7 @@ void CPlayer::Instructor_Think()
 			for (size_t j = 0; j < m_apLessonPriorities.size(); j++)
 			{
 				CLesson* pLesson = GameWindow()->GetInstructor()->GetLesson(m_apLessonPriorities[j]->m_sLessonName);
-				TMsg(sprintf(" %d - " + m_apLessonPriorities[j]->m_sLessonName + " - %d\n", j+1, pLesson->m_iPriority));
+				TMsg(tsprintf(" %d - " + m_apLessonPriorities[j]->m_sLessonName + " - %d\n", j + 1, pLesson->m_iPriority));
 			}
 		}
 
@@ -458,7 +458,7 @@ void CPlayer::Instructor_Think()
 			if (lesson_debug.GetBool())
 			{
 				CLesson* pLesson = GameWindow()->GetInstructor()->GetLesson(pBestLesson->m_sLessonName);
-				TMsg(sprintf("Instructor: New lesson: " + pBestLesson->m_sLessonName + " Priority: %d\n", pLesson->m_iPriority));
+				TMsg(tsprintf("Instructor: New lesson: " + pBestLesson->m_sLessonName + " Priority: %d\n", pLesson->m_iPriority));
 			}
 
 			m_flLastLesson = GameServer()->GetGameTime();
@@ -499,7 +499,7 @@ void CPlayer::Instructor_LessonLearned(const tstring& sLesson)
 		CLesson* pLesson = GameWindow()->GetInstructor()->GetLesson(sLesson);
 
 		if (pLessonProgress->m_iTimesLearned < pLesson->m_iTimesToLearn)
-			TMsg(sprintf("Instructor: Trained lesson " + sLesson + " - %d/%d\n", pLessonProgress->m_iTimesLearned, pLesson->m_iTimesToLearn));
+			TMsg(tsprintf("Instructor: Trained lesson " + sLesson + " - %d/%d\n", pLessonProgress->m_iTimesLearned, pLesson->m_iTimesToLearn));
 		else if (pLessonProgress->m_iTimesLearned == pLesson->m_iTimesToLearn)
 			TMsg("Instructor: Learned lesson " + sLesson + "\n");
 	}

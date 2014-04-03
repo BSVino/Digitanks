@@ -83,7 +83,7 @@ void CGameServerNetwork::UpdateNetworkVariables(int iClient, bool bForceAll)
 				if (net_replication_debug.GetBool())
 				{
 					if (iDataSize >= 4)
-						TMsg(tstring("Updating ") + pVarData->GetName() + sprintf(tstring(" (%x) (%f) (%d)\n"), *(unsigned int*)pValue, *(float*)pValue, *(int*)pValue));
+						TMsg(tstring("Updating ") + pVarData->GetName() + tsprintf(tstring(" (%x) (%f) (%d)\n"), *(unsigned int*)pValue, *(float*)pValue, *(int*)pValue));
 					else
 						TMsg(tstring("Updating ") + pVarData->GetName() + "\n");
 				}

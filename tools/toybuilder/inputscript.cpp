@@ -85,7 +85,7 @@ bool CGeppetto::LoadSceneAreas(CData* pData)
 
 		ts.SetGameDirectory(t.GetGameDirectory());
 		ts.SetOutputDirectory(t.GetOutputDirectory());
-		ts.SetOutputFile(sprintf(t.GetOutputFile() + "_sa%d_" + pArea->GetValueString().tolower(), iSceneArea));
+		ts.SetOutputFile(tsprintf(t.GetOutputFile() + "_sa%d_" + pArea->GetValueString().tolower(), iSceneArea));
 		ts.UseLocalTransformations(t.IsUsingLocalTransformations());
 
 		CConversionSceneNode* pMeshNode = asScenes[sFile]->FindSceneNode(sMesh);
@@ -120,9 +120,9 @@ bool CGeppetto::LoadSceneAreas(CData* pData)
 
 		tstring sFileOutput = FindAbsolutePath(t.GetGameDirectory() + DIR_SEP + sGameOutput);
 
-		TMsg(sprintf(" Mesh materials: %d\n", ts.GetNumMaterials()));
-		TMsg(sprintf(" Mesh tris: %d\n", ts.GetNumVerts()/3));
-		TMsg(sprintf(" Physics tris: %d\n", ts.GetNumPhysIndices()/3));
+		TMsg(tsprintf(" Mesh materials: %d\n", ts.GetNumMaterials()));
+		TMsg(tsprintf(" Mesh tris: %d\n", ts.GetNumVerts() / 3));
+		TMsg(tsprintf(" Physics tris: %d\n", ts.GetNumPhysIndices() / 3));
 		if (t.IsUsingUV())
 			TMsg(" Using UV's\n");
 		if (t.IsUsingNormals())

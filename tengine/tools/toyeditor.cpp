@@ -685,7 +685,7 @@ void CSourcePanel::PhysicsAreaSelectedCallback(const tstring& sArgs)
 {
 	if (m_hPhysicsShapes->GetSelectedNodeId() < ToyEditor()->GetToy().m_aShapes.size())
 	{
-		Manipulator()->Activate(ToyEditor(), ToyEditor()->GetToy().m_aShapes[m_hPhysicsShapes->GetSelectedNodeId()].m_trsTransform, "PhysicsShape " + sprintf("%d", m_hPhysicsShapes->GetSelectedNodeId()));
+		Manipulator()->Activate(ToyEditor(), ToyEditor()->GetToy().m_aShapes[m_hPhysicsShapes->GetSelectedNodeId()].m_trsTransform, "PhysicsShape " + tsprintf("%d", m_hPhysicsShapes->GetSelectedNodeId()));
 		m_hDeletePhysicsShape->SetEnabled(true);
 	}
 	else

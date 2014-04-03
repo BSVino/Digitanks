@@ -30,8 +30,6 @@ void CDigitanksWindow::InitUI()
 	m_pLobby = CRootPanel::Get()->AddControl(new CLobbyPanel());
 
 	CRootPanel::Get()->Layout();
-
-	CRootPanel::Get()->SetLighting(false);
 }
 
 void CDigitanksWindow::Layout()

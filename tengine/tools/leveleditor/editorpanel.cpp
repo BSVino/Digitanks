@@ -338,9 +338,9 @@ void CEditorPanel::Paint(float x, float y, float w, float h)
 			else
 				sText = pEnt->GetClass();
 
-			float flWidth = glgui::CLabel::GetTextWidth(sText, sText.length(), "sans-serif", 10);
-			float flHeight = glgui::CLabel::GetFontHeight("sans-serif", 10);
-			float flAscender = glgui::CLabel::GetFontAscender("sans-serif", 10);
+			float flWidth = glgui::RootPanel()->GetTextWidth(sText, sText.length(), "sans-serif", 10);
+			float flHeight = glgui::RootPanel()->GetFontHeight("sans-serif", 10);
+			float flAscender = glgui::RootPanel()->GetFontAscender("sans-serif", 10);
 
 			if (m_hEntities->GetSelectedNodeId() == i)
 				PaintRect(vecScreen.x - flWidth/2 - 3, vecScreen.y+20-flAscender - 3, flWidth + 6, flHeight + 6, Color(0, 0, 0, 150));
@@ -411,7 +411,7 @@ void CEditorPanel::EntitySelectedCallback(const tstring& sArgs)
 
 	if (m_hEntities->GetSelectedNodeId() < aEntities.size())
 	{
-		Manipulator()->Activate(LevelEditor(), aEntities[m_hEntities->GetSelectedNodeId()].GetGlobalTRS(), "Entity " + sprintf("%d", m_hEntities->GetSelectedNodeId()));
+		Manipulator()->Activate(LevelEditor(), aEntities[m_hEntities->GetSelectedNodeId()].GetGlobalTRS(), "Entity " + tsprintf("%d", m_hEntities->GetSelectedNodeId()));
 	}
 	else
 	{

@@ -65,5 +65,5 @@ const tstring CMathGate::GetOutputValue(const tstring& sOutput, size_t iValue)
 {
 	TAssert(sOutput == "OnResult" && iValue == 0);
 
-	return sprintf("%f", m_flBase + m_flLeft + m_flRight);
+	return tsprintf("%f", m_flBase + m_flLeft + m_flRight);
 }

@@ -105,7 +105,7 @@ size_t CModelLibrary::AddModel(const tstring& sModelFile)
 
 size_t CModelLibrary::AddModel(class CConversionScene* pScene, size_t iMesh)
 {
-	CModel* pModel = new CModel(sprintf("Scene %x", pScene));
+	CModel* pModel = new CModel(tsprintf("Scene %x", pScene));
 
 	size_t iLocation = ~0;
 	for (size_t i = 0; i < Get()->m_apModels.size(); i++)

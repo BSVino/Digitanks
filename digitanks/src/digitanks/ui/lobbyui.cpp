@@ -245,7 +245,7 @@ void CLobbyPanel::CreateLobby(bool bOnline)
 
 	CGameLobbyClient::S_JoinLobby(m_iLobby);
 	CGameLobbyClient::S_UpdatePlayer(_T("host"), _T("1"));
-	CGameLobbyClient::S_UpdateLobby(_T("gametype"), sprintf(tstring("%d"), (gametype_t)lobby_gametype.GetInt()));
+	CGameLobbyClient::S_UpdateLobby(_T("gametype"), tsprintf(tstring("%d"), (gametype_t)lobby_gametype.GetInt()));
 
 	if (!m_bOnline)
 	{
@@ -255,7 +255,7 @@ void CLobbyPanel::CreateLobby(bool bOnline)
 	}
 
 	for (size_t i = 0; i < CGameLobbyClient::L_GetNumPlayers(); i++)
-		CGameLobbyClient::S_UpdatePlayer(CGameLobbyClient::L_GetPlayer(i)->iID, _T("color"), sprintf(tstring("%d"), i));
+		CGameLobbyClient::S_UpdatePlayer(CGameLobbyClient::L_GetPlayer(i)->iID, _T("color"), tsprintf(tstring("%d"), i));
 
 	if ((gametype_t)lobby_gametype.GetInt() == GAMETYPE_ARTILLERY)
 		m_pDockPanel->SetDockedPanel(new CArtilleryGamePanel(true));
@@ -615,6 +615,6 @@ void CPlayerPanel::ColorChosenCallback(const tstring& sArgs)
 	if (m_bRandomColor)
 		CGameLobbyClient::S_UpdatePlayer(pPlayer->iID, _T("color"), _T("random"));
 	else
-		CGameLobbyClient::S_UpdatePlayer(pPlayer->iID, _T("color"), sprintf(tstring("%d"), m_iColor));
+		CGameLobbyClient::S_UpdatePlayer(pPlayer->iID, _T("color"), tsprintf(tstring("%d"), m_iColor));
 #endif
 }

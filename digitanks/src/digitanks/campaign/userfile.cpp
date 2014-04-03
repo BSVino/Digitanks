@@ -4,6 +4,7 @@
 #include <glgui/glgui.h>
 #include <game/gameserver.h>
 #include <renderer/game_renderingcontext.h>
+#include <glgui/rootpanel.h>
 
 #include <digitanksgame.h>
 #include <units/digitank.h>
@@ -81,7 +82,7 @@ void CUserFile::OnRender(class CGameRenderingContext* pContext) const
 
 	tstring sFile = "Your file: ";
 	sFile += m_sFilename.substr(m_sFilename.find_last_of('/')+1);
-	float flWidth = glgui::CLabel::GetTextWidth(sFile, sFile.length(), "text", 12);
+	float flWidth = glgui::RootPanel()->GetTextWidth(sFile, sFile.length(), "text", 12);
 	glgui::CLabel::PaintText3D(sFile, sFile.length(), "text", 12, Vector(0-flWidth/2, 0, 0));
 
 	c.Scale(-1.0f, 1.0f, 1.0f);

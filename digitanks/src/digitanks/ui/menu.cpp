@@ -677,7 +677,7 @@ CArtilleryGamePanel::CArtilleryGamePanel(bool bMultiplayer)
 	m_pTanks->SetSelectedListener(this, TanksSelected);
 
 	if (CGameLobbyClient::L_IsInLobby())
-		CGameLobbyClient::S_UpdateLobby(_T("tanks"), sprintf(tstring("%d"), m_pTanks->GetSelectionValue()));
+		CGameLobbyClient::S_UpdateLobby(_T("tanks"), tsprintf(tstring("%d"), m_pTanks->GetSelectionValue()));
 
 	m_pTanksLabel = AddControl(new CLabel(0, 0, 32, 32, _T("Tanks Per Player")));
 	m_pTanksLabel->SetWrap(false);
@@ -692,7 +692,7 @@ CArtilleryGamePanel::CArtilleryGamePanel(bool bMultiplayer)
 	m_pTerrain->SetSelectedListener(this, TerrainSelected);
 
 	if (CGameLobbyClient::L_IsInLobby())
-		CGameLobbyClient::S_UpdateLobby(_T("terrain"), sprintf(tstring("%.1f"), m_pTerrain->GetSelectionValue()));
+		CGameLobbyClient::S_UpdateLobby(_T("terrain"), tsprintf(tstring("%.1f"), m_pTerrain->GetSelectionValue()));
 
 	m_pTerrainLabel = AddControl(new CLabel(0, 0, 32, 32, _T("Terrain")));
 	m_pTerrainLabel->SetWrap(false);
@@ -865,13 +865,13 @@ void CArtilleryGamePanel::LevelRevertPreviewCallback(const tstring& sArgs)
 void CArtilleryGamePanel::TanksSelectedCallback(const tstring& sArgs)
 {
 	if (CGameLobbyClient::L_IsInLobby())
-		CGameLobbyClient::S_UpdateLobby(_T("tanks"), sprintf(tstring("%d"), m_pTanks->GetSelectionValue()));
+		CGameLobbyClient::S_UpdateLobby(_T("tanks"), tsprintf(tstring("%d"), m_pTanks->GetSelectionValue()));
 }
 
 void CArtilleryGamePanel::TerrainSelectedCallback(const tstring& sArgs)
 {
 	if (CGameLobbyClient::L_IsInLobby())
-		CGameLobbyClient::S_UpdateLobby(_T("terrain"), sprintf(tstring("%.1f"), m_pTerrain->GetSelectionValue()));
+		CGameLobbyClient::S_UpdateLobby(_T("terrain"), tsprintf(tstring("%.1f"), m_pTerrain->GetSelectionValue()));
 }
 
 void CArtilleryGamePanel::PreviewLevel(size_t iLevel)
@@ -1293,7 +1293,7 @@ COptionsPanel::COptionsPanel()
 			continue;
 
 		tstring sMode;
-		sMode = sprintf(tstring("%dx%d"), g_aModes[i].Width, g_aModes[i].Height);
+		sMode = tsprintf(tstring("%dx%d"), g_aModes[i].Width, g_aModes[i].Height);
 		m_pVideoModes->AddSubmenu(sMode, this, VideoModeChosen);
 		g_aVideoModes.push_back(g_aModes[i]);
 	}
@@ -1361,7 +1361,7 @@ void COptionsPanel::Layout()
 	m_pVideoModes->SetPos(GetWidth()/2 - m_pVideoModes->GetWidth() - 40, GetHeight()-230);
 
 	tstring sVideoMode;
-	sVideoMode = sprintf(tstring("%dx%d"), DigitanksWindow()->GetWindowWidth(), DigitanksWindow()->GetWindowHeight());
+	sVideoMode = tsprintf(tstring("%dx%d"), DigitanksWindow()->GetWindowWidth(), DigitanksWindow()->GetWindowHeight());
 	m_pVideoModes->SetText(sVideoMode);
 
 	m_pWindowedLabel->SetWrap(false);

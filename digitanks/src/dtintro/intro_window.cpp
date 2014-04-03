@@ -33,7 +33,6 @@ void CIntroWindow::SetupEngine()
 {
 	mtsrand((size_t)time(NULL));
 
-	glgui::CRootPanel::Get()->SetLighting(false);
 	m_pGeneralWindow = new CGeneralWindow();
 	glgui::CRootPanel::Get()->Layout();
 

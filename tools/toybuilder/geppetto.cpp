@@ -141,16 +141,16 @@ bool CGeppetto::BuildFiles(const tstring& sOutput, const tstring& sInput, const 
 
 bool CGeppetto::Compile()
 {
-	TMsg(sprintf(" Mesh materials: %d\n", t.GetNumMaterials()));
-	TMsg(sprintf(" Mesh tris: %d\n", t.GetNumVerts()/3));
-	TMsg(sprintf(" Physics tris: %d - ", t.GetNumPhysIndices()/3) + (t.IsConcaveAllowed()?tstring("CONCAVE\n"):tstring("Convex\n")));
-	TMsg(sprintf(" Scene areas: %d\n", t.GetNumSceneAreas()));
+	TMsg(tsprintf(" Mesh materials: %d\n", t.GetNumMaterials()));
+	TMsg(tsprintf(" Mesh tris: %d\n", t.GetNumVerts() / 3));
+	TMsg(tsprintf(" Physics tris: %d - ", t.GetNumPhysIndices() / 3) + (t.IsConcaveAllowed() ? tstring("CONCAVE\n") : tstring("Convex\n")));
+	TMsg(tsprintf(" Scene areas: %d\n", t.GetNumSceneAreas()));
 	if (t.IsUsingUV())
 		TMsg(" Using UV's\n");
 	if (t.IsUsingNormals())
 		TMsg(" Using normals\n");
 
-	TMsg(sprintf("Writing toy '" + m_sOutput + "' ..."));
+	TMsg(tsprintf("Writing toy '" + m_sOutput + "' ..."));
 
 	if (!t.Write(m_sOutput))
 	{

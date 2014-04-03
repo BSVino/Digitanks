@@ -257,7 +257,7 @@ const tchar* CModelConverter::ReadSIAMat(const tchar* pszLine, const tchar* pszE
 				else
 				{
 					tstring sDirectory = GetDirectory(sFilename);
-					pMaterial->m_sDiffuseTexture = sprintf(tstring("%s/%s"), sDirectory.c_str(), aName[0].c_str());
+					pMaterial->m_sDiffuseTexture = tsprintf("%s/%s", sDirectory.c_str(), aName[0].c_str());
 				}
 			}
 		}
@@ -623,7 +623,7 @@ void CModelConverter::SaveSIA(const tstring& sFilename)
 			sFile << "-edge " << pEdge->v1 << " " << pEdge->v2 << std::endl;
 
 			if (pEdge->m_bCreased)
-				sCreases += sprintf(tstring(" %d"), iEdges);
+				sCreases += tsprintf(" %d", iEdges);
 		}
 
 		if (sCreases.length())

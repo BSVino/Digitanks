@@ -88,11 +88,11 @@ void CLoader::StartTurn()
 		{
 			tstring s;
 			if (GetBuildUnit() == UNIT_INFANTRY)
-				s = sprintf(tstring("Producing Resistor (%d turns left)"), GetTurnsRemainingToProduce());
+				s = tsprintf(tstring("Producing Resistor (%d turns left)"), GetTurnsRemainingToProduce());
 			else if (GetBuildUnit() == UNIT_TANK)
-				s = sprintf(tstring("Producing Digitank (%d turns left)"), GetTurnsRemainingToProduce());
+				s = tsprintf(tstring("Producing Digitank (%d turns left)"), GetTurnsRemainingToProduce());
 			else if (GetBuildUnit() == UNIT_ARTILLERY)
-				s = sprintf(tstring("Producing Artillery (%d turns left)"), GetTurnsRemainingToProduce());
+				s = tsprintf(tstring("Producing Artillery (%d turns left)"), GetTurnsRemainingToProduce());
 			GetDigitanksPlayer()->AppendTurnInfo(s);
 		}
 	}
@@ -161,9 +161,9 @@ void CLoader::SetupMenu(menumode_t eMenuMode)
 		pHUD->SetButtonTooltip(0, "Build Artillery");
 	}
 
-	s += sprintf(tstring("Fleet supply required: %d\n"), GetFleetPointsRequired());
-	s += sprintf(tstring("Power required: %d\n"), (int)DigitanksGame()->GetConstructionCost(GetBuildUnit()));
-	s += sprintf(tstring("Turns to produce: %d Turns\n \n"), GetTurnsToProduce());
+	s += tsprintf(tstring("Fleet supply required: %d\n"), GetFleetPointsRequired());
+	s += tsprintf(tstring("Power required: %d\n"), (int)DigitanksGame()->GetConstructionCost(GetBuildUnit()));
+	s += tsprintf(tstring("Turns to produce: %d Turns\n \n"), GetTurnsToProduce());
 
 	if (GetDigitanksPlayer()->GetUnusedFleetPoints() < GetFleetPointsRequired())
 		s += "NOT ENOUGH FLEET POINTS\n \n";
@@ -441,18 +441,18 @@ void CLoader::UpdateInfo(tstring& s)
 	if (IsConstructing())
 	{
 		s += "(Constructing)\n";
-		s += sprintf(tstring("Turns left: %d\n"), GetTurnsRemainingToConstruct());
+		s += tsprintf(tstring("Turns left: %d\n"), GetTurnsRemainingToConstruct());
 		return;
 	}
 
 	if (IsProducing() && GetSupplier() && GetSupplyLine())
 	{
 		s += "(Producing)\n";
-		s += sprintf(tstring("Turns left: %d\n \n"), GetTurnsRemainingToProduce());
+		s += tsprintf(tstring("Turns left: %d\n \n"), GetTurnsRemainingToProduce());
 	}
 
 	if (GetSupplier() && GetSupplyLine())
-		s += sprintf(tstring("Efficiency: %d%\n"), (int)(GetSupplier()->GetChildEfficiency()*m_hSupplyLine->GetIntegrity()*100));
+		s += tsprintf(tstring("Efficiency: %d%\n"), (int)(GetSupplier()->GetChildEfficiency()*m_hSupplyLine->GetIntegrity() * 100));
 }
 
 void CLoader::DrawQueue(float x, float y, float w, float h)
@@ -478,7 +478,7 @@ void CLoader::DrawQueue(float x, float y, float w, float h)
 
 	CRenderingContext c(GameServer()->GetRenderer(), true);
 	c.SetColor(Color(255,255,255));
-	tstring sTurns = sprintf(tstring(":%d"), GetTurnsRemainingToProduce());
+	tstring sTurns = tsprintf(tstring(":%d"), GetTurnsRemainingToProduce());
 	glgui::CLabel::PaintText(sTurns, sTurns.length(), "text", 10, (float)(x + w/2 + flSize/2), (float)(y + h/2 - flSize/2 - 2));
 }
 

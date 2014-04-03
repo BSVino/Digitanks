@@ -145,7 +145,7 @@ void CEntityPropertiesPanel::Layout()
 					else if (strcmp(pSaveData->m_pszType, "size_t") == 0)
 					{
 						size_t i = *((size_t*)&pSaveData->m_oDefault[0]);
-						hTextField->SetText(sprintf("%d", i));
+						hTextField->SetText(tsprintf("%d", i));
 					}
 					else if (strcmp(pSaveData->m_pszType, "float") == 0)
 					{
@@ -188,9 +188,9 @@ void CEntityPropertiesPanel::Layout()
 				}
 
 				if (strcmp(pSaveData->m_pszHandle, "Model") == 0)
-					hTextField->SetContentsChangedListener(this, ModelChanged, sprintf("%d", m_ahPropertyOptions.size()-1));
+					hTextField->SetContentsChangedListener(this, ModelChanged, tsprintf("%d", m_ahPropertyOptions.size() - 1));
 				else if (tstring(pSaveData->m_pszType).startswith("CEntityHandle"))
-					hTextField->SetContentsChangedListener(this, TargetChanged, sprintf("%d ", m_ahPropertyOptions.size()-1) + pSaveData->m_pszType);
+					hTextField->SetContentsChangedListener(this, TargetChanged, tsprintf("%d ", m_ahPropertyOptions.size() - 1) + pSaveData->m_pszType);
 				else
 					hTextField->SetContentsChangedListener(this, PropertyChanged);
 

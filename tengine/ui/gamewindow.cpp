@@ -65,7 +65,6 @@ void CGameWindow::OpenWindow()
 
 	glgui::CRootPanel::Get()->AddControl(m_pHUD = CreateHUD());
 
-	glgui::CRootPanel::Get()->SetLighting(false);
 	glgui::CRootPanel::Get()->SetSize((float)GetWindowWidth(), (float)GetWindowHeight());
 	glgui::CRootPanel::Get()->Layout();
 

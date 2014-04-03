@@ -242,7 +242,7 @@ void CGameServer::PrecacheList()
 	CSoundLibrary::ClearUnreferenced();
 
 	TMsg("Done.\n");
-	TMsg(sprintf(tstring("%d models, %d materials, %d textures, %d sounds and %d particle systems precached.\n"), CModelLibrary::GetNumModelsLoaded(), CMaterialLibrary::GetNumMaterials(), CTextureLibrary::GetNumTextures(), CSoundLibrary::GetNumSoundsLoaded(), CParticleSystemLibrary::GetNumParticleSystemsLoaded()));
+	TMsg(tsprintf("%d models, %d materials, %d textures, %d sounds and %d particle systems precached.\n", CModelLibrary::GetNumModelsLoaded(), CMaterialLibrary::GetNumMaterials(), CTextureLibrary::GetNumTextures(), CSoundLibrary::GetNumSoundsLoaded(), CParticleSystemLibrary::GetNumParticleSystemsLoaded()));
 
 	m_bAllowPrecaches = false;
 }
@@ -482,7 +482,7 @@ void CGameServer::ReadLevels()
 
 	ReadLevels("levels");
 
-	TMsg(sprintf(tstring("Read %d levels from disk.\n"), m_apLevels.size()));
+	TMsg(tsprintf("Read %d levels from disk.\n", m_apLevels.size()));
 }
 
 void CGameServer::ReadLevels(tstring sDirectory)
@@ -600,7 +600,7 @@ SERVER_GAME_COMMAND(CreateEntity)
 
 void CGameServer::ClientEnterGame(int iClient)
 {
-	TMsg(sprintf(tstring("Client %d (") + GameNetwork()->GetClientNickname(iClient) + ") entering game.\n", iClient));
+	TMsg(tsprintf("Client %d (" + GameNetwork()->GetClientNickname(iClient) + ") entering game.\n", iClient));
 
 	if (GetGame())
 		GetGame()->OnClientEnterGame(iClient);
@@ -612,7 +612,7 @@ void CGameServer::ClientEnterGame(int iClient)
 		if (!pEntity)
 			continue;
 
-		::CreateEntity.RunCommand(sprintf(tstring("%s %d %d"), pEntity->GetClassName(), pEntity->GetHandle(), pEntity->GetSpawnSeed()), iClient);
+		::CreateEntity.RunCommand(tsprintf("%s %d %d", pEntity->GetClassName(), pEntity->GetHandle(), pEntity->GetSpawnSeed()), iClient);
 	}
 
 	CGameServerNetwork::UpdateNetworkVariables(iClient, true);
@@ -641,7 +641,7 @@ void CGameServer::ClientDisconnect(int iClient)
 	}
 	else
 	{
-		TMsg(sprintf(tstring("Client %d (") + GameNetwork()->GetClientNickname(iClient) + ") disconnected.\n", iClient));
+		TMsg(tsprintf("Client %d (" + GameNetwork()->GetClientNickname(iClient) + ") disconnected.\n", iClient));
 
 		CApplication::Get()->OnClientDisconnect(iClient);
 
@@ -667,7 +667,7 @@ void CGameServer::SetClientNickname(int iClient, const tstring& sNickname)
 		}
 	}
 
-	TMsg(sprintf(tstring("Can't find client %d to give nickname %s.\n"), iClient, sNickname.c_str()));
+	TMsg(tsprintf("Can't find client %d to give nickname %s.\n", iClient, sNickname.c_str()));
 }
 
 void CGameServer::Think(double flHostTime)
@@ -1077,7 +1077,7 @@ void CGameServer::ClientInfo(int iConnection, CNetworkParameters* p)
 	m_iClient = p->i1;
 	float flNewGameTime = p->fl2;
 	if (flNewGameTime - m_flGameTime > 0.1f)
-		TMsg(sprintf(tstring("New game time from server %.1f different!\n"), flNewGameTime - m_flGameTime));
+		TMsg(tsprintf("New game time from server %.1f different!\n", flNewGameTime - m_flGameTime));
 
 	m_flGameTime = flNewGameTime;
 
@@ -1112,7 +1112,7 @@ CGame* CGameServer::GetGame()
 void ShowStatus(class CCommand* pCommand, tvector<tstring>& asTokens, const tstring& sCommand)
 {
 	TMsg(tstring("Level: ") + CVar::GetCVarValue("game_level") + "\n");
-	TMsg(sprintf(tstring("Clients: %d Entities: %d/%d\n"), GameNetwork()->GetClientsConnected(), CBaseEntity::GetNumEntities(), GameServer()->GetMaxEntities()));
+	TMsg(tsprintf("Clients: %d Entities: %d/%d\n", GameNetwork()->GetClientsConnected(), CBaseEntity::GetNumEntities(), GameServer()->GetMaxEntities()));
 
 	for (size_t i = 0; i < Game()->GetNumPlayers(); i++)
 	{
@@ -1123,7 +1123,7 @@ void ShowStatus(class CCommand* pCommand, tvector<tstring>& asTokens, const tstr
 		if (pPlayer->GetClient() < 0)
 			TMsg("Local: ");
 		else
-			TMsg(sprintf(tstring("%d: "), pPlayer->GetClient()));
+			TMsg(tsprintf("%d: ", pPlayer->GetClient()));
 
 		TMsg(pPlayer->GetPlayerName());
 

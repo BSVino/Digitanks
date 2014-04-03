@@ -25,7 +25,7 @@ void CHUDViewport::Paint(float x, float y, float w, float h)
 {
 	if (cl_debug.GetBool())
 	{
-		glgui::CLabel::PaintText(sprintf("FPS: %d", (int)(1.0f/GameServer()->GetFrameTime())), -1, "sans-serif", 10, 15, 15);
+		glgui::CLabel::PaintText(tsprintf("FPS: %d", (int)(1.0f / GameServer()->GetFrameTime())), -1, "sans-serif", 10, 15, 15);
 		CPlayer* pPlayer = Game()->GetLocalPlayer();
 		if (pPlayer)
 		{
@@ -36,7 +36,7 @@ void CHUDViewport::Paint(float x, float y, float w, float h)
 			TVector vecLocalVelocity = pCharacter->GetLocalVelocity();
 			Vector vecView = AngleVector(pCharacter->GetViewAngles());
 
-			tstring sPlayer = sprintf(
+			tstring sPlayer = tsprintf(
 				"Local:  Player: %.2f %.2f %.2f  Velocity: %.2f %.2f %.2f  View: %.2f %.2f %.2f",
 				(float)vecLocalPlayer.x, (float)vecLocalPlayer.y, (float)vecLocalPlayer.z,
 				(float)vecLocalVelocity.x, (float)vecLocalVelocity.y, (float)vecLocalVelocity.z,
@@ -46,7 +46,7 @@ void CHUDViewport::Paint(float x, float y, float w, float h)
 
 			if (pCharacter->HasMoveParent())
 			{
-				sPlayer = sprintf(
+				sPlayer = tsprintf(
 					"Global:  Player: %.2f %.2f %.2f  Velocity: %.2f %.2f %.2f",
 					(float)vecGlobalPlayer.x, (float)vecGlobalPlayer.y, (float)vecGlobalPlayer.z,
 					(float)vecGlobalVelocity.x, (float)vecGlobalVelocity.y, (float)vecGlobalVelocity.z);

@@ -193,7 +193,7 @@ size_t CGameLobbyServer::AddPlayer(size_t iLobby, size_t iClient)
 	size_t iID = GetNextPlayerID();
 
 	if (lobby_debug.GetBool())
-		TMsg(sprintf(tstring("CGameLobbyServer::AddPlayer(%d, %d) = %d\n"), iLobby, iClient, iID));
+		TMsg(tsprintf("CGameLobbyServer::AddPlayer(%d, %d) = %d\n", iLobby, iClient, iID));
 
 	s_aiPlayerLobbies[iID] = iLobby;
 	s_aiClientPlayerIDs[iClient] = iID;
@@ -214,7 +214,7 @@ void CGameLobbyServer::RemovePlayer(size_t iID)
 	}
 
 	if (lobby_debug.GetBool())
-		TMsg(sprintf(tstring("CGameLobbyServer::RemovePlayer(%d)\n"), iID));
+		TMsg(tsprintf("CGameLobbyServer::RemovePlayer(%d)\n", iID));
 
 	s_aiPlayerLobbies.erase(iID);
 	s_aiClientPlayerIDs.erase(s_aLobbies[iLobby].GetPlayerByID(iID)->iClient);
@@ -285,7 +285,7 @@ void CGameLobbyServer::UpdatePlayer(size_t iID, const tstring& sKey, const tstri
 	size_t iLobby = GetPlayerLobby(iID);
 	if (iLobby == ~0)
 	{
-		TMsg(sprintf(tstring("Can't find lobby for client ID# %d\n"), iID));
+		TMsg(tsprintf("Can't find lobby for client ID# %d\n", iID));
 		TAssert(!"Can't find lobby for client");
 		return;
 	}
@@ -416,13 +416,13 @@ void CGameLobby::AddPlayer(size_t iID, size_t iClient)
 		return;
 
 	if (lobby_debug.GetBool())
-		TMsg(sprintf(tstring("CGameLobby::AddPlayer(%d, %d)\n"), iID, iClient));
+		TMsg(tsprintf("CGameLobby::AddPlayer(%d, %d)\n", iID, iClient));
 
 	CLobbyPlayer* pPlayer = &m_aClients.push_back();
 	pPlayer->iID = iID;
 	pPlayer->iClient = iClient;
 
-	::LobbyPlayerInfo.RunCommand(sprintf(tstring("%d add %d"), iID, iClient));
+	::LobbyPlayerInfo.RunCommand(tsprintf("%d add %d", iID, iClient));
 }
 
 void CGameLobby::RemovePlayer(size_t iID)
@@ -432,20 +432,20 @@ void CGameLobby::RemovePlayer(size_t iID)
 		return;
 
 	if (lobby_debug.GetBool())
-		TMsg(sprintf(tstring("CGameLobby::RemovePlayer(%d)\n"), iID));
+		TMsg(tsprintf("CGameLobby::RemovePlayer(%d)\n", iID));
 
 	::ServerChatSay.RunCommand(CONNECTION_LOBBY, GetPlayer(iPlayer)->GetInfoValue("name") + " has left the lobby.\n");
 
 	m_aClients.erase(m_aClients.begin()+iPlayer);
 
-	::LobbyPlayerInfo.RunCommand(sprintf(tstring("%d remove 0"), iID));
+	::LobbyPlayerInfo.RunCommand(tsprintf("%d remove 0", iID));
 }
 
 void CGameLobby::UpdateInfo(const tstring& sKey, const tstring& sValue)
 {
 	m_asInfo[sKey] = sValue;
 
-	tstring sCommand = sprintf(sKey + " " + sValue);
+	tstring sCommand = sKey + " " + sValue;
 	::LobbyInfo.RunCommand(sCommand);
 }
 
@@ -476,7 +476,7 @@ void CGameLobby::UpdatePlayer(size_t iID, const tstring& sKey, const tstring& sV
 
 	pPlayer->asInfo[sKey] = sValue;
 
-	tstring sCommand = sprintf(tstring("%d ") + sKey + " " + sValue, iID);
+	tstring sCommand = tsprintf("%d " + sKey + " " + sValue, iID);
 	::LobbyPlayerInfo.RunCommand(sCommand);
 
 	bool bBeginGame = true;
@@ -513,11 +513,11 @@ void CGameLobby::SendFullUpdate(size_t iClient)
 	{
 		CLobbyPlayer* pPlayer = &m_aClients[i];
 
-		::LobbyPlayerInfo.RunCommand(sprintf(tstring("%d add %d"), pPlayer->iID, pPlayer->iClient), iClient);
+		::LobbyPlayerInfo.RunCommand(tsprintf("%d add %d", pPlayer->iID, pPlayer->iClient), iClient);
 
 		for (tmap<tstring, tstring>::iterator it = pPlayer->asInfo.begin(); it != pPlayer->asInfo.end(); it++)
 		{
-			tstring sCommand = sprintf(tstring("%d ") + it->first + " " + it->second, pPlayer->iID);
+			tstring sCommand = tsprintf("%d " + it->first + " " + it->second, pPlayer->iID);
 			::LobbyPlayerInfo.RunCommand(sCommand, iClient);
 		}
 	}

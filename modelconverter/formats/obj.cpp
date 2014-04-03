@@ -145,7 +145,7 @@ bool CModelConverter::ReadOBJ(const tstring& sFilename)
 		if (tstrncmp(pszToken, "mtllib", 6) == 0)
 		{
 			tstring sDirectory = GetDirectory(sFilename);
-			tstring sMaterial = sprintf(tstring("%s/%s"), sDirectory.c_str(), pszLine + 7);
+			tstring sMaterial = tsprintf("%s/%s", sDirectory.c_str(), pszLine + 7);
 			ReadMTL(sMaterial);
 		}
 		else if (tstrncmp(pszToken, "o", 1) == 0)
@@ -487,7 +487,7 @@ void CModelConverter::ReadMTL(const tstring& sFilename)
 			{
 				tstring sDirectory = GetDirectory(sFilename);
 
-				pMaterial->m_sDiffuseTexture = sprintf(tstring("%s/%s"), sDirectory.c_str(), pszToken);
+				pMaterial->m_sDiffuseTexture = tsprintf("%s/%s", sDirectory.c_str(), pszToken);
 			}
 		}
 	}

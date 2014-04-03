@@ -1005,7 +1005,7 @@ CCommand mission_lose("mission_lose", ::MissionLose);
 
 void CDigitanksGame::SetupCampaign(bool bReload)
 {
-	TMsg(sprintf(tstring("Setting up campaign %s.\n"), CVar::GetCVarValue("game_level").c_str()));
+	TMsg(tsprintf(tstring("Setting up campaign %s.\n"), CVar::GetCVarValue("game_level").c_str()));
 
 	SetCurrentLevel(CVar::GetCVarValue("game_level"));
 
@@ -2245,20 +2245,20 @@ SERVER_GAME_COMMAND(HitIndicator)
 void CDigitanksGame::OnTakeShieldDamage(CDigitank* pVictim, CBaseEntity* pAttacker, CBaseEntity* pInflictor, float flDamage, bool bDirectHit, bool bShieldOnly)
 {
 	if (GameNetwork()->IsHost())
-		HitIndicator.RunCommand(sprintf(tstring("sdmg %d %d %d %f %d %d"), SAFE_HANDLE(pVictim), SAFE_HANDLE(pAttacker), SAFE_HANDLE(pInflictor), flDamage, bDirectHit, bShieldOnly));
+		HitIndicator.RunCommand(tsprintf(tstring("sdmg %d %d %d %f %d %d"), SAFE_HANDLE(pVictim), SAFE_HANDLE(pAttacker), SAFE_HANDLE(pInflictor), flDamage, bDirectHit, bShieldOnly));
 }
 
 void CDigitanksGame::OnTakeDamage(CBaseEntity* pVictim, CBaseEntity* pAttacker, CBaseEntity* pInflictor, float flDamage, bool bDirectHit, bool bKilled)
 {
 	if (GameNetwork()->IsHost())
-		HitIndicator.RunCommand(sprintf(tstring("dmg %d %d %d %f %d %d"), SAFE_HANDLE(pVictim), SAFE_HANDLE(pAttacker), SAFE_HANDLE(pInflictor), flDamage, bDirectHit, bKilled));
+		HitIndicator.RunCommand(tsprintf(tstring("dmg %d %d %d %f %d %d"), SAFE_HANDLE(pVictim), SAFE_HANDLE(pAttacker), SAFE_HANDLE(pInflictor), flDamage, bDirectHit, bKilled));
 }
 
 void CDigitanksGame::OnDisabled(CBaseEntity* pVictim, CBaseEntity* pAttacker, CBaseEntity* pInflictor)
 {
 	if (GameNetwork()->IsHost())
 	{
-		HitIndicator.RunCommand(sprintf(tstring("disable %d %d %d"), SAFE_HANDLE(pVictim), SAFE_HANDLE(pAttacker), SAFE_HANDLE(pInflictor)));
+		HitIndicator.RunCommand(tsprintf(tstring("disable %d %d %d"), SAFE_HANDLE(pVictim), SAFE_HANDLE(pAttacker), SAFE_HANDLE(pInflictor)));
 
 		CDigitank* pTank = dynamic_cast<CDigitank*>(pVictim);
 		if (pTank)
@@ -2270,7 +2270,7 @@ void CDigitanksGame::OnMiss(CBaseEntity* pVictim, CBaseEntity* pAttacker, CBaseE
 {
 	if (GameNetwork()->IsHost())
 	{
-		HitIndicator.RunCommand(sprintf(tstring("miss %d %d %d"), SAFE_HANDLE(pVictim), SAFE_HANDLE(pAttacker), SAFE_HANDLE(pInflictor)));
+		HitIndicator.RunCommand(tsprintf(tstring("miss %d %d %d"), SAFE_HANDLE(pVictim), SAFE_HANDLE(pAttacker), SAFE_HANDLE(pInflictor)));
 
 		CDigitank* pTank = dynamic_cast<CDigitank*>(pVictim);
 		if (pTank)
@@ -2281,7 +2281,7 @@ void CDigitanksGame::OnMiss(CBaseEntity* pVictim, CBaseEntity* pAttacker, CBaseE
 void CDigitanksGame::OnCritical(CDigitank* pVictim, CBaseEntity* pAttacker, CBaseEntity* pInflictor)
 {
 	if (GameNetwork()->IsHost())
-		HitIndicator.RunCommand(sprintf(tstring("crit %d %d %d"), SAFE_HANDLE(pVictim), SAFE_HANDLE(pAttacker), SAFE_HANDLE(pInflictor)));
+		HitIndicator.RunCommand(tsprintf(tstring("crit %d %d %d"), SAFE_HANDLE(pVictim), SAFE_HANDLE(pAttacker), SAFE_HANDLE(pInflictor)));
 }
 
 void CDigitanksGame::OnKilled(CBaseEntity* pEntity)

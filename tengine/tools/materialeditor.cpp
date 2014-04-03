@@ -254,7 +254,7 @@ void CMaterialPanel::Layout()
 				}
 
 				if (bTexture)
-					pTextField->SetContentsChangedListener(this, TextureParameterChanged, sprintf("%d", m_asParameterNames.size()-1));
+					pTextField->SetContentsChangedListener(this, TextureParameterChanged, tsprintf("%d", m_asParameterNames.size() - 1));
 				else
 					pTextField->SetContentsChangedListener(this, ParameterChanged);
 

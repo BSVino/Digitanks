@@ -778,7 +778,7 @@ CLIENT_GAME_COMMAND(HandledActionItem)
 
 void CDigitanksPlayer::HandledActionItem(size_t i)
 {
-	::HandledActionItem.RunCommand(sprintf(tstring("%d %d"), GetHandle(), i));
+	::HandledActionItem.RunCommand(tsprintf(tstring("%d %d"), GetHandle(), i));
 
 	// Predict the handling so it happens immediately.
 	if (!GameNetwork()->IsHost())

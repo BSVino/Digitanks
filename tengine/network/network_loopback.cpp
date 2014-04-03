@@ -373,7 +373,7 @@ void CLoopbackConnection::SetClientInfo(size_t iClient, size_t iInstallID, const
 	bool bLoading = m_bLoading;
 	m_bLoading = false;
 
-	::SetClientID.RunCommand(m_iConnection, sprintf(tstring("%u ") + sUniqueNickname, iClient), iClient);
+	::SetClientID.RunCommand(m_iConnection, tsprintf("%u " + sUniqueNickname, iClient), iClient);
 
 	m_bLoading = bLoading;
 }
@@ -424,7 +424,7 @@ void CNetworkConnection::NetworkCommand(int iConnection, CNetworkParameters* p)
 
 	if (!pCommand)
 	{
-		TMsg(sprintf(tstring("Network command '%s' unknown.\n"), sName.c_str()));
+		TMsg(tsprintf("Network command '%s' unknown.\n", sName.c_str()));
 		return;
 	}
 

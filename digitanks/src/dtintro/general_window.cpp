@@ -145,12 +145,12 @@ void CGeneralWindow::Paint(float x, float y, float w, float h)
 			else
 				sRandomTime = "seconds";
 
-			sEstimate = sprintf(tstring("Estimated time remaining: %d %s"), RandomInt(2, 100), sRandomTime.c_str());
+			sEstimate = tsprintf(tstring("Estimated time remaining: %d %s"), RandomInt(2, 100), sRandomTime.c_str());
 
 			flLastEstimateUpdate = GameServer()->GetGameTime();
 		}
 
-		float flWidth = glgui::CLabel::GetTextWidth(sEstimate, sEstimate.length(), "sans-serif", 12);
+		float flWidth = glgui::RootPanel()->GetTextWidth(sEstimate, sEstimate.length(), "sans-serif", 12);
 		glgui::CLabel::PaintText(sEstimate, sEstimate.length(), "sans-serif", 12, x + m_pText->GetLeft() + m_pText->GetWidth()/2 - flWidth/2, (float)y + 190, Color(0, 0, 0, 255));
 	}
 }

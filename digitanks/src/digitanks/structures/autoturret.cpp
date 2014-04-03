@@ -230,7 +230,7 @@ void CAutoTurret::UpdateInfo(tstring& s)
 	if (IsConstructing())
 	{
 		s += "(Constructing)\n";
-		s += sprintf(tstring("Turns left: %d\n"), GetTurnsRemainingToConstruct());
+		s += tsprintf(tstring("Turns left: %d\n"), GetTurnsRemainingToConstruct());
 		return;
 	}
 }

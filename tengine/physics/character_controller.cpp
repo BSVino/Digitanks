@@ -192,7 +192,7 @@ void CCharacterController::PreStep(btCollisionWorld* pCollisionWorld)
 
 		if (i > phys_maxpenetrationrecover.GetInt())
 		{
-			TMsg(sprintf("%f Character controller couldn't recover from penetration.\n", GameServer()->GetGameTime()));
+			TMsg(tsprintf("%f Character controller couldn't recover from penetration.\n", GameServer()->GetGameTime()));
 			break;
 		}
 	}

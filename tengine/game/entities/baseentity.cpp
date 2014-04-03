@@ -1250,7 +1250,7 @@ void CBaseEntity::CallInput(const tstring& sName, const tstring& sArgs)
 	if (!pInput)
 	{
 		TAssert(!"Input missing.");
-		TMsg(sprintf(tstring("Input %s not found in %s\n"), sName.c_str(), GetClassName()));
+		TMsg(tsprintf("Input %s not found in %s\n", sName.c_str(), GetClassName()));
 		return;
 	}
 
@@ -1269,7 +1269,7 @@ void CBaseEntity::CallOutput(const tstring& sName)
 	if (!pData)
 	{
 		TAssert(!"Output missing.");
-		TMsg(sprintf(tstring("Called nonexistant output %s of entity %s\n"), sName.c_str(), GetClassName()));
+		TMsg(tsprintf("Called nonexistant output %s of entity %s\n", sName.c_str(), GetClassName()));
 		return;
 	}
 
@@ -1286,7 +1286,7 @@ void CBaseEntity::AddOutputTarget(const tstring& sName, const tstring& sTargetNa
 	if (!pData)
 	{
 		TAssert(!"Output missing.");
-		TMsg(sprintf(tstring("Called nonexistant output %s of entity %s\n"), sName.c_str(), GetClassName()));
+		TMsg(tsprintf("Called nonexistant output %s of entity %s\n", sName.c_str(), GetClassName()));
 		return;
 	}
 
@@ -1301,7 +1301,7 @@ void CBaseEntity::RemoveOutputs(const tstring& sName)
 	if (!pData)
 	{
 		TAssert(!"Output missing.");
-		TMsg(sprintf(tstring("Called nonexistant output %s of entity %s\n"), sName.c_str(), GetClassName()));
+		TMsg(tsprintf("Called nonexistant output %s of entity %s\n", sName.c_str(), GetClassName()));
 		return;
 	}
 
@@ -1396,7 +1396,7 @@ const tstring CEntityOutput::FormatArgs(tstring sArgs)
 
 	while (true)
 	{
-		tstring sArg = sprintf("[%d]", iArg);
+		tstring sArg = tsprintf("[%d]", iArg);
 		auto i = sArgs.find(sArg);
 		if (i == tstring::npos)
 			return sArgs;
@@ -1420,7 +1420,7 @@ SERVER_GAME_COMMAND(EmitSound)
 
 void CBaseEntity::EmitSound(const tstring& sFilename, float flVolume, bool bLoop)
 {
-	::EmitSound.RunCommand(sprintf(tstring("%d %.1f %d %s"), GetHandle(), flVolume, bLoop?1:0, sFilename.c_str()));
+	::EmitSound.RunCommand(tsprintf("%d %.1f %d %s", GetHandle(), flVolume, bLoop ? 1 : 0, sFilename.c_str()));
 }
 
 SERVER_GAME_COMMAND(StopSound)
@@ -1436,7 +1436,7 @@ SERVER_GAME_COMMAND(StopSound)
 
 void CBaseEntity::StopSound(const tstring& sFilename)
 {
-	::StopSound.RunCommand(sprintf(tstring("%d %s"), GetHandle(), sFilename.c_str()));
+	::StopSound.RunCommand(tsprintf("%d %s", GetHandle(), sFilename.c_str()));
 }
 
 bool CBaseEntity::IsSoundPlaying(const tstring& sFilename)
@@ -1496,7 +1496,7 @@ SERVER_GAME_COMMAND(ClientSpawn)
 
 void CBaseEntity::IssueClientSpawn()
 {
-	::ClientSpawn.RunCommand(sprintf(tstring("%d"), GetHandle()));
+	::ClientSpawn.RunCommand(tsprintf("%d", GetHandle()));
 	m_bClientSpawn = true;
 }
 
@@ -1756,7 +1756,7 @@ void CBaseEntity::CheckSaveDataSize(CEntityRegistration* pRegistration)
 	// If you're getting this assert it probably means you forgot to add a savedata entry for some variable that you added to a class.
 	if (iSaveTableSize != iSizeOfThis)
 	{
-		TMsg(sprintf(tstring("Save table for class '%s' doesn't match the class's size, %d != %d.\n"), GetClassName(), iSaveTableSize, iSizeOfThis));
+		TMsg(tsprintf("Save table for class '%s' doesn't match the class's size, %d != %d.\n", GetClassName(), iSaveTableSize, iSizeOfThis));
 //		TAssert(!"Save table size doesn't match class size.\n");
 	}
 }

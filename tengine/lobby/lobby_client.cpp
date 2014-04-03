@@ -48,7 +48,7 @@ SERVER_COMMAND(CONNECTION_LOBBY, LobbyPlayerInfo)
 
 		if (iLobbyClient == ~0)
 		{
-			TMsg(sprintf(tstring("Can't find lobby player %d\n"), iLobbyClient));
+			TMsg(tsprintf("Can't find lobby player %d\n", iLobbyClient));
 			TAssert(!"Can't find lobby player.");
 			return;
 		}
@@ -74,10 +74,10 @@ INetworkListener::Callback CGameLobbyClient::s_pfnBeginGameCallback = NULL;
 void CGameLobbyClient::S_JoinLobby(size_t iLobby)
 {
 	if (CVar::GetCVarBool("lobby_debug"))
-		TMsg(sprintf(tstring("CGameLobbyClient::S_JoinLobby(%d)\n"), iLobby));
+		TMsg(tsprintf("CGameLobbyClient::S_JoinLobby(%d)\n", iLobby));
 
 	s_aClients.clear();
-	::JoinLobby.RunCommand(sprintf(tstring("%d"), (int)iLobby));
+	::JoinLobby.RunCommand(tsprintf("%d", (int)iLobby));
 
 	s_bInLobby = true;
 }
@@ -158,7 +158,7 @@ void CGameLobbyClient::R_AddPlayer(size_t iID, size_t iClient)
 		return;
 
 	if (CVar::GetCVarBool("lobby_debug"))
-		TMsg(sprintf(tstring("CGameLobbyClient::R_AddPlayer(%d, %d)\n"), iID, iClient));
+		TMsg(tsprintf("CGameLobbyClient::R_AddPlayer(%d, %d)\n", iID, iClient));
 
 	CLobbyPlayer* pPlayer = &s_aClients.push_back();
 	pPlayer->iID = iID;
@@ -183,7 +183,7 @@ void CGameLobbyClient::R_RemovePlayer(size_t iID)
 		return;
 
 	if (CVar::GetCVarBool("lobby_debug"))
-		TMsg(sprintf(tstring("CGameLobbyClient::R_RemovePlayer(%d)\n"), iID));
+		TMsg(tsprintf("CGameLobbyClient::R_RemovePlayer(%d)\n", iID));
 
 	if (s_aClients[iPlayer].iClient == LobbyNetwork()->GetClientID())
 	{
@@ -210,7 +210,7 @@ void CGameLobbyClient::S_AddBot()
 
 void CGameLobbyClient::S_RemovePlayer(size_t iID)
 {
-	::RemovePlayer.RunCommand(sprintf(tstring("%d"), iID));
+	::RemovePlayer.RunCommand(tsprintf("%d", iID));
 }
 
 void CGameLobbyClient::S_UpdateLobby(const tstring& sKey, const tstring& sValue)
@@ -242,7 +242,7 @@ void CGameLobbyClient::S_UpdatePlayer(const tstring& sKey, const tstring& sValue
 
 void CGameLobbyClient::S_UpdatePlayer(size_t iID, const tstring& sKey, const tstring& sValue)
 {
-	::UpdatePlayerInfo.RunCommand(sprintf(tstring("%d ") + sKey + " " + sValue, iID));
+	::UpdatePlayerInfo.RunCommand(tsprintf("%d " + sKey + " " + sValue, iID));
 }
 
 void CGameLobbyClient::R_UpdatePlayer(size_t iID, const tstring& sKey, const tstring& sValue)

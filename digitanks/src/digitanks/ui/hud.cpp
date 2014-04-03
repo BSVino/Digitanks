@@ -386,7 +386,7 @@ void CHUD::Layout()
 		size_t iItemButtonSize = 30;
 		for (size_t i = 0; i < pLocalCurrentTeam->GetNumActionItems(); i++)
 		{
-			CControl<CPictureButton> pButton = AddControl(new CPictureButton(sprintf(tstring("%d"), i)));
+			CControl<CPictureButton> pButton = AddControl(new CPictureButton(tsprintf(tstring("%d"), i)));
 			pButton->SetSize(iItemButtonSize, iItemButtonSize);
 			pButton->SetPos(iWidth - iItemButtonSize - 10, 120 + (iItemButtonSize+10)*i);
 			pButton->SetClickedListener(this, ChooseActionItem);
@@ -565,7 +565,7 @@ void CHUD::Layout()
 			else
 			{
 				tstring s;
-				s = sprintf((pItem->GetName() + _T(" (%d)")).c_str(), pLocalCurrentTeam->GetTurnsToDownload());
+				s = tsprintf((pItem->GetName() + _T(" (%d)")).c_str(), pLocalCurrentTeam->GetTurnsToDownload());
 				m_pResearchInfo->SetText(s);
 			}
 		}
@@ -999,16 +999,16 @@ void CHUD::Paint(float x, float y, float w, float h)
 
 	if (show_fps.GetBool())
 	{
-		float flFontHeight = glgui::CLabel::GetFontHeight(_T("text"), 10);
-		tstring sFPS = sprintf(tstring("Time: %.2f"), GameServer()->GetGameTime());
+		float flFontHeight = glgui::RootPanel()->GetFontHeight(_T("text"), 10);
+		tstring sFPS = tsprintf(tstring("Time: %.2f"), GameServer()->GetGameTime());
 		glgui::CLabel::PaintText(sFPS, sFPS.length(), _T("text"), 10, 125, flFontHeight + 50);
-		sFPS = sprintf(tstring("FPS: %d"), (int)(1/GameServer()->GetFrameTime()));
+		sFPS = tsprintf(tstring("FPS: %d"), (int)(1 / GameServer()->GetFrameTime()));
 		glgui::CLabel::PaintText(sFPS, sFPS.length(), _T("text"), 10, 125, flFontHeight*2 + 50);
 
 		Vector vecTerrainPoint;
 		if (DigitanksWindow()->GetMouseGridPosition(vecTerrainPoint, NULL, CG_TERRAIN))
 		{
-			sFPS = sprintf(tstring("%.2f, %.2f"), vecTerrainPoint.x, vecTerrainPoint.z);
+			sFPS = tsprintf(tstring("%.2f, %.2f"), vecTerrainPoint.x, vecTerrainPoint.z);
 			glgui::CLabel::PaintText(sFPS, sFPS.length(), _T("text"), 10, 125, flFontHeight*3 + 50);
 		}
 	}
@@ -1060,8 +1060,8 @@ void CHUD::Paint(float x, float y, float w, float h)
 
 		if (pDTEntity->IsObjective() && pDTEntity->IsActive())
 		{
-			tstring sText = sprintf(tstring("Objective: %s"), pDTEntity->GetEntityName().c_str());
-			float flWidth = CLabel::GetTextWidth(sText, sText.length(), _T("text"), 13);
+			tstring sText = tsprintf(tstring("Objective: %s"), pDTEntity->GetEntityName().c_str());
+			float flWidth = RootPanel()->GetTextWidth(sText, sText.length(), _T("text"), 13);
 			CLabel::PaintText(sText, sText.length(), _T("text"), 13, vecScreen.x - flWidth/2, vecScreen.y + 60);
 
 			CRenderingContext c(GameServer()->GetRenderer(), true);
@@ -1165,8 +1165,8 @@ void CHUD::Paint(float x, float y, float w, float h)
 			float flDistance = (pTank->GetRealOrigin() - pTank->GetGoalMovePosition()).Length();
 			int iTurns = (int)(flDistance/pTank->GetMaxMovementDistance())+1;
 				
-			tstring sTurns = sprintf(tstring(":%d"), iTurns);
-			CLabel::PaintText(sTurns, sTurns.length(), _T("text"), 10, vecScreen.x + flWidth/2 - 10, vecScreen.y - flWidth/2 + CLabel::GetFontHeight(_T("text"), 10) - 2);
+			tstring sTurns = tsprintf(tstring(":%d"), iTurns);
+			CLabel::PaintText(sTurns, sTurns.length(), _T("text"), 10, vecScreen.x + flWidth / 2 - 10, vecScreen.y - flWidth / 2 + RootPanel()->GetFontHeight(_T("text"), 10) - 2);
 		}
 
 		bool bShowFortify = pTank && (pTank->IsFortified() || pTank->IsFortifying());
@@ -1175,7 +1175,7 @@ void CHUD::Paint(float x, float y, float w, float h)
 
 		if (bShowFortify)
 		{
-			tstring sTurns = sprintf(tstring("+%d"), pTank->GetFortifyLevel());
+			tstring sTurns = tsprintf(tstring("+%d"), pTank->GetFortifyLevel());
 
 			float flYPosition = vecScreen.y + flWidth/2;
 			float flXPosition = vecScreen.x + flWidth/2;
@@ -1214,13 +1214,13 @@ void CHUD::Paint(float x, float y, float w, float h)
 
 			if (pStructure->IsConstructing())
 			{
-				tstring sTurns = sprintf(tstring(":%d"), pStructure->GetTurnsRemainingToConstruct());
-				CLabel::PaintText(sTurns, sTurns.length(), _T("text"), 10, vecScreen.x + flWidth/2 - 10, vecScreen.y - flWidth/2 + CLabel::GetFontHeight(_T("text"), 10) - 2);
+				tstring sTurns = tsprintf(tstring(":%d"), pStructure->GetTurnsRemainingToConstruct());
+				CLabel::PaintText(sTurns, sTurns.length(), _T("text"), 10, vecScreen.x + flWidth / 2 - 10, vecScreen.y - flWidth / 2 + RootPanel()->GetFontHeight(_T("text"), 10) - 2);
 			}
 			else if (pStructure->IsUpgrading())
 			{
-				tstring sTurns = sprintf(tstring(":%d"), pStructure->GetTurnsRemainingToUpgrade());
-				CLabel::PaintText(sTurns, sTurns.length(), _T("text"), 10, vecScreen.x + flWidth/2 - 10, vecScreen.y - flWidth/2 + CLabel::GetFontHeight(_T("text"), 10) - 2);
+				tstring sTurns = tsprintf(tstring(":%d"), pStructure->GetTurnsRemainingToUpgrade());
+				CLabel::PaintText(sTurns, sTurns.length(), _T("text"), 10, vecScreen.x + flWidth / 2 - 10, vecScreen.y - flWidth / 2 + RootPanel()->GetFontHeight(_T("text"), 10) - 2);
 			}
 
 			if (pStructure->GetUnitType() == STRUCTURE_CPU)
@@ -1229,7 +1229,7 @@ void CHUD::Paint(float x, float y, float w, float h)
 				if (pCPU->IsProducing())
 				{
 					tstring sTurns = _T(":1");	// It only ever takes one turn to make a rogue.
-					CLabel::PaintText(sTurns, sTurns.length(), _T("text"), 10, vecScreen.x + flWidth/2 - 10, vecScreen.y - flWidth/2 + CLabel::GetFontHeight(_T("text"), 10) - 2);
+					CLabel::PaintText(sTurns, sTurns.length(), _T("text"), 10, vecScreen.x + flWidth / 2 - 10, vecScreen.y - flWidth / 2 + RootPanel()->GetFontHeight(_T("text"), 10) - 2);
 				}
 			}
 
@@ -1238,8 +1238,8 @@ void CHUD::Paint(float x, float y, float w, float h)
 				CLoader* pLoader = static_cast<CLoader*>(pStructure);
 				if (pLoader->IsProducing())
 				{
-					tstring sTurns = sprintf(tstring(":%d"), pLoader->GetTurnsRemainingToProduce());
-					CLabel::PaintText(sTurns, sTurns.length(), _T("text"), 10, vecScreen.x + flWidth/2 - 10, vecScreen.y - flWidth/2 + CLabel::GetFontHeight(_T("text"), 10) - 2);
+					tstring sTurns = tsprintf(tstring(":%d"), pLoader->GetTurnsRemainingToProduce());
+					CLabel::PaintText(sTurns, sTurns.length(), _T("text"), 10, vecScreen.x + flWidth / 2 - 10, vecScreen.y - flWidth / 2 + RootPanel()->GetFontHeight(_T("text"), 10) - 2);
 				}
 			}
 		}
@@ -1257,8 +1257,8 @@ void CHUD::Paint(float x, float y, float w, float h)
 			int iFontSize = 17;
 
 			tstring sZZZ = _T("zzz");
-			float flTextWidth = CLabel::GetTextWidth(sZZZ, sZZZ.length(), _T("smileys"), iFontSize);
-			float flTextHeight = CLabel::GetFontHeight(_T("smileys"), iFontSize);
+			float flTextWidth = RootPanel()->GetTextWidth(sZZZ, sZZZ.length(), _T("smileys"), iFontSize);
+			float flTextHeight = RootPanel()->GetFontHeight(_T("smileys"), iFontSize);
 
 			float flLerp = fmod(GameServer()->GetGameTime(), 2.0);
 			if (flLerp < 0.5f)
@@ -1603,8 +1603,8 @@ void CHUD::Paint(float x, float y, float w, float h)
 		PaintHUDSheet("SmallActionItem", iTextureLeft - 10, iTop, 243, 40, Color(255, 255, 255, (int)(255*m_flSmallActionItemLerp)));
 
 		c.SetColor(Color(255, 255, 255, (int)(255*m_flSmallActionItemLerp)));
-		float flWidth = CLabel::GetTextWidth(m_sSmallActionItem, m_sSmallActionItem.length(), _T("text"), 13);
-		float flHeight = CLabel::GetFontHeight(_T("text"), 13);
+		float flWidth = RootPanel()->GetTextWidth(m_sSmallActionItem, m_sSmallActionItem.length(), _T("text"), 13);
+		float flHeight = RootPanel()->GetFontHeight(_T("text"), 13);
 		CLabel::PaintText(m_sSmallActionItem, m_sSmallActionItem.length(), _T("text"), 13, (float)(iLeft - flWidth) - 25, iTop + flHeight + 5);
 	}
 
@@ -1656,7 +1656,7 @@ void CHUD::Paint(float x, float y, float w, float h)
 			if (pTeam->IsHumanControlled())
 				sTeamName = tstring(_T("[")) + sTeamName + _T("]");
 
-			CLabel::PaintText(sTeamName, sTeamName.length(), _T("text"), 13, (float)w - CLabel::GetTextWidth(sTeamName, sTeamName.length(), _T("text"), 13) - 20, 50 + (float)i*40);
+			CLabel::PaintText(sTeamName, sTeamName.length(), _T("text"), 13, (float)w - RootPanel()->GetTextWidth(sTeamName, sTeamName.length(), _T("text"), 13) - 20, 50 + (float)i * 40);
 
 			int iTank = 0;
 			for (tmap<size_t, CEntityHandle<CDigitank> >::iterator it = ahTeamTanks.begin(); it != ahTeamTanks.end(); it++)
@@ -1785,7 +1785,7 @@ void CHUD::Paint(float x, float y, float w, float h)
 		c.SetColor(clrMedal);
 
 		tstring sMedal = _T("YOU RECEIVED A MEDAL");
-		float flMedalWidth = glgui::CLabel::GetTextWidth(sMedal, sMedal.length(), _T("header"), 18);
+		float flMedalWidth = glgui::RootPanel()->GetTextWidth(sMedal, sMedal.length(), _T("header"), 18);
 		glgui::CLabel::PaintText(sMedal, sMedal.length(), _T("header"), 18, w/2-flMedalWidth/2, h/2 + (float)120);
 	}
 
@@ -1809,7 +1809,7 @@ void CHUD::Paint(float x, float y, float w, float h)
 		c.SetColor(clrFile);
 
 		tstring sText = _T("FILE RETRIEVED");
-		float flTextWidth = glgui::CLabel::GetTextWidth(sText, sText.length(), _T("header"), 18);
+		float flTextWidth = glgui::RootPanel()->GetTextWidth(sText, sText.length(), _T("header"), 18);
 		glgui::CLabel::PaintText(sText, sText.length(), _T("header"), 18, w/2-flTextWidth/2, h/2 + (float)150);
 	}
 
@@ -1821,7 +1821,7 @@ void CHUD::Paint(float x, float y, float w, float h)
 		c.SetBlend(BLEND_ALPHA);
 		c.SetColor(Color(255, 255, 255, (int)(255*RemapVal(Oscillate(GameServer()->GetGameTime(), 1), 0, 1, 0.5f, 1))));
 
-		float flHintWidth = glgui::CLabel::GetTextWidth(sChooseHint, sChooseHint.length(), _T("text"), 9);
+		float flHintWidth = glgui::RootPanel()->GetTextWidth(sChooseHint, sChooseHint.length(), _T("text"), 9);
 		glgui::CLabel::PaintText(sChooseHint, sChooseHint.length(), _T("text"), 9, (float)(m_pButtonPanel->GetLeft() + m_pButtonPanel->GetWidth()/2) - flHintWidth/2, (float)(m_pButtonPanel->GetTop() - 12));
 	}
 }
@@ -1842,11 +1842,11 @@ void CHUD::PaintCameraGuidedMissile(float x, float y, float w, float h)
 	if (!pMissile->IsBoosting() && GameServer()->GetGameTime() - pMissile->GetSpawnTime() < 3)
 	{
 		tstring sLaunch = _T("LAUNCH IN");
-		float flLaunchWidth = glgui::CLabel::GetTextWidth(sLaunch, sLaunch.length(), _T("cameramissile"), 40);
+		float flLaunchWidth = glgui::RootPanel()->GetTextWidth(sLaunch, sLaunch.length(), _T("cameramissile"), 40);
 		glgui::CLabel::PaintText(sLaunch, sLaunch.length(), _T("cameramissile"), 40, w/2-flLaunchWidth/2, 150);
 
-		sLaunch = sprintf(tstring("%.1f"), 3 - (GameServer()->GetGameTime() - pMissile->GetSpawnTime()));
-		flLaunchWidth = glgui::CLabel::GetTextWidth(sLaunch, sLaunch.length(), _T("cameramissile"), 40);
+		sLaunch = tsprintf(tstring("%.1f"), 3 - (GameServer()->GetGameTime() - pMissile->GetSpawnTime()));
+		flLaunchWidth = glgui::RootPanel()->GetTextWidth(sLaunch, sLaunch.length(), _T("cameramissile"), 40);
 		glgui::CLabel::PaintText(sLaunch, sLaunch.length(), _T("cameramissile"), 40, w/2-flLaunchWidth/2, 200);
 	}
 
@@ -1854,7 +1854,7 @@ void CHUD::PaintCameraGuidedMissile(float x, float y, float w, float h)
 	if (!pOwner)
 		return;
 
-	tstring sRange = sprintf(tstring("RANGE %.2f"), (pOwner->GetLastAim() - pMissile->GetGlobalOrigin()).Length());
+	tstring sRange = tsprintf(tstring("RANGE %.2f"), (pOwner->GetLastAim() - pMissile->GetGlobalOrigin()).Length());
 	glgui::CLabel::PaintText(sRange, sRange.length(), _T("cameramissile"), 20, 10, 100);
 
 	Vector vecHit;
@@ -1869,16 +1869,16 @@ void CHUD::PaintCameraGuidedMissile(float x, float y, float w, float h)
 		sClear = _T("CLEAR");
 	glgui::CLabel::PaintText(sClear, sClear.length(), _T("cameramissile"), 20, 10, 200);
 
-	tstring sAltitude = sprintf(tstring("ALT %.2f"), pMissile->GetGlobalOrigin().y - DigitanksGame()->GetTerrain()->GetHeight(pMissile->GetGlobalOrigin().x, pMissile->GetGlobalOrigin().y));
+	tstring sAltitude = tsprintf(tstring("ALT %.2f"), pMissile->GetGlobalOrigin().y - DigitanksGame()->GetTerrain()->GetHeight(pMissile->GetGlobalOrigin().x, pMissile->GetGlobalOrigin().y));
 	glgui::CLabel::PaintText(sAltitude, sAltitude.length(), _T("cameramissile"), 20, 10, 300);
 
-	tstring sFuel = sprintf(tstring("FUEL %.2f"), 13 - (GameServer()->GetGameTime() - pMissile->GetSpawnTime()));
+	tstring sFuel = tsprintf(tstring("FUEL %.2f"), 13 - (GameServer()->GetGameTime() - pMissile->GetSpawnTime()));
 	glgui::CLabel::PaintText(sFuel, sFuel.length(), _T("cameramissile"), 20, 10, 400);
 
 	if (pMissile->IsBoosting() && Oscillate(GameServer()->GetGameTime(), 0.3f) > 0.1f)
 	{
 		tstring sBoost = _T("BOOST");
-		float flBoostWidth = glgui::CLabel::GetTextWidth(sBoost, sBoost.length(), _T("cameramissile"), 40);
+		float flBoostWidth = glgui::RootPanel()->GetTextWidth(sBoost, sBoost.length(), _T("cameramissile"), 40);
 		glgui::CLabel::PaintText(sBoost, sBoost.length(), _T("cameramissile"), 40, w/2-flBoostWidth/2, h - 200.0f);
 	}
 
@@ -2454,21 +2454,21 @@ void CHUD::UpdateTeamInfo()
 		return;
 
 	tstring s1;
-	s1 = sprintf(tstring("%d +%.1f/turn\n"), (int)pTeam->GetPower(), pTeam->GetPowerPerTurn());
+	s1 = tsprintf(tstring("%d +%.1f/turn\n"), (int)pTeam->GetPower(), pTeam->GetPowerPerTurn());
 	m_pPowerInfo->SetText(s1);
 
 	tstring s2;
-	s2 = sprintf(tstring("%d/%d\n"), pTeam->GetUsedFleetPoints(), pTeam->GetTotalFleetPoints());
+	s2 = tsprintf(tstring("%d/%d\n"), pTeam->GetUsedFleetPoints(), pTeam->GetTotalFleetPoints());
 	m_pFleetInfo->SetText(s2);
 
 	if (pTeam->GetUpdateDownloading())
 	{
 		tstring s3;
-		s3 = sprintf(tstring("%d/%dmb +%.1fmb/turn\n"), (int)pTeam->GetUpdateDownloaded(), (int)pTeam->GetUpdateSize(), pTeam->GetBandwidth());
+		s3 = tsprintf(tstring("%d/%dmb +%.1fmb/turn\n"), (int)pTeam->GetUpdateDownloaded(), (int)pTeam->GetUpdateSize(), pTeam->GetBandwidth());
 		m_pBandwidthInfo->SetText(s3);
 	}
 	else
-		m_pBandwidthInfo->SetText(sprintf(tstring("%dmb +%.1fmb/turn\n"), (int)pTeam->GetMegabytes(), pTeam->GetBandwidth()));
+		m_pBandwidthInfo->SetText(tsprintf(tstring("%dmb +%.1fmb/turn\n"), (int)pTeam->GetMegabytes(), pTeam->GetBandwidth()));
 }
 
 void CHUD::UpdateScoreboard()
@@ -2522,7 +2522,7 @@ void CHUD::UpdateScoreboard()
 		if (DigitanksGame()->IsTeamControlledByMe(pTeam))
 			s += _T("]");
 
-		s += sprintf(tstring(": %d\n"), pTeam->GetScore());
+		s += tsprintf(tstring(": %d\n"), pTeam->GetScore());
 	}
 
 	m_pScoreboard->SetText(_T("Score:\n \n"));
@@ -4108,8 +4108,8 @@ void CHUD::ShowPowerInfoCallback(const tstring& sArgs)
 
 	m_pTeamInfo->AppendText("POWER INFO\n \n");
 
-	m_pTeamInfo->AppendText(sprintf(tstring("Power stored: %.1f\n"), pCurrentTeam->GetPower()));
-	m_pTeamInfo->AppendText(sprintf(tstring("Power per turn: +%.1f\n \n"), pCurrentTeam->GetPowerPerTurn()));
+	m_pTeamInfo->AppendText(tsprintf(tstring("Power stored: %.1f\n"), pCurrentTeam->GetPower()));
+	m_pTeamInfo->AppendText(tsprintf(tstring("Power per turn: +%.1f\n \n"), pCurrentTeam->GetPowerPerTurn()));
 
 	for (size_t i = 0; i < pCurrentTeam->GetNumUnits(); i++)
 	{
@@ -4122,7 +4122,7 @@ void CHUD::ShowPowerInfoCallback(const tstring& sArgs)
 			continue;
 
 		if (pStructure->Power() > 0)
-			m_pTeamInfo->AppendText(sprintf(pStructure->GetEntityName() + _T(": +%.1f\n"), pStructure->Power()));
+			m_pTeamInfo->AppendText(tsprintf(pStructure->GetEntityName() + _T(": +%.1f\n"), pStructure->Power()));
 
 		const CCollector* pCollector = dynamic_cast<const CCollector*>(pEntity);
 		if (!pCollector)
@@ -4137,7 +4137,7 @@ void CHUD::ShowPowerInfoCallback(const tstring& sArgs)
 		else
 			flEfficiency = pCollector->GetSupplier()->GetChildEfficiency() * pCollector->GetSupplyLine()->GetIntegrity();
 
-		m_pTeamInfo->AppendText(sprintf(pCollector->GetEntityName() + _T(": +%.1f (%d%%)\n"), pCollector->GetPowerProduced(), (int)(flEfficiency*100)));
+		m_pTeamInfo->AppendText(tsprintf(pCollector->GetEntityName() + _T(": +%.1f (%d%%)\n"), pCollector->GetPowerProduced(), (int)(flEfficiency * 100)));
 	}
 
 	LayoutTeamInfo();
@@ -4156,8 +4156,8 @@ void CHUD::ShowFleetInfoCallback(const tstring& sArgs)
 
 	m_pTeamInfo->AppendText("FLEET INFO\n \n");
 
-	m_pTeamInfo->AppendText(sprintf(tstring("Fleet points available: %d\n"), pCurrentTeam->GetTotalFleetPoints()));
-	m_pTeamInfo->AppendText(sprintf(tstring("Fleet points in use: %d\n \n"), pCurrentTeam->GetUsedFleetPoints()));
+	m_pTeamInfo->AppendText(tsprintf(tstring("Fleet points available: %d\n"), pCurrentTeam->GetTotalFleetPoints()));
+	m_pTeamInfo->AppendText(tsprintf(tstring("Fleet points in use: %d\n \n"), pCurrentTeam->GetUsedFleetPoints()));
 
 	int iScouts = 0;
 	int iTanks = 0;
@@ -4192,18 +4192,18 @@ void CHUD::ShowFleetInfoCallback(const tstring& sArgs)
 			continue;
 
 		if (pStructure->FleetPoints() > 0)
-			m_pTeamInfo->AppendText(sprintf(pStructure->GetEntityName() + _T(": +%d\n"), pStructure->FleetPoints()));
+			m_pTeamInfo->AppendText(tsprintf(pStructure->GetEntityName() + _T(": +%d\n"), pStructure->FleetPoints()));
 	}
 
 	m_pTeamInfo->AppendText(_T(" \nFleet:\n"));
 	if (iScouts)
-		m_pTeamInfo->AppendText(sprintf(tstring("%d Rogues (%d): %d\n"), iScouts, CScout::ScoutFleetPoints(), iScouts*CScout::ScoutFleetPoints()));
+		m_pTeamInfo->AppendText(tsprintf(tstring("%d Rogues (%d): %d\n"), iScouts, CScout::ScoutFleetPoints(), iScouts*CScout::ScoutFleetPoints()));
 	if (iInfantry)
-		m_pTeamInfo->AppendText(sprintf(tstring("%d Resistors (%d): %d\n"), iInfantry, CMechInfantry::InfantryFleetPoints(), iInfantry*CMechInfantry::InfantryFleetPoints()));
+		m_pTeamInfo->AppendText(tsprintf(tstring("%d Resistors (%d): %d\n"), iInfantry, CMechInfantry::InfantryFleetPoints(), iInfantry*CMechInfantry::InfantryFleetPoints()));
 	if (iTanks)
-		m_pTeamInfo->AppendText(sprintf(tstring("%d Digitanks (%d): %d\n"), iTanks, CMainBattleTank::MainTankFleetPoints(), iTanks*CMainBattleTank::MainTankFleetPoints()));
+		m_pTeamInfo->AppendText(tsprintf(tstring("%d Digitanks (%d): %d\n"), iTanks, CMainBattleTank::MainTankFleetPoints(), iTanks*CMainBattleTank::MainTankFleetPoints()));
 	if (iArtillery)
-		m_pTeamInfo->AppendText(sprintf(tstring("%d Artillery (%d): %d\n"), iArtillery, CArtillery::ArtilleryFleetPoints(), iArtillery*CArtillery::ArtilleryFleetPoints()));
+		m_pTeamInfo->AppendText(tsprintf(tstring("%d Artillery (%d): %d\n"), iArtillery, CArtillery::ArtilleryFleetPoints(), iArtillery*CArtillery::ArtilleryFleetPoints()));
 
 	LayoutTeamInfo();
 }
@@ -4223,9 +4223,9 @@ void CHUD::ShowBandwidthInfoCallback(const tstring& sArgs)
 
 	if (pCurrentTeam->GetUpdateDownloading())
 	{
-		m_pTeamInfo->AppendText(sprintf(tstring("Downloading: %s\n"), pCurrentTeam->GetUpdateDownloading()->GetName().c_str()));
-		m_pTeamInfo->AppendText(sprintf(tstring("Progress: %.1f/%dmb (%d turns)\n"), pCurrentTeam->GetUpdateDownloaded(), (int)pCurrentTeam->GetUpdateSize(), pCurrentTeam->GetTurnsToDownload()));
-		m_pTeamInfo->AppendText(sprintf(tstring("Download rate: %.1fmb/turn\n \n"), pCurrentTeam->GetBandwidth()));
+		m_pTeamInfo->AppendText(tsprintf(tstring("Downloading: %s\n"), pCurrentTeam->GetUpdateDownloading()->GetName().c_str()));
+		m_pTeamInfo->AppendText(tsprintf(tstring("Progress: %.1f/%dmb (%d turns)\n"), pCurrentTeam->GetUpdateDownloaded(), (int)pCurrentTeam->GetUpdateSize(), pCurrentTeam->GetTurnsToDownload()));
+		m_pTeamInfo->AppendText(tsprintf(tstring("Download rate: %.1fmb/turn\n \n"), pCurrentTeam->GetBandwidth()));
 	}
 
 	for (size_t i = 0; i < pCurrentTeam->GetNumUnits(); i++)
@@ -4242,7 +4242,7 @@ void CHUD::ShowBandwidthInfoCallback(const tstring& sArgs)
 			continue;
 
 		if (pStructure->Bandwidth() > 0)
-			m_pTeamInfo->AppendText(sprintf(pStructure->GetEntityName() + _T(": +%.1fmb\n"), pStructure->Bandwidth()));
+			m_pTeamInfo->AppendText(tsprintf(pStructure->GetEntityName() + _T(": +%.1fmb\n"), pStructure->Bandwidth()));
 	}
 
 	LayoutTeamInfo();

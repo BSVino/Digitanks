@@ -72,14 +72,14 @@ void CCollector::UpdateInfo(tstring& s)
 	if (IsConstructing())
 	{
 		s += "(Constructing)\n";
-		s += sprintf(tstring("Turns left: %d\n"), GetTurnsRemainingToConstruct());
+		s += tsprintf(tstring("Turns left: %d\n"), GetTurnsRemainingToConstruct());
 		return;
 	}
 
 	if (GetSupplier() && m_hSupplyLine != NULL)
 	{
-		s += sprintf(tstring("Power: %.1f/turn\n"), GetPowerProduced());
-		s += sprintf(tstring("Efficiency: %d\n"), (int)(m_hSupplier->GetChildEfficiency() * m_hSupplyLine->GetIntegrity() * 100));
+		s += tsprintf(tstring("Power: %.1f/turn\n"), GetPowerProduced());
+		s += tsprintf(tstring("Efficiency: %d\n"), (int)(m_hSupplier->GetChildEfficiency() * m_hSupplyLine->GetIntegrity() * 100));
 		return;
 	}
 }
@@ -135,7 +135,7 @@ void CBattery::SetupMenu(menumode_t eMenuMode)
 		tstring s;
 		s += "UPGRADE TO POWER SUPPLY UNIT\n \n";
 		s += "Power Supply Units provide 2 additional Power per turn. Upgrading will make this structure inactive until the upgrade is complete.\n \n";
-		s += sprintf(tstring("Turns to upgrade: %d Turns\n \n"), GetTurnsToUpgrade());
+		s += tsprintf(tstring("Turns to upgrade: %d Turns\n \n"), GetTurnsToUpgrade());
 		s += "Shortcut: Q";
 
 		pHUD->SetButtonInfo(0, s);
@@ -166,21 +166,21 @@ void CBattery::UpdateInfo(tstring& s)
 	if (IsConstructing())
 	{
 		s += "(Constructing)\n";
-		s += sprintf(tstring("Turns left: %d\n"), GetTurnsRemainingToConstruct());
+		s += tsprintf(tstring("Turns left: %d\n"), GetTurnsRemainingToConstruct());
 		return;
 	}
 
 	if (IsUpgrading())
 	{
 		s += "(Upgrading to Power Supply Unit)\n";
-		s += sprintf(tstring("Turns left: %d\n"), GetTurnsRemainingToUpgrade());
+		s += tsprintf(tstring("Turns left: %d\n"), GetTurnsRemainingToUpgrade());
 		return;
 	}
 
 	if (m_hSupplier != NULL && m_hSupplyLine != NULL)
 	{
-		s += sprintf(tstring("Power Supplied: %.1f\n"), GetPowerProduced());
-		s += sprintf(tstring("Efficiency: %d\n"), (int)(m_hSupplier->GetChildEfficiency() * m_hSupplyLine->GetIntegrity() * 100));
+		s += tsprintf(tstring("Power Supplied: %.1f\n"), GetPowerProduced());
+		s += tsprintf(tstring("Efficiency: %d\n"), (int)(m_hSupplier->GetChildEfficiency() * m_hSupplyLine->GetIntegrity() * 100));
 		return;
 	}
 }

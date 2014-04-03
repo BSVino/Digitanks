@@ -667,7 +667,7 @@ void COverheadCamera::MouseInput(int x, int y)
 			angMissile.y += 360;
 
 		if (GameNetwork()->IsConnected() && !GameNetwork()->IsHost())
-			CGAng.RunCommand(sprintf(tstring("%d %f %f %f"), m_hCameraGuidedMissile->GetHandle(), angMissile.p, angMissile.y, angMissile.r));
+			CGAng.RunCommand(tsprintf(tstring("%d %f %f %f"), m_hCameraGuidedMissile->GetHandle(), angMissile.p, angMissile.y, angMissile.r));
 
 		m_hCameraGuidedMissile->SetViewAngles(angMissile);
 		m_hCameraGuidedMissile->SetGlobalAngles(angMissile);

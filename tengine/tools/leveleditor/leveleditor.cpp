@@ -433,7 +433,7 @@ void CLevelEditor::CreateEntityFromPanel(const Vector& vecPosition)
 	pNewEntity->SetParameterValue("Name", m_hCreateEntityPanel->m_hNameText->GetText());
 
 	pNewEntity->SetParameterValue("Model", m_hCreateEntityPanel->m_hModelText->GetText());
-	pNewEntity->SetParameterValue("Origin", sprintf("%f %f %f", vecPosition.x, vecPosition.y, vecPosition.z));
+	pNewEntity->SetParameterValue("Origin", tsprintf("%f %f %f", vecPosition.x, vecPosition.y, vecPosition.z));
 
 	PopulateLevelEntityFromPanel(pNewEntity, m_hCreateEntityPanel->m_hPropertiesPanel);
 

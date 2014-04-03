@@ -629,7 +629,7 @@ void CTerrain::GenerateTerrainCallList(int i, int j)
 		return;
 
 	if (terrain_debug.GetBool())
-		TMsg(sprintf(tstring("CTerrain::GenerateTerrainCallList(%d, %d)\n"), i, j));
+		TMsg(tsprintf(tstring("CTerrain::GenerateTerrainCallList(%d, %d)\n"), i, j));
 
 	tvector<CTerrainTriangle> avecPoints;
 	avecPoints.reserve(TERRAIN_CHUNK_SIZE*TERRAIN_CHUNK_SIZE);
@@ -938,7 +938,7 @@ void CTerrain::GenerateTerrainTexture(int i, int j)
 		return;
 
 	if (terrain_debug.GetBool())
-		TMsg(sprintf(tstring("CTerrain::GenerateTerrainTexture(%d, %d)\n"), i, j));
+		TMsg(tsprintf(tstring("CTerrain::GenerateTerrainTexture(%d, %d)\n"), i, j));
 
 	for (int a = 0; a < TERRAIN_CHUNK_TEXTURE_SIZE; a++)
 	{
@@ -1071,7 +1071,7 @@ void CTerrain::GenerateCallLists()
 	TMsg("Generating terrain call lists... ");
 
 	if (terrain_debug.GetBool())
-		TMsg(sprintf(tstring("CTerrain::GenerateCallLists()\n")));
+		TMsg(tsprintf(tstring("CTerrain::GenerateCallLists()\n")));
 
 	for (size_t i = 0; i < TERRAIN_CHUNKS; i++)
 	{
@@ -1193,7 +1193,7 @@ void CTerrain::ClearArea(Vector vecCenter, float flRadius)
 void CTerrain::CalculateVisibility()
 {
 	if (terrain_debug.GetBool())
-		TMsg(sprintf(tstring("CTerrain::CalculateVisibility()\n")));
+		TMsg(tsprintf(tstring("CTerrain::CalculateVisibility()\n")));
 
 	if (!DigitanksGame()->ShouldRenderFogOfWar())
 	{
@@ -1595,8 +1595,8 @@ float CTerrain::GetHeight(float flX, float flY)
 	float c = GetRealHeight(iX+1, iY);
 	float d = GetRealHeight(iX+1, iY+1);
 
-	float flXLerp = fmod(flX2, 1);
-	float flYLerp = fmod(flY2, 1);
+	float flXLerp = (float)fmod(flX2, 1);
+	float flYLerp = (float)fmod(flY2, 1);
 
 	float l1 = RemapVal(flYLerp, 0, 1, a, b);
 	float l2 = RemapVal(flYLerp, 0, 1, c, d);
@@ -2399,7 +2399,7 @@ void CTerrain::TerrainData(class CNetworkParameters* p)
 	size_t j = p->ui2;
 
 	if (terrain_debug.GetBool())
-		TMsg(sprintf(tstring("CTerrain::TerrainData(%d, %d)\n"), i, j));
+		TMsg(tsprintf(tstring("CTerrain::TerrainData(%d, %d)\n"), i, j));
 
 	size_t iPosition = 0;
 	float* flHeightData = (float*)p->m_pExtraData;
@@ -2450,7 +2450,7 @@ void CTerrain::TerrainData(class CNetworkParameters* p)
 		return;
 
 	if (terrain_debug.GetBool())
-		TMsg(sprintf(tstring("CTerrain::TerrainData(%d, %d) regenerating collision\n"), i, j));
+		TMsg(tsprintf(tstring("CTerrain::TerrainData(%d, %d) regenerating collision\n"), i, j));
 
 	int iXMin = (int)(TERRAIN_CHUNK_SIZE*i);
 	int iYMin = (int)(TERRAIN_CHUNK_SIZE*j);
@@ -2490,7 +2490,7 @@ void CTerrain::TerrainData(class CNetworkParameters* p)
 void CTerrain::ResyncClientTerrainData(int iClient)
 {
 	if (terrain_debug.GetBool())
-		TMsg(sprintf(tstring("CTerrain::ResyncClientTerrainData(%d)\n"), iClient));
+		TMsg(tsprintf(tstring("CTerrain::ResyncClientTerrainData(%d)\n"), iClient));
 
 	for (size_t i = 0; i < TERRAIN_CHUNKS; i++)
 	{

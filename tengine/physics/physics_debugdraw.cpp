@@ -107,7 +107,7 @@ void CPhysicsDebugDrawer::reportErrorWarning(const char* warningString)
 	if (!m_bDrawing)
 		return;
 
-	TMsg(sprintf(tstring("CPhysicsDebugDrawer: %s\n"), warningString));
+	TMsg(tsprintf("CPhysicsDebugDrawer: %s\n", warningString));
 }
 
 void CPhysicsDebugDrawer::drawContactPoint(const btVector3& pointOnB,const btVector3& normalOnB,btScalar distance,int lifeTime,const btVector3& color)

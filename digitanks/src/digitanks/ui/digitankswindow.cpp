@@ -25,8 +25,8 @@
 #include <renderer/renderer.h>
 #include <renderer/shaders.h>
 #include <renderer/game_renderingcontext.h>
+#include <glgui/rootpanel.h>
 
-#include "glgui/glgui.h"
 #include "digitanksgame.h"
 #include "digitankslevel.h"
 #include "hud.h"
@@ -127,10 +127,10 @@ CDigitanksWindow::CDigitanksWindow(int argc, char** argv)
 
 void CDigitanksWindow::OpenWindow()
 {
-	glgui::CLabel::AddFont("header", "fonts/header.ttf");
-	glgui::CLabel::AddFont("text", "fonts/text.ttf");
-	glgui::CLabel::AddFont("smileys", "fonts/smileys.ttf");
-	glgui::CLabel::AddFont("cameramissile", "fonts/cameramissile.ttf");
+	glgui::RootPanel()->AddFont("header", "fonts/header.ttf");
+	glgui::RootPanel()->AddFont("text", "fonts/text.ttf");
+	glgui::RootPanel()->AddFont("smileys", "fonts/smileys.ttf");
+	glgui::RootPanel()->AddFont("cameramissile", "fonts/cameramissile.ttf");
 
 	SetMultisampling(true);
 
@@ -169,7 +169,6 @@ void CDigitanksWindow::OpenWindow()
 
 	glgui::CRootPanel::Get()->AddControl(m_pHUD = CreateHUD());
 
-	glgui::CRootPanel::Get()->SetLighting(false);
 	glgui::CRootPanel::Get()->SetSize((float)GetWindowWidth(), (float)GetWindowHeight());
 	glgui::CRootPanel::Get()->Layout();
 
@@ -223,7 +222,7 @@ void CDigitanksWindow::RenderLoading()
 	glgui::CRootPanel::PaintTexture(m_hLoading, m_iWindowWidth/2 - 150, m_iWindowHeight/2 - 150, 300, 300);
 	glgui::CRootPanel::PaintTexture(GetLunarWorkshopLogo(), m_iWindowWidth-200-20, m_iWindowHeight - 200, 200, 200);
 
-	float flWidth = glgui::CLabel::GetTextWidth(m_sAction, m_sAction.length(), "text", 12);
+	float flWidth = glgui::RootPanel()->GetTextWidth(m_sAction, m_sAction.length(), "text", 12);
 	glgui::CLabel::PaintText(m_sAction, m_sAction.length(), "text", 12, (float)m_iWindowWidth/2 - flWidth/2, (float)m_iWindowHeight/2 + 170);
 
 	if (m_iTotalProgress)
