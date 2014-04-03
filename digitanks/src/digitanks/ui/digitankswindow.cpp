@@ -243,7 +243,6 @@ void CDigitanksWindow::RenderMouseCursor()
 
 	CRenderingContext c(GetRenderer(), true);
 
-	c.ClearColor();
 	c.ClearDepth();
 
 	c.SetProjection(Matrix4x4::ProjectOrthographic(0, m_iWindowWidth, m_iWindowHeight, 0, -1, 1));

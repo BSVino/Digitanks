@@ -686,7 +686,9 @@ void CDigitanksRenderer::RenderAvailableAreas()
 
 			CRenderingContext c(this, true);
 			c.UseFrameBuffer(&m_oVisibility1Buffer);
+			c.UseProgram("model");
 			c.ClearColor();
+
 			c.SetDepthMask(false);
 			c.SetDepthFunction(DF_GREATER);
 
@@ -699,6 +701,7 @@ void CDigitanksRenderer::RenderAvailableAreas()
 			c.SetColor(Color(0, 0, 0));
 			pDTEntity->RenderAvailableArea(j);
 
+			c.UseProgram("quad");
 			c.SetBlend(BLEND_BOTH);
 			c.SetColor(Color(255, 255, 255));
 			c.SetDepthTest(false);
