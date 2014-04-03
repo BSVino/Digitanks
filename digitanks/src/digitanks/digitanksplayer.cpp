@@ -10,6 +10,7 @@
 #include <ui/hud.h>
 #include <glgui/rootpanel.h>
 #include <sound/sound.h>
+#include <game/cameramanager.h>
 
 #include "units/digitank.h"
 #include "structures/structure.h"
@@ -1443,9 +1444,6 @@ void CDigitanksPlayer::KeyPress(int c)
 
 	TStubbed("KeyPress controls");
 #if 0
-	if (GameServer() && GameServer()->GetCamera())
-		GameServer()->GetCamera()->KeyDown(c);
-
 	if (c == ' ')
 	{
 		// Use m_iMouseInitialX to start tracking where teh spacebar was pressed so we can tell when it's released if it was dragged or not.
@@ -1554,9 +1552,6 @@ void CDigitanksPlayer::KeyRelease(int c)
 {
 	TStubbed("KeyRelease controls");
 #if 0
-	if (GameServer() && GameServer()->GetCamera())
-		GameServer()->GetCamera()->KeyUp(c);
-
 	if (c == ' ' && !IsMouseDragging())
 		DigitanksGame()->WeaponSpecialCommand();
 #endif

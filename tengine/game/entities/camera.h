@@ -1,5 +1,6 @@
 #pragma once
 
+#include <keys.h>
 #include <game/entities/baseentity.h>
 
 class CCamera : public CBaseEntity
@@ -22,6 +23,11 @@ public:
 	virtual float	GetCameraNear() const { return 1; }
 	virtual float	GetCameraFar() const { return 10000; }
 	virtual bool	ShouldRenderOrthographic() const { return m_bOrtho; }
+
+	virtual void MouseMotion(int x, int y, int dx, int dy) {}
+	virtual bool MouseInput(int iButton, tinker_mouse_state_t iState) { return false; };
+	virtual bool KeyDown(int c) { return false; }
+	virtual bool KeyUp(int c) { return false; }
 
 protected:
 	CEntityHandle<CBaseEntity>	m_hCameraTarget;

@@ -643,13 +643,11 @@ CLIENT_GAME_COMMAND(CGAng)
 	hMissile->SetGlobalAngles(angMissile);
 }
 
-void COverheadCamera::MouseInput(int x, int y)
+void COverheadCamera::MouseMotion(int x, int y, int dx, int dy)
 {
-	int dx, dy;
-
-	TUnimplemented();
 	if (m_hCameraGuidedMissile != NULL)
 	{
+		TUnimplemented();
 		EAngle angMissile = m_hCameraGuidedMissile->GetViewAngles();
 		angMissile.y += (dx/5.0f);
 		angMissile.p -= (dy/5.0f);
@@ -674,7 +672,8 @@ void COverheadCamera::MouseInput(int x, int y)
 	}
 	else if (m_bRotatingCamera)
 	{
-		m_angCamera.y += (dx/5.0f);
+		TUnimplemented();
+		m_angCamera.y += (dx / 5.0f);
 		m_angCamera.p += (dy/5.0f);
 
 		if (m_angCamera.p > 89)
@@ -700,7 +699,7 @@ void COverheadCamera::MouseInput(int x, int y)
 
 		flStrength *= DigitanksWindow()->ShouldReverseSpacebar()?-1:1;
 
-		Vector vecVelocity = mRotation * Vector((float)dy*flStrength, 0, (float)-dx*flStrength);
+		Vector vecVelocity = mRotation * Vector((float)dy*flStrength, (float)dx*flStrength, 0);
 
 		SetTarget(m_vecTarget + vecVelocity);
 
@@ -711,13 +710,13 @@ void COverheadCamera::MouseInput(int x, int y)
 		if (!m_bMouseDragLeft && x < 15 && !DigitanksGame()->IsFeatureDisabled(DISABLE_VIEW_MOVE))
 		{
 			m_bMouseDragLeft = true;
-			m_vecGoalVelocity.z = 80.0f;
+			m_vecGoalVelocity.y = -80.0f;
 		}
 
 		if (m_bMouseDragLeft && x > 15)
 		{
 			m_bMouseDragLeft = false;
-			m_vecGoalVelocity.z = 0;
+			m_vecGoalVelocity.y = 0;
 			DigitanksWindow()->GetInstructor()->FinishedLesson("mission-1-moveview");
 		}
 
@@ -737,13 +736,13 @@ void COverheadCamera::MouseInput(int x, int y)
 		if (!m_bMouseDragRight && x > DigitanksWindow()->GetWindowWidth()-15 && !DigitanksGame()->IsFeatureDisabled(DISABLE_VIEW_MOVE))
 		{
 			m_bMouseDragRight = true;
-			m_vecGoalVelocity.z = -80.0f;
+			m_vecGoalVelocity.y = 80.0f;
 		}
 
 		if (m_bMouseDragRight && x < DigitanksWindow()->GetWindowWidth()-15)
 		{
 			m_bMouseDragRight = false;
-			m_vecGoalVelocity.z = 0;
+			m_vecGoalVelocity.y = 0;
 			DigitanksWindow()->GetInstructor()->FinishedLesson("mission-1-moveview");
 		}
 
@@ -764,54 +763,98 @@ void COverheadCamera::MouseInput(int x, int y)
 		m_vecGoalVelocity = Vector(0,0,0);
 }
 
-void COverheadCamera::MouseButton(int iButton, int iState)
+bool COverheadCamera::MouseInput(int iButton, tinker_mouse_state_t iState)
 {
 	if (iButton == TINKER_KEY_MOUSE_RIGHT)
 	{
 		m_bRotatingCamera = !!iState;
+		return true;
 	}
+
+	return false;
 }
 
-void COverheadCamera::KeyDown(int c)
+bool COverheadCamera::KeyDown(int c)
 {
 	if (!DigitanksGame()->IsFeatureDisabled(DISABLE_VIEW_MOVE))
 	{
 		if (c == TINKER_KEY_UP)
+		{
 			m_vecGoalVelocity.x = -80.0f;
+			return true;
+		}
+
 		if (c == TINKER_KEY_DOWN)
+		{
 			m_vecGoalVelocity.x = 80.0f;
+			return true;
+		}
+
 		if (c == TINKER_KEY_RIGHT)
-			m_vecGoalVelocity.z = -80.0f;
+		{
+			m_vecGoalVelocity.y = 80.0f;
+			return true;
+		}
+
 		if (c == TINKER_KEY_LEFT)
-			m_vecGoalVelocity.z = 80.0f;
+		{
+			m_vecGoalVelocity.y = -80.0f;
+			return true;
+		}
 	}
 
 	if (c == ' ' && !m_hCameraGuidedMissile && !DigitanksGame()->IsFeatureDisabled(DISABLE_VIEW_MOVE))
+	{
 		m_bDraggingCamera = true;
+		return true;
+	}
 
 	if (c == TINKER_KEY_LSHIFT)
+	{
 		m_bFastDraggingCamera = true;
+		return true;
+	}
 
 	if (c == TINKER_KEY_PAGEUP)
+	{
 		ZoomIn();
+		return true;
+	}
+
 	if (c == TINKER_KEY_PAGEDOWN)
+	{
 		ZoomOut();
+		return true;
+	}
+
+	return false;
 }
 
-void COverheadCamera::KeyUp(int c)
+bool COverheadCamera::KeyUp(int c)
 {
-	if (c == TINKER_KEY_UP)
+	if (c == TINKER_KEY_UP || c == TINKER_KEY_DOWN)
+	{
 		m_vecGoalVelocity.x = 0.0f;
-	if (c == TINKER_KEY_DOWN)
-		m_vecGoalVelocity.x = 0.0f;
-	if (c == TINKER_KEY_RIGHT)
-		m_vecGoalVelocity.z = 0.0f;
-	if (c == TINKER_KEY_LEFT)
-		m_vecGoalVelocity.z = 0.0f;
+		return true;
+	}
+
+	if (c == TINKER_KEY_RIGHT || c == TINKER_KEY_LEFT)
+	{
+		m_vecGoalVelocity.y = 0.0f;
+		return true;
+	}
 
 	if (c == ' ')
+	{
 		m_bDraggingCamera = false;
+		return true;
+	}
 
 	if (c == TINKER_KEY_LSHIFT)
+	{
 		m_bFastDraggingCamera = false;
+		return true;
+	}
+
+	return false;
 }

@@ -5,6 +5,7 @@
 #include <tvector.h>
 #include <matrix.h>
 
+#include <keys.h>
 #include <game/entityhandle.h>
 
 class CCamera;
@@ -38,10 +39,10 @@ public:
 	EAngle			GetFreeCameraAngles() const { return m_angFreeCamera; };
 	float			GetFreeCameraOrthoHeight() const { return m_flFreeOrthoHeight; };
 
-	virtual void	MouseInput(int x, int y);
-	virtual bool	MouseButton(int iButton, int iState) { return false; };
-	virtual bool	KeyDown(int c);
-	virtual bool	KeyUp(int c);
+	virtual void MouseMotion(int x, int y, int dx, int dy);
+	virtual bool MouseInput(int iButton, tinker_mouse_state_t iState);
+	virtual bool KeyDown(int c);
+	virtual bool KeyUp(int c);
 
 	void			AddCamera(CCamera* pCamera);
 	void			RemoveCamera(CCamera* pCamera);
@@ -59,9 +60,6 @@ public:
 	EAngle			m_angFreeCamera;
 	TVector			m_vecFreeVelocity;
 	float			m_flFreeOrthoHeight;
-
-	int				m_iMouseLastX;
-	int				m_iMouseLastY;
 
 	tvector<CEntityHandle<CCamera>>	m_ahCameras;
 	size_t			m_iCurrentCamera;

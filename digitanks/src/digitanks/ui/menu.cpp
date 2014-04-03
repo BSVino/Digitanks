@@ -1317,7 +1317,7 @@ COptionsPanel::COptionsPanel()
 	m_pReverseSpacebar->SetClickedListener(this, ReverseSpacebarChanged);
 	m_pReverseSpacebar->SetUnclickedListener(this, ReverseSpacebarChanged);
 
-	m_pReverseSpacebarLabel = AddControl(new CLabel(0, 0, 100, 100, _T("Reverse spacebar drag")));
+	m_pReverseSpacebarLabel = AddControl(new CLabel(0, 0, 100, 100, _T("Invert spacebar drag")));
 	m_pReverseSpacebarLabel->SetFont(_T("text"));
 
 	m_pClose = AddControl(new CButton(0, 0, 100, 100, _T("X")));
@@ -1394,7 +1394,7 @@ void COptionsPanel::Layout()
 	m_pReverseSpacebarLabel->EnsureTextFits();
 	m_pReverseSpacebarLabel->SetPos(GetWidth()/2 - m_pReverseSpacebarLabel->GetWidth()/2 + 10 + 40, GetHeight()-70);
 	m_pReverseSpacebar->SetPos(m_pReverseSpacebarLabel->GetLeft() - 15, GetHeight()-70 + m_pReverseSpacebarLabel->GetHeight()/2 - m_pReverseSpacebar->GetHeight()/2);
-	m_pReverseSpacebar->SetState(DigitanksWindow()->ShouldReverseSpacebar(), false);
+	m_pReverseSpacebar->SetState(!DigitanksWindow()->ShouldReverseSpacebar(), false);
 
 	BaseClass::Layout();
 
@@ -1470,7 +1470,7 @@ void COptionsPanel::ContextualChangedCallback(const tstring& sArgs)
 
 void COptionsPanel::ReverseSpacebarChangedCallback(const tstring& sArgs)
 {
-	DigitanksWindow()->SetReverseSpacebar(m_pReverseSpacebar->GetState());
+	DigitanksWindow()->SetReverseSpacebar(!m_pReverseSpacebar->GetState());
 	DigitanksWindow()->SaveConfig();
 }
 

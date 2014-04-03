@@ -390,23 +390,32 @@ void CGameWindow::MouseMotion(int x, int y)
 		return;
 	}
 
+	int dx = 0;
+	int dy = 0;
+
+	if (m_bHaveLastMouse)
+	{
+		dx = x - m_iLastMouseX;
+		dy = y - m_iLastMouseY;
+	}
+
 	BaseClass::MouseMotion(x, y);
 
 	if (CWorkbench::IsActive())
 		Workbench()->MouseMotion(x, y);
 
-	if (GameServer() && GameServer()->GetCameraManager())
-		GameServer()->GetCameraManager()->MouseInput(x, y);
-
-	if (Game() && m_bHaveLastMouse)
+	if (m_bHaveLastMouse)
 	{
-		int dx = x - m_iLastMouseX;
-		int dy = y - m_iLastMouseY;
+		if (GameServer() && GameServer()->GetCameraManager())
+			GameServer()->GetCameraManager()->MouseMotion(x, y, dx, dy);
 
-		for (size_t i = 0; i < Game()->GetNumLocalPlayers(); i++)
+		if (Game() && m_bHaveLastMouse)
 		{
-			CPlayer* pPlayer = Game()->GetLocalPlayer(i);
-			pPlayer->MouseMotion(dx, dy);
+			for (size_t i = 0; i < Game()->GetNumLocalPlayers(); i++)
+			{
+				CPlayer* pPlayer = Game()->GetLocalPlayer(i);
+				pPlayer->MouseMotion(dx, dy);
+			}
 		}
 	}
 
@@ -428,7 +437,7 @@ bool CGameWindow::MouseInput(int iButton, tinker_mouse_state_t iState)
 
 	if (GameServer() && GameServer()->GetCameraManager())
 	{
-		if (GameServer()->GetCameraManager()->MouseButton(iButton, iState))
+		if (GameServer()->GetCameraManager()->MouseInput(iButton, iState))
 			return true;
 	}
 

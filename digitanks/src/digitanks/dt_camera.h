@@ -46,10 +46,10 @@ public:
 
 	virtual Vector	GetTankFollowPosition(class CDigitank* pTank);
 
-	virtual void	MouseInput(int x, int y);
-	virtual void	MouseButton(int iButton, int iState);
-	virtual void	KeyDown(int c);
-	virtual void	KeyUp(int c);
+	virtual void MouseMotion(int x, int y, int dx, int dy);
+	virtual bool MouseInput(int iButton, tinker_mouse_state_t iState);
+	virtual bool KeyDown(int c);
+	virtual bool KeyUp(int c);
 
 public:
 	Vector			m_vecOldTarget;

@@ -17,9 +17,6 @@ CCameraManager::CCameraManager()
 	m_bFreeMode = false;
 	m_bPermaFreeMode = false;
 
-	m_iMouseLastX = 0;
-	m_iMouseLastY = 0;
-
 	m_flTransitionBegin = 0;
 }
 
@@ -316,13 +313,8 @@ void CCameraManager::SetPermaFreeMode(bool bPerma)
 	}
 }
 
-void CCameraManager::MouseInput(int x, int y)
+void CCameraManager::MouseMotion(int x, int y, int dx, int dy)
 {
-	int dx, dy;
-
-	dx = x - m_iMouseLastX;
-	dy = y - m_iMouseLastY;
-
 	if (m_bFreeMode)
 	{
 		m_angFreeCamera.y -= (dx/5.0f);
@@ -341,8 +333,19 @@ void CCameraManager::MouseInput(int x, int y)
 			m_angFreeCamera.y += 360;
 	}
 
-	m_iMouseLastX = x;
-	m_iMouseLastY = y;
+	if (GetActiveCamera())
+		GetActiveCamera()->MouseMotion(x, y, dx, dy);
+}
+
+bool CCameraManager::MouseInput(int iButton, tinker_mouse_state_t iState)
+{
+	if (GetActiveCamera())
+	{
+		if (GetActiveCamera()->MouseInput(iButton, iState))
+			return true;
+	}
+
+	return false;
 }
 
 CVar lock_freemode_frustum("debug_lock_freemode_frustum", "no");
@@ -403,6 +406,12 @@ bool CCameraManager::KeyDown(int c)
 		}
 	}
 
+	if (GetActiveCamera())
+	{
+		if (GetActiveCamera()->KeyDown(c))
+			return true;
+	}
+
 	return false;
 }
 
@@ -445,6 +454,12 @@ bool CCameraManager::KeyUp(int c)
 			m_vecFreeVelocity.z = 0.0f;
 			return true;
 		}
+	}
+
+	if (GetActiveCamera())
+	{
+		if (GetActiveCamera()->KeyUp(c))
+			return true;
 	}
 
 	return false;

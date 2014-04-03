@@ -79,7 +79,7 @@ CDigitanksWindow::CDigitanksWindow(int argc, char** argv)
 		m_bConstrainMouse = c.read<bool>("constrainmouse", true);
 
 		m_bContextualCommands = c.read<bool>("contextualcommands", false);
-		m_bReverseSpacebar = c.read<bool>("reversespacebar", false);
+		m_bReverseSpacebar = c.read<bool>("reversespacebar", true);
 
 		SetSoundVolume(c.read<float>("soundvolume", 0.8f));
 		SetMusicVolume(c.read<float>("musicvolume", 0.8f));
@@ -98,7 +98,7 @@ CDigitanksWindow::CDigitanksWindow(int argc, char** argv)
 		m_bConstrainMouse = true;
 
 		m_bContextualCommands = false;
-		m_bReverseSpacebar = false;
+		m_bReverseSpacebar = true;
 
 		SetSoundVolume(0.8f);
 		SetMusicVolume(0.8f);

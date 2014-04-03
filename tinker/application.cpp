@@ -764,6 +764,9 @@ tinker_keys_t MapScancode(SDL_Scancode c)
 	if (c == SDL_SCANCODE_0)
 		return (tinker_keys_t)'0';
 
+	if (c == SDL_SCANCODE_SPACE)
+		return (tinker_keys_t)' ';
+
 	return TINKER_KEY_UNKNOWN;
 }
 
