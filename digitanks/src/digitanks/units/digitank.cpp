@@ -3156,18 +3156,15 @@ EAngle CDigitank::GetRenderAngles() const
 	return GetGlobalAngles();
 }
 
-void CDigitank::ModifyContext(CRenderingContext* pContext) const
+bool CDigitank::ModifyShader(CRenderingContext* pContext) const
 {
-	BaseClass::ModifyContext(pContext);
+	if (GetPlayerOwner() && pContext->GetActiveShader())
+	{
+		pContext->SetUniform("bColorSwapInAlpha", true);
+		pContext->SetUniform("vecColorSwap", GetPlayerOwner()->GetColor());
+	}
 
-	if (!GetPlayerOwner())
-		return;
-
-	if (!pContext->GetActiveShader())
-		return;
-
-	pContext->SetUniform("bColorSwapInAlpha", true);
-	pContext->SetUniform("vecColorSwap", GetPlayerOwner()->GetColor());
+	return BaseClass::ModifyShader(pContext);
 }
 
 void CDigitank::OnRender(class CGameRenderingContext* pContext) const

@@ -268,7 +268,7 @@ public:
 	virtual void				PreRender() const;
 	virtual Vector				GetRenderOrigin() const;
 	virtual EAngle				GetRenderAngles() const;
-	virtual void				ModifyContext(class CRenderingContext* pContext) const;
+	virtual bool				ModifyShader(class CRenderingContext* pContext) const;
 	virtual void				OnRender(class CGameRenderingContext* pContext) const;
 	virtual void				RenderTurret(float flAlpha = 1.0f) const;
 	virtual void				RenderShield() const;

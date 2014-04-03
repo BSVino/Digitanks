@@ -275,6 +275,8 @@ void CRenderingContext::SetDepthFunction(depth_function_t eDepthFunction)
 		glDepthFunc(GL_LEQUAL);
 	else if (eDepthFunction == DF_LESS)
 		glDepthFunc(GL_LESS);
+	else if (eDepthFunction == DF_GREATER)
+		glDepthFunc(GL_GREATER);
 	else
 		TUnimplemented();
 
