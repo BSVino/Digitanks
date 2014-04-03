@@ -128,7 +128,7 @@ void CSceneTree::Paint(float x, float y, float w, float h)
 
 	if (m_iHilighted != ~0)
 	{
-		CControlHandle pNode = m_apControls[m_iHilighted];
+		CControlHandle pNode = m_ahAllNodes[m_iHilighted];
 		float cx, cy, cw, ch;
 		pNode->GetAbsDimensions(cx, cy, cw, ch);
 		glgui::CRootPanel::PaintRect(cx+ch, cy, ch, ch, Color(255, 255, 255, 100));

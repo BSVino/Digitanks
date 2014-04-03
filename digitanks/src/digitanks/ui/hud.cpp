@@ -198,7 +198,7 @@ CHUD::CHUD()
 
 	for (size_t i = 0; i < NUM_BUTTONS; i++)
 	{
-		m_apButtons[i] = AddControl(new CPictureButton(_T("")));
+		m_apButtons[i] = m_pButtonPanel->AddControl(new CPictureButton(_T("")));
 		m_apButtons[i]->SetCursorOutListener(this, ButtonCursorOut);
 	}
 
@@ -1656,7 +1656,7 @@ void CHUD::Paint(float x, float y, float w, float h)
 			if (pTeam->IsHumanControlled())
 				sTeamName = tstring(_T("[")) + sTeamName + _T("]");
 
-			CLabel::PaintText(sTeamName, sTeamName.length(), _T("text"), 13, (float)w - RootPanel()->GetTextWidth(sTeamName, sTeamName.length(), _T("text"), 13) - 20, 50 + (float)i * 40);
+			CLabel::PaintText(sTeamName, sTeamName.length(), _T("text"), 13, (float)w - RootPanel()->GetTextWidth(sTeamName, sTeamName.length(), _T("text"), 13) - 20, 50 - RootPanel()->GetFontHeight("text", 13) + (float)i * 40, clrTeam);
 
 			int iTank = 0;
 			for (tmap<size_t, CEntityHandle<CDigitank> >::iterator it = ahTeamTanks.begin(); it != ahTeamTanks.end(); it++)
@@ -2803,8 +2803,8 @@ void CHUD::NewCurrentSelection()
 			Vector vecCamera = AngleVector(angCamera) * flDistance + vecTarget;
 
 			Vector vecHit;
-			CBaseEntity* pHit;
-			TUnimplemented();
+			CBaseEntity* pHit = nullptr;
+			TStubbed("NewCurrentSelection traceline");
 //			Game()->TraceLine(vecCamera, vecTarget, vecHit, &pHit);
 			if (pHit == DigitanksGame()->GetPrimarySelection())
 				break;

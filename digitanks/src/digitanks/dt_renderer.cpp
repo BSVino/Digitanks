@@ -312,7 +312,11 @@ void CDigitanksRenderer::RenderPreviewModes()
 	if (pCurrentTank)
 	{
 		vecPreviewMove = pCurrentTank->GetPreviewMove();
-		vecPreviewDirection = (vecPreviewMove - pCurrentTank->GetGlobalOrigin()).Normalized();
+
+		if ((vecPreviewMove - pCurrentTank->GetGlobalOrigin()).LengthSqr() == 0)
+			vecPreviewDirection = Vector(0, 0, 0);
+		else
+			vecPreviewDirection = (vecPreviewMove - pCurrentTank->GetGlobalOrigin()).Normalized();
 	}
 
 	if (!pTeam)
