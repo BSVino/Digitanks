@@ -13,10 +13,6 @@ include_directories (
 	${CMAKE_SOURCE_DIR}/digitanks/src/digitanks/
 )
 
-if(WIN32)
-	include_directories(${CMAKE_SOURCE_DIR}/ext-deps/glfw/include)
-endif(WIN32)
-
 set (DIGITANKS_SOURCES
 	main.cpp
 
@@ -107,9 +103,6 @@ source_group(Weapons FILES ${DIGITANKS_WEAPONS_SOURCES})
 source_group(UI FILES ${DIGITANKS_UI_SOURCES})
 
 set (DIGITANKS_EXECUTABLE digitanks)
-if (DEMO)
-	set (DIGITANKS_EXECUTABLE digitanksdemo)
-endif (DEMO)
 
 add_executable (${DIGITANKS_EXECUTABLE} WIN32 ${DIGITANKS_SOURCES} ${DIGITANKS_CAMPAIGN_SOURCES} ${DIGITANKS_STRUCTURES_SOURCES} ${DIGITANKS_UNITS_SOURCES} ${DIGITANKS_WEAPONS_SOURCES} ${DIGITANKS_UI_SOURCES})
 target_link_libraries (${DIGITANKS_EXECUTABLE} tinker tengine)

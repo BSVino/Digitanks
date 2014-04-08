@@ -277,6 +277,8 @@ void CRenderingContext::SetDepthFunction(depth_function_t eDepthFunction)
 		glDepthFunc(GL_LESS);
 	else if (eDepthFunction == DF_GREATER)
 		glDepthFunc(GL_GREATER);
+	else if (eDepthFunction == DF_NEVER)
+		glDepthFunc(GL_NEVER);
 	else
 		TUnimplemented();
 
@@ -333,7 +335,7 @@ void CRenderingContext::RenderSphere()
 		int iRows = 8;
 		int iColumns = 16;
 
-		for (int i = 0; i < iRows+1; i++)
+		for (int i = 0; i < iRows; i++)
 		{
 			// A row.
 			for (int j = 0; j < iColumns; j++)

@@ -299,7 +299,7 @@ void CShaderLibrary::WriteLog(const tstring& sFile, const char* pszLog, const ch
 
 	tstring sLogFile = Application()->GetAppDataDirectory("shaders.txt");
 
-	TMsg(tsprintf("Log file location: %s", sLogFile.c_str()));
+	TMsg(tsprintf("Log file location: %s\n", sLogFile.c_str()));
 
 	if (m_bLogNeedsClearing)
 	{

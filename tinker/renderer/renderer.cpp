@@ -177,7 +177,7 @@ void CRenderer::LoadShaders()
 void CRenderer::ViewportResize(size_t w, size_t h)
 {
 	m_oSceneBuffer.Destroy();
-	m_oSceneBuffer = CreateFrameBuffer("scene", w, h, (fb_options_e)(FB_TEXTURE|FB_DEPTH|FB_MULTISAMPLE));
+	m_oSceneBuffer = CreateFrameBuffer("scene", w, h, (fb_options_e)(FB_TEXTURE|FB_DEPTH_TEXTURE|FB_MULTISAMPLE));
 
 	if (m_iScreenSamples)
 	{
@@ -289,11 +289,6 @@ CFrameBuffer CRenderer::CreateFrameBuffer(const tstring& sName, size_t iWidth, s
 		glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT24, (GLsizei)iWidth, (GLsizei)iHeight, 0, GL_DEPTH_COMPONENT, GL_UNSIGNED_BYTE, NULL);
 		glBindTexture(GL_TEXTURE_2D, 0);
 	}
-	else if (eOptions&FB_SCENE_DEPTH)
-	{
-		glBindFramebuffer(GL_FRAMEBUFFER, (GLuint)oBuffer.m_iFB);
-		glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, (GLuint)m_oSceneBuffer.m_iDepth);
-	}
 
 	glGenFramebuffers(1, &oBuffer.m_iFB);
 	glBindFramebuffer(GL_FRAMEBUFFER, (GLuint)oBuffer.m_iFB);
@@ -305,6 +300,21 @@ CFrameBuffer CRenderer::CreateFrameBuffer(const tstring& sName, size_t iWidth, s
 		glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, (GLuint)oBuffer.m_iDepth);
 	else if (eOptions&FB_DEPTH_TEXTURE)
 		glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, (GLuint)oBuffer.m_iDepthTexture, 0);
+	else if (eOptions&FB_SCENE_DEPTH)
+	{
+		if (m_oSceneBuffer.m_iDepth)
+		{
+			glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, (GLuint)m_oSceneBuffer.m_iDepth);
+			oBuffer.m_iDepth = m_oSceneBuffer.m_iDepth;
+		}
+		else if (m_oSceneBuffer.m_iDepthTexture)
+		{
+			glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, (GLuint)m_oSceneBuffer.m_iDepthTexture, 0);
+			oBuffer.m_iDepthTexture = m_oSceneBuffer.m_iDepthTexture;
+		}
+		else
+			TUnimplemented();
+	}
 
 	GLenum status = glCheckFramebufferStatus(GL_FRAMEBUFFER);
 	if (status != GL_FRAMEBUFFER_COMPLETE)
@@ -531,6 +541,8 @@ void CRenderer::RenderOffscreenBuffers(class CRenderingContext*)
 }
 
 CVar r_bloom_buffer("r_bloom_buffer", "-1");
+CVar r_show_depth("r_show_depth", "0");
+CVar r_show_depth_scale("r_show_depth_scale", "0.99");
 
 void CRenderer::RenderFullscreenBuffers(class CRenderingContext*)
 {
@@ -564,6 +576,16 @@ void CRenderer::RenderFullscreenBuffers(class CRenderingContext*)
 			for (size_t i = 0; i < BLOOM_FILTERS; i++)
 				RenderFrameBufferFullscreen(&m_oBloom1Buffers[i]);
 		}
+	}
+
+	if (r_show_depth.GetBool())
+	{
+		CRenderingContext c(this);
+
+		c.UseProgram("depth");
+		c.SetUniform("flScale", r_show_depth_scale.GetFloat());
+
+		RenderMapFullscreen(m_oSceneBuffer.m_iDepthTexture);
 	}
 }
 
@@ -1339,8 +1361,21 @@ void CRenderer::WriteTextureToFile(Color* pclrData, int w, int h, tstring sFilen
 void R_DumpFBO(class CCommand*, tvector<tstring>& asTokens, const tstring&)
 {
 	size_t iFBO = 0;
+
 	if (asTokens.size() > 1)
-		iFBO = stoi(asTokens[1]);
+	{
+		for (auto& oBuffer : CFrameBuffer::GetFrameBuffers())
+		{
+			if (oBuffer.m_sName == asTokens[1])
+			{
+				iFBO = oBuffer.m_iFB;
+				break;
+			}
+		}
+
+		if (!iFBO)
+			iFBO = stoi(asTokens[1]);
+	}
 
 	int aiViewport[4];
 	glGetIntegerv( GL_VIEWPORT, aiViewport );
@@ -1375,7 +1410,7 @@ void R_DumpFBO(class CCommand*, tvector<tstring>& asTokens, const tstring&)
 			std::swap(aclrPixels[j*iWidth + i], aclrPixels[iWidth*(iHeight-j-1) + i]);
 	}
 
-	CRenderer::WriteTextureToFile(aclrPixels.data(), iWidth, iHeight, tsprintf("fbo-%d.png", iFBO));
+	CRenderer::WriteTextureToFile(aclrPixels.data(), iWidth, iHeight, Application()->GetAppDataDirectory(tsprintf("fbo-%d.png", iFBO)));
 }
 
 CCommand r_dumpfbo(tstring("r_dumpfbo"), ::R_DumpFBO);
@@ -1392,3 +1427,10 @@ void R_ListFBOs(class CCommand*, tvector<tstring>&, const tstring&)
 }
 
 CCommand r_listfbos(tstring("r_listfbos"), ::R_ListFBOs);
+
+void R_DumpDepth(class CCommand*, tvector<tstring>& asTokens, const tstring&)
+{
+	CRenderer::WriteTextureToFile(Application()->GetRenderer()->GetSceneBuffer()->m_iDepthTexture, Application()->GetAppDataDirectory("fbo-depth.png"));
+}
+
+CCommand r_dumpdepth(tstring("r_dumpdepth"), ::R_DumpDepth);

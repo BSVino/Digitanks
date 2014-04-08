@@ -18,6 +18,9 @@
 
 CDigitanksRenderer::CDigitanksRenderer()
 	: CGameRenderer(DigitanksWindow()->GetWindowWidth(), DigitanksWindow()->GetWindowHeight()),
+#ifdef _DEBUG
+	m_oDebugBuffer("debug"),
+#endif
 	m_oExplosionBuffer("explosion"), m_oVisibility1Buffer("vis1"), m_oVisibility2Buffer("vis2"),
 	m_oVisibilityMaskedBuffer("vismasked"), m_oAvailableAreaBuffer("availablearea")
 {
@@ -45,6 +48,10 @@ void CDigitanksRenderer::Initialize()
 	m_oVisibility2Buffer = CreateFrameBuffer("vis2", m_iViewportWidth, m_iViewportHeight, (fb_options_e)(FB_TEXTURE));
 	m_oVisibilityMaskedBuffer = CreateFrameBuffer("vismasked", m_iViewportWidth, m_iViewportHeight, (fb_options_e)(FB_TEXTURE | FB_SCENE_DEPTH));
 	m_oAvailableAreaBuffer = CreateFrameBuffer("availablearea", m_iViewportWidth, m_iViewportHeight, (fb_options_e)(FB_TEXTURE));
+
+#ifdef _DEBUG
+	m_oDebugBuffer = CreateFrameBuffer("debug", m_iViewportWidth, m_iViewportHeight, (fb_options_e)(FB_TEXTURE));
+#endif
 
 	m_hNoise = CTextureLibrary::AddTexture("textures/noise.png");
 
@@ -686,7 +693,7 @@ void CDigitanksRenderer::RenderAvailableAreas()
 
 			CRenderingContext c(this, true);
 			c.UseFrameBuffer(&m_oVisibility1Buffer);
-			c.UseProgram("model");
+			c.UseProgram("volume");
 			c.ClearColor();
 
 			c.SetDepthMask(false);
@@ -694,11 +701,11 @@ void CDigitanksRenderer::RenderAvailableAreas()
 
 			// Render this guy's visibility volume to the first buffer
 			c.SetCullFace(CF_FRONT);
-			c.SetColor(Color(255, 255, 255));
+			c.SetUniform("vecColor", Color(255, 255, 255));
 			pDTEntity->RenderAvailableArea(j);
 
 			c.SetCullFace(CF_BACK);
-			c.SetColor(Color(0, 0, 0));
+			c.SetUniform("vecColor", Color(0, 0, 0));
 			pDTEntity->RenderAvailableArea(j);
 
 			c.UseProgram("quad");
@@ -796,6 +803,10 @@ void CDigitanksRenderer::RenderOffscreenBuffers(class CRenderingContext* pContex
 	BaseClass::RenderOffscreenBuffers(pContext);
 }
 
+#ifdef _DEBUG
+CVar r_show_debug("r_show_debug", "0");
+#endif
+
 static float g_flBloomPulseLength = 0.5f;
 void CDigitanksRenderer::RenderFullscreenBuffers(class CRenderingContext* pContext)
 {
@@ -820,6 +831,11 @@ void CDigitanksRenderer::RenderFullscreenBuffers(class CRenderingContext* pConte
 #endif
 
 	BaseClass::RenderFullscreenBuffers(pContext);
+
+#ifdef _DEBUG
+	if (r_show_debug.GetBool())
+		RenderFrameBufferFullscreen(&m_oDebugBuffer);
+#endif
 }
 
 float CDigitanksRenderer::BloomBrightnessCutoff() const

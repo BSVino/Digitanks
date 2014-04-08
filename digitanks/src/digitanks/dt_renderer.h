@@ -47,6 +47,10 @@ protected:
 	CFrameBuffer	m_oVisibilityMaskedBuffer;
 	CFrameBuffer	m_oAvailableAreaBuffer;
 
+#ifdef _DEBUG
+	CFrameBuffer    m_oDebugBuffer;
+#endif
+
 	CTextureHandle  m_hNoise;
 	CTextureHandle  m_hVignetting;
 
