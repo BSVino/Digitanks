@@ -337,47 +337,47 @@ void CGameRenderer::SetSkybox(const CTextureHandle& ft, const CTextureHandle& bk
 	m_avecSkyboxTexCoords[4] = Vector2D(1, 1);
 	m_avecSkyboxTexCoords[5] = Vector2D(0, 1);
 
-	m_avecSkyboxFT[0] = Vector(100, -100, -100);
-	m_avecSkyboxFT[1] = Vector(100, -100, 100);
-	m_avecSkyboxFT[2] = Vector(100, 100, 100);
-	m_avecSkyboxFT[3] = Vector(100, -100, -100);
-	m_avecSkyboxFT[4] = Vector(100, 100, 100);
-	m_avecSkyboxFT[5] = Vector(100, 100, -100);
+	m_avecSkyboxFT[0] = Vector(100, 100, -100);
+	m_avecSkyboxFT[1] = Vector(100, -100, -100);
+	m_avecSkyboxFT[2] = Vector(100, -100, 100);
+	m_avecSkyboxFT[3] = Vector(100, 100, -100);
+	m_avecSkyboxFT[4] = Vector(100, -100, 100);
+	m_avecSkyboxFT[5] = Vector(100, 100, 100);
 
-	m_avecSkyboxBK[0] = Vector(-100, -100, 100);
-	m_avecSkyboxBK[1] = Vector(-100, -100, -100);
-	m_avecSkyboxBK[2] = Vector(-100, 100, -100);
-	m_avecSkyboxBK[3] = Vector(-100, -100, 100);
-	m_avecSkyboxBK[4] = Vector(-100, 100, -100);
-	m_avecSkyboxBK[5] = Vector(-100, 100, 100);
+	m_avecSkyboxBK[0] = Vector(-100, -100, -100);
+	m_avecSkyboxBK[1] = Vector(-100, 100, -100);
+	m_avecSkyboxBK[2] = Vector(-100, 100, 100);
+	m_avecSkyboxBK[3] = Vector(-100, -100, -100);
+	m_avecSkyboxBK[4] = Vector(-100, 100, 100);
+	m_avecSkyboxBK[5] = Vector(-100, -100, 100);
 
-	m_avecSkyboxLF[0] = Vector(-100, -100, -100);
-	m_avecSkyboxLF[1] = Vector(100, -100, -100);
-	m_avecSkyboxLF[2] = Vector(100, 100, -100);
-	m_avecSkyboxLF[3] = Vector(-100, -100, -100);
-	m_avecSkyboxLF[4] = Vector(100, 100, -100);
-	m_avecSkyboxLF[5] = Vector(-100, 100, -100);
+	m_avecSkyboxLF[0] = Vector(-100, 100, -100);
+	m_avecSkyboxLF[1] = Vector(100, 100, -100);
+	m_avecSkyboxLF[2] = Vector(100, 100, 100);
+	m_avecSkyboxLF[3] = Vector(-100, 100, -100);
+	m_avecSkyboxLF[4] = Vector(100, 100, 100);
+	m_avecSkyboxLF[5] = Vector(-100, 100, 100);
 
-	m_avecSkyboxRT[0] = Vector(100, -100, 100);
-	m_avecSkyboxRT[1] = Vector(-100, -100, 100);
-	m_avecSkyboxRT[2] = Vector(-100, 100, 100);
-	m_avecSkyboxRT[3] = Vector(100, -100, 100);
-	m_avecSkyboxRT[4] = Vector(-100, 100, 100);
-	m_avecSkyboxRT[5] = Vector(100, 100, 100);
+	m_avecSkyboxRT[0] = Vector(100, -100, -100);
+	m_avecSkyboxRT[1] = Vector(-100, -100, -100);
+	m_avecSkyboxRT[2] = Vector(-100, -100, 100);
+	m_avecSkyboxRT[3] = Vector(100, -100, -100);
+	m_avecSkyboxRT[4] = Vector(-100, -100, 100);
+	m_avecSkyboxRT[5] = Vector(100, -100, 100);
 
-	m_avecSkyboxUP[0] = Vector(100, 100, -100);
-	m_avecSkyboxUP[1] = Vector(100, 100, 100);
-	m_avecSkyboxUP[2] = Vector(-100, 100, 100);
-	m_avecSkyboxUP[3] = Vector(100, 100, -100);
-	m_avecSkyboxUP[4] = Vector(-100, 100, 100);
-	m_avecSkyboxUP[5] = Vector(-100, 100, -100);
+	m_avecSkyboxUP[0] = Vector(100, 100, 100);
+	m_avecSkyboxUP[1] = Vector(100, -100, 100);
+	m_avecSkyboxUP[2] = Vector(-100, -100, 100);
+	m_avecSkyboxUP[3] = Vector(100, 100, 100);
+	m_avecSkyboxUP[4] = Vector(-100, -100, 100);
+	m_avecSkyboxUP[5] = Vector(-100, 100, 100);
 
-	m_avecSkyboxDN[0] = Vector(-100, -100, -100);
-	m_avecSkyboxDN[1] = Vector(-100, -100, 100);
-	m_avecSkyboxDN[2] = Vector(100, -100, 100);
-	m_avecSkyboxDN[3] = Vector(-100, -100, -100);
-	m_avecSkyboxDN[4] = Vector(100, -100, 100);
-	m_avecSkyboxDN[5] = Vector(100, -100, -100);
+	m_avecSkyboxDN[0] = Vector(-100, 100, -100);
+	m_avecSkyboxDN[1] = Vector(-100, -100, -100);
+	m_avecSkyboxDN[2] = Vector(100, -100, -100);
+	m_avecSkyboxDN[3] = Vector(-100, 100, -100);
+	m_avecSkyboxDN[4] = Vector(100, -100, -100);
+	m_avecSkyboxDN[5] = Vector(100, 100, -100);
 }
 
 void CGameRenderer::DisableSkybox()
