@@ -672,7 +672,7 @@ void COverheadCamera::MouseMotion(int x, int y, int dx, int dy)
 	}
 	else if (m_bRotatingCamera)
 	{
-		m_angCamera.y += (dx/5.0f);
+		m_angCamera.y -= (dx/5.0f);
 		m_angCamera.p += (dy/5.0f);
 
 		if (m_angCamera.p > 89)
