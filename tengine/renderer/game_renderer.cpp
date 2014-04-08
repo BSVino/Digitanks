@@ -222,6 +222,7 @@ void CGameRenderer::DrawSkybox(class CRenderingContext* pContext)
 
 	c.SetDepthTest(false);
 	c.UseProgram("skybox");
+	c.SetUniform("iDiffuse", 0);
 
 	ModifySkyboxContext(&c);
 
