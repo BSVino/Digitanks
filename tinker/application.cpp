@@ -200,7 +200,13 @@ void CApplication::OpenWindow(size_t iWidth, size_t iHeight, bool bFullscreen, b
 	SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 0);
 
 	if (m_bMultisampling)
-		SDL_GL_SetAttribute(SDL_GL_MULTISAMPLESAMPLES, 4);
+	{
+		int iBuffersResult = SDL_GL_SetAttribute(SDL_GL_MULTISAMPLEBUFFERS, 1);
+		int iSamplesResult = SDL_GL_SetAttribute(SDL_GL_MULTISAMPLESAMPLES, 4);
+
+		if (iBuffersResult == -1 || iSamplesResult == -1)
+			TMsg("Tried but failed to initialize multisampling.\n");
+	}
 
 	SDL_GL_SetAttribute(SDL_GL_RED_SIZE, 8);
 	SDL_GL_SetAttribute(SDL_GL_GREEN_SIZE, 8);
