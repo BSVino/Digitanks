@@ -74,12 +74,18 @@ else (WITH_NETWORKING)
 	)
 endif (WITH_NETWORKING)
 
-set (TENGINE_PHYSICS_SOURCES
-	physics/bullet_physics.cpp
-	physics/character_controller.cpp
-	physics/physics_debugdraw.cpp
-	physics/trigger_controller.cpp
-)
+if (WITH_BULLET)
+	set (TENGINE_PHYSICS_SOURCES
+		physics/bullet/bullet_physics.cpp
+		physics/bullet/character_controller.cpp
+		physics/bullet/physics_debugdraw.cpp
+		physics/bullet/trigger_controller.cpp
+	)
+else ()
+	set (TENGINE_PHYSICS_SOURCES
+		physics/tphysics/tphysics.cpp
+	)
+endif ()
 
 set (TENGINE_RENDERER_SOURCES
 	renderer/particles.cpp

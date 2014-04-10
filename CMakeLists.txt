@@ -24,6 +24,7 @@ option(WITH_NETWORKING "Build with networking enabled." ON)
 option(WITH_EASTL "Use the super-fast (even in debug mode) EASTL STL library." ON)
 option(WITH_ASSIMP "Use the unfortunately named AssImp library to load more formats." ON)
 option(WITH_COLLADA "Use the FCollada library." ON)
+option(WITH_BULLET "Use Bullet for physics simulation." ON)
 
 if (NOT WITH_COLLADA)
 	add_definitions(-DNO_COLLADA)

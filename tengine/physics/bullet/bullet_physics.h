@@ -1,7 +1,7 @@
 #ifndef TINKER_BULLET_PHYSICS_H
 #define TINKER_BULLET_PHYSICS_H
 
-#include "physics.h"
+#include "../physics.h"
 
 #include <btBulletDynamicsCommon.h>
 
