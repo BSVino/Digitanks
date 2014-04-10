@@ -87,6 +87,10 @@ else ()
 	)
 endif ()
 
+set (TENGINE_PHYSICS_SOURCES ${TENGINE_PHYSICS_SOURCES}
+	physics/physicsmanager.cpp
+)
+
 set (TENGINE_RENDERER_SOURCES
 	renderer/particles.cpp
 	renderer/game_renderer.cpp
