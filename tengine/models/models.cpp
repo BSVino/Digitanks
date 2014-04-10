@@ -239,7 +239,7 @@ void CModelLibrary::LoadAllIntoPhysics()
 		if (pModel->m_pToy)
 		{
 			if (pModel->m_pToy->GetPhysicsNumTris())
-				GamePhysics()->LoadCollisionMesh(pModel->m_sFilename, pModel->m_pToy->GetPhysicsIsConcave(), pModel->m_pToy->GetPhysicsNumTris(), pModel->m_pToy->GetPhysicsTris(), pModel->m_pToy->GetPhysicsNumVerts(), pModel->m_pToy->GetPhysicsVerts());
+				GamePhysics()->LoadCollisionMesh(pModel->m_sFilename, pModel->m_pToy->GetPhysicsIsConcave()?MT_CONCAVE:MT_CONVEX, pModel->m_pToy->GetPhysicsNumTris(), pModel->m_pToy->GetPhysicsTris(), pModel->m_pToy->GetPhysicsNumVerts(), pModel->m_pToy->GetPhysicsVerts());
 		}
 	}
 }
@@ -297,7 +297,7 @@ bool CModel::Load()
 	}
 
 	if (m_pToy->GetPhysicsNumTris())
-		GamePhysics()->LoadCollisionMesh(m_sFilename, m_pToy->GetPhysicsIsConcave(), m_pToy->GetPhysicsNumTris(), m_pToy->GetPhysicsTris(), m_pToy->GetPhysicsNumVerts(), m_pToy->GetPhysicsVerts());
+		GamePhysics()->LoadCollisionMesh(m_sFilename, m_pToy->GetPhysicsIsConcave()?MT_CONCAVE:MT_CONVEX, m_pToy->GetPhysicsNumTris(), m_pToy->GetPhysicsTris(), m_pToy->GetPhysicsNumVerts(), m_pToy->GetPhysicsVerts());
 
 	m_pToy->DeallocateMesh();
 

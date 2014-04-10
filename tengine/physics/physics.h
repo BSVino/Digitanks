@@ -27,6 +27,14 @@ typedef enum
 	CG_ALL = ~0,
 } collision_group_t;
 
+typedef enum
+{
+	MT_NONE = 0,
+	MT_CONVEX,
+	MT_CONCAVE,
+	MT_HEIGHTMAP,
+} mesh_type_t;
+
 class IPhysicsEntity
 {
 public:
@@ -107,9 +115,10 @@ public:
 	virtual void			RemoveAllEntities() {};
 	virtual bool            IsEntityAdded(IPhysicsEntity* pEnt) { return false; };
 
-	virtual void			LoadCollisionMesh(const tstring& sModel, bool bConcave, size_t iTris, const int* aiTris, size_t iVerts, const float* aflVerts) {};
+	virtual void			LoadCollisionMesh(const tstring& sModel, mesh_type_t eMeshType, size_t iTris, const int* aiTris, size_t iVerts, const float* aflVerts) {};
 	virtual void			UnloadCollisionMesh(const tstring& sModel) {};
-	virtual size_t          LoadExtraCollisionMesh(size_t iTris, bool bConcave, int* aiTris, size_t iVerts, float* aflVerts) { return ~0; };
+	virtual size_t          LoadExtraCollisionMesh(mesh_type_t eMeshType, size_t iTris, int* aiTris, size_t iVerts, float* aflVerts) { return ~0; };
+	virtual size_t          LoadExtraCollisionHeightmapMesh(size_t iWidth, size_t iHeight, float* aflVerts) { return ~0; };
 	virtual void            UnloadExtraCollisionMesh(size_t iMesh) {};
 
 	virtual void			Simulate() {};

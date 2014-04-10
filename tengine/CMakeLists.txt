@@ -84,6 +84,7 @@ if (WITH_BULLET)
 else ()
 	set (TENGINE_PHYSICS_SOURCES
 		physics/tphysics/tphysics.cpp
+		physics/tphysics/heightmap.cpp
 	)
 endif ()
 

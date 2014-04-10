@@ -4,6 +4,8 @@
 #include <tinker/cvar.h>
 #include <game/gameserver.h>
 
+#include "heightmap.h"
+
 CTPhysics::CTPhysics()
 {
 	// Allocate all memory up front to avoid reallocations
@@ -58,6 +60,98 @@ void CTPhysics::RemoveEntity(CPhysicsEntity* pPhysicsEntity)
 		return;
 
 	pPhysicsEntity->m_pGameEntity = nullptr;
+}
+
+size_t CTPhysics::AddExtra(size_t iExtraMesh, const Vector& vecOrigin)
+{
+	size_t iIndex = ~0;
+	for (size_t i = 0; i < m_apExtraEntityList.size(); i++)
+	{
+		if (!m_apExtraEntityList[i])
+		{
+			iIndex = i;
+			m_apExtraEntityList[i] = new CPhysicsEntity();
+			break;
+		}
+	}
+
+	if (iIndex == ~0)
+	{
+		iIndex = m_apExtraEntityList.size();
+		m_apExtraEntityList.push_back(new CPhysicsEntity());
+	}
+
+	CPhysicsEntity* pPhysicsEntity = m_apExtraEntityList[iIndex];
+
+	TAssert(m_apExtraCollisionMeshes[iExtraMesh]);
+	if (!m_apExtraCollisionMeshes[iExtraMesh])
+		return ~0;
+
+	CPhysicsMesh* pMesh = m_apExtraCollisionMeshes[iExtraMesh]->m_pMesh;
+
+	TAssert(pMesh);
+
+	pPhysicsEntity->m_pMesh = pMesh;
+
+	return iIndex;
+}
+
+void CTPhysics::RemoveExtra(size_t iExtra)
+{
+	CPhysicsEntity* pPhysicsEntity = m_apExtraEntityList[iExtra];
+
+	TAssert(pPhysicsEntity);
+	if (!pPhysicsEntity)
+		return;
+
+	delete m_apExtraEntityList[iExtra];
+	m_apExtraEntityList[iExtra] = nullptr;
+}
+
+size_t CTPhysics::LoadExtraCollisionHeightmapMesh(size_t iWidth, size_t iHeight, float* aflVerts)
+{
+	size_t iIndex = ~0;
+	for (size_t i = 0; i < m_apExtraCollisionMeshes.size(); i++)
+	{
+		if (!m_apExtraCollisionMeshes[i])
+		{
+			iIndex = i;
+			m_apExtraCollisionMeshes[i] = new CCollisionMesh();
+			break;
+		}
+	}
+
+	if (iIndex == ~0)
+	{
+		iIndex = m_apExtraCollisionMeshes.size();
+		m_apExtraCollisionMeshes.push_back(new CCollisionMesh());
+	}
+
+	m_apExtraCollisionMeshes[iIndex]->m_pMesh = new CHeightmapMesh(iWidth, iHeight, (Vector*)aflVerts);
+
+	return iIndex;
+}
+
+void CTPhysics::UnloadExtraCollisionMesh(size_t iIndex)
+{
+	TAssert(m_apExtraCollisionMeshes[iIndex]);
+	if (!m_apExtraCollisionMeshes[iIndex])
+		return;
+
+	// Make sure there are no objects using this collision shape.
+	for (size_t i = 0; i < m_apExtraEntityList.size(); i++)
+	{
+		if (m_apExtraEntityList[i]->m_pMesh == m_apExtraCollisionMeshes[iIndex]->m_pMesh)
+		{
+			RemoveExtra(i);
+			TError("Entity found with collision mesh which is being unloaded\n");
+		}
+	}
+
+	delete m_apExtraCollisionMeshes[iIndex]->m_pMesh;
+
+	delete m_apExtraCollisionMeshes[iIndex];
+	m_apExtraCollisionMeshes[iIndex] = nullptr;
 }
 
 #ifdef _DEBUG
