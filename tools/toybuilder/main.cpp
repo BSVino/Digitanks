@@ -52,7 +52,10 @@ int main(int argc, char** args)
 		else
 			sOutput = args[2];
 
-		tstring sPhysics = Shell()->GetCommandLineSwitchValue("--physics");
+		tstring sPhysics;
+		if (Shell()->HasCommandLineSwitch("--physics"))
+			sPhysics = Shell()->GetCommandLineSwitchValue("--physics");
+
 		bool bGlobalTransformations = Shell()->HasCommandLineSwitch("--use-global-transforms");
 		bool bAllowConcave = Shell()->HasCommandLineSwitch("--concave");
 
