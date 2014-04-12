@@ -1275,9 +1275,9 @@ bool CDigitanksPlayer::MouseInput(int iButton, tinker_mouse_state_t iState)
 			m_bBoxSelect = true;
 			m_iMouseInitialX = m_iMouseCurrentX = mx;
 			m_iMouseInitialY = m_iMouseCurrentY = my;
-		}
 
-		return 1;
+			return 1;
+		}
 	}
 
 	if (iState == TINKER_MOUSE_DOUBLECLICK && pClickedEntity && DigitanksGame()->GetCurrentLocalDigitanksPlayer() && !DigitanksGame()->IsFeatureDisabled(DISABLE_SELECT))
