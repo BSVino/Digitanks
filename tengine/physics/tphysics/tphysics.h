@@ -17,6 +17,7 @@ public:
 	{
 		m_pGameEntity = nullptr;
 		m_bActive = false;
+		m_pMesh = nullptr;
 	};
 
 	CPhysicsEntity(IPhysicsEntity* pEntity, collision_type_t eCollisionType)
@@ -24,6 +25,7 @@ public:
 		m_pGameEntity = pEntity;
 		m_eCollisionType = eCollisionType;
 		m_bActive = true;
+		m_pMesh = nullptr;
 	};
 
 	virtual ~CPhysicsEntity()

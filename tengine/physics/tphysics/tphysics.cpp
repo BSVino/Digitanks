@@ -145,6 +145,12 @@ void CTPhysics::UnloadExtraCollisionMesh(size_t iIndex)
 	// Make sure there are no objects using this collision shape.
 	for (size_t i = 0; i < m_apExtraEntityList.size(); i++)
 	{
+		if (!m_apExtraEntityList[i])
+			continue;
+
+		if (!m_apExtraCollisionMeshes[i])
+			continue;
+
 		if (m_apExtraEntityList[i]->m_pMesh == m_apExtraCollisionMeshes[iIndex]->m_pMesh)
 		{
 			RemoveExtra(i);
