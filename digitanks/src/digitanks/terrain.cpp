@@ -1569,7 +1569,7 @@ void CTerrain::SetRealHeight(int x, int y, float flHeight)
 	if (iChunkY == TERRAIN_CHUNKS - 1 && iYIndex == TERRAIN_CHUNK_SIZE - 1)
 		pChunk->m_aflPhysicsHeights[iXIndex][TERRAIN_CHUNK_SIZE] = flHeight;
 
-	if (iChunkX == TERRAIN_CHUNKS - 1 && iChunkY == TERRAIN_CHUNKS - 1 && iXIndex == TERRAIN_CHUNK_SIZE - 1 && iYIndex == TERRAIN_CHUNK_SIZE - 1)
+	if (iXIndex == TERRAIN_CHUNK_SIZE - 1 && iYIndex == TERRAIN_CHUNK_SIZE - 1)
 		pChunk->m_aflPhysicsHeights[TERRAIN_CHUNK_SIZE][TERRAIN_CHUNK_SIZE] = flHeight;
 
 	if (iChunkX > 0 && iXIndex == 0)
