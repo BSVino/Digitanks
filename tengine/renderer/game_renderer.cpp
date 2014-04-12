@@ -263,6 +263,8 @@ void CGameRenderer::DrawSkybox(class CRenderingContext* pContext)
 	c.EndRenderVertexArray(6);
 
 	c.ClearDepth();
+
+	OnDrawSkybox(pContext);
 }
 
 CVar phys_show("phys_show", "no");

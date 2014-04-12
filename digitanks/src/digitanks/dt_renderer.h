@@ -19,6 +19,7 @@ public:
 	virtual void	DrawBackground(class CRenderingContext* pContext) {};	// Skybox instead
 	virtual void	StartRendering(class CRenderingContext* pContext);
 	virtual void	DrawSkybox(class CRenderingContext* pContext);
+	virtual void    OnDrawSkybox(class CRenderingContext* pContext);
 	virtual void	FinishRendering(class CRenderingContext* pContext);
 	virtual void	RenderPreviewModes();
 	virtual void	RenderFogOfWar();
