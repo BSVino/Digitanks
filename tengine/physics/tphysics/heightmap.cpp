@@ -38,9 +38,9 @@ void CHeightmapMesh::TraceLine(size_t iExtraHandle, CTraceResult& tr, const Vect
 	y1 = Clamp<int>(y1, 0, m_iHeight - 2);
 	y2 = Clamp<int>(y2, 0, m_iHeight - 2);
 
-	int i_dir = 1;
+	int j_dir = 1;
 	if (y2 < y1)
-		i_dir = -1;
+		j_dir = -1;
 
 	int x_min = (int)RemapVal(v1.x, m_aabbBounds.m_vecMins.x, m_aabbBounds.m_vecMaxs.x, 0, (float)m_iWidth);
 	int x_max = (int)RemapVal(v2.x, m_aabbBounds.m_vecMins.x, m_aabbBounds.m_vecMaxs.x, 0, (float)m_iWidth);
@@ -53,9 +53,9 @@ void CHeightmapMesh::TraceLine(size_t iExtraHandle, CTraceResult& tr, const Vect
 
 	CCollisionResult cr;
 
-	for (int i = y1; i_dir > 0 ? i <= y2 : i >= y2; i += i_dir)
+	for (int j = y1; j_dir > 0 ? j <= y2 : j >= y2; j += j_dir)
 	{
-		// Find all possible x squares when y == i
+		// Find all possible x squares when y == j
 		int x1, x2;
 
 		if (v1.y == v2.y)
@@ -63,8 +63,8 @@ void CHeightmapMesh::TraceLine(size_t iExtraHandle, CTraceResult& tr, const Vect
 		else
 		{
 			// Perf opportunity: Reduce these six RemapVal's into 2 RemapVal's.
-			float flYLow = RemapVal((float)i, 0, (float)m_iHeight, m_aabbBounds.m_vecMins.y, m_aabbBounds.m_vecMaxs.y);
-			float flYHigh = RemapVal((float)i + 1, 0, (float)m_iHeight, m_aabbBounds.m_vecMins.y, m_aabbBounds.m_vecMaxs.y);
+			float flYLow = RemapVal((float)j, 0, (float)m_iHeight, m_aabbBounds.m_vecMins.y, m_aabbBounds.m_vecMaxs.y);
+			float flYHigh = RemapVal((float)j + 1, 0, (float)m_iHeight, m_aabbBounds.m_vecMins.y, m_aabbBounds.m_vecMaxs.y);
 
 			float flXStart = RemapVal(flYLow, v1.y, v2.y, v1.x, v2.x);
 			float flXEnd = RemapVal(flYHigh, v1.y, v2.y, v1.x, v2.x);
@@ -83,16 +83,16 @@ void CHeightmapMesh::TraceLine(size_t iExtraHandle, CTraceResult& tr, const Vect
 		x1 = Clamp<int>(x1, x_min, x_max);
 		x2 = Clamp<int>(x2, x_min, x_max);
 
-		int j_dir = 1;
+		int i_dir = 1;
 		if (x2 < x1)
-			j_dir = -1;
+			i_dir = -1;
 
-		for (int j = x1; j_dir > 0 ? j <= x2 : j >= x2; j += j_dir)
+		for (int i = x1; i_dir > 0 ? i <= x2 : i >= x2; i += i_dir)
 		{
-			Vector t1 = GetPosition(j, i);
-			Vector t2 = GetPosition(j+1, i);
-			Vector t3 = GetPosition(j+1, i+1);
-			Vector t4 = GetPosition(j, i+1);
+			Vector t1 = GetPosition(i, j);
+			Vector t2 = GetPosition(i+1, j);
+			Vector t3 = GetPosition(i+1, j+1);
+			Vector t4 = GetPosition(i, j+1);
 
 			LineSegmentIntersectsTriangle(v1, v2, t1, t2, t3, cr);
 			LineSegmentIntersectsTriangle(v1, v2, t1, t3, t4, cr);
