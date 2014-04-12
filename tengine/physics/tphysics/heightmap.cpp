@@ -32,8 +32,8 @@ void CHeightmapMesh::TraceLine(size_t iExtraHandle, CTraceResult& tr, const Vect
 	if (!aabbRealBounds.Intersects(AABB(vmin, vmax)))
 		return;
 
-	int y1 = (int)RemapVal(v1.y, m_aabbBounds.m_vecMins.y, m_aabbBounds.m_vecMaxs.y, 0, (float)m_iHeight);
-	int y2 = (int)RemapVal(v2.y, m_aabbBounds.m_vecMins.y, m_aabbBounds.m_vecMaxs.y, 0, (float)m_iHeight);
+	int y1 = (int)RemapVal(v1.y, m_aabbBounds.m_vecMins.y, m_aabbBounds.m_vecMaxs.y, 0, (float)m_iHeight-1);
+	int y2 = (int)RemapVal(v2.y, m_aabbBounds.m_vecMins.y, m_aabbBounds.m_vecMaxs.y, 0, (float)m_iHeight-1);
 
 	y1 = Clamp<int>(y1, 0, m_iHeight - 2);
 	y2 = Clamp<int>(y2, 0, m_iHeight - 2);
@@ -42,8 +42,8 @@ void CHeightmapMesh::TraceLine(size_t iExtraHandle, CTraceResult& tr, const Vect
 	if (y2 < y1)
 		j_dir = -1;
 
-	int x_min = (int)RemapVal(v1.x, m_aabbBounds.m_vecMins.x, m_aabbBounds.m_vecMaxs.x, 0, (float)m_iWidth);
-	int x_max = (int)RemapVal(v2.x, m_aabbBounds.m_vecMins.x, m_aabbBounds.m_vecMaxs.x, 0, (float)m_iWidth);
+	int x_min = (int)RemapVal(v1.x, m_aabbBounds.m_vecMins.x, m_aabbBounds.m_vecMaxs.x, 0, (float)m_iWidth-1);
+	int x_max = (int)RemapVal(v2.x, m_aabbBounds.m_vecMins.x, m_aabbBounds.m_vecMaxs.x, 0, (float)m_iWidth-1);
 
 	x_min = Clamp<int>(x_min, 0, m_iWidth - 2);
 	x_max = Clamp<int>(x_max, 0, m_iWidth - 2);
@@ -59,12 +59,12 @@ void CHeightmapMesh::TraceLine(size_t iExtraHandle, CTraceResult& tr, const Vect
 		int x1, x2;
 
 		if (v1.y == v2.y)
-			x1 = x2 = (int)RemapVal(v1.x, m_aabbBounds.m_vecMins.x, m_aabbBounds.m_vecMaxs.x, 0, (float)m_iWidth);
+			x1 = x2 = (int)RemapVal(v1.x, m_aabbBounds.m_vecMins.x, m_aabbBounds.m_vecMaxs.x, 0, (float)m_iWidth-1);
 		else
 		{
 			// Perf opportunity: Reduce these six RemapVal's into 2 RemapVal's.
-			float flYLow = RemapVal((float)j, 0, (float)m_iHeight, m_aabbBounds.m_vecMins.y, m_aabbBounds.m_vecMaxs.y);
-			float flYHigh = RemapVal((float)j + 1, 0, (float)m_iHeight, m_aabbBounds.m_vecMins.y, m_aabbBounds.m_vecMaxs.y);
+			float flYLow = RemapVal((float)j, 0, (float)m_iHeight-1, m_aabbBounds.m_vecMins.y, m_aabbBounds.m_vecMaxs.y);
+			float flYHigh = RemapVal((float)j + 1, 0, (float)m_iHeight-1, m_aabbBounds.m_vecMins.y, m_aabbBounds.m_vecMaxs.y);
 
 			float flXStart = RemapVal(flYLow, v1.y, v2.y, v1.x, v2.x);
 			float flXEnd = RemapVal(flYHigh, v1.y, v2.y, v1.x, v2.x);
@@ -72,8 +72,8 @@ void CHeightmapMesh::TraceLine(size_t iExtraHandle, CTraceResult& tr, const Vect
 			if (v2.x > v1.x && flXStart > flXEnd || v2.x < v1.x && flXStart < flXEnd)
 				TSwap<float>(flXStart, flXEnd);
 
-			x1 = (int)RemapVal(flXStart, m_aabbBounds.m_vecMins.x, m_aabbBounds.m_vecMaxs.x, 0, (float)m_iWidth);
-			x2 = (int)RemapVal(flXEnd, m_aabbBounds.m_vecMins.x, m_aabbBounds.m_vecMaxs.x, 0, (float)m_iWidth);
+			x1 = (int)RemapVal(flXStart, m_aabbBounds.m_vecMins.x, m_aabbBounds.m_vecMaxs.x, 0, (float)m_iWidth-1);
+			x2 = (int)RemapVal(flXEnd, m_aabbBounds.m_vecMins.x, m_aabbBounds.m_vecMaxs.x, 0, (float)m_iWidth-1);
 
 			if (x1 < x_min && x2 < x_min || x1 > x_max && x1 > x_max)
 				// All x squares for this y are out of the heightmap's range.
