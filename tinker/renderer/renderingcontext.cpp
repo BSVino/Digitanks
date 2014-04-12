@@ -493,14 +493,12 @@ void CRenderingContext::UseProgram(class CShader* pShader)
 
 void CRenderingContext::UseMaterial(const CMaterialHandle& hUseMaterial)
 {
-	CMaterialHandle hMaterial = hUseMaterial;
-
-	if (!hMaterial.IsValid())
+	if (!hUseMaterial.IsValid())
 		return;
 
-	GetContext().m_hMaterial = hMaterial;
+	GetContext().m_hMaterial = hUseMaterial;
 
-	UseProgram(hMaterial->m_pShader);
+	UseProgram(hUseMaterial->m_pShader);
 
 	SetupMaterial();
 }
