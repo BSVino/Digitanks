@@ -893,13 +893,19 @@ void CArtilleryGamePanel::PreviewLevel(size_t iLevel)
 
 	Color* pclrHeight = CRenderer::LoadTextureData(pLevel->GetTerrainHeightImage().GetName(), w, h);
 
-	TAssert(w == TERRAIN_SIZE);
-	TAssert(h == TERRAIN_SIZE);
+	if (pclrHeight)
+	{
+		TAssert(w == TERRAIN_SIZE);
+		TAssert(h == TERRAIN_SIZE);
+	}
 
 	Color* pclrData = CRenderer::LoadTextureData(pLevel->GetTerrainDataImage().GetName(), w, h);
 
-	TAssert(w == TERRAIN_SIZE);
-	TAssert(h == TERRAIN_SIZE);
+	if (pclrData)
+	{
+		TAssert(w == TERRAIN_SIZE);
+		TAssert(h == TERRAIN_SIZE);
+	}
 
 	for (size_t i = 0; i < 256; i++)
 	{
