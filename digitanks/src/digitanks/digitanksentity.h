@@ -11,6 +11,12 @@ class CDigitanksEntity : public CBaseEntity
 	REGISTER_ENTITY_CLASS(CDigitanksEntity, CBaseEntity);
 
 public:
+	CDigitanksEntity()
+	{
+		m_oGameData.m_bDTEntity = true;
+	}
+
+public:
 	virtual void					Precache();
 	virtual void					Spawn();
 

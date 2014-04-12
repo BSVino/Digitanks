@@ -1,8 +1,8 @@
 #ifndef TINKER_ENGINE_CONFIG_DATA_H
 #define TINKER_ENGINE_CONFIG_DATA_H
 
-#define CGameEntityData CBaseEntityData
+#define CGameEntityData CDTEntityData
 
-#include <tengine/game/entities/baseentitydata.h>
+#include "../digitanks/src/digitanks/dt_entity.h"
 
 #endif

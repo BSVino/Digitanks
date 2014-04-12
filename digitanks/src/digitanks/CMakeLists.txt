@@ -80,7 +80,6 @@ set (DIGITANKS_WEAPONS_SOURCES
 
 set (DIGITANKS_UI_SOURCES
 	ui/digitankswindow.cpp
-	ui/digitankswindow_input.cpp
 	ui/hud.cpp
 	ui/lobbyui.cpp
 	ui/menu.cpp

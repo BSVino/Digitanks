@@ -67,6 +67,7 @@ public:
 	virtual bool				KeyPress(int c);
 	virtual void				KeyRelease(int c);
 	void						CharEvent(int c);
+	void                        IgnoreMouseRelease() { m_bMouseDownInGUI = true; }
 
 	virtual bool				DoKeyPress(int /*c*/) { return false; };
 	virtual void				DoKeyRelease(int /*c*/) {};

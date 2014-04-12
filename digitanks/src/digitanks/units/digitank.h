@@ -128,6 +128,7 @@ public:
 	Vector						GetLastAim() const { return m_vecLastAim; };
 	bool						ShouldDisplayAim() const { return m_bDisplayAim; }
 	Vector						GetDisplayAim() const { return m_vecDisplayAim; }
+	const Vector                FindNearestTerrainPointInRange(const Vector& vecPreviewAim);
 
 	virtual bool				CanCharge() const;
 	virtual float				BaseChargeRadius() const { return 20.0f; }

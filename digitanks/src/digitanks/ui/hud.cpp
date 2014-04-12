@@ -681,33 +681,30 @@ void CHUD::Think()
 		if (pHit && dynamic_cast<CSelectable*>(pHit) && bSpotVisible && !DigitanksGame()->IsFeatureDisabled(DISABLE_SELECT))
 			DigitanksWindow()->SetMouseCursor(MOUSECURSOR_SELECT);
 
-		if (pHit)
+		if (bSpotVisible)
 		{
-			if (bSpotVisible)
-			{
-				CDigitanksEntity* pDTHit = dynamic_cast<CDigitanksEntity*>(pHit);
-				if (pDTHit)
-					SetTooltip(pDTHit->GetEntityName());
-				else
-				{
-					if (DigitanksGame()->GetTerrain()->IsPointInTrees(vecEntityPoint))
-						SetTooltip(_T("Trees"));
-					else if (DigitanksGame()->GetTerrain()->IsPointOverWater(vecEntityPoint))
-						SetTooltip(_T("Interference"));
-					else if (DigitanksGame()->GetTerrain()->IsPointOverLava(vecEntityPoint))
-						SetTooltip(_T("Lava"));
-					else
-						SetTooltip(_T(""));
-				}
-			}
+			CDigitanksEntity* pDTHit = dynamic_cast<CDigitanksEntity*>(pHit);
+			if (pDTHit)
+				SetTooltip(pDTHit->GetEntityName());
 			else
-				SetTooltip(_T(""));
+			{
+				if (DigitanksGame()->GetTerrain()->IsPointInTrees(vecEntityPoint))
+					SetTooltip(_T("Trees"));
+				else if (DigitanksGame()->GetTerrain()->IsPointOverWater(vecEntityPoint))
+					SetTooltip(_T("Interference"));
+				else if (DigitanksGame()->GetTerrain()->IsPointOverLava(vecEntityPoint))
+					SetTooltip(_T("Lava"));
+				else
+					SetTooltip(_T(""));
+			}
 		}
+		else
+			SetTooltip(_T(""));
 	}
 	else
 	{
 		bMouseOnGrid = DigitanksWindow()->GetMouseGridPosition(vecEntityPoint, &pHit);
-		bMouseOnGrid = DigitanksWindow()->GetMouseGridPosition(vecTerrainPoint, NULL, CG_TERRAIN|CG_PROP);
+		bMouseOnGrid = DigitanksWindow()->GetMouseGridPosition(vecTerrainPoint, NULL, true);
 
 		SetTooltip(_T(""));
 	}
@@ -1006,7 +1003,7 @@ void CHUD::Paint(float x, float y, float w, float h)
 		glgui::CLabel::PaintText(sFPS, sFPS.length(), _T("text"), 10, 125, flFontHeight*2 + 50);
 
 		Vector vecTerrainPoint;
-		if (DigitanksWindow()->GetMouseGridPosition(vecTerrainPoint, NULL, CG_TERRAIN))
+		if (DigitanksWindow()->GetMouseGridPosition(vecTerrainPoint, NULL, true))
 		{
 			sFPS = tsprintf(tstring("%.2f, %.2f"), vecTerrainPoint.x, vecTerrainPoint.z);
 			glgui::CLabel::PaintText(sFPS, sFPS.length(), _T("text"), 10, 125, flFontHeight*3 + 50);
@@ -1024,8 +1021,13 @@ void CHUD::Paint(float x, float y, float w, float h)
 
 	CDigitanksPlayer* pCurrentLocalPlayer = DigitanksGame()->GetCurrentLocalDigitanksPlayer();
 
-	int iMouseX = DigitanksWindow()->GetMouseCurrentX();
-	int iMouseY = DigitanksWindow()->GetMouseCurrentY();
+	int iMouseX = 0, iMouseY = 0;
+	
+	if (pCurrentLocalPlayer)
+	{
+		iMouseX = pCurrentLocalPlayer->GetMouseCurrentX();
+		iMouseY = pCurrentLocalPlayer->GetMouseCurrentY();
+	}
 
 	if ((DigitanksGame()->GetGameType() == GAMETYPE_STANDARD || DigitanksGame()->GetGameType() == GAMETYPE_CAMPAIGN) && pCurrentLocalPlayer && pCurrentLocalPlayer->GetPrimaryCPU())
 	{
@@ -1369,7 +1371,7 @@ void CHUD::Paint(float x, float y, float w, float h)
 		CRootPanel::PaintRect(m_pScoreboard->GetLeft()-3, m_pScoreboard->GetTop()-9, m_pScoreboard->GetWidth()+6, m_pScoreboard->GetHeight()+6, Color(0, 0, 0, 100));
 
 	size_t iX, iY, iX2, iY2;
-	if (DigitanksWindow()->GetBoxSelection(iX, iY, iX2, iY2))
+	if (pCurrentLocalPlayer && pCurrentLocalPlayer->GetBoxSelection(iX, iY, iX2, iY2))
 	{
 		Color clrSelection(255, 255, 255, 255);
 
@@ -1381,8 +1383,7 @@ void CHUD::Paint(float x, float y, float w, float h)
 		CRootPanel::PaintRect(iX, iY + iHeight, iWidth, 1, clrSelection);
 	}
 
-	CDigitanksPlayer* pLocalPlayer = DigitanksGame()->GetCurrentLocalDigitanksPlayer();
-	if (pLocalPlayer && !m_hHintWeapon)
+	if (pCurrentLocalPlayer && !m_hHintWeapon)
 	{
 		for (size_t i = 0; i < GameServer()->GetMaxEntities(); i++)
 		{
@@ -1406,7 +1407,7 @@ void CHUD::Paint(float x, float y, float w, float h)
 			if (!pWeapon->GetOwner())
 				continue;
 			
-			if (pWeapon->GetOwner()->GetPlayerOwner() != pLocalPlayer)
+			if (pWeapon->GetOwner()->GetPlayerOwner() != pCurrentLocalPlayer)
 				continue;
 
 			if (pWeapon->GetBonusDamage() > 0)
@@ -1859,8 +1860,7 @@ void CHUD::PaintCameraGuidedMissile(float x, float y, float w, float h)
 
 	Vector vecHit;
 	CBaseEntity* pHit;
-	TUnimplemented();
-	bool bHit = false;//DigitanksGame()->TraceLine(pOwner->GetLastAim() + Vector(0, 0, 1), pMissile->GetGlobalOrigin(), vecHit, &pHit, CG_TERRAIN);
+	bool bHit = DigitanksGame()->TraceLine(pOwner->GetLastAim() + Vector(0, 0, 1), pMissile->GetGlobalOrigin(), vecHit, &pHit, true);
 
 	tstring sClear;
 	if (bHit)
@@ -2804,8 +2804,7 @@ void CHUD::NewCurrentSelection()
 
 			Vector vecHit;
 			CBaseEntity* pHit = nullptr;
-			TStubbed("NewCurrentSelection traceline");
-//			Game()->TraceLine(vecCamera, vecTarget, vecHit, &pHit);
+			DigitanksGame()->TraceLine(vecCamera, vecTarget, vecHit, &pHit);
 			if (pHit == DigitanksGame()->GetPrimarySelection())
 				break;
 
@@ -4638,7 +4637,7 @@ bool CMouseCapturePanel::MouseReleased(int code, int mx, int my)
 {
 	BaseClass::MouseReleased(code, mx, my);
 
-	if (DigitanksWindow()->IsMouseDragging())
+	if (DigitanksGame()->GetCurrentLocalDigitanksPlayer()->IsMouseDragging())
 		return false;
 
 	return true;

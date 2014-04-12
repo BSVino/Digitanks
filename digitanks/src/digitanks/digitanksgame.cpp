@@ -1812,13 +1812,7 @@ void CDigitanksGame::FireTanks()
 		if (!pTank->AimsWith(pCurrentTank))
 			continue;
 
-		Vector vecTankAim = vecPreviewAim;
-		while (!pTank->IsInsideMaxRange(vecTankAim))
-		{
-			Vector vecDirection = vecTankAim - pTank->GetGlobalOrigin();
-			vecDirection.z = 0;
-			vecTankAim = DigitanksGame()->GetTerrain()->GetPointHeight(pTank->GetGlobalOrigin() + vecDirection.Normalized() * vecDirection.Length2D() * 0.99f);
-		}
+		Vector vecTankAim = pTank->FindNearestTerrainPointInRange(vecPreviewAim);
 
 		pTank->SetPreviewAim(vecTankAim);
 		pTank->Fire();
@@ -2026,6 +2020,75 @@ void CDigitanksGame::OnClientEnterGame(int iClient)
 
 	// No spots? Boot him.
 	GameNetwork()->DisconnectClient(iClient);
+}
+
+bool CDigitanksGame::TraceLine(const Vector& s1, const Vector& s2, Vector& vecHit, CBaseEntity** pHit, bool bTerrainOnly)
+{
+	CTraceResult tr;
+
+	GamePhysics()->TraceLine(tr, s1, s2);
+
+	if (!bTerrainOnly)
+	{
+		Vector vecClosest = s2;
+		Vector vecClosestNormal;
+		bool bHit = false;
+
+		size_t iMaxEntities = GameServer()->GetMaxEntities();
+		for (size_t i = 0; i < iMaxEntities; i++)
+		{
+			CBaseEntity* pEntity = CBaseEntity::GetEntity(i);
+
+			if (!pEntity)
+				continue;
+
+			if (!pEntity->GameData().m_bDTEntity)
+				continue;
+
+			CDigitanksEntity* pDTEntity = static_cast<CDigitanksEntity*>(pEntity);
+
+			float flBoundingRadius = pDTEntity->GetBoundingRadius();
+			if (flBoundingRadius == 0)
+				continue;
+
+			Vector vecPoint, vecNormal;
+			if (!LineSegmentIntersectsSphere(s1, s2, pDTEntity->GetGlobalOrigin(), flBoundingRadius, vecPoint, vecNormal))
+				continue;
+
+			if (!bHit || (vecPoint - s1).LengthSqr() < (vecClosest - s1).LengthSqr())
+			{
+				vecClosest = vecPoint;
+				vecClosestNormal = vecNormal;
+				bHit = true;
+				if (pHit)
+					*pHit = pEntity;
+			}
+		}
+
+		if (bHit)
+		{
+			float flFraction = (vecClosest - s1).Length() / (s2 - s1).Length();
+
+			if (flFraction < tr.m_flFraction)
+			{
+				tr.m_flFraction = flFraction;
+				tr.m_aHits.clear();
+				tr.m_aHits.push_back();
+				tr.m_aHits.back().m_flFraction = flFraction;
+				if (pHit)
+					tr.m_aHits.back().m_iHit = (*pHit)->GetHandle();
+				tr.m_aHits.back().m_vecHit = vecClosest;
+				tr.m_vecHit = vecClosest;
+				tr.m_vecNormal = vecClosestNormal;
+			}
+		}
+	}
+
+	vecHit = tr.m_vecHit;
+	if (pHit && tr.m_aHits.size())
+		(*pHit) = CBaseEntity::GetEntity(tr.m_aHits.front().m_iHit);
+
+	return tr.m_flFraction < 1;
 }
 
 bool CDigitanksGame::Explode(CBaseEntity* pAttacker, CBaseEntity* pInflictor, float flRadius, float flDamage, CBaseEntity* pIgnore, const CDigitanksPlayer* pTeamIgnore)

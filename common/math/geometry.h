@@ -913,10 +913,22 @@ inline bool LineSegmentIntersectsTriangle(const TemplateVector<F>& s0, const Tem
 	return true;
 }
 
-inline bool LineSegmentIntersectsSphere(const Vector& v1, const Vector& v2, const Vector& s, float flRadius, Vector& vecPoint, Vector& /*vecNormal*/)
+inline bool LineSegmentIntersectsSphere(const Vector& v1, const Vector& v2, const Vector& s, float flRadius, Vector& vecPoint, Vector& vecNormal)
 {
 	Vector vecLine = v2 - v1;
 	Vector vecSphere = v1 - s;
+
+	if (vecLine.LengthSqr() == 0)
+	{
+		if (vecSphere.LengthSqr() < flRadius*flRadius)
+		{
+			vecPoint = v1;
+			vecNormal = vecSphere.Normalized();
+			return true;
+		}
+		else
+			return false;
+	}
 
 	float flA = vecLine.LengthSqr();
 	float flB = 2 * vecSphere.Dot(vecLine);
@@ -932,21 +944,52 @@ inline bool LineSegmentIntersectsSphere(const Vector& v1, const Vector& v2, cons
 	float flPlus = (-flB + flSqrt)/(2*flA);
 	float flMinus = (-flB - flSqrt)/(2*flA);
 
-	return false;
-	// Unimplemented: Doesn't clip the intersection to the segment only.
-	// Also probably buggy and fully of bugs.
-	// See sp_common.cpp for a better implementation that's actually used.
+	bool bPlusBelow0 = flPlus < 0;
+	bool bMinusBelow0 = flMinus < 0;
+	bool bPlusAbove1 = flPlus > 1;
+	bool bMinusAbove1 = flMinus > 1;
 
+	// If both are above 1 or below 0, then we're not touching the sphere.
+	if (bMinusBelow0 && bPlusBelow0 || bPlusAbove1 && bMinusAbove1)
+		return false;
+
+	if (bMinusBelow0 && bPlusAbove1)
+	{
+		// We are inside the sphere.
+		vecPoint = v1;
+		vecNormal = (v1 - s).Normalized();
+		return true;
+	}
+
+	if (bMinusAbove1 && bPlusBelow0)
+	{
+		// We are inside the sphere. Is this even possible? I dunno. I'm putting an assert here to see.
+		// If it's still here later that means no.
+		TAssertNoMsg(false);
+		vecPoint = v1;
+		vecNormal = (v1 - s).Normalized();
+		return true;
+	}
+
+	// If flPlus is below 1 and flMinus is below 0 that means we started our trace inside the sphere and we're heading out.
+	// Don't intersect with the sphere in this case so that things on the inside can get out without getting stuck.
+	if (bMinusBelow0 && !bPlusAbove1)
+		return false;
+
+	// So at this point, flMinus is between 0 and 1, and flPlus is above 1.
+	// In any other case, we intersect with the sphere and we use the flMinus value as the intersection point.
 	float flDistance = vecLine.Length();
-
 	Vector vecDirection = vecLine / flDistance;
-	Vector vecPlus = v1 + vecDirection * (flPlus * flDistance);
-	Vector vecMinus = v1 + vecDirection * (flMinus * flDistance);
 
-	if ((vecPlus - v1).LengthSqr() < (vecMinus - v1).LengthSqr())
-		vecPoint = vecPlus;
-	else
-		vecPoint = vecMinus;
+	vecPoint = v1 + vecDirection * (flDistance * flMinus);
+
+	// Oftentimes we are slightly stuck inside the sphere. Pull us out a little bit.
+	Vector vecDifference = vecPoint - s;
+	float flDifferenceLength = vecDifference.Length();
+	vecNormal = vecDifference / flDifferenceLength;
+	if (flDifferenceLength < flRadius)
+		vecPoint += vecNormal * ((flRadius - flDifferenceLength) + 0.00001f);
+	TAssertNoMsg((vecPoint - s).LengthSqr() >= flRadius*flRadius);
 
 	return true;
 }

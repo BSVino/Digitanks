@@ -4,6 +4,8 @@
 
 class CPhysicsMesh
 {
+public:
+	virtual void TraceLine(size_t iExtraHandle, CTraceResult& tr, const Vector& v1, const Vector& v2) { TUnimplemented(); };
 
 };
 
@@ -23,7 +25,7 @@ public:
 		m_bActive = true;
 	};
 
-	~CPhysicsEntity()
+	virtual ~CPhysicsEntity()
 	{
 	};
 
@@ -57,7 +59,7 @@ public:
 	virtual void    LoadCollisionMesh(const tstring& sModel, mesh_type_t eMeshType, size_t iTris, const int* aiTris, size_t iVerts, const float* aflVerts) { TUnimplemented(); };
 	virtual void    UnloadCollisionMesh(const tstring& sModel) { TUnimplemented(); };
 	virtual size_t  LoadExtraCollisionMesh(mesh_type_t eMeshType, size_t iTris, int* aiTris, size_t iVerts, float* aflVerts) { TUnimplemented(); return ~0; };
-	virtual size_t  LoadExtraCollisionHeightmapMesh(size_t iWidth, size_t iHeight, float* aflVerts);
+	virtual size_t  LoadExtraCollisionHeightmapMesh(size_t iWidth, size_t iHeight, const AABB& aabbBounds, float* aflHeights);
 	virtual void    UnloadExtraCollisionMesh(size_t iMesh);
 
 	virtual void Simulate();
@@ -81,7 +83,7 @@ public:
 
 	virtual void CharacterMovement(IPhysicsEntity* pEnt, class btCollisionWorld* pCollisionWorld, float flDelta) { TUnimplemented(); };
 
-	virtual void TraceLine(CTraceResult& tr, const Vector& v1, const Vector& v2, collision_group_t eCollisions = CG_ALL, IPhysicsEntity* pIgnore = nullptr) { TUnimplemented(); };
+	virtual void TraceLine(CTraceResult& tr, const Vector& v1, const Vector& v2, collision_group_t eCollisions = CG_ALL, IPhysicsEntity* pIgnore = nullptr);
 	virtual void TraceEntity(CTraceResult& tr, IPhysicsEntity* pEntity, const Vector& v1, const Vector& v2, collision_group_t eCollisions = CG_ALL) { TUnimplemented(); };
 	virtual void CheckSphere(CTraceResult& tr, float flRadius, const Vector& vecCenter, IPhysicsEntity* pIgnore = nullptr) { TUnimplemented(); };
 

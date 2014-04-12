@@ -799,16 +799,18 @@ void CDigitank::SetPreviewAim(Vector vecPreviewAim)
 
 	m_bPreviewAim = true;
 
-	while (!IsInsideMaxRange(vecPreviewAim))
+	vecPreviewAim = FindNearestTerrainPointInRange(vecPreviewAim);
+
+	Vector vecRealDistance = vecPreviewAim - GetRealOrigin();
+	if (vecRealDistance.LengthSqr() == 0)
 	{
-		Vector vecDirection = vecPreviewAim - GetRealOrigin();
-		vecDirection.z = 0;
-		vecPreviewAim = DigitanksGame()->GetTerrain()->GetPointHeight(GetRealOrigin() + vecDirection.Normalized() * vecDirection.Length2D() * 0.99f);
+		m_bPreviewAim = false;
+		return;
 	}
 
-	if ((vecPreviewAim - GetRealOrigin()).Length2DSqr() < GetMinRange()*GetMinRange())
+	if (vecRealDistance.Length2DSqr() < GetMinRange()*GetMinRange())
 	{
-		vecPreviewAim = GetRealOrigin() + (vecPreviewAim - GetRealOrigin()).Normalized() * GetMinRange() * 1.01f;
+		vecPreviewAim = GetRealOrigin() + vecRealDistance.Normalized() * GetMinRange() * 1.01f;
 		vecPreviewAim.z = DigitanksGame()->GetTerrain()->GetHeight(vecPreviewAim.x, vecPreviewAim.y);
 	}
 
@@ -839,6 +841,20 @@ bool CDigitank::IsPreviewAimValid()
 		return false;
 
 	return true;
+}
+
+const Vector CDigitank::FindNearestTerrainPointInRange(const Vector& vecAim)
+{
+	Vector vecPreviewAim = vecAim;
+
+	while (!IsInsideMaxRange(vecPreviewAim))
+	{
+		Vector vecDirection = vecPreviewAim - GetRealOrigin();
+		vecDirection.z = 0;
+		vecPreviewAim = DigitanksGame()->GetTerrain()->GetPointHeight(GetRealOrigin() + vecDirection.Normalized() * vecDirection.Length2D() * 0.99f);
+	}
+
+	return vecPreviewAim;
 }
 
 bool CDigitank::CanCharge() const
@@ -1604,8 +1620,14 @@ void CDigitank::Think()
 				vecAimTarget = GetPreviewAim();
 			else
 				vecAimTarget = m_vecLastAim;
-			Vector vecTarget = (vecAimTarget - GetRenderOrigin()).Normalized();
-			m_flGoalTurretYaw = atan2(vecTarget.y, vecTarget.x) * 180/M_PI - GetRenderAngles().y;
+
+			Vector vecDirection = (vecAimTarget - GetRenderOrigin()).Flattened();
+
+			if (vecDirection.LengthSqr() > 0)
+			{
+				Vector vecTarget = vecDirection.Normalized();
+				m_flGoalTurretYaw = atan2(vecTarget.y, vecTarget.x) * 180 / M_PI - GetRenderAngles().y;
+			}
 		}
 	}
 
@@ -1662,7 +1684,7 @@ void CDigitank::Think()
 		if (GetCurrentWeapon() != WEAPON_CHARGERAM && (m_bFiredWeapon || bMouseOK))
 		{
 			Vector vecDirection = vecTankAim - GetRealOrigin();
-			vecDirection.y = 0;
+			vecDirection.z = 0;
 
 			while (!IsInsideMaxRange(vecTankAim))
 			{
@@ -3205,7 +3227,7 @@ void CDigitank::RenderTurret(float flAlpha) const
 
 	r.Translate(Vector(-0.0f, 0, 0.810368f));
 
-	r.Rotate(-m_flCurrentTurretYaw, Vector(0, 0, 1));
+	r.Rotate(m_flCurrentTurretYaw, Vector(0, 0, 1));
 
 	if (IsDisabled())
 		r.Rotate(-35, Vector(0, 1, 0));
@@ -3667,8 +3689,7 @@ float CDigitank::FindHoverHeight(Vector vecPosition) const
 	float flHighestTerrain = pTerrain->GetHeight(vecPosition.x, vecPosition.y);
 	bool bHit;
 
-	TStubbed("FindHoverHeight");
-	bHit = false;//Game()->TraceLine(vecPosition + Vector(0, 0, 100), vecPosition + Vector(0, 0, -100), vecHit, NULL, CG_TERRAIN|CG_PROP);
+	bHit = DigitanksGame()->TraceLine(vecPosition + Vector(0, 0, 100), vecPosition + Vector(0, 0, -100), vecHit, NULL, true);
 	if (bHit)
 		flHighestTerrain = vecHit.z;
 

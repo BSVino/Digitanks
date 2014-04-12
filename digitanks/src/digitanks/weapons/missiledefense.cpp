@@ -76,5 +76,6 @@ void CMissileDefense::OnRender(class CGameRenderingContext* pContext)
 
 	CRenderingContext r(DigitanksGame()->GetDigitanksRenderer(), true);
 
+	r.UseProgram("model");
 	r.RenderSphere();
 }

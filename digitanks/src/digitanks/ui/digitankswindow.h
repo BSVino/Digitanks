@@ -68,12 +68,6 @@ public:
 
 	void						SetMouseCursor(mousecursor_t eCursor) { m_eMouseCursor = eCursor; }
 
-	bool						GetBoxSelection(size_t& iX, size_t& iY, size_t& iX2, size_t& iY2);
-	bool						IsMouseDragging();
-
-	int							GetMouseCurrentX() { return m_iMouseCurrentX; };
-	int							GetMouseCurrentY() { return m_iMouseCurrentY; };
-
 	void						SetConfigWindowDimensions(int iWidth, int iHeight) { m_iCfgWidth = iWidth; m_iCfgHeight = iHeight; };
 	void						SetConfigFullscreen(bool bFullscreen) { m_bCfgFullscreen = bFullscreen; };
 	void						SetConstrainMouse(bool bConstrain) { m_bConstrainMouse = bConstrain; };
@@ -91,7 +85,7 @@ public:
 	void						SetPlayerNickname(tstring sNickname) { m_sNickname = sNickname; }
 	tstring						GetPlayerNickname() { return m_sNickname; }
 
-	bool						GetMouseGridPosition(Vector& vecPoint, CBaseEntity** pHit = NULL, int iCollisionGroup = 0);
+	bool						GetMouseGridPosition(Vector& vecPoint, CBaseEntity** pHit = NULL, bool bTerrainOnly = false);
 
 	void						GameOver(bool bPlayerWon);
 
@@ -144,11 +138,6 @@ protected:
 	gametype_t					m_eRestartAction;
 
 	class CCampaignData*		m_pCampaign;
-
-	int							m_iMouseInitialX;
-	int							m_iMouseInitialY;
-	int							m_iMouseCurrentX;
-	int							m_iMouseCurrentY;
 
 	CMaterialHandle				m_hCursors;
 	mousecursor_t				m_eMouseCursor;

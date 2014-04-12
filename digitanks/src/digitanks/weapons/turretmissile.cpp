@@ -91,6 +91,7 @@ void CTurretMissile::OnRender(class CGameRenderingContext* pContext) const
 
 	CRenderingContext r(DigitanksGame()->GetDigitanksRenderer());
 
+	r.UseProgram("model");
 	r.Scale(0.5f, 0.5f, 0.5f);
 	r.RenderSphere();
 }

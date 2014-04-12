@@ -86,6 +86,10 @@ protected:
 
 	size_t							m_iWallList;
 
+	float  m_aflPhysicsHeights[TERRAIN_CHUNK_SIZE+1][TERRAIN_CHUNK_SIZE+1];
+	size_t m_iPhysicsMesh;
+	size_t m_iPhysicsIndex;
+
 	bool							m_bNeedsRegenerate;
 	bool							m_bNeedsRegenerateTexture;
 

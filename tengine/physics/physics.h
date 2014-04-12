@@ -118,7 +118,7 @@ public:
 	virtual void			LoadCollisionMesh(const tstring& sModel, mesh_type_t eMeshType, size_t iTris, const int* aiTris, size_t iVerts, const float* aflVerts) {};
 	virtual void			UnloadCollisionMesh(const tstring& sModel) {};
 	virtual size_t          LoadExtraCollisionMesh(mesh_type_t eMeshType, size_t iTris, int* aiTris, size_t iVerts, float* aflVerts) { return ~0; };
-	virtual size_t          LoadExtraCollisionHeightmapMesh(size_t iWidth, size_t iHeight, float* aflVerts) { return ~0; };
+	virtual size_t          LoadExtraCollisionHeightmapMesh(size_t iWidth, size_t iHeight, const AABB& aabbBounds, float* aflHeights) { return ~0; }; // z values of vecBounds are ignored. aflHeights is a iWidth x iHeight array of height data of the height map.
 	virtual void            UnloadExtraCollisionMesh(size_t iMesh) {};
 
 	virtual void			Simulate() {};

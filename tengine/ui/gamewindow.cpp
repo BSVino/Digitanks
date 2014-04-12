@@ -452,16 +452,18 @@ bool CGameWindow::MouseInput(int iButton, tinker_mouse_state_t iState)
 			m_flLastClick = GameServer()->GetGameTime();
 	}
 
+	bool bUsed = false;
+
 	if (Game())
 	{
 		for (size_t i = 0; i < Game()->GetNumLocalPlayers(); i++)
 		{
 			CPlayer* pPlayer = Game()->GetLocalPlayer(i);
-			pPlayer->MouseInput(iButton, iState);
+			bUsed |= pPlayer->MouseInput(iButton, iState);
 		}
 	}
 
-	return false;
+	return bUsed;
 }
 
 bool CGameWindow::GetLastMouse(int& x, int& y)

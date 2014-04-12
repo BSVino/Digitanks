@@ -133,6 +133,8 @@ public:
 
 	virtual void			OnClientEnterGame(int iClient);
 
+	bool TraceLine(const Vector& v1, const Vector& v2, Vector& vecHit, CBaseEntity** pHit, bool bTerrainOnly = false);
+
 	virtual bool			Explode(CBaseEntity* pAttacker, CBaseEntity* pInflictor, float flRadius, float flDamage, CBaseEntity* pIgnore, const CDigitanksPlayer* pTeamIgnore);
 
 	virtual void			OnTakeShieldDamage(class CDigitank* pVictim, class CBaseEntity* pAttacker, class CBaseEntity* pInflictor, float flDamage, bool bDirectHit, bool bShieldOnly);

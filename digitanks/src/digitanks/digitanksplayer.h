@@ -154,13 +154,19 @@ public:
 	virtual void				OnRemoveUnit(CDigitanksEntity* pEntity);
 
 	virtual void				MouseMotion(int dx, int dy);
-	virtual void				MouseInput(int iButton, tinker_mouse_state_t iState);
+	virtual bool				MouseInput(int iButton, tinker_mouse_state_t iState);
 	void                        MouseDoubleClick();
 	virtual void				MouseWheel(int iState);
 	virtual void				KeyPress(int c);
 	virtual void				KeyRelease(int c);
 	virtual void				CharPress(int c);
 	virtual void				CharRelease(int c);
+
+	bool GetBoxSelection(size_t& iX, size_t& iY, size_t& iX2, size_t& iY2);
+	bool IsMouseDragging();
+
+	int  GetMouseCurrentX() { return m_iMouseCurrentX; };
+	int  GetMouseCurrentY() { return m_iMouseCurrentY; };
 
 	void						SetLoseCondition(losecondition_t eLose) { m_eLoseCondition = eLose; }
 	losecondition_t				GetLoseCondition() { return m_eLoseCondition; }
@@ -235,6 +241,11 @@ protected:
 
 	int							m_iMouseMoved;
 	bool						m_bBoxSelect;
+
+	int							m_iMouseInitialX;
+	int							m_iMouseInitialY;
+	int							m_iMouseCurrentX;
+	int							m_iMouseCurrentY;
 };
 
 inline CDigitanksPlayer* ToDigitanksPlayer(CBaseEntity* pPlayer)

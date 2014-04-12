@@ -559,33 +559,14 @@ void CTerrain::GenerateCollision()
 			{
 				CTerrainChunk* pChunk = &m_aTerrainChunks[x][y];
 
-				for (size_t i = 0; i < TERRAIN_CHUNK_SIZE; i++)
-				{
-					for (size_t j = 0; j < TERRAIN_CHUNK_SIZE; j++)
-					{
-						float flX = ChunkToWorldSpace(x, i);
-						float flY = ChunkToWorldSpace(y, j);
-						float flX1 = ChunkToWorldSpace(x, i+1);
-						float flY1 = ChunkToWorldSpace(y, j+1);
+				AABB aabbBounds;
+				aabbBounds.m_vecMins.x = ChunkToWorldSpace(x, 0);
+				aabbBounds.m_vecMaxs.x = ChunkToWorldSpace(x + 1, 0);
+				aabbBounds.m_vecMins.y = ChunkToWorldSpace(y, 0);
+				aabbBounds.m_vecMaxs.y = ChunkToWorldSpace(y + 1, 0);
 
-						int ax = ChunkToArraySpace(x, i);
-						int ay = ChunkToArraySpace(y, j);
-						int ax1 = ChunkToArraySpace(x, i+1);
-						int ay1 = ChunkToArraySpace(y, j+1);
-
-						if (GetBit(ax, ay, TB_HOLE))
-							continue;
-
-						Vector v1 = Vector(flX, GetRealHeight(ax, ay), flY);
-						Vector v2 = Vector(flX, GetRealHeight(ax, ay1), flY1);
-						Vector v3 = Vector(flX1, GetRealHeight(ax1, ay1), flY1);
-						Vector v4 = Vector(flX1, GetRealHeight(ax1, ay), flY);
-
-						TStubbed("Generate collision triangles");
-						//pChunk->m_pTracer->AddTriangle(v1, v2, v3);
-						//pChunk->m_pTracer->AddTriangle(v1, v3, v4);
-					}
-				}
+				pChunk->m_iPhysicsMesh = GamePhysics()->LoadExtraCollisionHeightmapMesh(TERRAIN_CHUNK_SIZE+1, TERRAIN_CHUNK_SIZE+1, aabbBounds, &pChunk->m_aflPhysicsHeights[0][0]);
+				pChunk->m_iPhysicsIndex = GamePhysics()->AddExtra(pChunk->m_iPhysicsMesh, Vector());
 
 				pChunk->m_bNeedsRegenerate = true;
 			}
@@ -1305,7 +1286,7 @@ void CTerrain::OnRender(CGameRenderingContext* pContext) const
 		DebugRenderQuadTree();
 
 		Vector vecPoint;
-		DigitanksWindow()->GetMouseGridPosition(vecPoint, NULL, CG_TERRAIN);
+		DigitanksWindow()->GetMouseGridPosition(vecPoint, NULL, true);
 
 		if (DigitanksGame()->GetPrimarySelectionTank())
 		{
@@ -1580,6 +1561,34 @@ void CTerrain::SetRealHeight(int x, int y, float flHeight)
 	CTerrainChunk* pChunk = GetChunk(iChunkX, iChunkY);
 
 	pChunk->m_aflHeights[iXIndex][iYIndex] = flHeight;
+	pChunk->m_aflPhysicsHeights[iXIndex][iYIndex] = flHeight;
+
+	if (iChunkX == TERRAIN_CHUNKS - 1 && iXIndex == TERRAIN_CHUNK_SIZE - 1)
+		pChunk->m_aflPhysicsHeights[TERRAIN_CHUNK_SIZE][iYIndex] = flHeight;
+
+	if (iChunkY == TERRAIN_CHUNKS - 1 && iYIndex == TERRAIN_CHUNK_SIZE - 1)
+		pChunk->m_aflPhysicsHeights[iXIndex][TERRAIN_CHUNK_SIZE] = flHeight;
+
+	if (iChunkX == TERRAIN_CHUNKS - 1 && iChunkY == TERRAIN_CHUNKS - 1 && iXIndex == TERRAIN_CHUNK_SIZE - 1 && iYIndex == TERRAIN_CHUNK_SIZE - 1)
+		pChunk->m_aflPhysicsHeights[TERRAIN_CHUNK_SIZE][TERRAIN_CHUNK_SIZE] = flHeight;
+
+	if (iChunkX > 0 && iXIndex == 0)
+	{
+		CTerrainChunk* pChunk = GetChunk(iChunkX-1, iChunkY);
+		pChunk->m_aflPhysicsHeights[TERRAIN_CHUNK_SIZE][iYIndex] = flHeight;
+	}
+
+	if (iChunkY > 0 && iYIndex == 0)
+	{
+		CTerrainChunk* pChunk = GetChunk(iChunkX, iChunkY-1);
+		pChunk->m_aflPhysicsHeights[iXIndex][TERRAIN_CHUNK_SIZE] = flHeight;
+	}
+
+	if (iChunkX > 0 && iChunkY > 0 && iXIndex == 0 && iYIndex == 0)
+	{
+		CTerrainChunk* pChunk = GetChunk(iChunkX-1, iChunkY-1);
+		pChunk->m_aflPhysicsHeights[TERRAIN_CHUNK_SIZE][TERRAIN_CHUNK_SIZE] = flHeight;
+	}
 }
 
 float CTerrain::GetHeight(float flX, float flY)
@@ -2449,38 +2458,6 @@ void CTerrain::TerrainData(class CNetworkParameters* p)
 	if (!pChunk->m_bNeedsRegenerate)
 		return;
 
-	if (terrain_debug.GetBool())
-		TMsg(tsprintf(tstring("CTerrain::TerrainData(%d, %d) regenerating collision\n"), i, j));
-
-	int iXMin = (int)(TERRAIN_CHUNK_SIZE*i);
-	int iYMin = (int)(TERRAIN_CHUNK_SIZE*j);
-	int iXMax = (int)(TERRAIN_CHUNK_SIZE*(i+1));
-	int iYMax = (int)(TERRAIN_CHUNK_SIZE*(j+1));
-
-	for (int x = iXMin; x < iXMax; x++)
-	{
-		for (int z = iYMin; z < iYMax; z++)
-		{
-			if (GetBit(x, z, TB_HOLE))
-				continue;
-
-			float flX = ArrayToWorldSpace(x);
-			float flZ = ArrayToWorldSpace(z);
-
-			float flX1 = ArrayToWorldSpace((int)x+1);
-			float flZ1 = ArrayToWorldSpace((int)z+1);
-
-			Vector v1 = Vector(flX, GetRealHeight(x, z), flZ);
-			Vector v2 = Vector(flX, GetRealHeight(x, z+1), flZ1);
-			Vector v3 = Vector(flX1, GetRealHeight(x+1, z+1), flZ1);
-			Vector v4 = Vector(flX1, GetRealHeight(x+1, z), flZ);
-
-			TStubbed("Create terrain physics");
-			//pChunk->m_pTracer->AddTriangle(v1, v2, v3);
-			//pChunk->m_pTracer->AddTriangle(v1, v3, v4);
-		}
-	}
-
 	if (!GameServer()->IsLoading())
 	{
 		GenerateTerrainCallList(i, j);
@@ -2574,6 +2551,7 @@ CTerrainChunk::CTerrainChunk()
 	m_iWallList = 0;
 	m_bNeedsRegenerate = true;
 	m_bNeedsRegenerateTexture = true;
+	m_iPhysicsMesh = m_iPhysicsIndex = ~0;
 
 	memset(m_aiSpecialData, 0, sizeof(m_aiSpecialData));
 	memset(m_aflTerrainVisibility, 0, sizeof(m_aflTerrainVisibility));
@@ -2582,6 +2560,12 @@ CTerrainChunk::CTerrainChunk()
 
 CTerrainChunk::~CTerrainChunk()
 {
+	if (m_iPhysicsIndex != ~0)
+		GamePhysics()->RemoveExtra(m_iPhysicsIndex);
+
+	if (m_iPhysicsMesh != ~0)
+		GamePhysics()->UnloadExtraCollisionMesh(m_iPhysicsMesh);
+
 	ClearGLData(true);
 }
 

@@ -483,7 +483,7 @@ bool CDigitanksWindow::ShouldConstrainMouse()
 	return true;
 }
 
-bool CDigitanksWindow::GetMouseGridPosition(Vector& vecPoint, CBaseEntity** pHit, int iCollisionGroup)
+bool CDigitanksWindow::GetMouseGridPosition(Vector& vecPoint, CBaseEntity** pHit, bool bTerrainOnly)
 {
 	if (!DigitanksGame()->GetTerrain())
 		return false;
@@ -497,8 +497,7 @@ bool CDigitanksWindow::GetMouseGridPosition(Vector& vecPoint, CBaseEntity** pHit
 
 	Vector vecRay = (vecWorld - vecCameraVector).Normalized();
 
-	TStubbed("GetMouseGridPosition");
-	return false;//GameServer()->GetGame()->TraceLine(vecCameraVector, vecCameraVector+vecRay*1000, vecPoint, pHit, iCollisionGroup);
+	return DigitanksGame()->TraceLine(vecCameraVector, vecCameraVector + vecRay * 1000, vecPoint, pHit, bTerrainOnly);
 }
 
 void CDigitanksWindow::GameOver(bool bPlayerWon)

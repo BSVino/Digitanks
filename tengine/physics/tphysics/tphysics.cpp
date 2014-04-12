@@ -82,6 +82,8 @@ size_t CTPhysics::AddExtra(size_t iExtraMesh, const Vector& vecOrigin)
 	}
 
 	CPhysicsEntity* pPhysicsEntity = m_apExtraEntityList[iIndex];
+	pPhysicsEntity->m_bActive = true;
+	pPhysicsEntity->m_eCollisionType = CT_STATIC_MESH;
 
 	TAssert(m_apExtraCollisionMeshes[iExtraMesh]);
 	if (!m_apExtraCollisionMeshes[iExtraMesh])
@@ -108,7 +110,7 @@ void CTPhysics::RemoveExtra(size_t iExtra)
 	m_apExtraEntityList[iExtra] = nullptr;
 }
 
-size_t CTPhysics::LoadExtraCollisionHeightmapMesh(size_t iWidth, size_t iHeight, float* aflVerts)
+size_t CTPhysics::LoadExtraCollisionHeightmapMesh(size_t iWidth, size_t iHeight, const AABB& aabbBounds, float* aflVerts)
 {
 	size_t iIndex = ~0;
 	for (size_t i = 0; i < m_apExtraCollisionMeshes.size(); i++)
@@ -127,7 +129,7 @@ size_t CTPhysics::LoadExtraCollisionHeightmapMesh(size_t iWidth, size_t iHeight,
 		m_apExtraCollisionMeshes.push_back(new CCollisionMesh());
 	}
 
-	m_apExtraCollisionMeshes[iIndex]->m_pMesh = new CHeightmapMesh(iWidth, iHeight, (Vector*)aflVerts);
+	m_apExtraCollisionMeshes[iIndex]->m_pMesh = new CHeightmapMesh(iWidth, iHeight, aabbBounds, aflVerts);
 
 	return iIndex;
 }
@@ -296,6 +298,49 @@ CPhysicsEntity* CTPhysics::GetPhysicsEntity(IPhysicsEntity* pEnt)
 	TAssert(pPhysicsEntity);
 
 	return pPhysicsEntity;
+}
+
+void CTPhysics::TraceLine(CTraceResult& tr, const Vector& v1, const Vector& v2, collision_group_t eCollisions, IPhysicsEntity* pIgnore)
+{
+	for (auto& oEnt : m_aEntityList)
+	{
+		if (!oEnt.m_pGameEntity)
+			continue;
+
+		if (!oEnt.m_bActive)
+			continue;
+
+		// Really this should be removed and it done with eCollisions.
+		if (oEnt.m_eCollisionType == CT_DYNAMIC || oEnt.m_eCollisionType == CT_NONE)
+			continue;
+
+		TUnimplemented();
+
+		if (oEnt.m_pGameEntity == pIgnore)
+			continue;
+
+		// Not correct but you get the idea.
+		//if (!(oEnt.m_eCollisionType&eCollisions))
+		//	continue;
+	}
+
+	for (size_t i = 0; i < m_apExtraEntityList.size(); i++)
+	{
+		auto& pExtraEnt = m_apExtraEntityList[i];
+		if (!pExtraEnt)
+			continue;
+
+		if (!pExtraEnt->m_bActive)
+			continue;
+
+		if (!pExtraEnt->m_pMesh)
+			continue;
+
+		if (pExtraEnt->m_eCollisionType == CT_DYNAMIC || pExtraEnt->m_eCollisionType == CT_NONE)
+			continue;
+
+		pExtraEnt->m_pMesh->TraceLine(i, tr, v1, v2);
+	}
 }
 
 CPhysicsModel* CreatePhysicsModel()

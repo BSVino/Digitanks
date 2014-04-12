@@ -3,7 +3,6 @@
 #include <maths.h>
 #include <mtrand.h>
 
-#include <ui/digitankswindow.h>
 #include <network/network.h>
 #include <network/commands.h>
 #include <ui/instructor.h>
@@ -11,7 +10,10 @@
 #include <glgui/rootpanel.h>
 #include <sound/sound.h>
 #include <game/cameramanager.h>
+#include <game/gameserver.h>
+#include <renderer/game_renderer.h>
 
+#include "ui/digitankswindow.h"
 #include "units/digitank.h"
 #include "structures/structure.h"
 #include "structures/loader.h"
@@ -1193,27 +1195,24 @@ void CDigitanksPlayer::MouseMotion(int dx, int dy)
 		m_iMouseMoved += (int)(fabs((float)dx) + fabs((float)dy));
 }
 
-void CDigitanksPlayer::MouseInput(int iButton, tinker_mouse_state_t iState)
+bool CDigitanksPlayer::MouseInput(int iButton, tinker_mouse_state_t iState)
 {
 	if (!DigitanksGame())
-		return;
+		return false;
 
 	if (DigitanksGame()->GetGameType() == GAMETYPE_MENU)
-		return;
+		return false;
 
 	Vector vecMousePosition;
 	CBaseEntity* pClickedEntity = NULL;
 	DigitanksWindow()->GetMouseGridPosition(vecMousePosition, &pClickedEntity);
-	DigitanksWindow()->GetMouseGridPosition(vecMousePosition, NULL, CG_TERRAIN);
+	DigitanksWindow()->GetMouseGridPosition(vecMousePosition, NULL, true);
 
 	if (iButton == TINKER_KEY_MOUSE_RIGHT && iState == 0 && m_iMouseMoved < 30)
 	{
 		DigitanksGame()->SetControlMode(MODE_NONE);
 	}
 
-	TStubbed("MouseInput Player controls");
-
-#if 0
 	if (DigitanksGame()->GetControlMode() != MODE_NONE && iButton == TINKER_KEY_MOUSE_LEFT && iState == 1)
 	{
 		// While aiming moving turning or building, either mouse button can be used and selections are disabled.
@@ -1244,13 +1243,13 @@ void CDigitanksPlayer::MouseInput(int iButton, tinker_mouse_state_t iState)
 			}
 		}
 
-		GetHUD()->SetupMenu();
+		DigitanksWindow()->GetHUD()->SetupMenu();
 
 		if (iState == 1)
 			// Don't allow the release to take any action either.
-			m_bMouseDownInGUI = true;
+			Application()->IgnoreMouseRelease();
 
-		return;
+		return true;
 	}
 
 	if (iButton == TINKER_KEY_MOUSE_RIGHT)
@@ -1264,6 +1263,9 @@ void CDigitanksPlayer::MouseInput(int iButton, tinker_mouse_state_t iState)
 		}
 	}
 
+	int mx, my;
+	glgui::RootPanel()->GetFullscreenMousePos(mx, my);
+
 	if (iButton == TINKER_KEY_MOUSE_LEFT)
 	{
 		if (iState == 1 && !DigitanksGame()->IsFeatureDisabled(DISABLE_SELECT))
@@ -1276,7 +1278,7 @@ void CDigitanksPlayer::MouseInput(int iButton, tinker_mouse_state_t iState)
 		}
 	}
 
-	if (bDoubleClick && pClickedEntity && DigitanksGame()->GetCurrentLocalDigitanksPlayer() && !DigitanksGame()->IsFeatureDisabled(DISABLE_SELECT))
+	if (iState == TINKER_MOUSE_DOUBLECLICK && pClickedEntity && DigitanksGame()->GetCurrentLocalDigitanksPlayer() && !DigitanksGame()->IsFeatureDisabled(DISABLE_SELECT))
 	{
 		CSelectable* pClickedSelectable = dynamic_cast<CSelectable*>(pClickedEntity);
 
@@ -1308,7 +1310,7 @@ void CDigitanksPlayer::MouseInput(int iButton, tinker_mouse_state_t iState)
 
 				Vector vecScreen = GameServer()->GetRenderer()->ScreenPosition(pSelectable->GetGlobalOrigin());
 
-				if (vecScreen.x < 0 || vecScreen.y < 0 || vecScreen.x > GetWindowWidth() || vecScreen.y > GetWindowHeight())
+				if (vecScreen.x < 0 || vecScreen.y < 0 || vecScreen.x > Application()->GetWindowWidth() || vecScreen.y > Application()->GetWindowHeight())
 					continue;
 
 				if (DigitanksGame()->GetCurrentLocalDigitanksPlayer())
@@ -1316,11 +1318,11 @@ void CDigitanksPlayer::MouseInput(int iButton, tinker_mouse_state_t iState)
 			}
 		}
 	}
-	else if (iState == 0 && iButton == TINKER_KEY_MOUSE_LEFT && !GameWindow()->GetInstructor()->IsFeatureDisabled(DISABLE_SELECT))
+	else if (iState == 0 && iButton == TINKER_KEY_MOUSE_LEFT && !DigitanksGame()->IsFeatureDisabled(DISABLE_SELECT))
 	{
-		if (m_bBoxSelect && IsMouseDragging() && !bDoubleClick)
+		if (m_bBoxSelect && IsMouseDragging() && iState != TINKER_MOUSE_DOUBLECLICK)
 		{
-			if (!IsShiftDown() && DigitanksGame()->GetCurrentLocalDigitanksPlayer())
+			if (!Application()->IsShiftDown() && DigitanksGame()->GetCurrentLocalDigitanksPlayer())
 				DigitanksGame()->GetCurrentLocalDigitanksPlayer()->SetPrimarySelection(NULL);
 
 			size_t iLowerX = (m_iMouseInitialX < m_iMouseCurrentX) ? m_iMouseInitialX : m_iMouseCurrentX;
@@ -1359,15 +1361,15 @@ void CDigitanksPlayer::MouseInput(int iButton, tinker_mouse_state_t iState)
 
 			if (pSelectable)
 			{
-				if (IsShiftDown())
+				if (Application()->IsShiftDown())
 					DigitanksGame()->GetCurrentLocalDigitanksPlayer()->AddToSelection(pSelectable);
 				else
 					DigitanksGame()->GetCurrentLocalDigitanksPlayer()->SetPrimarySelection(pSelectable);
 			}
-			else if (!IsShiftDown())
+			else if (!Application()->IsShiftDown())
 			{
 				DigitanksGame()->GetCurrentLocalDigitanksPlayer()->SetPrimarySelection(NULL);
-				GetHUD()->CloseWeaponPanel();
+				DigitanksWindow()->GetHUD()->CloseWeaponPanel();
 			}
 
 //			if (DigitanksGame()->GetCurrentLocalDigitanksPlayer()->GetNumSelected() == 3)
@@ -1377,8 +1379,31 @@ void CDigitanksPlayer::MouseInput(int iButton, tinker_mouse_state_t iState)
 		m_bBoxSelect = false;
 	}
 
-	GetHUD()->SetupMenu();
-#endif
+	DigitanksWindow()->GetHUD()->SetupMenu();
+}
+
+bool CDigitanksPlayer::GetBoxSelection(size_t& iX, size_t& iY, size_t& iX2, size_t& iY2)
+{
+	if (!IsMouseDragging())
+		return false;
+
+	if (m_bBoxSelect)
+	{
+		iX = (m_iMouseInitialX < m_iMouseCurrentX) ? m_iMouseInitialX : m_iMouseCurrentX;
+		iY = (m_iMouseInitialY < m_iMouseCurrentY) ? m_iMouseInitialY : m_iMouseCurrentY;
+		iX2 = (m_iMouseInitialX > m_iMouseCurrentX) ? m_iMouseInitialX : m_iMouseCurrentX;
+		iY2 = (m_iMouseInitialY > m_iMouseCurrentY) ? m_iMouseInitialY : m_iMouseCurrentY;
+		return true;
+	}
+
+	return false;
+}
+
+bool CDigitanksPlayer::IsMouseDragging()
+{
+	size_t iDifference = abs((int)m_iMouseCurrentX - (int)m_iMouseInitialX) + abs((int)m_iMouseCurrentY - (int)m_iMouseInitialY);
+
+	return iDifference > 30;
 }
 
 void CDigitanksPlayer::MouseDoubleClick()

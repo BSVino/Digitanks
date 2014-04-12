@@ -10,6 +10,7 @@
 #include <tinker/profiler.h>
 #include <renderer/game_renderingcontext.h>
 #include <renderer/roperenderer.h>
+#include <glgui/rootpanel.h>
 
 #include <digitanksentity.h>
 #include <digitanksgame.h>

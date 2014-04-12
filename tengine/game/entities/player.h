@@ -34,7 +34,7 @@ public:
 
 public:
 	virtual void					MouseMotion(int dx, int dy);
-	virtual void					MouseInput(int iButton, tinker_mouse_state_t iState) {};
+	virtual bool					MouseInput(int iButton, tinker_mouse_state_t iState) { return false; };
 	virtual void					KeyPress(int c);
 	virtual void					KeyRelease(int c);
 	virtual void					JoystickButtonPress(int iJoystick, int c);
