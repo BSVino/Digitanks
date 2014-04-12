@@ -1005,7 +1005,7 @@ void CHUD::Paint(float x, float y, float w, float h)
 		Vector vecTerrainPoint;
 		if (DigitanksWindow()->GetMouseGridPosition(vecTerrainPoint, NULL, true))
 		{
-			sFPS = tsprintf(tstring("%.2f, %.2f"), vecTerrainPoint.x, vecTerrainPoint.z);
+			sFPS = tsprintf(tstring("%.2f, %.2f"), vecTerrainPoint.x, vecTerrainPoint.y);
 			glgui::CLabel::PaintText(sFPS, sFPS.length(), _T("text"), 10, 125, flFontHeight*3 + 50);
 		}
 	}
