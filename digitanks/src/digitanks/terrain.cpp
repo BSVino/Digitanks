@@ -639,10 +639,8 @@ void CTerrain::GenerateTerrainCallList(int i, int j)
 
 			avecPoints.push_back();
 			avecPoints.back().vecPosition = Vector(flX, flY, GetRealHeight(x, y));
-			avecPoints.back().vecColor = (vecColor + m_avecQuadMods[0]) * flVisibility * GetAOValue(x, y);
+			avecPoints.back().vecColor = vecColor * flVisibility * GetAOValue(x, y);
 			avecPoints.back().vecUV = Vector2D(flUVX0, flUVY0);
-			//avecPoints.back().iCoordX = xbit;
-			//avecPoints.back().iCoordY = ybit;
 		}
 	}
 
@@ -1470,9 +1468,12 @@ void CTerrain::RenderWithShaders() const
 
 	c.SetUniform("iDiffuse", 0);
 
+	c.SetUniform("vecQuadMod0", m_avecQuadMods[0]);
+	c.SetUniform("vecQuadMod1", m_avecQuadMods[1]);
+	c.SetUniform("vecQuadMod2", m_avecQuadMods[2]);
+	c.SetUniform("vecQuadMod3", m_avecQuadMods[3]);
+
 	CTerrainTriangle t;
-	//int iCoordXOffset = ((int)&t.iCoordX) - ((int)&t);
-	//int iCoordYOffset = ((int)&t.iCoordY) - ((int)&t);
 	int iColorOffset = ((int)&t.vecColor) - ((int)&t);
 	int iUVOffset = ((int)&t.vecUV) - ((int)&t);
 
@@ -1485,8 +1486,6 @@ void CTerrain::RenderWithShaders() const
 				c.SetPositionBuffer(0u, sizeof(CTerrainTriangle));
 				c.SetColorBuffer(iColorOffset, sizeof(CTerrainTriangle));
 				c.SetTexCoordBuffer(iUVOffset, sizeof(CTerrainTriangle));
-				//c.SetCustomIntBuffer("iCoordX", sizeof(t.iCoordX), iCoordXOffset, sizeof(CTerrainTriangle));
-				//c.SetCustomIntBuffer("iCoordY", sizeof(t.iCoordY), iCoordYOffset, sizeof(CTerrainTriangle));
 			c.EndRenderVertexArrayIndexed(m_aTerrainChunks[i][j].m_iOpaqueIndices, m_aTerrainChunks[i][j].m_iOpaqueIndicesVerts);
 		}
 	}
