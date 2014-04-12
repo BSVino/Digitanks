@@ -75,7 +75,7 @@ void CHeightmapMesh::TraceLine(size_t iExtraHandle, CTraceResult& tr, const Vect
 			x1 = (int)RemapVal(flXStart, m_aabbBounds.m_vecMins.x, m_aabbBounds.m_vecMaxs.x, 0, (float)m_iWidth-1);
 			x2 = (int)RemapVal(flXEnd, m_aabbBounds.m_vecMins.x, m_aabbBounds.m_vecMaxs.x, 0, (float)m_iWidth-1);
 
-			if (x1 < x_min && x2 < x_min || x1 > x_max && x1 > x_max)
+			if (x1 < x_min && x2 < x_min || x1 > x_max && x2 > x_max)
 				// All x squares for this y are out of the heightmap's range.
 				continue;
 		}
