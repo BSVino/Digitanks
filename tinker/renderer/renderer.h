@@ -175,8 +175,8 @@ public:
 
 	void			SetSize(int w, int h);
 
-	Vector			ScreenPosition(Vector vecWorld);
-	Vector			WorldPosition(Vector vecScreen);
+	const Vector ScreenPosition(const Vector& vecWorld);
+	const Vector WorldPosition(const Vector& vecScreen);
 
 	const CFrameBuffer*	GetSceneBuffer() { return &m_oSceneBuffer; }
 
@@ -227,8 +227,8 @@ protected:
 	float			m_flFrustumNear;
 	float			m_flFrustumFar;
 
-	Matrix4x4       m_aflModelView;
-	Matrix4x4       m_aflProjection;
+	Matrix4x4       m_mModelView;
+	Matrix4x4       m_mProjection;
 	int				m_aiViewport[4];
 
 	Frustum			m_oFrustum;

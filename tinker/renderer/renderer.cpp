@@ -432,8 +432,8 @@ void CRenderer::StartRendering(class CRenderingContext* pContext)
 
 	pContext->SetView(Matrix4x4::ConstructCameraView(m_vecCameraPosition, m_vecCameraDirection, m_vecCameraUp));
 
-	m_aflModelView = pContext->GetView();
-	m_aflProjection = pContext->GetProjection();
+	m_mModelView = pContext->GetView();
+	m_mProjection = pContext->GetProjection();
 
 	if (m_bFrustumOverride)
 	{
@@ -700,12 +700,12 @@ void CRenderer::RenderMapToBuffer(size_t iMap, CFrameBuffer* pBuffer, bool bMapI
 
 const Matrix4x4& CRenderer::GetModelView() const
 {
-	return m_aflModelView;
+	return m_mModelView;
 }
 
 const Matrix4x4& CRenderer::GetProjection() const
 {
-	return m_aflProjection;
+	return m_mProjection;
 }
 
 const int* CRenderer::GetViewport() const
@@ -786,8 +786,14 @@ void CRenderer::SetSize(int w, int h)
 	m_vecFullscreenVertices[5] = Vector(1, 1, 0);
 }
 
-Vector CRenderer::ScreenPosition(Vector vecWorld)
+const Vector CRenderer::ScreenPosition(const Vector& vecWorld)
 {
+	// P - Projection matrix
+	// M - Modelview matrix
+	// R - Range remapping
+	// V - Viewport remapping
+	// Ignoring the homogeneous coordinate conversion, the result is: p = VRPMv
+
 	Vector4D v;
 
 	v.x = vecWorld.x;
@@ -795,7 +801,7 @@ Vector CRenderer::ScreenPosition(Vector vecWorld)
 	v.z = vecWorld.z;
 	v.w = 1.0;
 
-	v = m_aflProjection * m_aflModelView * v;
+	v = m_mProjection * m_mModelView * v;
 
 	if (v.w == 0.0)
 		return Vector(0, 0, 0);
@@ -816,9 +822,14 @@ Vector CRenderer::ScreenPosition(Vector vecWorld)
 	return Vector(v.x, m_iViewportHeight - v.y, v.z);
 }
 
-Vector CRenderer::WorldPosition(Vector vecScreen)
+const Vector CRenderer::WorldPosition(const Vector& vecScreen)
 {
-	Matrix4x4 mFinal = m_aflModelView * m_aflProjection;
+	// P - Projection matrix
+	// M - Modelview matrix
+	// R - Range remapping
+	// V - Viewport remapping
+	// Ignoring the homogeneous coordinate conversion, the result is the inverse of the above: v = (PM)^-1 R^-1 V^-1 p
+	// I think it's slightly faster to do (PM)^-1 than P^-1 M^-1 since we cut out one inverse matrix calculation.
 
 	Vector4D v(vecScreen.x, m_iViewportHeight - vecScreen.y, vecScreen.z, 1.0);
 
@@ -830,7 +841,7 @@ Vector CRenderer::WorldPosition(Vector vecScreen)
 	v.y = v.y * 2 - 1;
 	v.z = v.z * 2 - 1;
 
-	v = mFinal * v;
+	v = (m_mProjection * m_mModelView).Inverted() * v;
 
 	if (v.w == 0.0)
 		return Vector();
