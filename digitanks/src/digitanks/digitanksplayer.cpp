@@ -1276,6 +1276,8 @@ bool CDigitanksPlayer::MouseInput(int iButton, tinker_mouse_state_t iState)
 			m_iMouseInitialX = m_iMouseCurrentX = mx;
 			m_iMouseInitialY = m_iMouseCurrentY = my;
 		}
+
+		return 1;
 	}
 
 	if (iState == TINKER_MOUSE_DOUBLECLICK && pClickedEntity && DigitanksGame()->GetCurrentLocalDigitanksPlayer() && !DigitanksGame()->IsFeatureDisabled(DISABLE_SELECT))
@@ -1316,6 +1318,9 @@ bool CDigitanksPlayer::MouseInput(int iButton, tinker_mouse_state_t iState)
 				if (DigitanksGame()->GetCurrentLocalDigitanksPlayer())
 					DigitanksGame()->GetCurrentLocalDigitanksPlayer()->AddToSelection(pSelectable);
 			}
+
+			DigitanksWindow()->GetHUD()->SetupMenu();
+			return true;
 		}
 	}
 	else if (iState == 0 && iButton == TINKER_KEY_MOUSE_LEFT && !DigitanksGame()->IsFeatureDisabled(DISABLE_SELECT))
@@ -1377,9 +1382,12 @@ bool CDigitanksPlayer::MouseInput(int iButton, tinker_mouse_state_t iState)
 		}
 
 		m_bBoxSelect = false;
+
+		DigitanksWindow()->GetHUD()->SetupMenu();
+		return true;
 	}
 
-	DigitanksWindow()->GetHUD()->SetupMenu();
+	return false;
 }
 
 bool CDigitanksPlayer::GetBoxSelection(size_t& iX, size_t& iY, size_t& iX2, size_t& iY2)
