@@ -636,9 +636,11 @@ public:
 	void									BaseThink() { m_oGameData.Think(); };
 	virtual void							Think() {};
 
-	virtual void							Touching(size_t iOtherHandle) {};
-	virtual void							BeginTouchingList() {};
-	virtual void							EndTouchingList() {};
+	void         Touching(size_t iOtherHandle);
+	virtual void TouchingExtra(size_t iExtraHandle) {};
+	virtual void Touching(const CBaseEntity* pEntity) {};
+	virtual void BeginTouchingList() {};
+	virtual void EndTouchingList() {};
 
 	void									CallInput(const tstring& sName, const tstring& sArgs);
 	void									CallOutput(const tstring& sName);

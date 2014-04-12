@@ -62,6 +62,7 @@ void CTPhysics::RemoveEntity(CPhysicsEntity* pPhysicsEntity)
 		return;
 
 	pPhysicsEntity->m_pGameEntity = nullptr;
+	pPhysicsEntity->m_bActive = false;
 }
 
 size_t CTPhysics::AddExtra(size_t iExtraMesh, const Vector& vecOrigin)
@@ -204,26 +205,65 @@ void CTPhysics::Simulate()
 
 	float flSimulationFrameTime = phys_timestep.GetFloat();
 
-	// Move all entities
-	for (auto& pEntity : m_apSimulateList)
+	// Break simulations up into very small steps in order to preserve accuracy.
+	// I think floating point precision causes this problem but I'm not sure. Anyway this works better for my projectiles.
+	for (double flCurrentSimulationTime = m_flSimulationTime; flCurrentSimulationTime < m_flGameTime; flCurrentSimulationTime += flSimulationFrameTime)
 	{
-		// Break simulations up into very small steps in order to preserve accuracy.
-		// I think floating point precision causes this problem but I'm not sure. Anyway this works better for my projectiles.
-		for (double flCurrentSimulationTime = m_flSimulationTime; flCurrentSimulationTime < m_flGameTime; flCurrentSimulationTime += flSimulationFrameTime)
+		// Move all entities
+		for (auto& pEntity : m_apSimulateList)
 		{
-			Vector vecVelocity = pEntity->m_vecVelocity;
-			Matrix4x4 mPhysics = pEntity->m_pGameEntity->GetPhysicsTransform();
+			if (!pEntity->m_pGameEntity)
+				continue;
 
-			Vector vecOrigin = mPhysics.GetTranslation() + vecVelocity * flSimulationFrameTime;
-			mPhysics.SetTranslation(vecOrigin);
-			pEntity->m_pGameEntity->SetPhysicsTransform(mPhysics);
+			Vector vecVelocity = pEntity->m_vecVelocity;
+			Matrix4x4 mNewPhysics, mOldPhysics;
+			mNewPhysics = mOldPhysics = pEntity->m_pGameEntity->GetPhysicsTransform();
+
+			Vector vecOrigin = mOldPhysics.GetTranslation() + vecVelocity * flSimulationFrameTime;
+			mNewPhysics.SetTranslation(vecOrigin);
+
+			CTraceResult tr;
+			DetectCollisions(pEntity, mOldPhysics, mNewPhysics, tr);
+
+			for (int i = 0; i < tr.m_aHits.size(); i++)
+			{
+				auto& oOther = tr.m_aHits[i];
+
+				bool bCollide = true;
+
+				if (pEntity->m_pGameEntity)
+				{
+					if (oOther.m_iHit != ~0)
+						bCollide = pEntity->m_pGameEntity->ShouldCollideWith(oOther.m_iHit, oOther.m_vecHit);
+					else if (oOther.m_iHitExtra != ~0)
+						bCollide = pEntity->m_pGameEntity->ShouldCollideWithExtra(oOther.m_iHitExtra, oOther.m_vecHit);
+				}
+
+				if (bCollide)
+				{
+					if (pEntity->m_pGameEntity)
+					{
+						if (oOther.m_iHit != ~0)
+							pEntity->m_pGameEntity->Touching(oOther.m_iHit);
+						else if (oOther.m_iHitExtra != ~0)
+							pEntity->m_pGameEntity->TouchingExtra(oOther.m_iHitExtra);
+					}
+
+					mNewPhysics.SetTranslation(LerpValue<Vector>(mOldPhysics.GetTranslation(), mNewPhysics.GetTranslation(), oOther.m_flFraction - 0.001f));
+
+					break;
+				}
+			}
+
+			if (pEntity->m_pGameEntity)
+				pEntity->m_pGameEntity->SetPhysicsTransform(mNewPhysics);
 
 			pEntity->m_vecVelocity = vecVelocity + pEntity->m_vecGravity * flSimulationFrameTime;
 		}
-	}
 
-	while (m_flSimulationTime < m_flGameTime)
-		m_flSimulationTime += flSimulationFrameTime;
+		while (m_flSimulationTime < m_flGameTime)
+			m_flSimulationTime += flSimulationFrameTime;
+	}
 
 	TStubbed("Trigger collision");
 #if 0
@@ -249,6 +289,14 @@ void CTPhysics::Simulate()
 		}
 	}
 #endif
+}
+
+void CTPhysics::DetectCollisions(CPhysicsEntity* pEntity, const Matrix4x4& mOld, const Matrix4x4& mNew, CTraceResult& tr)
+{
+	if (pEntity->m_pMesh)
+		TUnimplemented();
+
+	TraceLine(tr, mOld.GetTranslation(), mNew.GetTranslation());
 }
 
 void CTPhysics::SetEntityCollisionDisabled(IPhysicsEntity* pEnt, bool bDisabled)

@@ -1812,22 +1812,6 @@ Vector CTerrain::GetNormalAtPoint(Vector vecPoint)
 	return (vecA-vecC).Normalized().Cross((vecA-vecB).Normalized()).Normalized();
 }
 
-bool CTerrain::Collide(const Vector& v1, const Vector& v2, Vector& vecPoint)
-{
-	vecPoint = v2;
-	bool bReturn = false;
-	for (int i = 0; i < TERRAIN_CHUNKS; i++)
-	{
-		for (int j = 0; j < TERRAIN_CHUNKS; j++)
-		{
-			CTerrainChunk* pChunk = GetChunk(i, j);
-			TStubbed("CTerrain::Collide");
-		}
-	}
-
-	return bReturn;
-}
-
 void CTerrain::TakeDamage(CBaseEntity* pAttacker, CBaseEntity* pInflictor, damagetype_t eDamageType, float flDamage, bool bDirectHit)
 {
 	if (eDamageType != DAMAGE_EXPLOSION)
@@ -1878,12 +1862,12 @@ void CTerrain::TakeDamage(CBaseEntity* pAttacker, CBaseEntity* pInflictor, damag
 			float flX1 = ArrayToWorldSpace((int)x+1);
 			float flY1 = ArrayToWorldSpace((int)y+1);
 
-			if ((Vector(flX, 0, flY) - vecOriginFlat).LengthSqr() < flRadius*flRadius)
+			if ((Vector(flX, flY, 0) - vecOriginFlat).LengthSqr() < flRadius*flRadius)
 			{
 				float flXDistance = (flX - vecOriginFlat.x);
-				float flZDistance = (flY - vecOriginFlat.y);
+				float flYDistance = (flY - vecOriginFlat.y);
 
-				float flSqrt = sqrt(flRadius*flRadius - flXDistance*flXDistance - flZDistance*flZDistance);
+				float flSqrt = sqrt(flRadius*flRadius - flXDistance*flXDistance - flYDistance*flYDistance);
 				float flNewZ = -flSqrt + vecOrigin.z;
 
 				float flCurrentZ = GetRealHeight(x, y);

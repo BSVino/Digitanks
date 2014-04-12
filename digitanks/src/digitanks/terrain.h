@@ -170,8 +170,7 @@ public:
 
 	Vector					GetNormalAtPoint(Vector vecPoint);
 
-	virtual bool			Collide(const Vector& v1, const Vector& v2, Vector& vecPoint);
-	void					TakeDamage(CBaseEntity* pAttacker, CBaseEntity* pInflictor, damagetype_t eDamageType, float flDamage, bool bDirectHit);
+	void					TakeDamage(CBaseEntity* pAttacker, CBaseEntity* pInflictor, damagetype_t eDamageType, float flDamage, bool bDirectHit = true);
 
 	void					AddRunner(Vector vecPosition, Color clrColor, float flFade = 1.0f);
 	void					AddRunner(Vector vecPosition, Vector vecPrimaryDirection, Color clrColor, float flFade = 1.0f);

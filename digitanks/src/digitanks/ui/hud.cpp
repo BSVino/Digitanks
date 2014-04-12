@@ -1470,7 +1470,7 @@ void CHUD::Paint(float x, float y, float w, float h)
 			{
 				float flCurrentTime = flTimePerLink*i;
 				Vector vecCurrentOrigin = vecTankOrigin + vecForce*flCurrentTime + Vector(0, 0, flGravity*flCurrentTime*flCurrentTime/2);
-				if (DigitanksGame()->GetTerrain()->Collide(vecLastOrigin, vecCurrentOrigin, vecPoint))
+				if (DigitanksGame()->TraceLine(vecLastOrigin, vecCurrentOrigin, vecPoint, nullptr, true))
 				{
 					bObstruction = true;
 					break;

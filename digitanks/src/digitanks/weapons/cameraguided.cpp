@@ -161,7 +161,8 @@ bool CCameraGuidedMissile::IsTouching(CBaseEntity* pOther, Vector& vecPoint) con
 	}
 
 	case CG_TERRAIN:
-		return DigitanksGame()->GetTerrain()->Collide(GetGlobalOrigin(), GetGlobalOrigin(), vecPoint);
+		TStubbed("CCameraGuidedMissile::IsTouching");
+		//return DigitanksGame()->GetTerrain()->Collide(GetGlobalOrigin(), GetGlobalOrigin(), vecPoint);
 
 	case CG_PROP:;
 		//return pOther->Collide(GetGlobalOrigin(), GetGlobalOrigin(), vecPoint);

@@ -1245,6 +1245,11 @@ void CBaseEntity::OnDeleted(const CBaseEntity* pEntity)
 	}
 }
 
+void CBaseEntity::Touching(size_t iOtherHandle)
+{
+	Touching(CEntityHandle<CBaseEntity>(iOtherHandle));
+}
+
 void CBaseEntity::CallInput(const tstring& sName, const tstring& sArgs)
 {
 	CEntityInput* pInput = FindInput(sName.c_str());

@@ -69,6 +69,7 @@ public:
 	virtual void    UnloadExtraCollisionMesh(size_t iMesh);
 
 	virtual void Simulate();
+	void DetectCollisions(CPhysicsEntity* pEntity, const Matrix4x4& mOld, const Matrix4x4& mNew, CTraceResult& tr);
 
 	virtual void DebugDraw(physics_debug_t iLevel);
 

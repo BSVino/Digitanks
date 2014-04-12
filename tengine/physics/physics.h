@@ -65,9 +65,11 @@ public:
 
 	// Triggers
 	virtual void              Touching(size_t iOtherHandle) {};
+	virtual void              TouchingExtra(size_t iExtraHandle) {};
 	virtual void              BeginTouchingList() {};
 	virtual void              EndTouchingList() {};
 	virtual bool              ShouldCollideWith(size_t iOtherHandle, const TVector& vecPoint) const { return true; }
+	virtual bool              ShouldCollideWithExtra(size_t iOtherHandle, const TVector& vecPoint) const { return true; }
 };
 
 class CTraceResult

@@ -40,9 +40,11 @@ public:
 	virtual bool				ShouldRender() const { return true; };
 	virtual void				OnRender(class CGameRenderingContext* pContext) const;
 
-	virtual bool				ShouldTouch(CBaseEntity* pOther) const;
-	virtual bool				IsTouching(CBaseEntity* pOther, Vector& vecPoint) const;
-	virtual void				Touching(CBaseEntity* pOther);
+	virtual bool ShouldCollideWith(size_t iOtherHandle, const TVector& vecPoint) const;
+	virtual bool IsTouching(CBaseEntity* pOther, Vector& vecPoint) const;
+	virtual void Touching(CBaseEntity* pOther);
+	virtual void TouchingExtra(size_t iExtraHandle);
+	virtual void TouchingSomething(CBaseEntity* pOther);
 
 	virtual void				OnExplode(CBaseEntity* pInstigator);
 	virtual bool				ShouldPlayExplosionSound();
@@ -429,8 +431,8 @@ public:
 	virtual void				Spawn();
 	virtual void				Think();
 
-	virtual bool				ShouldTouch(CBaseEntity* pOther) const;
-	virtual void				Touching(CBaseEntity* pOther);
+	virtual bool				ShouldCollideWithExtra(size_t, const TVector& vecPoint) const;
+	virtual void				TouchingExtra(size_t iExtraHandle);
 
 	virtual void				Explode(CBaseEntity* pInstigator = NULL);
 

@@ -246,35 +246,23 @@ void CProjectile::OnRender(class CGameRenderingContext* pContext) const
 	}
 }
 
-bool CProjectile::ShouldTouch(CBaseEntity* pOther) const
+bool CProjectile::ShouldCollideWith(size_t iOtherHandle, const TVector& vecPoint) const
 {
+	CBaseEntity* pBaseOther = CEntityHandle<CBaseEntity>(iOtherHandle);
+
 	if (m_flTimeExploded != 0.0)
 		return false;
 
-	if (!pOther)
+	if (!pBaseOther)
 		return false;
 
-	if (pOther == m_hOwner)
+	if (pBaseOther == m_hOwner)
 		return false;
 
-	if (pOther->GetCollisionGroup() == CG_PROP)
-		return true;
+	if (m_hOwner != NULL && pBaseOther->GetOwner() == m_hOwner->GetOwner())
+		return false;
 
-	TStubbed("CProjectile::ShouldTouch");
-#if 0
-	if (pOther->GetCollisionGroup() == CG_ENTITY)
-	{
-		if (m_hOwner != NULL && pOther->GetPlayerOwner() == m_hOwner->GetPlayerOwner())
-			return false;
-
-		return true;
-	}
-#endif
-
-	if (pOther->GetCollisionGroup() == CG_TERRAIN)
-		return true;
-
-	return false;
+	return true;
 }
 
 bool CProjectile::IsTouching(CBaseEntity* pOther, Vector& vecPoint) const
@@ -294,12 +282,6 @@ bool CProjectile::IsTouching(CBaseEntity* pOther, Vector& vecPoint) const
 			return true;
 		break;
 	}
-
-	case CG_TERRAIN:
-		return DigitanksGame()->GetTerrain()->Collide(GetGlobalOrigin(), GetGlobalOrigin(), vecPoint);
-
-	case CG_PROP:;
-		//return pOther->Collide(GetGlobalOrigin(), GetGlobalOrigin(), vecPoint);
 	}
 
 	return false;
@@ -307,40 +289,44 @@ bool CProjectile::IsTouching(CBaseEntity* pOther, Vector& vecPoint) const
 
 void CProjectile::Touching(CBaseEntity* pOther)
 {
+	pOther->TakeDamage(m_hOwner, this, DAMAGE_EXPLOSION, m_flDamage + GetBonusDamage());
+
+	TouchingSomething(pOther);
+}
+
+// All extra physics objects are terrain.
+void CProjectile::TouchingExtra(size_t iExtraOther)
+{
 	if (m_iBounces < Bounces())
 	{
-		// If we hit the terrain then bounce otherwise blow up.
-		if (dynamic_cast<CTerrain*>(pOther))
-		{
-			Matrix4x4 mReflect;
+		Matrix4x4 mReflect;
 
-			Vector vecProjectileOrigin = GetGlobalOrigin();
-			vecProjectileOrigin = DigitanksGame()->GetTerrain()->GetPointHeight(vecProjectileOrigin);
-			vecProjectileOrigin.z += 0.5f;
+		Vector vecProjectileOrigin = GetGlobalOrigin();
+		vecProjectileOrigin = DigitanksGame()->GetTerrain()->GetPointHeight(vecProjectileOrigin);
+		vecProjectileOrigin.z += 0.5f;
 
-			mReflect.SetReflection(dynamic_cast<CTerrain*>(pOther)->GetNormalAtPoint(vecProjectileOrigin));
+		mReflect.SetReflection(DigitanksGame()->GetTerrain()->GetNormalAtPoint(vecProjectileOrigin));
 
-			SetGlobalVelocity((mReflect*GetGlobalVelocity())*0.6f);
+		SetGlobalVelocity((mReflect*GetGlobalVelocity())*0.6f);
 
-			SetGlobalOrigin(vecProjectileOrigin);
+		SetGlobalOrigin(vecProjectileOrigin);
 
-			m_iBounces++;
-			return;
-		}
+		m_iBounces++;
+		return;
 	}
 
-	if (dynamic_cast<CTerrain*>(pOther))
-	{
-		if (ShouldExplode())
-			pOther->TakeDamage(m_hOwner, this, DAMAGE_EXPLOSION, m_flDamage + GetBonusDamage());
-	}
-	else
-		pOther->TakeDamage(m_hOwner, this, DAMAGE_EXPLOSION, m_flDamage + GetBonusDamage());
+	if (ShouldExplode())
+		DigitanksGame()->GetTerrain()->TakeDamage(m_hOwner, this, DAMAGE_EXPLOSION, m_flDamage + GetBonusDamage());
 
+	TouchingSomething(DigitanksGame()->GetTerrain());
+}
+
+void CProjectile::TouchingSomething(CBaseEntity* pOther)
+{
 	if (ShouldExplode())
 		Explode(pOther);
 	else
-		m_flTimeExploded = 1;	// Remove immediately.
+		m_flTimeExploded = 1; // Remove immediately.
 
 	if (MakesSounds())
 	{
@@ -360,6 +346,8 @@ void CProjectile::Touching(CBaseEntity* pOther)
 void CProjectile::OnExplode(CBaseEntity* pInstigator)
 {
 	BaseClass::OnExplode(pInstigator);
+
+	GamePhysics()->RemoveEntity(this);
 
 	if (Fragments() && !m_bFragmented)
 		Fragment();
@@ -1009,22 +997,19 @@ void CTorpedo::Think()
 		BaseClass::Think();
 }
 
-bool CTorpedo::ShouldTouch(CBaseEntity* pOther) const
+bool CTorpedo::ShouldCollideWithExtra(size_t iExtraOther, const TVector& vecPoint) const
 {
-	if (m_bBurrowing && pOther && pOther->GetCollisionGroup() == CG_TERRAIN)
+	if (m_bBurrowing)
 		return false;
 
-	return BaseClass::ShouldTouch(pOther);
+	return BaseClass::ShouldCollideWithExtra(iExtraOther, vecPoint);
 }
 
-void CTorpedo::Touching(CBaseEntity* pOther)
+void CTorpedo::TouchingExtra(size_t iExtraHandle)
 {
-	if (pOther->GetCollisionGroup() == CG_TERRAIN)
-	{
-		m_bBurrowing = true;
-		SetGlobalVelocity(Vector());
-		SetGlobalGravity(Vector());
-	}
+	m_bBurrowing = true;
+	SetGlobalVelocity(Vector());
+	SetGlobalGravity(Vector());
 
 	// Don't call superclass!
 }
