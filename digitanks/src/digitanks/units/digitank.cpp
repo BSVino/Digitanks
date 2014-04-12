@@ -845,16 +845,29 @@ bool CDigitank::IsPreviewAimValid()
 
 const Vector CDigitank::FindNearestTerrainPointInRange(const Vector& vecAim)
 {
-	Vector vecPreviewAim = vecAim;
+	TAssert(GetCurrentWeapon() != WEAPON_CHARGERAM && GetCurrentWeapon() != PROJECTILE_CAMERAGUIDED);
 
-	while (!IsInsideMaxRange(vecPreviewAim))
+	if (IsInsideMaxRange(vecAim))
+		return vecAim;
+
+	Vector vecDirection = (vecAim - GetRealOrigin()).Normalized();
+
+	Vector vecNear = GetRealOrigin();
+	Vector vecFar = vecAim;
+
+	Vector vecHalfway = DigitanksGame()->GetTerrain()->GetPointHeight((vecNear + vecFar) / 2);
+
+	while ((vecNear - vecFar).LengthSqr() > 0.1f)
 	{
-		Vector vecDirection = vecPreviewAim - GetRealOrigin();
-		vecDirection.z = 0;
-		vecPreviewAim = DigitanksGame()->GetTerrain()->GetPointHeight(GetRealOrigin() + vecDirection.Normalized() * vecDirection.Length2D() * 0.99f);
+		if (IsInsideMaxRange(vecHalfway))
+			vecNear = vecHalfway;
+		else
+			vecFar = vecHalfway;
+
+		vecHalfway = DigitanksGame()->GetTerrain()->GetPointHeight((vecNear + vecFar) / 2);
 	}
 
-	return vecPreviewAim;
+	return vecNear;
 }
 
 bool CDigitank::CanCharge() const
@@ -1683,18 +1696,7 @@ void CDigitank::Think()
 
 		if (GetCurrentWeapon() != WEAPON_CHARGERAM && (m_bFiredWeapon || bMouseOK))
 		{
-			Vector vecDirection = vecTankAim - GetRealOrigin();
-			vecDirection.z = 0;
-
-			while (!IsInsideMaxRange(vecTankAim))
-			{
-				vecDirection = vecDirection * 0.95f;
-
-				if (vecDirection.LengthSqr() < 1)
-					break;
-
-				vecTankAim = DigitanksGame()->GetTerrain()->GetPointHeight(GetRealOrigin() + vecDirection.Normalized() * vecDirection.Length2D());
-			}
+			vecTankAim = FindNearestTerrainPointInRange(vecTankAim);
 
 			if ((vecTankAim - GetGlobalOrigin()).Length() < GetMinRange())
 			{
