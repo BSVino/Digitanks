@@ -413,11 +413,15 @@ inline FILE* Tinker_Android_tfopen(const tstring&, const tstring&)
 // Try to open the file from the package assets folder first. (eg if we're on Android.)
 inline FILE* tfopen_asset(const tstring& sFile, const tstring& sMode)
 {
-	FILE* fp = Tinker_Android_tfopen(sFile, sMode);
+	// Slam it to lowercase for Linux compatibility.
+	tstring sLowercaseFile = sFile;
+	sLowercaseFile.tolower();
+
+	FILE* fp = Tinker_Android_tfopen(sLowercaseFile, sMode);
 	if (fp)
 		return fp;
 
-	return tfopen(sFile, sMode);
+	return tfopen(sLowercaseFile, sMode);
 }
 
 inline bool fgetts(tstring& str, FILE* fp)
