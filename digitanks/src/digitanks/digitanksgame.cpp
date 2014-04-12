@@ -2551,6 +2551,9 @@ CStructure* CDigitanksGame::GetPrimarySelectionStructure()
 
 Vector CDigitanksGame::GetFormationPosition(Vector vecPosition, Vector vecFacing, size_t iUnitsInFormation, size_t iPosition)
 {
+	if (vecFacing.LengthSqr() == 0)
+		return vecPosition;
+
 	vecFacing.z = 0;
 	vecFacing.Normalize();
 
@@ -2561,7 +2564,7 @@ Vector CDigitanksGame::GetFormationPosition(Vector vecPosition, Vector vecFacing
 	if (GetGameType() == GAMETYPE_ARTILLERY)
 		flSeparation = 12;
 
-	Vector vecRight = Vector(0,1,0).Cross(vecFacing).Normalized();
+	Vector vecRight = Vector(0,0,1).Cross(vecFacing).Normalized();
 	if (iPosition%2 == 1)
 		return vecPosition + vecRight*flSeparation*(float)((iPosition+1)/2);
 

@@ -1079,7 +1079,7 @@ void CDigitank::Move(CNetworkParameters* p)
 				pUserFile->Pickup(this);
 
 			CDigitanksEntity* pOtherEntity = dynamic_cast<CDigitanksEntity*>(pEntity);
-			if (pOtherEntity && pOtherEntity->IsTouching(this, vecTouchingPoint))
+			if (pOtherEntity && pOtherEntity->IsImprisoned() && pOtherEntity->IsTouching(this, vecTouchingPoint))
 				pOtherEntity->Rescue(this);
 		}
 	}

@@ -382,6 +382,7 @@ void CDigitanksRenderer::RenderPreviewModes()
 					vecNewPosition.y = pTank->FindHoverHeight(vecNewPosition);
 
 					CGameRenderingContext r(GameServer()->GetRenderer());
+					r.UseProgram("model");
 					r.Translate(vecNewPosition + Vector(0, 0, 1));
 					r.Rotate(-VectorAngles(vecPreviewDirection).y, Vector(0, 0, 1));
 
