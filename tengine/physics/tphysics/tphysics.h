@@ -7,6 +7,7 @@ class CPhysicsMesh
 public:
 	virtual void TraceLine(size_t iExtraHandle, CTraceResult& tr, const Vector& v1, const Vector& v2) { TUnimplemented(); };
 
+	virtual void DebugDraw(const Matrix4x4& mTransform, physics_debug_t iLevel) { TUnimplemented(); };
 };
 
 class CPhysicsEntity
@@ -28,6 +29,9 @@ public:
 	virtual ~CPhysicsEntity()
 	{
 	};
+
+public:
+	void DebugDraw(physics_debug_t iLevel);
 
 public:
 	IPhysicsEntity*  m_pGameEntity;
@@ -64,7 +68,7 @@ public:
 
 	virtual void Simulate();
 
-	virtual void DebugDraw(int iLevel) { TUnimplemented(); };
+	virtual void DebugDraw(physics_debug_t iLevel);
 
 	virtual collision_type_t GetEntityCollisionType(IPhysicsEntity* pEnt) { TUnimplemented(); return CT_NONE; };
 

@@ -10,6 +10,8 @@ public:
 public:
 	virtual void TraceLine(size_t iExtraHandle, CTraceResult& tr, const Vector& v1, const Vector& v2);
 
+	virtual void DebugDraw(const Matrix4x4& mTransform, physics_debug_t iLevel);
+
 private:
 	float GetHeight(size_t x, size_t y);
 	Vector GetPosition(size_t x, size_t y);

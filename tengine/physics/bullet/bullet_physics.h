@@ -179,7 +179,7 @@ public:
 
 	virtual void			Simulate();
 
-	virtual void			DebugDraw(int iLevel);
+	virtual void			DebugDraw(physics_debug_t iLevel);
 
 	virtual collision_type_t	GetEntityCollisionType(IPhysicsEntity* pEnt);
 

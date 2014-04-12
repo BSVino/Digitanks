@@ -35,6 +35,14 @@ typedef enum
 	MT_HEIGHTMAP,
 } mesh_type_t;
 
+typedef enum
+{
+	PHYS_DEBUG_NONE = 0,
+	PHYS_DEBUG_AABB,
+	PHYS_DEBUG_WIREFRAME,
+	PHYS_DEBUG_WF_AND_CONTACTS,
+} physics_debug_t;
+
 class IPhysicsEntity
 {
 public:
@@ -123,7 +131,7 @@ public:
 
 	virtual void			Simulate() {};
 
-	virtual void			DebugDraw(int iLevel) {};
+	virtual void			DebugDraw(physics_debug_t iLevel) {};
 
 	virtual collision_type_t	GetEntityCollisionType(IPhysicsEntity* pEnt) { return CT_NONE; };
 

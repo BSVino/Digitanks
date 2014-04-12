@@ -3,6 +3,8 @@
 #include <tinker/profiler.h>
 #include <tinker/cvar.h>
 #include <game/gameserver.h>
+#include <renderer/game_renderer.h>
+#include <renderer/renderingcontext.h>
 
 #include "heightmap.h"
 
@@ -341,6 +343,46 @@ void CTPhysics::TraceLine(CTraceResult& tr, const Vector& v1, const Vector& v2, 
 
 		pExtraEnt->m_pMesh->TraceLine(i, tr, v1, v2);
 	}
+}
+
+void CTPhysics::DebugDraw(physics_debug_t iLevel)
+{
+	if (iLevel == PHYS_DEBUG_NONE)
+		return;
+
+	CRenderingContext c(GameServer()->GetRenderer(), true);
+	c.UseProgram("debug");
+	c.SetUniform("vecColor", Color(1.0f, 1.0f, 1.0f, 1.0f));
+
+	for (auto& oEnt : m_aEntityList)
+	{
+		if (!oEnt.m_pGameEntity)
+			continue;
+
+		if (!oEnt.m_bActive)
+			continue;
+
+		oEnt.DebugDraw(iLevel);
+	}
+
+	for (auto& pEnt : m_apExtraEntityList)
+	{
+		if (!pEnt)
+			continue;
+
+		if (!pEnt->m_bActive)
+			continue;
+
+		pEnt->DebugDraw(iLevel);
+	}
+}
+
+void CPhysicsEntity::DebugDraw(physics_debug_t iLevel)
+{
+	if (m_pMesh)
+		m_pMesh->DebugDraw(m_pGameEntity?m_pGameEntity->GetPhysicsTransform():Matrix4x4(), iLevel);
+	else
+		TUnimplemented();
 }
 
 CPhysicsModel* CreatePhysicsModel()

@@ -774,9 +774,7 @@ void CBulletPhysics::DebugDraw(int iLevel)
 		m_pDebugDrawer->setDebugMode(btIDebugDraw::DBG_DrawWireframe|btIDebugDraw::DBG_DrawContactPoints);
 
 	CRenderingContext c(GameServer()->GetRenderer(), true);
-	c.UseProgram("model");
-	c.SetUniform("bDiffuse", false);
-	c.SetUniform("vecDiffuse", Vector4D(1, 1, 1, 1));
+	c.UseProgram("debug");
 	m_pDebugDrawer->SetRenderingContext(&c);
 
 	m_pDebugDrawer->SetDrawing(true);

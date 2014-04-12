@@ -1,6 +1,9 @@
 #include "heightmap.h"
 
 #include <application.h>
+#include <game/gameserver.h>
+#include <renderer/game_renderer.h>
+#include <renderer/renderingcontext.h>
 
 CHeightmapMesh::CHeightmapMesh(size_t iWidth, size_t iHeight, const AABB& aabbBounds, const float* pflVerts)
 {
@@ -134,4 +137,51 @@ Vector CHeightmapMesh::GetPosition(size_t x, size_t y)
 		RemapVal((float)y, 0.0f, (float)m_iHeight-1, m_aabbBounds.m_vecMins.y, m_aabbBounds.m_vecMaxs.y),
 		GetHeight((size_t)x, (size_t)y)
 	);
+}
+
+void CHeightmapMesh::DebugDraw(const Matrix4x4& mTransform, physics_debug_t iLevel)
+{
+	if (!m_pflVerts)
+		return;
+
+	if (iLevel == PHYS_DEBUG_AABB)
+	{
+		AABB aabbBounds = m_aabbBounds;
+		aabbBounds.m_vecMaxs.z = m_pflVerts[0];
+		aabbBounds.m_vecMins.z = m_pflVerts[0];
+
+		for (size_t i = 1; i < m_iHeight * m_iWidth; i++)
+		{
+			if (m_pflVerts[i] > aabbBounds.m_vecMaxs.z)
+				aabbBounds.m_vecMaxs.z = m_pflVerts[i];
+
+			if (m_pflVerts[i] < aabbBounds.m_vecMins.z)
+				aabbBounds.m_vecMins.z = m_pflVerts[i];
+		}
+
+		CRenderingContext c(GameServer()->GetRenderer(), true);
+		c.RenderWireBox(aabbBounds);
+	}
+	else if (iLevel == PHYS_DEBUG_WIREFRAME || iLevel == PHYS_DEBUG_WF_AND_CONTACTS)
+	{
+		Vector vecCenter = GetPosition(m_iWidth / 2, m_iHeight / 2);
+		Vector vecCorner = GetPosition(0, 0);
+		if (!GameServer()->GetRenderer()->IsSphereInFrustum(vecCenter, (vecCenter - vecCorner).Length()))
+			return;
+
+		CRenderingContext c(GameServer()->GetRenderer(), true);
+		c.BeginRenderDebugLines();
+		for (size_t i = 0; i < m_iWidth-1; i++)
+		{
+			for (size_t j = 0; j < m_iHeight-1; j++)
+			{
+				c.Vertex(GetPosition(i, j));
+				c.Vertex(GetPosition(i+1, j));
+
+				c.Vertex(GetPosition(i, j));
+				c.Vertex(GetPosition(i, j+1));
+			}
+		}
+		c.EndRender();
+	}
 }
