@@ -556,6 +556,21 @@ void CDigitanksGame::SetupArtillery()
 {
 	TMsg("Setting up artillery game.\n");
 
+	GameServer()->AddToPrecacheList("CSmallShell");
+	GameServer()->AddToPrecacheList("CMediumShell");
+	GameServer()->AddToPrecacheList("CLargeShell");
+	GameServer()->AddToPrecacheList("CAOEShell");
+	GameServer()->AddToPrecacheList("CTractorBomb");
+	GameServer()->AddToPrecacheList("CSploogeShell");
+	GameServer()->AddToPrecacheList("CICBM");
+	GameServer()->AddToPrecacheList("CEMP");
+	GameServer()->AddToPrecacheList("CGrenade");
+	GameServer()->AddToPrecacheList("CEarthshaker");
+	GameServer()->AddToPrecacheList("CCameraGuidedMissile");
+	GameServer()->AddToPrecacheList("CDaisyChain");
+	GameServer()->AddToPrecacheList("CClusterBomb");
+	GameServer()->AddToPrecacheList("CLaser");
+
 	m_sObjective = "Destroy all enemy tanks";
 
 	int iPlayers = game_players.GetInt() + game_bots.GetInt();
@@ -691,6 +706,9 @@ void CDigitanksGame::SetupArtillery()
 void CDigitanksGame::SetupStrategy()
 {
 	TMsg("Setting up strategy game.\n");
+
+	TUnimplemented();
+	// GameServer()->AddToPrecacheList("CEtcEtc");
 
 	m_sObjective = "Destroy all enemy CPUs";
 
@@ -1006,6 +1024,9 @@ CCommand mission_lose("mission_lose", ::MissionLose);
 void CDigitanksGame::SetupCampaign(bool bReload)
 {
 	TMsg(tsprintf(tstring("Setting up campaign %s.\n"), CVar::GetCVarValue("game_level").c_str()));
+
+	TUnimplemented();
+	// GameServer()->AddToPrecacheList("CEtcEtc");
 
 	SetCurrentLevel(CVar::GetCVarValue("game_level"));
 

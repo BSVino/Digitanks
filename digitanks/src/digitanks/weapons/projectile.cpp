@@ -56,6 +56,7 @@ void CProjectile::Precache()
 	PrecacheParticleSystem(_T("shell-trail"));
 	PrecacheSound(_T("sound/bomb-drop.wav"));
 	PrecacheParticleSystem(_T("dmg-boost"));
+	PrecacheModel("models/weapons/shell.toy");
 }
 
 void CProjectile::Spawn()
@@ -64,6 +65,9 @@ void CProjectile::Spawn()
 
 	m_hTrailParticles.SetSystem(CreateTrailSystem(), GetGlobalOrigin());
 	m_hTrailParticles.FollowEntity(this);
+
+	SetModel("models/weapons/shell.toy");
+	AddToPhysics(CT_DYNAMIC);
 }
 
 void CProjectile::Think()

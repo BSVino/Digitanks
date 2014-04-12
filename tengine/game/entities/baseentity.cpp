@@ -893,6 +893,8 @@ CBaseEntity* CBaseEntity::GetOwner() const
 void CBaseEntity::SetOwner(CBaseEntity* pOwner)
 {
 	m_hOwner = pOwner;
+
+	OnSetOwner(pOwner);
 }
 
 void CBaseEntity::ClientUpdate(int iClient)
