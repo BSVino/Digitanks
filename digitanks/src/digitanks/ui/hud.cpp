@@ -300,6 +300,7 @@ CHUD::CHUD()
 	SetButtonSheetTexture(m_pTurnButton, &m_HUDSheet, "EndTurn");
 	m_pTurnButton->SetClickedListener(this, EndTurn);
 	m_pTurnButton->ShowBackground(false);
+	m_pTurnButton->SetBorder(BT_NONE);
 	m_pTurnButton->SetCursorInListener(this, CursorInTurnButton);
 	m_pTurnButton->SetCursorOutListener(this, CursorOutTurnButton);
 

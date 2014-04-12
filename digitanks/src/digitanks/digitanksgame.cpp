@@ -2498,17 +2498,17 @@ void CDigitanksGame::TankSelectionMedal(const tvector<tstring>& sArgs)
 	DigitanksWindow()->GetHUD()->ShowTankSelectionMedal();
 }
 
-void CDigitanksGame::OnDeleted(CBaseEntity* pEntity)
+void CDigitanksGame::OnDeleted(const CBaseEntity* pEntity)
 {
 	BaseClass::OnDeleted(pEntity);
 
-	if (dynamic_cast<class CProjectile*>(pEntity) != NULL)
+	if (dynamic_cast<const CProjectile*>(pEntity) != NULL)
 	{
 		if (m_iWaitingForProjectiles > 0)
 			m_iWaitingForProjectiles--;
 	}
 
-	if (dynamic_cast<class CPowerup*>(pEntity) != NULL)
+	if (dynamic_cast<const CPowerup*>(pEntity) != NULL)
 		m_iPowerups--;
 }
 

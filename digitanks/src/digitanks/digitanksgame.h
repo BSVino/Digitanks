@@ -152,7 +152,7 @@ public:
 	virtual void			OnDisabled(CBaseEntity* pVictim, CBaseEntity* pAttacker, CBaseEntity* pInflictor);
 	virtual void			OnMiss(CBaseEntity* pVictim, CBaseEntity* pAttacker, CBaseEntity* pInflictor);
 
-	virtual void			OnDeleted(class CBaseEntity* pEntity);
+	virtual void			OnDeleted(const CBaseEntity* pEntity);
 
 	virtual void			TankSpeak(class CBaseEntity* pTank, const tstring& sSpeech);
 

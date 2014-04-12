@@ -47,11 +47,13 @@ void CPowerup::Spawn()
 	{
 		switch (RandomInt(0, 4))
 		{
+		default:
 		case 0:
 		case 1:
 			SetPowerupType(POWERUP_AIRSTRIKE);
 			break;
 
+		case 3:
 		case 4:
 			SetPowerupType(POWERUP_TANK);
 			break;
