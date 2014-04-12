@@ -36,12 +36,12 @@ void CDigitanksRenderer::Initialize()
 	m_hVignetting = CTextureLibrary::AddTexture("textures/vignetting.png");
 
 	SetSkybox(
-		CTextureLibrary::AddTexture("textures/skybox/standard-ft.png", 2),
-		CTextureLibrary::AddTexture("textures/skybox/standard-bk.png", 2),
-		CTextureLibrary::AddTexture("textures/skybox/standard-lf.png", 2),
-		CTextureLibrary::AddTexture("textures/skybox/standard-rt.png", 2),
-		CTextureLibrary::AddTexture("textures/skybox/standard-up.png", 2),
-		CTextureLibrary::AddTexture("textures/skybox/standard-dn.png", 2)
+		CTextureLibrary::AddTexture("textures/skybox/standard-ft.png", 1),
+		CTextureLibrary::AddTexture("textures/skybox/standard-bk.png", 1),
+		CTextureLibrary::AddTexture("textures/skybox/standard-lf.png", 1),
+		CTextureLibrary::AddTexture("textures/skybox/standard-rt.png", 1),
+		CTextureLibrary::AddTexture("textures/skybox/standard-up.png", 1),
+		CTextureLibrary::AddTexture("textures/skybox/standard-dn.png", 1)
 		);
 
 	m_oExplosionBuffer = CreateFrameBuffer("explosion", m_iViewportWidth, m_iViewportHeight, (fb_options_e)(FB_TEXTURE|FB_SCENE_DEPTH));
@@ -450,7 +450,7 @@ void CDigitanksRenderer::RenderPreviewModes()
 			if (pTank->GetPlayerOwner() != DigitanksGame()->GetCurrentLocalDigitanksPlayer())
 				bShowGoalMove = false;
 
-			if (bShowGoalMove)
+			if (false)// bShowGoalMove)
 			{
 				CRenderingContext r(GameServer()->GetRenderer());
 				r.SetBlend(BLEND_ALPHA);
