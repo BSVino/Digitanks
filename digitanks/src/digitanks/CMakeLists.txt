@@ -26,6 +26,7 @@ set (DIGITANKS_SOURCES
 	dt_common.cpp
 	dt_lobbylistener.cpp
 	dt_renderer.cpp
+	dt_systems.cpp
 	instructor_entity.cpp
 	menumarcher.cpp
 	powerup.cpp
@@ -35,8 +36,6 @@ set (DIGITANKS_SOURCES
 	updates.cpp
 	wreckage.cpp
 	dissolver.cpp
-
-	${CMAKE_SOURCE_DIR}/tengine/renderer/systems.cpp
 )
 
 set (DIGITANKS_CAMPAIGN_SOURCES
