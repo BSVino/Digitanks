@@ -2139,28 +2139,33 @@ bool CDigitanksGame::Explode(CBaseEntity* pAttacker, CBaseEntity* pInflictor, fl
 		if (pDigitank && flDistanceSqr < flTotalRadius2*flTotalRadius2 && !pDigitank->IsFortified() && !pDigitank->IsFortifying())
 		{
 			float flRockIntensity = pWeapon?pWeapon->RockIntensity():0.5f;
-			Vector vecExplosion = (pDigitank->GetGlobalOrigin() - vecExplosionOrigin).Normalized();
-			pDigitank->RockTheBoat(RemapValClamped(flDistanceSqr, flTotalRadius*flTotalRadius, flTotalRadius2*flTotalRadius2, flRockIntensity, flRockIntensity/5), vecExplosion);
 
-			if (flRadius < 1 || flDistanceSqr > flTotalRadius*flTotalRadius)
+			Vector vecRockDirection = pDigitank->GetGlobalOrigin() - vecExplosionOrigin;
+			if (vecRockDirection.LengthSqr())
 			{
-				float flPushDistance = pWeapon?pWeapon->PushDistance():flRadius/2;
+				Vector vecExplosion = vecRockDirection.Normalized();
+				pDigitank->RockTheBoat(RemapValClamped(flDistanceSqr, flTotalRadius*flTotalRadius, flTotalRadius2*flTotalRadius2, flRockIntensity, flRockIntensity / 5), vecExplosion);
 
-				Vector vecPushDirection = vecExplosion;
-				if (vecPushDirection.z < 0)
+				if (flRadius < 1 || flDistanceSqr > flTotalRadius*flTotalRadius)
 				{
-					vecPushDirection.z = 0;
-					vecPushDirection.Normalize();
+					float flPushDistance = pWeapon?pWeapon->PushDistance():flRadius/2;
+
+					Vector vecPushDirection = vecExplosion;
+					if (vecPushDirection.z < 0)
+					{
+						vecPushDirection.z = 0;
+						vecPushDirection.Normalize();
+					}
+
+					// If we have a direct hit (the ignored is a direct hit, see CProjectile::Touching) exaggerate it.
+					if (pEntity == pIgnore)
+						flPushDistance *= 1.5f;
+
+					pDigitank->Move(pDigitank->GetGlobalOrigin() + vecPushDirection * RemapValClamped(flDistanceSqr, flTotalRadius*flTotalRadius, flTotalRadius2*flTotalRadius2, flPushDistance, flPushDistance/2), 2);
 				}
 
-				// If we have a direct hit (the ignored is a direct hit, see CProjectile::Touching) exaggerate it.
-				if (pEntity == pIgnore)
-					flPushDistance *= 1.5f;
-
-				pDigitank->Move(pDigitank->GetGlobalOrigin() + vecPushDirection * RemapValClamped(flDistanceSqr, flTotalRadius*flTotalRadius, flTotalRadius2*flTotalRadius2, flPushDistance, flPushDistance/2), 2);
+				pDigitank->SetGoalTurretYaw(atan2(-vecExplosion.y, -vecExplosion.x) * 180/M_PI - pDigitank->GetRenderAngles().y);
 			}
-
-			pDigitank->SetGoalTurretYaw(atan2(-vecExplosion.z, -vecExplosion.x) * 180/M_PI - pDigitank->GetRenderAngles().y);
 		}
 
 		if (pEntity == pIgnore)

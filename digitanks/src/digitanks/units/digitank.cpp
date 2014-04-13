@@ -2782,8 +2782,12 @@ void CDigitank::TakeDamage(CBaseEntity* pAttacker, CBaseEntity* pInflictor, dama
 
 	if (pInflictor)
 	{
-		Vector vecLookAt = (pInflictor->GetGlobalOrigin() - GetGlobalOrigin()).Normalized();
-		m_flGoalTurretYaw = atan2(vecLookAt.z, vecLookAt.x) * 180/M_PI - GetRenderAngles().y;
+		Vector vecLookAt = pInflictor->GetGlobalOrigin() - GetGlobalOrigin();
+		if (vecLookAt.LengthSqr())
+		{
+			vecLookAt.Normalize();
+			m_flGoalTurretYaw = atan2(vecLookAt.y, vecLookAt.x) * 180 / M_PI - GetRenderAngles().y;
+		}
 	}
 
 	Speak(TANKSPEECH_DAMAGED);
