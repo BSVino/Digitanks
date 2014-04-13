@@ -845,7 +845,10 @@ bool CDigitank::IsPreviewAimValid()
 
 const Vector CDigitank::FindNearestTerrainPointInRange(const Vector& vecAim)
 {
-	TAssert(GetCurrentWeapon() != WEAPON_CHARGERAM && GetCurrentWeapon() != PROJECTILE_CAMERAGUIDED);
+	TAssert(GetCurrentWeapon() != WEAPON_CHARGERAM);
+
+	if (GetCurrentWeapon() == PROJECTILE_CAMERAGUIDED)
+		return vecAim;
 
 	if (IsInsideMaxRange(vecAim))
 		return vecAim;
