@@ -580,7 +580,7 @@ tstring CDigitanksPlayer::GetTurnInfo()
 	return m_sTurnInfo;
 }
 
-void CDigitanksPlayer::OnDeleted(CBaseEntity* pEntity)
+void CDigitanksPlayer::OnDeleted(const CBaseEntity* pEntity)
 {
 	BaseClass::OnDeleted(pEntity);
 

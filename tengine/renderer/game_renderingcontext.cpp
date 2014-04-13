@@ -125,7 +125,7 @@ void CGameRenderingContext::RenderModel(CModel* pModel, size_t iMaterial)
 {
 	SetUniform("vecColor", m_clrRender);
 
-	SetUniform("bNormalsAvailable", !!(pModel->m_pToy->GetVertexNormalOffsetInBytes(iMaterial) > 0));
+	SetUniform("bNormalsAvailable", pModel->m_pToy && !!(pModel->m_pToy->GetVertexNormalOffsetInBytes(iMaterial) > 0));
 
 	TAssert(m_pShader);
 	if (!pModel || !m_pShader)

@@ -89,7 +89,7 @@ public:
 	void						AppendTurnInfo(const tstring& sTurnInfo);
 	tstring				GetTurnInfo();
 
-	virtual void				OnDeleted(class CBaseEntity* pEntity);
+	virtual void				OnDeleted(const class CBaseEntity* pEntity);
 
 	size_t						GetNumTanksAlive() const;
 

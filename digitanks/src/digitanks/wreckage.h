@@ -16,7 +16,7 @@ public:
 
 	virtual void					Touching(CBaseEntity* pOther);
 
-	virtual void					ModifyContext(class CRenderingContext* pContext) const;
+	virtual bool					ModifyShader(class CRenderingContext* pContext) const;
 	virtual void					OnRender(class CGameRenderingContext* pContext) const;
 
 	void							FellIntoHole() { m_bFallingIntoHole = true; };

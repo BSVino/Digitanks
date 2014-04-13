@@ -770,7 +770,7 @@ void CHUD::Think()
 		if (DigitanksGame()->GetControlMode() == MODE_MOVE)
 		{
 			Vector vecMove = vecTerrainPoint;
-			vecMove.y = pCurrentTank->FindHoverHeight(vecMove);
+			vecMove.z = pCurrentTank->FindHoverHeight(vecMove);
 			pCurrentTank->SetPreviewMove(vecMove);
 		}
 
@@ -780,7 +780,7 @@ void CHUD::Think()
 			{
 				Vector vecTurn = vecTerrainPoint - pCurrentTank->GetGlobalOrigin();
 				vecTurn.Normalize();
-				float flTurn = atan2(vecTurn.z, vecTurn.x) * 180/M_PI;
+				float flTurn = atan2(vecTurn.y, vecTurn.x) * 180/M_PI;
 				pCurrentTank->SetPreviewTurn(flTurn);
 			}
 			else
@@ -1870,7 +1870,7 @@ void CHUD::PaintCameraGuidedMissile(float x, float y, float w, float h)
 		sClear = _T("CLEAR");
 	glgui::CLabel::PaintText(sClear, sClear.length(), _T("cameramissile"), 20, 10, 200);
 
-	tstring sAltitude = tsprintf(tstring("ALT %.2f"), pMissile->GetGlobalOrigin().y - DigitanksGame()->GetTerrain()->GetHeight(pMissile->GetGlobalOrigin().x, pMissile->GetGlobalOrigin().y));
+	tstring sAltitude = tsprintf(tstring("ALT %.2f"), pMissile->GetGlobalOrigin().z - DigitanksGame()->GetTerrain()->GetHeight(pMissile->GetGlobalOrigin().x, pMissile->GetGlobalOrigin().y));
 	glgui::CLabel::PaintText(sAltitude, sAltitude.length(), _T("cameramissile"), 20, 10, 300);
 
 	tstring sFuel = tsprintf(tstring("FUEL %.2f"), 13 - (GameServer()->GetGameTime() - pMissile->GetSpawnTime()));
@@ -2366,9 +2366,9 @@ void CHUD::UpdateTankInfo(CDigitank* pTank)
 		if (pTargetTank->GetPlayerOwner() == pTank->GetPlayerOwner())
 			continue;
 
-		Vector vecOrigin2D = pTargetTank->GetGlobalOrigin();
-		Vector vecAim2D = vecAim;
-		vecOrigin2D.y = vecAim2D.y = 0;
+		Vector vecOrigin2D = pTargetTank->GetGlobalOrigin().Flattened();
+		Vector vecAim2D = vecAim.Flattened();
+
 		if ((vecOrigin2D - vecAim2D).LengthSqr() > flRadius*flRadius)
 			continue;
 
@@ -2390,9 +2390,9 @@ void CHUD::UpdateTankInfo(CDigitank* pTank)
 
 	vecAttack = vecOrigin - pClosestTarget->GetGlobalOrigin();
 
-	Vector vecOrigin2D = pClosestTarget->GetGlobalOrigin();
-	Vector vecAim2D = vecAim;
-	vecOrigin2D.y = vecAim2D.y = 0;
+	Vector vecOrigin2D = pClosestTarget->GetGlobalOrigin().Flattened();
+	Vector vecAim2D = vecAim.Flattened();
+
 	float flTargetDistance = (vecAim2D - vecOrigin2D).Length();
 
 	if (flTargetDistance > flRadius)

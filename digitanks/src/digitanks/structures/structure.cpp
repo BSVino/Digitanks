@@ -1231,7 +1231,7 @@ void CSupplier::RemoveChild(CNetworkParameters* p)
 	}
 }
 
-void CSupplier::OnDeleted(CBaseEntity* pEntity)
+void CSupplier::OnDeleted(const CBaseEntity* pEntity)
 {
 	BaseClass::OnDeleted(pEntity);
 

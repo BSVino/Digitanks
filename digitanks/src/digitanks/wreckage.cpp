@@ -97,15 +97,17 @@ void CWreckage::Think()
 		Delete();
 }
 
-void CWreckage::ModifyContext(CRenderingContext* pContext) const
+bool CWreckage::ModifyShader(CRenderingContext* pContext) const
 {
-	BaseClass::ModifyContext(pContext);
+	bool bReturn = BaseClass::ModifyShader(pContext);
 
 	pContext->SetUniform("bColorSwapInAlpha", true);
 	pContext->SetUniform("vecColorSwap", m_clrSwap);
 	pContext->Scale(m_flScale, m_flScale, m_flScale);
 	pContext->SetBlend(BLEND_ALPHA);
 	pContext->SetAlpha(Flicker("mmmmmmqtmmmmtfqmmmmmm", (float)GameServer()->GetGameTime() + ((float)GetSpawnSeed()/100), 2.0f) * 0.7f);
+
+	return bReturn;
 }
 
 void CWreckage::OnRender(class CGameRenderingContext* pContext) const

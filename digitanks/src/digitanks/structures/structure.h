@@ -71,7 +71,7 @@ public:
 	virtual void				ModifyContext(class CRenderingContext* pContext) const;
 
 	virtual void				OnDeleted();
-	virtual void				OnDeleted(CBaseEntity* pEntity) { BaseClass::OnDeleted(); };
+	virtual void				OnDeleted(const CBaseEntity* pEntity) { BaseClass::OnDeleted(pEntity); };
 
 	virtual void				ClientUpdate(int iClient);
 
@@ -191,7 +191,7 @@ public:
 	size_t						GetNumChildren() { return m_ahChildren.size(); };
 	CStructure*					GetChild(size_t i) { return m_ahChildren[i]; };
 
-	virtual void				OnDeleted(class CBaseEntity* pEntity);
+	virtual void				OnDeleted(const class CBaseEntity* pEntity);
 
 	virtual float				BaseVisibleRange() const;
 
