@@ -212,6 +212,31 @@ void CProjectile::Fragment()
 	Delete();
 }
 
+bool CProjectile::ShouldRenderTransparent() const
+{
+	if (m_flTimeExploded && UsesStandardExplosion())
+		return true;
+
+	return BaseClass::ShouldRenderTransparent();
+}
+
+bool CProjectile::ModifyShader(class CRenderingContext* pContext) const
+{
+	if (!BaseClass::ModifyShader(pContext))
+		return false;
+
+	if (UsesStandardShell() && m_flTimeExploded == 0.0)
+	{
+		pContext->SetUniform("bDiffuse", false);
+		pContext->SetColor(GetBonusDamageColor());
+		pContext->Scale(ShellRadius(), ShellRadius(), ShellRadius());
+	}
+	else if (UsesStandardExplosion())
+		return false;
+
+	return true;
+}
+
 void CProjectile::OnRender(class CGameRenderingContext* pContext) const
 {
 	if (!m_bShouldRender)
@@ -219,25 +244,17 @@ void CProjectile::OnRender(class CGameRenderingContext* pContext) const
 
 	BaseClass::OnRender(pContext);
 
-	if (UsesStandardShell() && m_flTimeExploded == 0.0)
-	{
-		if (!GameServer()->GetRenderer()->IsRenderingTransparent())
-		{
-			CRenderingContext c(GameServer()->GetRenderer(), true);
-			c.UseProgram("model");
-			c.Scale(ShellRadius(), ShellRadius(), ShellRadius());
-			c.SetColor(GetBonusDamageColor());
-			c.RenderSphere();
-		}
-	}
-	else if (UsesStandardExplosion())
+	if (m_flTimeExploded != 0.0 && UsesStandardExplosion())
 	{
 		float flAlpha = RemapValClamped((float)(GameServer()->GetGameTime()-m_flTimeExploded), 0.2f, 1.2f, 1, 0);
 		if (flAlpha > 0 && GameServer()->GetRenderer()->IsRenderingTransparent())
 		{
 			CRenderingContext c(GameServer()->GetRenderer(), true);
-			c.UseProgram("model");
+			c.UseProgram("projectile");
+			c.SetUniform("bDiffuse", false);
+
 			c.UseFrameBuffer(DigitanksGame()->GetDigitanksRenderer()->GetExplosionBuffer());
+
 			c.Scale(ExplosionRadius(), ExplosionRadius(), ExplosionRadius());
 			c.SetAlpha(flAlpha);
 			c.SetColor(GetBonusDamageColor());

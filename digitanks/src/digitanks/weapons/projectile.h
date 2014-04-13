@@ -38,6 +38,8 @@ public:
 	virtual bool				UsesStandardExplosion() const { return true; };
 
 	virtual bool				ShouldRender() const { return true; };
+	virtual bool                ShouldRenderTransparent() const;
+	virtual bool                ModifyShader(class CRenderingContext* pContext) const;
 	virtual void				OnRender(class CGameRenderingContext* pContext) const;
 
 	virtual bool ShouldCollideWith(size_t iOtherHandle, const TVector& vecPoint) const;
