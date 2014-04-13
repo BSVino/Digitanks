@@ -2262,6 +2262,9 @@ float CTerrain::WeightedLeafDistance(CQuadBranch* pStart, CQuadBranch* pEnd, boo
 	Vector vecEnd = pEnd->GetCenter();
 	float flDistance = vecStart.Distance(vecEnd);
 
+	if (flDistance == 0)
+		return 0;
+
 	float flSectionDistance = 10;
 	size_t iSections = (size_t)(flDistance/flSectionDistance);
 
