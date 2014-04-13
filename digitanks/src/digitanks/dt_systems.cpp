@@ -133,8 +133,8 @@ void CParticleSystemLibrary::InitSystems()
 	pPromotionStar->SetRadius(3.0f);
 	pPromotionStar->SetFadeOut(0.5f);
 	pPromotionStar->SetSpawnOffset(Vector(0, 6, 0));
-	pPromotionStar->SetRandomVelocity(AABB(Vector(0, 0.5f, 0), Vector(0, 0.5f, 0)));
-	pPromotionStar->SetGravity(Vector(0, 3, 0));
+	pPromotionStar->SetRandomVelocity(AABB(Vector(0, 0, 0.5f), Vector(0, 0, 0.5f)));
+	pPromotionStar->SetGravity(Vector(0, 0, 3));
 
 	pPromotionGlow->SetMaterialName("textures/particles/haze-white.mat");
 	pPromotionGlow->SetLifeTime(1.5f);
@@ -144,7 +144,7 @@ void CParticleSystemLibrary::InitSystems()
 	pPromotionGlow->SetColor(Color(250, 200, 0));
 	pPromotionGlow->SetRadius(8.0f);
 	pPromotionGlow->SetFadeOut(0.5f);
-	pPromotionGlow->SetSpawnOffset(Vector(0, 3, 0));
+	pPromotionGlow->SetSpawnOffset(Vector(0, 0, 3));
 	pPromotionGlow->SetRandomVelocity(AABB(Vector(-0.1f, -0.1f, -0.1f), Vector(0.1f, 0.1f, 0.1f)));
 	pPromotionGlow->SetGravity(Vector(0, 0, 0));
 	pPromotionGlow->SetRandomBillboardYaw(true);
@@ -158,9 +158,9 @@ void CParticleSystemLibrary::InitSystems()
 	pTankHover->SetAlpha(0.2f);
 	pTankHover->SetRadius(3.5f);
 	pTankHover->SetFadeOut(0.5f);
-	pTankHover->SetSpawnOffset(Vector(0, -1, 0));
-	pTankHover->SetRandomVelocity(AABB(Vector(0, -1, 0), Vector(0, -2, 0)));
-	pTankHover->SetGravity(Vector(0, 10, 0));
+	pTankHover->SetSpawnOffset(Vector(0, 0, -1));
+	pTankHover->SetRandomVelocity(AABB(Vector(0, 0, -1), Vector(0, 0, -2)));
+	pTankHover->SetGravity(Vector(0, 0, 10));
 
 	size_t iElectronodeSpark = pPSL->AddParticleSystem("electronode-spark");
 	CParticleSystem* pElectronodeSpark = pPSL->GetParticleSystem(iElectronodeSpark);
@@ -171,8 +171,8 @@ void CParticleSystemLibrary::InitSystems()
 	pElectronodeSpark->SetAlpha(0.5f);
 	pElectronodeSpark->SetRadius(1.0f);
 	pElectronodeSpark->SetFadeOut(0.5f);
-	pElectronodeSpark->SetSpawnOffset(Vector(0, 3, 0));
-	pElectronodeSpark->SetRandomVelocity(AABB(Vector(-1, 4.0f, -1), Vector(1, 8.0f, 1)));
+	pElectronodeSpark->SetSpawnOffset(Vector(0, 0, 3));
+	pElectronodeSpark->SetRandomVelocity(AABB(Vector(-1, -1, 4.0f), Vector(1, 1, 8.0f)));
 	pElectronodeSpark->SetGravity(Vector(0, 0, 0));
 	pElectronodeSpark->SetDrag(0.03f);
 
@@ -195,7 +195,7 @@ void CParticleSystemLibrary::InitSystems()
 	pTorpedoTrailSparks->SetEndRadius(0.2f);
 	pTorpedoTrailSparks->SetFadeOut(1.0f);
 	pTorpedoTrailSparks->SetInheritedVelocity(0.0f);
-	pTorpedoTrailSparks->SetRandomVelocity(AABB(Vector(-5, 30, -5), Vector(5, 15, 5)));
+	pTorpedoTrailSparks->SetRandomVelocity(AABB(Vector(-5, -5, 30), Vector(5, 5, 15)));
 	pTorpedoTrailSparks->SetDrag(0.95f);
 	pTorpedoTrailSparks->SetRandomBillboardYaw(true);
 
@@ -415,7 +415,7 @@ void CParticleSystemLibrary::InitSystems()
 	pTractorBombSmoke->SetEndRadius(30.0f);
 	pTractorBombSmoke->SetFadeOut(0.5f);
 	pTractorBombSmoke->SetDrag(0.15f);
-	pTractorBombSmoke->SetRandomVelocity(AABB(Vector(-30, -10, -30), Vector(30, 30, 30)));
+	pTractorBombSmoke->SetRandomVelocity(AABB(Vector(-30, -30, -10), Vector(30, 30, 30)));
 	pTractorBombSmoke->SetRandomBillboardYaw(true);
 
 	size_t iTractorBombTrail = pPSL->AddParticleSystem("tractor-bomb-trail");
@@ -449,7 +449,7 @@ void CParticleSystemLibrary::InitSystems()
 	pBoltExplosion->SetEndRadius(3.0f);
 	pBoltExplosion->SetFadeOut(1.0f);
 	pBoltExplosion->SetInheritedVelocity(0.0f);
-	pBoltExplosion->SetRandomVelocity(AABB(Vector(-4, 0, -4), Vector(4, 50, 4)));
+	pBoltExplosion->SetRandomVelocity(AABB(Vector(-4, -4, 0), Vector(4, 4, 50)));
 	pBoltExplosion->SetDrag(0.1f);
 	pBoltExplosion->SetRandomBillboardYaw(true);
 
@@ -466,9 +466,9 @@ void CParticleSystemLibrary::InitSystems()
 	pDigitankSmoke->SetEndRadius(3.0f);
 	pDigitankSmoke->SetFadeOut(1.0f);
 	pDigitankSmoke->SetInheritedVelocity(0.0f);
-	pDigitankSmoke->SetRandomVelocity(AABB(Vector(-1, 0, -1), Vector(1, 4, 1)));
+	pDigitankSmoke->SetRandomVelocity(AABB(Vector(-1, -1, 0), Vector(1, 1, 4)));
 	pDigitankSmoke->SetDrag(0.9f);
-	pDigitankSmoke->SetGravity(Vector(0, 5, 0));
+	pDigitankSmoke->SetGravity(Vector(0, 0, 5));
 	pDigitankSmoke->SetRandomBillboardYaw(true);
 
 	size_t iDigitankFire = pPSL->AddParticleSystem("digitank-fire");
@@ -494,11 +494,11 @@ void CParticleSystemLibrary::InitSystems()
 	pDigitankFireSmoke->SetEndRadius(4.0f);
 	pDigitankFireSmoke->SetFadeOut(0.5f);
 	pDigitankFireSmoke->SetInheritedVelocity(0.0f);
-	pDigitankFireSmoke->SetRandomVelocity(AABB(Vector(-1, 0, -1), Vector(1, 4, 1)));
+	pDigitankFireSmoke->SetRandomVelocity(AABB(Vector(-1, -1, 0), Vector(1, 1, 4)));
 	pDigitankFireSmoke->SetDrag(0.9f);
-	pDigitankFireSmoke->SetGravity(Vector(0, 10, 0));
+	pDigitankFireSmoke->SetGravity(Vector(0, 0, 10));
 	pDigitankFireSmoke->SetRandomBillboardYaw(true);
-	pDigitankFireSmoke->SetSpawnOffset(Vector(0, 2, 0));
+	pDigitankFireSmoke->SetSpawnOffset(Vector(0, 0, 2));
 
 	pDigitankFlame1->SetMaterialName("textures/particles/fire1.mat");
 	pDigitankFlame1->SetLifeTime(0.6f);
@@ -509,9 +509,9 @@ void CParticleSystemLibrary::InitSystems()
 	pDigitankFlame1->SetEndRadius(1.5f);
 	pDigitankFlame1->SetFadeOut(1.0f);
 	pDigitankFlame1->SetInheritedVelocity(0.0f);
-	pDigitankFlame1->SetRandomVelocity(AABB(Vector(-1, 0, -1), Vector(1, 4, 1)));
+	pDigitankFlame1->SetRandomVelocity(AABB(Vector(-1, -1, 0), Vector(1, 1, 4)));
 	pDigitankFlame1->SetDrag(0.9f);
-	pDigitankFlame1->SetGravity(Vector(0, 3, 0));
+	pDigitankFlame1->SetGravity(Vector(0, 0, 3));
 	pDigitankFlame1->SetRandomBillboardYaw(true);
 
 	pDigitankFlame2->SetMaterialName("textures/particles/fire2.mat");
@@ -523,9 +523,9 @@ void CParticleSystemLibrary::InitSystems()
 	pDigitankFlame2->SetEndRadius(1.5f);
 	pDigitankFlame2->SetFadeOut(1.0f);
 	pDigitankFlame2->SetInheritedVelocity(0.0f);
-	pDigitankFlame2->SetRandomVelocity(AABB(Vector(-1, 0, -1), Vector(1, 4, 1)));
+	pDigitankFlame2->SetRandomVelocity(AABB(Vector(-1, -1, 0), Vector(1, 1, 4)));
 	pDigitankFlame2->SetDrag(0.9f);
-	pDigitankFlame2->SetGravity(Vector(0, 3, 0));
+	pDigitankFlame2->SetGravity(Vector(0, 0, 3));
 	pDigitankFlame2->SetRandomBillboardYaw(true);
 
 	size_t iWreckageFire = pPSL->AddParticleSystem("wreckage-burn");
@@ -551,11 +551,11 @@ void CParticleSystemLibrary::InitSystems()
 	pWreckageFireSmoke->SetEndRadius(4.0f);
 	pWreckageFireSmoke->SetFadeOut(0.5f);
 	pWreckageFireSmoke->SetInheritedVelocity(0.0f);
-	pWreckageFireSmoke->SetRandomVelocity(AABB(Vector(-2, 0, -2), Vector(2, 4, 2)));
+	pWreckageFireSmoke->SetRandomVelocity(AABB(Vector(-2, -2, 0), Vector(2, 2, 4)));
 	pWreckageFireSmoke->SetDrag(0.9f);
-	pWreckageFireSmoke->SetGravity(Vector(0, 10, 0));
+	pWreckageFireSmoke->SetGravity(Vector(0, 0, 10));
 	pWreckageFireSmoke->SetRandomBillboardYaw(true);
-	pWreckageFireSmoke->SetSpawnOffset(Vector(0, 2, 0));
+	pWreckageFireSmoke->SetSpawnOffset(Vector(0, 0, 2));
 	pWreckageFireSmoke->SetColor(Color(255, 197, 157));
 
 	pWreckageFlame1->SetMaterialName("textures/particles/fire1.mat");
@@ -567,9 +567,9 @@ void CParticleSystemLibrary::InitSystems()
 	pWreckageFlame1->SetEndRadius(4.0f);
 	pWreckageFlame1->SetFadeOut(1.0f);
 	pWreckageFlame1->SetInheritedVelocity(0.0f);
-	pWreckageFlame1->SetRandomVelocity(AABB(Vector(-1, 0, -1), Vector(1, 4, 1)));
+	pWreckageFlame1->SetRandomVelocity(AABB(Vector(-1, -1, 0), Vector(1, 1, 4)));
 	pWreckageFlame1->SetDrag(0.9f);
-	pWreckageFlame1->SetGravity(Vector(0, 3, 0));
+	pWreckageFlame1->SetGravity(Vector(0, 0, 3));
 	pWreckageFlame1->SetRandomBillboardYaw(true);
 
 	pWreckageFlame2->SetMaterialName("textures/particles/fire2.mat");
@@ -581,9 +581,9 @@ void CParticleSystemLibrary::InitSystems()
 	pWreckageFlame2->SetEndRadius(4.0f);
 	pWreckageFlame2->SetFadeOut(1.0f);
 	pWreckageFlame2->SetInheritedVelocity(0.0f);
-	pWreckageFlame2->SetRandomVelocity(AABB(Vector(-1, 0, -1), Vector(1, 4, 1)));
+	pWreckageFlame2->SetRandomVelocity(AABB(Vector(-1, -1, 0), Vector(1, 1, 4)));
 	pWreckageFlame2->SetDrag(0.9f);
-	pWreckageFlame2->SetGravity(Vector(0, 3, 0));
+	pWreckageFlame2->SetGravity(Vector(0, 0, 3));
 	pWreckageFlame2->SetRandomBillboardYaw(true);
 
 	size_t iWreckageCrash = pPSL->AddParticleSystem("wreckage-crash");
@@ -610,9 +610,9 @@ void CParticleSystemLibrary::InitSystems()
 	pWreckageCrashSmoke->SetEndRadius(10.0f);
 	pWreckageCrashSmoke->SetFadeOut(0.3f);
 	pWreckageCrashSmoke->SetInheritedVelocity(0.0f);
-	pWreckageCrashSmoke->SetRandomVelocity(AABB(Vector(-4, 0, -4), Vector(4, 4, 4)));
+	pWreckageCrashSmoke->SetRandomVelocity(AABB(Vector(-4, -4, 0), Vector(4, 4, 4)));
 	pWreckageCrashSmoke->SetDrag(0.5f);
-	pWreckageCrashSmoke->SetGravity(Vector(0, 1, 0));
+	pWreckageCrashSmoke->SetGravity(Vector(0, 0, 1));
 	pWreckageCrashSmoke->SetRandomBillboardYaw(true);
 
 	pWreckageCrashFlame1->SetMaterialName("textures/particles/fire1.mat");
@@ -625,9 +625,9 @@ void CParticleSystemLibrary::InitSystems()
 	pWreckageCrashFlame1->SetEndRadius(5.0f);
 	pWreckageCrashFlame1->SetFadeOut(1.0f);
 	pWreckageCrashFlame1->SetInheritedVelocity(0.0f);
-	pWreckageCrashFlame1->SetRandomVelocity(AABB(Vector(-4, 0, -4), Vector(4, 4, 4)));
+	pWreckageCrashFlame1->SetRandomVelocity(AABB(Vector(-4, -4, 0), Vector(4, 4, 4)));
 	pWreckageCrashFlame1->SetDrag(0.5f);
-	pWreckageCrashFlame1->SetGravity(Vector(0, 3, 0));
+	pWreckageCrashFlame1->SetGravity(Vector(0, 0, 3));
 	pWreckageCrashFlame1->SetRandomBillboardYaw(true);
 
 	pWreckageCrashFlame2->SetMaterialName("textures/particles/fire2.mat");
@@ -640,9 +640,9 @@ void CParticleSystemLibrary::InitSystems()
 	pWreckageCrashFlame2->SetEndRadius(5.0f);
 	pWreckageCrashFlame2->SetFadeOut(1.0f);
 	pWreckageCrashFlame2->SetInheritedVelocity(0.0f);
-	pWreckageCrashFlame2->SetRandomVelocity(AABB(Vector(-4, 0, -4), Vector(4, 4, 4)));
+	pWreckageCrashFlame2->SetRandomVelocity(AABB(Vector(-4, -4, 0), Vector(4, 4, 4)));
 	pWreckageCrashFlame2->SetDrag(0.5f);
-	pWreckageCrashFlame2->SetGravity(Vector(0, 3, 0));
+	pWreckageCrashFlame2->SetGravity(Vector(0, 0, 3));
 	pWreckageCrashFlame2->SetRandomBillboardYaw(true);
 
 	size_t iDebrisFire = pPSL->AddParticleSystem("debris-burn");
@@ -665,11 +665,11 @@ void CParticleSystemLibrary::InitSystems()
 	pDebrisFireSmoke->SetEndRadius(4.0f);
 	pDebrisFireSmoke->SetFadeOut(0.5f);
 	pDebrisFireSmoke->SetInheritedVelocity(0.0f);
-	pDebrisFireSmoke->SetRandomVelocity(AABB(Vector(-1, 0, -1), Vector(1, 4, 1)));
+	pDebrisFireSmoke->SetRandomVelocity(AABB(Vector(-1, -1, 0), Vector(1, 1, 4)));
 	pDebrisFireSmoke->SetDrag(0.9f);
-	pDebrisFireSmoke->SetGravity(Vector(0, 10, 0));
+	pDebrisFireSmoke->SetGravity(Vector(0, 0, 10));
 	pDebrisFireSmoke->SetRandomBillboardYaw(true);
-	pDebrisFireSmoke->SetSpawnOffset(Vector(0, 2, 0));
+	pDebrisFireSmoke->SetSpawnOffset(Vector(0, 0, 2));
 	pDebrisFireSmoke->SetColor(Color(255, 197, 157));
 
 	pDebrisFlame1->SetMaterialName("textures/particles/cloud-white.mat");
@@ -681,9 +681,9 @@ void CParticleSystemLibrary::InitSystems()
 	pDebrisFlame1->SetEndRadius(2.0f);
 	pDebrisFlame1->SetFadeOut(1.0f);
 	pDebrisFlame1->SetInheritedVelocity(0.0f);
-	pDebrisFlame1->SetRandomVelocity(AABB(Vector(-1, 0, -1), Vector(1, 4, 1)));
+	pDebrisFlame1->SetRandomVelocity(AABB(Vector(-1, -1, 0), Vector(1, 1, 4)));
 	pDebrisFlame1->SetDrag(0.9f);
-	pDebrisFlame1->SetGravity(Vector(0, 3, 0));
+	pDebrisFlame1->SetGravity(Vector(0, 0, 3));
 	pDebrisFlame1->SetRandomBillboardYaw(true);
 
 	size_t iChargeBurst = pPSL->AddParticleSystem("charge-burst");
@@ -719,9 +719,9 @@ void CParticleSystemLibrary::InitSystems()
 	pChargeBurstSmoke->SetEndRadius(20.0f);
 	pChargeBurstSmoke->SetFadeOut(0.5f);
 	pChargeBurstSmoke->SetDrag(0.15f);
-	pChargeBurstSmoke->SetRandomVelocity(AABB(Vector(-10, -3, -10), Vector(10, 10, 10)));
+	pChargeBurstSmoke->SetRandomVelocity(AABB(Vector(-10, -10, -3), Vector(10, 10, 10)));
 	pChargeBurstSmoke->SetRandomBillboardYaw(true);
-	pChargeBurstSmoke->SetSpawnOffset(Vector(0, 10, 0));
+	pChargeBurstSmoke->SetSpawnOffset(Vector(0, 0, 10));
 
 	size_t iChargeCharge = pPSL->AddParticleSystem("charge-charge");
 
@@ -781,7 +781,7 @@ void CParticleSystemLibrary::InitSystems()
 	pCageAuraSpots->SetFadeOut(0.5f);
 	pCageAuraSpots->SetRandomVelocity(AABB(Vector(-1, -1, -1), Vector(1, 1, 1)));
 	pCageAuraSpots->SetDrag(0.5f);
-	pCageAuraSpots->SetGravity(Vector(0,-1,0));
+	pCageAuraSpots->SetGravity(Vector(0, 0, -1));
 	pCageAuraSpots->SetRandomBillboardYaw(true);
 
 	pCageAuraGlow->SetMaterialName("textures/particles/haze-white.mat");
