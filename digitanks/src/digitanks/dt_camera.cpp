@@ -805,7 +805,7 @@ bool COverheadCamera::KeyDown(int c)
 	if (c == ' ' && !m_hCameraGuidedMissile && !DigitanksGame()->IsFeatureDisabled(DISABLE_VIEW_MOVE))
 	{
 		m_bDraggingCamera = true;
-		return true;
+		return false; // Allow player to get it in case it's blowing up a bomb.
 	}
 
 	if (c == TINKER_KEY_LSHIFT)
@@ -846,7 +846,7 @@ bool COverheadCamera::KeyUp(int c)
 	if (c == ' ')
 	{
 		m_bDraggingCamera = false;
-		return true;
+		return false; // Allow player to get it in case it's blowing up a bomb.
 	}
 
 	if (c == TINKER_KEY_LSHIFT)

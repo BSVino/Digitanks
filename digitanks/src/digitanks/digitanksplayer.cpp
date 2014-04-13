@@ -1475,8 +1475,6 @@ void CDigitanksPlayer::KeyPress(int c)
 			DigitanksWindow()->SetContextualCommandsOverride(true);
 	}
 
-	TStubbed("KeyPress controls");
-#if 0
 	if (c == ' ')
 	{
 		// Use m_iMouseInitialX to start tracking where teh spacebar was pressed so we can tell when it's released if it was dragged or not.
@@ -1489,9 +1487,9 @@ void CDigitanksPlayer::KeyPress(int c)
 	{
 		if (DigitanksGame()->GetCurrentLocalDigitanksPlayer())
 		{
-			for (size_t i = 0; i < DigitanksGame()->GetCurrentLocalDigitanksPlayer()->GetNumMembers(); i++)
+			for (size_t i = 0; i < DigitanksGame()->GetCurrentLocalDigitanksPlayer()->GetNumUnits(); i++)
 			{
-				const CBaseEntity* pMember = DigitanksGame()->GetCurrentLocalDigitanksPlayer()->GetMember(i);
+				const CBaseEntity* pMember = DigitanksGame()->GetCurrentLocalDigitanksPlayer()->GetUnit(i);
 				const CCPU* pCPU = dynamic_cast<const CCPU*>(pMember);
 				if (pCPU)
 				{
@@ -1502,37 +1500,37 @@ void CDigitanksPlayer::KeyPress(int c)
 		}
 	}
 
-	if (GetHUD())
+	if (DigitanksWindow()->GetHUD())
 	{
 		if (c == 'Q')
-			GetHUD()->ButtonCallback(0);
+			DigitanksWindow()->GetHUD()->ButtonCallback(0);
 
 		if (c == 'W')
-			GetHUD()->ButtonCallback(1);
+			DigitanksWindow()->GetHUD()->ButtonCallback(1);
 
 		if (c == 'E')
-			GetHUD()->ButtonCallback(2);
+			DigitanksWindow()->GetHUD()->ButtonCallback(2);
 
 		if (c == 'R')
-			GetHUD()->ButtonCallback(3);
+			DigitanksWindow()->GetHUD()->ButtonCallback(3);
 
 		if (c == 'T')
-			GetHUD()->ButtonCallback(4);
+			DigitanksWindow()->GetHUD()->ButtonCallback(4);
 
 		if (c == 'A')
-			GetHUD()->ButtonCallback(5);
+			DigitanksWindow()->GetHUD()->ButtonCallback(5);
 
 		if (c == 'S')
-			GetHUD()->ButtonCallback(6);
+			DigitanksWindow()->GetHUD()->ButtonCallback(6);
 
 		if (c == 'D')
-			GetHUD()->ButtonCallback(7);
+			DigitanksWindow()->GetHUD()->ButtonCallback(7);
 
 		if (c == 'F')
-			GetHUD()->ButtonCallback(8);
+			DigitanksWindow()->GetHUD()->ButtonCallback(8);
 
 		if (c == 'G')
-			GetHUD()->ButtonCallback(9);
+			DigitanksWindow()->GetHUD()->ButtonCallback(9);
 	}
 
 	if (!DigitanksGame())
@@ -1571,35 +1569,23 @@ void CDigitanksPlayer::KeyPress(int c)
 	}
 
 	if (c == 'N')
-		GetHUD()->SetVisible(!GetHUD()->IsVisible());
+		DigitanksWindow()->GetHUD()->SetVisible(!DigitanksWindow()->GetHUD()->IsVisible());
 
 	if (c == 'M')
 	{
 		if (DigitanksGame()->GetPrimarySelection())
 			DigitanksGame()->TankSpeak(DigitanksGame()->GetPrimarySelectionTank(), ":D!");
 	}
-#endif
 }
 
 void CDigitanksPlayer::KeyRelease(int c)
 {
-	TStubbed("KeyRelease controls");
-#if 0
 	if (c == ' ' && !IsMouseDragging())
 		DigitanksGame()->WeaponSpecialCommand();
-#endif
 }
 
 void CDigitanksPlayer::CharPress(int c)
 {
-	TStubbed("CharPress controls");
-#if 0
-	if (c == '`')
-	{
-		ToggleConsole();
-		return;
-	}
-
 	if (c == 'y' && !DigitanksWindow()->IsChatOpen())
 	{
 		DigitanksWindow()->OpenChat();
@@ -1609,9 +1595,8 @@ void CDigitanksPlayer::CharPress(int c)
 	if (glgui::CRootPanel::Get()->CharPressed(c))
 		return;
 
-	if (!GetHUD())
+	if (!DigitanksWindow()->GetHUD())
 		return;
-#endif
 }
 
 void CDigitanksPlayer::CharRelease(int c)
