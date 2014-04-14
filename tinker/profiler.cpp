@@ -173,7 +173,7 @@ void CProfiler::Render()
 	float flHeight = glgui::CRootPanel::Get()->GetHeight();
 
 	float flCurrLeft = flWidth - 400;
-	float flCurrTop = 200;
+	float flCurrTop = 10;
 
 	Matrix4x4 mProjection = Matrix4x4::ProjectOrthographic(0, flWidth, flHeight, 0, -1000, 1000);
 
