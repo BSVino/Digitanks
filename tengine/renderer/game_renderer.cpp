@@ -16,10 +16,13 @@
 #include <toys/toy.h>
 #include <textures/materiallibrary.h>
 #include <renderer/particles.h>
-#include <tools/workbench.h>
 #include <game/entities/game.h>
 #include <game/entities/weapon.h>
 #include <game/entities/character.h>
+
+#ifndef TINKER_NO_TOOLS
+#include <tools/workbench.h>
+#endif
 
 #include "game_renderingcontext.h"
 
@@ -90,9 +93,11 @@ void CGameRenderer::Render()
 		SetupFrame(&c);
 		StartRendering(&c);
 
+#ifndef TINKER_NO_TOOLS
 		if (CWorkbench::IsActive())
 			CWorkbench::RenderScene();
 		else
+#endif
 			RenderEverything();
 
 		FinishRendering(&c);
@@ -275,9 +280,11 @@ void CGameRenderer::FinishRendering(class CRenderingContext* pContext)
 
 	if (phys_show.GetBool() && ShouldRenderPhysicsDebug())
 	{
+#ifndef TINKER_NO_TOOLS
 		if (CWorkbench::IsActive())
 			EditorPhysics()->DebugDraw((physics_debug_t)phys_show.GetInt());
 		else
+#endif
 			GamePhysics()->DebugDraw((physics_debug_t)phys_show.GetInt());
 	}
 }

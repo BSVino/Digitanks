@@ -5,7 +5,10 @@
 #include <tinker_platform.h>
 #include <files.h>
 
+#ifndef TINKER_NO_TOOLS
 #include <modelconverter/modelconverter.h>
+#endif
+
 #include <renderer/renderer.h>
 #include <textures/materiallibrary.h>
 #include <tinker/application.h>
@@ -33,6 +36,7 @@ void AddVertex(size_t iMaterial, const Vector& v, const Vector2D& vt)
 	}
 }
 
+#ifndef TINKER_NO_TOOLS
 void LoadMeshInstanceIntoToy(CConversionScene* pScene, CConversionMeshInstance* pMeshInstance, const Matrix4x4& mParentTransformations)
 {
 	if (!pMeshInstance->IsVisible())
@@ -111,9 +115,13 @@ void LoadSceneIntoToy(CConversionScene* pScene)
 	for (size_t i = 0; i < pScene->GetNumScenes(); i++)
 		LoadSceneNodeIntoToy(pScene, pScene->GetScene(i), mUpLeftSwap);
 }
+#endif
 
 bool CModel::LoadSourceFile()
 {
+#ifdef TINKER_NO_TOOLS
+	return false;
+#else
 	CConversionScene* pScene = new CConversionScene();
 	CModelConverter c(pScene);
 
@@ -160,8 +168,10 @@ bool CModel::LoadSourceFile()
 	delete pScene;
 
 	return true;
+#endif
 }
 
+#ifndef TINKER_NO_TOOLS
 void LoadMesh(CConversionScene* pScene, size_t iMesh)
 {
 	TAssert(iMesh < pScene->GetNumMeshes());
@@ -254,3 +264,4 @@ bool CModel::Load(class CConversionScene* pScene, size_t iMesh)
 
 	return true;
 }
+#endif

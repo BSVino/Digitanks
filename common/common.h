@@ -44,14 +44,24 @@ LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON A
 // tinker_platform.h
 extern void DebugPrint(const char* pszText);
 
+#ifdef _MSC_VER
+#define PRAGMA_WARNING_PUSH __pragma(warning(push))
+#define PRAGMA_WARNING_DISABLE(n) __pragma(warning(disable:n))
+#define PRAGMA_WARNING_POP __pragma(warning(pop))
+#else
+#define PRAGMA_WARNING_PUSH
+#define PRAGMA_WARNING_DISABLE(n)
+#define PRAGMA_WARNING_POP
+#endif
+
 #ifdef _DEBUG
 
 #define TAssert(x) \
 { \
-	__pragma(warning(push)) \
-	__pragma(warning(disable:4127)) /* conditional expression is constant */ \
+	PRAGMA_WARNING_PUSH \
+	PRAGMA_WARNING_DISABLE(4127) /* conditional expression is constant */ \
 	if (!(x)) \
-	__pragma(warning(pop)) \
+	PRAGMA_WARNING_POP \
 	{ \
 		TMsg("Assert failed: " #x "\n"); \
 		TDebugBreak(); \
@@ -60,10 +70,10 @@ extern void DebugPrint(const char* pszText);
 
 #define TAssertNoMsg(x) \
 { \
-	__pragma(warning(push)) \
-	__pragma(warning(disable:4127)) /* conditional expression is constant */ \
+	PRAGMA_WARNING_PUSH \
+	PRAGMA_WARNING_DISABLE(4127) /* conditional expression is constant */ \
 	if (!(x)) \
-	__pragma(warning(pop)) \
+	PRAGMA_WARNING_POP \
 	{ \
 		DebugPrint("Assert failed: " #x "\n"); \
 		TDebugBreak(); \

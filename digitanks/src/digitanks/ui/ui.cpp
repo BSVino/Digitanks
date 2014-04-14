@@ -84,8 +84,8 @@ CDigitanksMenu::CDigitanksMenu()
 
 void CDigitanksMenu::Layout()
 {
-	size_t iWidth = DigitanksWindow()->GetWindowWidth();
-	size_t iHeight = DigitanksWindow()->GetWindowHeight();
+	size_t iWidth = RootPanel()->GetWidth();
+	size_t iHeight = RootPanel()->GetHeight();
 
 	SetPos(iWidth/2-GetWidth()/2, iHeight/2-GetHeight()/2);
 

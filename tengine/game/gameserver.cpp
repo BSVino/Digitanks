@@ -25,8 +25,11 @@
 #include <tinker/cvar.h>
 #include <ui/gamewindow.h>
 #include <physics/physics.h>
-#include <tools/workbench.h>
 #include <textures/materiallibrary.h>
+
+#ifndef TINKER_NO_TOOLS
+#include <tools/workbench.h>
+#endif
 
 #include "cameramanager.h"
 #include "level.h"
@@ -455,8 +458,10 @@ void CGameServer::LoadLevel(const CHandle<CLevel>& pLevel)
 	for (size_t i = 0; i < apEntities.size(); i++)
 		apEntities[i]->PostLoad();
 
+#ifndef TINKER_NO_TOOLS
 	if (CWorkbench::IsActive())
 		CWorkbench::LoadLevel(pLevel);
+#endif
 }
 
 void CGameServer::RestartLevel()
@@ -717,8 +722,10 @@ void CGameServer::Think(double flHostTime)
 
 	m_ahDeletedEntities.clear();
 
+#ifndef TINKER_NO_TOOLS
 	if (CWorkbench::IsActive())
 		Workbench()->Think();
+#endif
 
 	CNetwork::Think();
 
@@ -1098,8 +1105,10 @@ CGameRenderer* CGameServer::GetRenderer()
 
 CCameraManager* CGameServer::GetCameraManager()
 {
+#ifndef TINKER_NO_TOOLS
 	if (CWorkbench::IsActive())
 		return CWorkbench::GetCameraManager();
+#endif
 
 	return m_pCameraManager;
 }

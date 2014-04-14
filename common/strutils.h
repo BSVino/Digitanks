@@ -421,7 +421,11 @@ inline FILE* tfopen_asset(const tstring& sFile, const tstring& sMode)
 	if (fp)
 		return fp;
 
-	return tfopen(sLowercaseFile, sMode);
+	fp = tfopen(sLowercaseFile, sMode);
+	if (fp)
+		return fp;
+
+	return tfopen(sFile, sMode);
 }
 
 inline bool fgetts(tstring& str, FILE* fp)
@@ -434,6 +438,19 @@ inline bool fgetts(tstring& str, FILE* fp)
 
 	str = szLine;
 	return !!r;
+}
+
+inline tstring tfread_file(FILE* fp)
+{
+	fseek(fp, 0, SEEK_END);
+	long iSize = ftell(fp);
+	fseek(fp, 0, SEEK_SET);
+
+	tstring sFileContents;
+	sFileContents.resize(iSize);
+	fread((void*)sFileContents.data(), 1, iSize, fp);
+
+	return sFileContents;
 }
 
 inline tchar* tstrncpy(tchar* d, size_t d_size, const tchar* s, size_t n)

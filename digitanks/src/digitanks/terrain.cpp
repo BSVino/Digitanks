@@ -1481,11 +1481,13 @@ void CTerrain::RenderWithShaders() const
 	{
 		for (size_t j = 0; j < TERRAIN_CHUNKS; j++)
 		{
-			c.BindTexture(m_aTerrainChunks[i][j].m_hChunkTexture->m_iGLID);
+			if (m_aTerrainChunks[i][j].m_hChunkTexture.IsValid())
+				c.BindTexture(m_aTerrainChunks[i][j].m_hChunkTexture->m_iGLID);
+
 			c.BeginRenderVertexArray(m_aTerrainChunks[i][j].m_iTerrainVerts);
-				c.SetPositionBuffer(0u, sizeof(CTerrainTriangle));
-				c.SetColorBuffer(iColorOffset, sizeof(CTerrainTriangle));
-				c.SetTexCoordBuffer(iUVOffset, sizeof(CTerrainTriangle));
+			c.SetPositionBuffer(0u, sizeof(CTerrainTriangle));
+			c.SetColorBuffer(iColorOffset, sizeof(CTerrainTriangle));
+			c.SetTexCoordBuffer(iUVOffset, sizeof(CTerrainTriangle));
 			c.EndRenderVertexArrayIndexed(m_aTerrainChunks[i][j].m_iOpaqueIndices, m_aTerrainChunks[i][j].m_iOpaqueIndicesVerts);
 		}
 	}

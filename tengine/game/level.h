@@ -34,6 +34,30 @@ public:
 		InitializeCallbacks();
 	}
 
+	CLevelEntity& operator=(const CLevelEntity& o)
+	{
+		m_iHandle = o.m_iHandle;
+		m_sClass = o.m_sClass;
+		m_asParameters = o.m_asParameters;
+		m_hMaterialModel = o.m_hMaterialModel;
+
+		m_mGlobalTransform = o.m_mGlobalTransform;
+		m_trsGlobalTRS = o.m_trsGlobalTRS;
+		m_bVisible = o.m_bVisible;
+		m_bRenderInverted = o.m_bRenderInverted;
+		m_bDisableBackCulling = o.m_bDisableBackCulling;
+		m_iModel = o.m_iModel;
+		m_vecScale = o.m_vecScale;
+		m_aabbBounds = o.m_aabbBounds;
+		m_sName = o.m_sName;
+
+		m_aOutputs = o.m_aOutputs;
+
+		InitializeCallbacks();
+
+		return *this;
+	}
+
 private:
 	CLevelEntity(size_t iHandle, const tstring& sClassName)
 	{

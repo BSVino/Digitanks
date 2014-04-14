@@ -13,9 +13,12 @@
 #include <renderer/renderer.h>
 #include <toys/toy.h>
 #include <textures/materiallibrary.h>
-#include <tools/workbench.h>
 #include <game/entities/game.h>
 #include <game/entities/character.h>
+
+#ifndef TINKER_NO_TOOLS
+#include <tools/workbench.h>
+#endif
 
 #include "game_renderer.h"
 
@@ -92,7 +95,12 @@ void CGameRenderingContext::RenderModel(size_t iModel, const CBaseEntity* pEntit
 		CCharacter* pCharacter = pLocalPlayer?pLocalPlayer->GetCharacter():nullptr;
 		bool bNoClip = pCharacter?pCharacter->GetNoClip():false;
 
-		if (CWorkbench::IsActive() || bNoClip || iSceneArea >= pModel->m_pToy->GetNumSceneAreas())
+		bool bWorkbenchActive = false;
+#ifndef TINKER_NO_TOOLS
+		bWorkbenchActive = CWorkbench::IsActive();
+#endif
+
+		if (bWorkbenchActive || bNoClip || iSceneArea >= pModel->m_pToy->GetNumSceneAreas())
 		{
 			for (size_t i = 0; i < pModel->m_pToy->GetNumSceneAreas(); i++)
 			{

@@ -128,7 +128,7 @@ void CMainMenu::Think()
 	m_flCreditsRoll += GameServer()->GetFrameTime()*30;
 	float x, y;
 	GetAbsPos(x, y);
-	m_pCredits->SetPos(370 - x, (int)(DigitanksWindow()->GetWindowHeight() - y - m_flCreditsRoll));
+	m_pCredits->SetPos(370 - x, (int)(RootPanel()->GetHeight() - y - m_flCreditsRoll));
 }
 
 void CMainMenu::Paint(float x, float y, float w, float h)
@@ -236,7 +236,7 @@ void CMainMenu::CreditsCallback(const tstring& sArgs)
 
 	m_pCredits->SetText(sCredits.c_str());
 
-	m_pCredits->SetSize(DigitanksWindow()->GetWindowWidth()-m_pCredits->GetLeft()-40, 9999);
+	m_pCredits->SetSize(RootPanel()->GetWidth() - m_pCredits->GetLeft() - 40, 9999);
 	m_pCredits->SetVisible(true);
 	m_flCreditsRoll = 0;
 
@@ -1367,7 +1367,7 @@ void COptionsPanel::Layout()
 	m_pVideoModes->SetPos(GetWidth()/2 - m_pVideoModes->GetWidth() - 40, GetHeight()-230);
 
 	tstring sVideoMode;
-	sVideoMode = tsprintf(tstring("%dx%d"), DigitanksWindow()->GetWindowWidth(), DigitanksWindow()->GetWindowHeight());
+	sVideoMode = tsprintf(tstring("%dx%d"), RootPanel()->GetWidth(), RootPanel()->GetHeight());
 	m_pVideoModes->SetText(sVideoMode);
 
 	m_pWindowedLabel->SetWrap(false);

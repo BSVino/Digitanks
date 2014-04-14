@@ -122,8 +122,16 @@ namespace glgui
 
 		::CRenderingContext*		m_pRenderingContext;
 
-		tmap<tstring, tmap<size_t, ::FTFont*> > m_apFonts;
-		tmap<tstring, tstring>                  m_apFontNames;
+		class CFont
+		{
+		public:
+			tstring m_sFileName;
+			tstring m_sFileContents;
+
+			tmap<size_t, ::FTFont*> m_apFonts;
+		};
+
+		tmap<tstring, CFont> m_aFonts;
 
 		// A quad for drawing GUI elements
 		size_t m_iQuad;

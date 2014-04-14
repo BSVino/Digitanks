@@ -32,16 +32,7 @@ void CDataSerializer::Read(FILE* fp, CData* pData)
 	CData* pCurrentData = pData;
 	CData* pLastData = NULL;
 
-	fseek(fp, 0, SEEK_END);
-	int iSize = ftell(fp);
-	rewind(fp);
-
-	tstring sFile;
-
-	sFile.resize(iSize);
-
-	int iRead = fread((void*)sFile.data(), 1, iSize, fp);
-	TAssertNoMsg(iRead == iSize);
+	tstring sFile = tfread_file(fp);
 
 	// Just in case.
 	sFile.append("\0");

@@ -24,3 +24,8 @@
 /digitanks/src/dtintro/Release
 /android/jni/SDL2_image
 /android/jni/SDL
+/android/jni/SDL2_mixer
+/android/libs
+/android/obj
+/android/bin
+/android/gen

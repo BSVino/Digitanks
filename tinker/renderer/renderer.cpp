@@ -177,7 +177,7 @@ void CRenderer::LoadShaders()
 void CRenderer::ViewportResize(size_t w, size_t h)
 {
 	m_oSceneBuffer.Destroy();
-	m_oSceneBuffer = CreateFrameBuffer("scene", w, h, (fb_options_e)(FB_TEXTURE|FB_DEPTH_TEXTURE|FB_MULTISAMPLE));
+	m_oSceneBuffer = CreateFrameBuffer("scene", w, h, (fb_options_e)(FB_TEXTURE|FB_DEPTH|FB_MULTISAMPLE));
 
 	if (m_iScreenSamples)
 	{
@@ -1194,16 +1194,9 @@ Color* CRenderer::LoadTextureData(tstring sFilename, int& x, int& y)
 	if (!fp)
 		return nullptr;
 
-	fseek(fp, 0, SEEK_END);
-	int iSize = ftell(fp);
-	rewind(fp);
+	tstring sFile = tfread_file(fp);
 
-	tstring sFile;
-	sFile.resize(iSize);
-	int iRead = fread((void*)sFile.data(), iSize, 1, fp);
-	TAssertNoMsg(iRead == 1);
-
-	SDL_RWops* pRWOps = SDL_RWFromMem((void*)sFile.data(), iSize);
+	SDL_RWops* pRWOps = SDL_RWFromMem((void*)sFile.data(), sFile.length());
 	if (!pRWOps)
 		return nullptr;
 

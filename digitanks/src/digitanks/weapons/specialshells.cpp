@@ -30,8 +30,11 @@ bool CFireworks::ShouldTouch(CBaseEntity* pOther) const
 	if (!pOther)
 		return false;
 
+	TStubbed("CFireworks::ShouldTouch");
+#if 0
 	if (pOther->GetCollisionGroup() == CG_TERRAIN)
 		return true;
+#endif
 
 	return false;
 }

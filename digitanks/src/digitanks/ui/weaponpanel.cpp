@@ -117,8 +117,8 @@ void CWeaponPanel::Paint(float x, float y, float w, float h)
 	if (DigitanksGame()->GetPrimarySelectionTank())
 	{
 		int iTankSize = 100;
-		int iWindowWidth = DigitanksWindow()->GetWindowWidth();
-		int iWindowHeight = DigitanksWindow()->GetWindowHeight();
+		int iWindowWidth = RootPanel()->GetWidth();
+		int iWindowHeight = RootPanel()->GetHeight();
 
 		int iBoxSize = 250;
 		glgui::CBaseControl::PaintRect(iWindowWidth/4 - iBoxSize/2, iWindowHeight/2 - iBoxSize/2, iBoxSize, iBoxSize, Color(0, 0, 0, 200));
@@ -171,7 +171,7 @@ void CWeaponPanel::UpdateInfo(weapon_t eWeapon)
 	tstring p;
 
 	tstring sName = CProjectile::GetWeaponName(eWeapon);
-	sName.make_upper();
+	sName.toupper();
 
 	s += sName + "\n \n";
 	s += tstring(CProjectile::GetWeaponDescription(eWeapon)) + "\n \n";

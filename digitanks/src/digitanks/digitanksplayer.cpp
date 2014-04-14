@@ -373,8 +373,7 @@ void CDigitanksPlayer::StartTurn()
 		}
 		else
 		{
-			tstring s;
-			s.sprintf(("Downloading '" + GetUpdateDownloading()->GetName() + "' (%d turns left)").c_str(), GetTurnsToDownload());
+			tstring s = tsprintf("Downloading '" + GetUpdateDownloading()->GetName() + "' (%d turns left)", GetTurnsToDownload());
 			AppendTurnInfo(s);
 		}
 	}

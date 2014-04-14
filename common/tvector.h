@@ -48,7 +48,7 @@ public:
 public:
 	void erase_value(const T& value)
 	{
-		erase(remove(tvector<T>::begin(), tvector<T>::end(), value), tvector<T>::end());
+		this->erase(remove(tvector<T>::begin(), tvector<T>::end(), value), tvector<T>::end());
 	}
 
 #ifndef WITH_EASTL
@@ -69,7 +69,7 @@ public:
 				TVECTOR_BASE::resize(n);
 
 			tvector temp(*this); 
-			swap(temp);
+			swap(temp, *this);
 		}
 		else
 			TVECTOR_BASE::resize(n);

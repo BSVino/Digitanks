@@ -16,12 +16,15 @@
 #include <tengine/game/entities/game.h>
 #include <ui/hudviewport.h>
 #include <game/level.h>
-#include <tools/workbench.h>
 #include <renderer/particles.h>
 #include <renderer/game_renderer.h>
 #include <tinker/keys.h>
 #include <portals/portal.h>
 #include <ui/instructor.h>
+
+#ifndef TINKER_NO_TOOLS
+#include <tools/workbench.h>
+#endif
 
 CGameWindow::CGameWindow(int argc, char** argv)
 	: CApplication(argc, argv)
@@ -332,11 +335,13 @@ bool CGameWindow::KeyPress(int c)
 	if (BaseClass::KeyPress(c))
 		return true;
 
+#ifndef TINKER_NO_TOOLS
 	if (CWorkbench::IsActive())
 	{
 		if (Workbench()->KeyPress(c))
 			return true;
 	}
+#endif
 
 	if (GameServer() && GameServer()->GetCameraManager())
 	{
@@ -353,11 +358,13 @@ bool CGameWindow::KeyPress(int c)
 		}
 	}
 
+#ifndef TINKER_NO_TOOLS
 	if (c == TINKER_KEY_F2)
 	{
 		if (CWorkbench::IsActive() || CVar::GetCVarBool("cheats"))
 			CWorkbench::Toggle();
 	}
+#endif
 
 	return false;
 }
@@ -401,8 +408,10 @@ void CGameWindow::MouseMotion(int x, int y)
 
 	BaseClass::MouseMotion(x, y);
 
+#ifndef TINKER_NO_TOOLS
 	if (CWorkbench::IsActive())
 		Workbench()->MouseMotion(x, y);
+#endif
 
 	if (m_bHaveLastMouse)
 	{
@@ -429,11 +438,13 @@ bool CGameWindow::MouseInput(int iButton, tinker_mouse_state_t iState)
 	if (BaseClass::MouseInput(iButton, iState))
 		return true;
 
+#ifndef TINKER_NO_TOOLS
 	if (CWorkbench::IsActive())
 	{
 		if (Workbench()->MouseInput(iButton, iState))
 			return true;
 	}
+#endif
 
 	if (GameServer() && GameServer()->GetCameraManager())
 	{
@@ -481,8 +492,10 @@ void CGameWindow::MouseWheel(int x, int y)
 {
 	BaseClass::MouseWheel(x, y);
 
+#ifndef TINKER_NO_TOOLS
 	if (CWorkbench::IsActive())
 		Workbench()->MouseWheel(x, y);
+#endif
 }
 
 bool CGameWindow::JoystickButtonPress(int iJoystick, int c)

@@ -133,12 +133,30 @@ public:
 
 #ifndef WITH_EASTL
 	int comparei(const tstring& sOther) const
-    {
+	{
 		tstring s1, s2;
 		s1 = *this;
 		s2 = sOther;
 		return s1.tolower().compare(s2.tolower());
-    }
+	}
+
+	inline void ltrim()
+	{
+		const char chars[] = { ' ', '\t', 0 };
+		erase(0, find_first_not_of(chars));
+	}
+
+	inline void rtrim()
+	{
+		const char chars[] = { ' ', '\t', 0 };
+		erase(find_last_not_of(chars) + 1);
+	}
+
+	inline void trim()
+	{
+		ltrim();
+		rtrim();
+	}
 #endif
 };
 

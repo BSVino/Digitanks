@@ -1,4 +1,4 @@
-package com.lunarworkshop;
+package com.lunarworkshop.tinker;
 
 import android.view.*;
 import android.app.*;

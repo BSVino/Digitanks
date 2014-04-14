@@ -71,7 +71,7 @@ tstring GetInitialGameMode()
 
 pfnConditionsMet Game_GetInstructorConditions(const tstring& sConditions)
 {
-	return false;
+	return nullptr;
 }
 
 REGISTER_ENTITY(CDigitanksGame);

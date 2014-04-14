@@ -103,6 +103,7 @@ size_t CModelLibrary::AddModel(const tstring& sModelFile)
 	return iLocation;
 }
 
+#ifndef TINKER_NO_TOOLS
 size_t CModelLibrary::AddModel(class CConversionScene* pScene, size_t iMesh)
 {
 	CModel* pModel = new CModel(tsprintf("Scene %x", pScene));
@@ -142,6 +143,7 @@ size_t CModelLibrary::AddModel(class CConversionScene* pScene, size_t iMesh)
 
 	return iLocation;
 }
+#endif
 
 CModel* CModelLibrary::GetModel(size_t i)
 {

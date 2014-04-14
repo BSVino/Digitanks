@@ -59,13 +59,13 @@ CRootPanel::CRootPanel() :
 
 CRootPanel::~CRootPanel( )
 {
-	for (auto& aFontMap : m_apFonts)
+	for (auto& aFontMap : m_aFonts)
 	{
-		for (auto& pFont : aFontMap.second)
+		for (auto& pFont : aFontMap.second.m_apFonts)
 			delete pFont.second;
 	}
 
-	m_apFonts.clear();
+	m_aFonts.clear();
 
 	CRenderer::UnloadVertexDataFromGL(m_iQuad);
 }
@@ -437,15 +437,15 @@ void CRootPanel::GetFullscreenMousePos(int& mx, int& my)
 
 ::FTFont* CRootPanel::GetFont(const tstring& sName, size_t iSize)
 {
-	auto it = m_apFontNames.find(sName);
+	auto it = m_aFonts.find(sName);
 	tstring sRealName = sName;
-	if (it == m_apFontNames.end())
+	if (it == m_aFonts.end())
 	{
 		sRealName = "sans-serif";
-		it = m_apFontNames.find(sRealName);
+		it = m_aFonts.find(sRealName);
 	}
 
-	if (it == m_apFontNames.end())
+	if (it == m_aFonts.end())
 	{
 		tstring sFont;
 
@@ -460,26 +460,44 @@ void CRootPanel::GetFullscreenMousePos(int& mx, int& my)
 		AddFont("sans-serif", sFont);
 	}
 
-	return m_apFonts[sRealName][iSize];
+	return m_aFonts[sRealName].m_apFonts[iSize];
 }
 
 void CRootPanel::AddFont(const tstring& sName, const tstring& sFile)
 {
-	m_apFontNames[sName] = sFile;
+	m_aFonts[sName].m_sFileName = sFile;
 }
 
 void CRootPanel::AddFontSize(const tstring& sName, size_t iSize)
 {
-	if (m_apFontNames.find(sName) == m_apFontNames.end())
+	if (m_aFonts.find(sName) == m_aFonts.end())
 		return;
 
 	float flGUIScale = 1;
 	if (Application())
 		flGUIScale = Application()->GetGUIScale();
 
-	FTTextureFont* pFont = new FTTextureFont(m_apFontNames[sName].c_str());
+	if (!m_aFonts[sName].m_sFileContents.length())
+	{
+		FILE* fp = tfopen_asset(m_aFonts[sName].m_sFileName, "r");
+
+		if (!fp)
+		{
+			tstring sLine = "Error: Font file '" + m_aFonts[sName].m_sFileName + "' for font '" + sName + "' not on disk.\n";
+			DebugPrint(sLine.c_str());
+			return;
+		}
+
+		m_aFonts[sName].m_sFileContents = tfread_file(fp);
+
+		fclose(fp);
+
+		DebugPrint((tstring("Font ") + sName + " loaded: " + m_aFonts[sName].m_sFileName + "\n").c_str());
+	}
+
+	FTTextureFont* pFont = new FTTextureFont((const unsigned char*)m_aFonts[sName].m_sFileContents.data(), m_aFonts[sName].m_sFileContents.length());
 	pFont->FaceSize((size_t)((float)iSize / flGUIScale));
-	m_apFonts[sName][iSize] = pFont;
+	m_aFonts[sName].m_apFonts[iSize] = pFont;
 }
 
 float CRootPanel::GetTextWidth(const tstring& sText, unsigned iLength, const tstring& sFontName, int iFontFaceSize)
@@ -487,7 +505,7 @@ float CRootPanel::GetTextWidth(const tstring& sText, unsigned iLength, const tst
 	if (!GetFont(sFontName, iFontFaceSize))
 		AddFontSize(sFontName, iFontFaceSize);
 
-	return GetTextWidth(sText, iLength, m_apFonts[sFontName][iFontFaceSize]);
+	return GetTextWidth(sText, iLength, m_aFonts[sFontName].m_apFonts[iFontFaceSize]);
 }
 
 float CRootPanel::GetFontHeight(const tstring& sFontName, int iFontFaceSize)
@@ -495,7 +513,7 @@ float CRootPanel::GetFontHeight(const tstring& sFontName, int iFontFaceSize)
 	if (!GetFont(sFontName, iFontFaceSize))
 		AddFontSize(sFontName, iFontFaceSize);
 
-	return GetFontHeight(m_apFonts[sFontName][iFontFaceSize]);
+	return GetFontHeight(m_aFonts[sFontName].m_apFonts[iFontFaceSize]);
 }
 
 float CRootPanel::GetFontAscender(const tstring& sFontName, int iFontFaceSize)
@@ -503,7 +521,7 @@ float CRootPanel::GetFontAscender(const tstring& sFontName, int iFontFaceSize)
 	if (!GetFont(sFontName, iFontFaceSize))
 		AddFontSize(sFontName, iFontFaceSize);
 
-	return GetFontAscender(m_apFonts[sFontName][iFontFaceSize]);
+	return GetFontAscender(m_aFonts[sFontName].m_apFonts[iFontFaceSize]);
 }
 
 float CRootPanel::GetTextWidth(const tstring& sText, unsigned iLength, class ::FTFont* pFont)

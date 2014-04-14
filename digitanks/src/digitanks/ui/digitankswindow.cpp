@@ -37,7 +37,11 @@
 #include "lobbyui.h"
 #include "dt_renderer.h"
 
-#ifdef __linux__
+#if defined(__linux__) && !defined(__ANDROID__)
+#define USE_X
+#endif
+
+#ifdef USE_X
 // Put this last so it doesn't interfere with any other headers
 #include <X11/Xlib.h>
 #include "ext-deps/glfw-2.7.2/lib/internal.h"		// The GLFW internal header file
@@ -176,7 +180,7 @@ void CDigitanksWindow::OpenWindow()
 
 	CApplication::Get()->SetMouseCursorEnabled(true);
 
-#ifdef __linux__
+#ifdef USE_X
 	g_pDisplay = XOpenDisplay(NULL);
 	g_iWindow = _glfwWin.window;
 #endif
@@ -191,7 +195,7 @@ CDigitanksWindow::~CDigitanksWindow()
 
 	DestroyGame();
 
-#ifdef __linux__
+#ifdef USE_X
 	XCloseDisplay(g_pDisplay);
 #endif
 }
@@ -384,7 +388,7 @@ void CDigitanksWindow::ConstrainMouse()
 	else
 		ClipCursor(NULL);
 #else
-#ifdef __linux__
+#ifdef USE_X
 	Window iFocus;
 	int iRevert;
 	XGetInputFocus(g_pDisplay, &iFocus, &iRevert);

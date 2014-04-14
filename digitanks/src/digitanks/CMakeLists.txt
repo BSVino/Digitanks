@@ -13,6 +13,8 @@ include_directories (
 	${CMAKE_SOURCE_DIR}/digitanks/src/digitanks/
 )
 
+include_directories(${CMAKE_SOURCE_DIR}/../ext-deps/SDL2-2.0.2/include)
+
 set (DIGITANKS_SOURCES
 	main.cpp
 

@@ -537,6 +537,12 @@ void CLabel::ComputeLines(float w, float h)
 	oSection.m_iFontSize = m_iFontFaceSize;
 	oSection.m_pFont = RootPanel()->GetFont(m_sFontName, m_iFontFaceSize);
 
+	if (!oSection.m_pFont)
+	{
+		TError("Couldn't find font " + m_sFontName + ", using sans-serif.\n");
+		oSection.m_pFont = RootPanel()->GetFont("sans-serif", m_iFontFaceSize);
+	}
+
 	// This stack is so that markups can be nested.
 	// ie [size=20]big[size=20]bigger[/size][/size]
 	// A section is pushed on the section stack on every [size] and popped on every [/size]
@@ -591,6 +597,12 @@ void CLabel::ComputeLines(float w, float h)
 				aSectionStack.push_back(oSection);
 				RootPanel()->AddFontSize(oSection.m_sFont, oSection.m_iFontSize);
 				aSectionStack.back().m_pFont = RootPanel()->GetFont(oSection.m_sFont, iSize);
+
+				if (!aSectionStack.back().m_pFont)
+				{
+					TError("Couldn't find font " + oSection.m_sFont + ", using sans-serif.\n");
+					aSectionStack.back().m_pFont = RootPanel()->GetFont("sans-serif", iSize);
+				}
 
 				iLastBreak = iChar;
 			}
@@ -690,6 +702,12 @@ void CLabel::ComputeLines(float w, float h)
 				aSectionStack.push_back(oSection);
 				RootPanel()->AddFontSize(oSection.m_sFont, oSection.m_iFontSize);
 				aSectionStack.back().m_pFont = RootPanel()->GetFont(oSection.m_sFont, oSection.m_iFontSize);
+
+				if (!aSectionStack.back().m_pFont)
+				{
+					TError("Couldn't find font " + oSection.m_sFont + ", using sans-serif.\n");
+					aSectionStack.back().m_pFont = RootPanel()->GetFont("sans-serif", oSection.m_iFontSize);
+				}
 
 				iLastBreak = iChar;
 			}

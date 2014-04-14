@@ -123,10 +123,11 @@ bool CCameraGuidedMissile::ShouldTouch(CBaseEntity* pOther) const
 	if (pOther == m_hOwner)
 		return false;
 
+	TStubbed("CCameraGuidedMissile::ShouldTouch");
+#if 0
 	if (pOther->GetCollisionGroup() == CG_PROP)
 		return true;
 
-#if 0
 	if (pOther->GetCollisionGroup() == CG_ENTITY)
 	{
 		if (m_hOwner != NULL && pOther->GetPlayerOwner() == m_hOwner->GetPlayerOwner())
@@ -134,10 +135,10 @@ bool CCameraGuidedMissile::ShouldTouch(CBaseEntity* pOther) const
 
 		return true;
 	}
-#endif
 
 	if (pOther->GetCollisionGroup() == CG_TERRAIN)
 		return true;
+#endif
 
 	return false;
 }

@@ -1335,6 +1335,9 @@ void CRenderingContext::RenderText(const tstring& sText, unsigned iLength, FTFon
 	if (!m_pShader)
 		return;
 
+	if (!pFont)
+		return;
+
 	CRenderContext& oContext = GetContext();
 
 	if (iLength == -1)

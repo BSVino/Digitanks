@@ -341,8 +341,8 @@ void CHUD::Layout()
 
 	BaseClass::Layout();
 
-	int iWidth = DigitanksWindow()->GetWindowWidth();
-	int iHeight = DigitanksWindow()->GetWindowHeight();
+	int iWidth = RootPanel()->GetWidth();
+	int iHeight = RootPanel()->GetHeight();
 
 	m_pAttackInfo->SetPos(iWidth - 165, iHeight - 150 - 90 - 10);
 	m_pAttackInfo->SetSize(165, 90);
@@ -757,7 +757,7 @@ void CHUD::Think()
 	m_flActionItemsLerp = Approach(m_flActionItemsLerpGoal, m_flActionItemsLerp, GameServer()->GetFrameTime());
 	m_flSmallActionItemLerp = Approach(m_flSmallActionItemLerpGoal, m_flSmallActionItemLerp, GameServer()->GetFrameTime() * 4);
 
-	int iWidth = DigitanksWindow()->GetWindowWidth();
+	int iWidth = RootPanel()->GetWidth();
 	m_pActionItem->SetPos(iWidth - 300 + (int)(Bias(1-m_flActionItemsLerp, 0.2f) * m_flActionItemsWidth), 130);
 	m_pActionItem->SetAlpha((int)(m_flActionItemsLerp*255));
 	m_pCloseActionItems->SetPos(iWidth - 255 + (int)(Bias(1-m_flActionItemsLerp, 0.2f) * m_flActionItemsWidth), m_pCloseActionItems->GetTop());
@@ -1017,8 +1017,8 @@ void CHUD::Paint(float x, float y, float w, float h)
 		return;
 	}
 
-	int iWidth = DigitanksWindow()->GetWindowWidth();
-	int iHeight = DigitanksWindow()->GetWindowHeight();
+	int iWidth = RootPanel()->GetWidth();
+	int iHeight = RootPanel()->GetHeight();
 
 	CDigitanksPlayer* pCurrentLocalPlayer = DigitanksGame()->GetCurrentLocalDigitanksPlayer();
 
@@ -1559,8 +1559,8 @@ void CHUD::Paint(float x, float y, float w, float h)
 			float flWarpIn = RemapValClamped(flAnimationTime, 0, 0.5f, 0, 1);
 			float flAlpha = RemapValClamped(flAnimationTime, 1.3f, 1.8f, 1, 0);
 
-			size_t iTotalWidth = DigitanksWindow()->GetWindowWidth();
-			size_t iTotalHeight = DigitanksWindow()->GetWindowHeight();
+			size_t iTotalWidth = RootPanel()->GetWidth();
+			size_t iTotalHeight = RootPanel()->GetHeight();
 
 			size_t iTankWidth = iTotalWidth/4;
 			size_t iTankHeight = iTankWidth/2;
@@ -2062,7 +2062,8 @@ void CHUD::PaintHUDSheet(const tstring& sArea, float x, float y, float w, float 
 		return;
 
 	const Rect* pRect = &pHUD->m_HUDSheet.GetArea(sArea);
-	PaintSheet(pHUD->m_HUDSheet.GetSheet(sArea), x, y, w, h, pRect->x, pRect->y, pRect->w, pRect->h, pHUD->m_HUDSheet.GetSheetWidth(sArea), pHUD->m_HUDSheet.GetSheetHeight(sArea), c);
+	CMaterialHandle hSheet = pHUD->m_HUDSheet.GetSheet(sArea);
+	PaintSheet(hSheet, x, y, w, h, pRect->x, pRect->y, pRect->w, pRect->h, pHUD->m_HUDSheet.GetSheetWidth(sArea), pHUD->m_HUDSheet.GetSheetHeight(sArea), c);
 }
 
 const CTextureSheet& CHUD::GetHUDSheet()
@@ -2532,7 +2533,7 @@ void CHUD::UpdateScoreboard()
 	m_pScoreboard->SetSize(100, 9999);
 	m_pScoreboard->SetSize(m_pScoreboard->GetWidth(), (int)m_pScoreboard->GetTextHeight());
 
-	int iWidth = DigitanksWindow()->GetWindowWidth();
+	int iWidth = RootPanel()->GetWidth();
 
 	m_pScoreboard->SetPos(iWidth - m_pScoreboard->GetWidth() - 10, m_pAttackInfo->GetTop() - m_pScoreboard->GetHeight() - 20);
 }
@@ -3217,8 +3218,8 @@ void CHUD::ShowButtonInfo(int iButton)
 	m_pButtonInfo->SetSize(m_pButtonInfo->GetWidth(), 9999);
 	m_pButtonInfo->SetSize(m_pButtonInfo->GetWidth(), (int)m_pButtonInfo->GetTextHeight());
 
-	int iWidth = DigitanksWindow()->GetWindowWidth();
-	int iHeight = DigitanksWindow()->GetWindowHeight();
+	int iWidth = RootPanel()->GetWidth();
+	int iHeight = RootPanel()->GetHeight();
 
 	m_pButtonInfo->SetPos(iWidth/2 + 720/2 - m_pButtonInfo->GetWidth() - 50, iHeight - 160 - m_pButtonInfo->GetHeight());
 }

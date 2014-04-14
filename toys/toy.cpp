@@ -62,17 +62,11 @@ bool CToy::ReadFromFile(FILE* fp)
 	if (m_pToy)
 		delete m_pToy;
 
-	fseek(fp, 0, SEEK_END);
-	long iSize = ftell(fp);
-	fseek(fp, 0, SEEK_SET);
-
-	tstring sFileContents;
-	sFileContents.resize(iSize);
-	fread((void*)sFileContents.data(), 1, iSize, fp);
+	tstring sFileContents = tfread_file(fp);
 
 	m_pToy = new tinker::protobuf::Toy();
 
-	if (!m_pToy->ParseFromArray(sFileContents.data(), iSize))
+	if (!m_pToy->ParseFromArray(sFileContents.data(), sFileContents.length()))
 		return false;
 
 	m_aabbVisualBounds = ReadProtoBufAABB(m_pToy->base().visual_bounds());
