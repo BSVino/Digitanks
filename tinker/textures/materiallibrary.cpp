@@ -448,34 +448,32 @@ void CMaterial::CParameter::SetValue(const tstring& sValue, class CShader* pShad
 
 	m_sValue = pData->GetValueString();
 
-	if (!m_sType.length())
+	if (m_eType == UT_NONE)
 	{
-		m_sType = pShader->FindType(m_sName);
-		TAssert(m_sType.length() && m_sType != "unknown");
-		if (!m_sType.length() || m_sType == "unknown")
+		m_eType = pShader->FindType(m_sName);
+		TAssert(m_eType);
+		if (!m_eType)
 		{
 			TError("Can't find shader parameter " + m_sName + " in shader " + pShader->m_sName + "\n");
 			return;
 		}
 	}
 
-	if (m_sType == "float")
+	if (m_eType == UT_FLOAT)
 		m_flValue = pData->GetValueFloat();
-	else if (m_sType == "vec2")
+	else if (m_eType == UT_VECTOR2D)
 		m_vec2Value = pData->GetValueVector2D();
-	else if (m_sType == "vec3")
+	else if (m_eType == UT_VECTOR3D)
 		m_vecValue = pData->GetValueVector();
-	else if (m_sType == "vec4")
+	else if (m_eType == UT_VECTOR4D)
 		m_vec4Value = pData->GetValueVector4D();
-	else if (m_sType == "int")
+	else if (m_eType == UT_INT)
 		m_iValue = pData->GetValueInt();
-	else if (m_sType == "bool")
+	else if (m_eType == UT_BOOL)
 		m_bValue = pData->GetValueBool();
-	else if (m_sType == "mat4")
-	{
+	else if (m_eType == UT_MATRIX4X4)
 		TUnimplemented();
-	}
-	else if (m_sType == "sampler2D")
+	else if (m_eType == UT_SAMPLER)
 	{
 		// No op. Texture is read below.
 	}

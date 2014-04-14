@@ -79,6 +79,7 @@ public:
 		CParameter()
 		{
 			m_iValue = 0;
+			m_eType = UT_NONE;
 			m_pShaderParameter = nullptr;
 		}
 
@@ -95,7 +96,7 @@ public:
 		Vector4D	m_vec4Value;
 		tstring		m_sValue;
 
-		tstring		m_sType;
+		uniform_type_t m_eType;
 
 		CShader::CParameter*	m_pShaderParameter;
 

@@ -589,26 +589,26 @@ void CRenderingContext::SetupMaterial()
 			auto& oAction = pShaderParameter->m_aActions[j];
 			tstring& sName = oAction.m_sName;
 			tstring& sValue = oAction.m_sValue;
-			tstring& sType = m_pShader->m_asUniforms[sName].m_sUniformType;
+			uniform_type_t eType = m_pShader->m_aUniforms[sName.c_str()].m_eType;
 			if (sValue == "[value]")
 			{
-				if (sType == "float")
+				if (eType == UT_FLOAT)
 					SetUniform(sName.c_str(), oParameter.m_flValue);
-				else if (sType == "vec2")
+				else if (eType == UT_VECTOR2D)
 					SetUniform(sName.c_str(), oParameter.m_vec2Value);
-				else if (sType == "vec3")
+				else if (eType == UT_VECTOR3D)
 					SetUniform(sName.c_str(), oParameter.m_vecValue);
-				else if (sType == "vec4")
+				else if (eType == UT_VECTOR4D)
 					SetUniform(sName.c_str(), oParameter.m_vec4Value);
-				else if (sType == "int")
+				else if (eType == UT_INT)
 					SetUniform(sName.c_str(), oParameter.m_iValue);
-				else if (sType == "bool")
+				else if (eType == UT_BOOL)
 					SetUniform(sName.c_str(), oParameter.m_bValue);
-				else if (sType == "mat4")
+				else if (eType == UT_MATRIX4X4)
 				{
 					TUnimplemented();
 				}
-				else if (sType == "sampler2D")
+				else if (eType == UT_SAMPLER)
 				{
 					// No op, handled below.
 				}
@@ -617,23 +617,23 @@ void CRenderingContext::SetupMaterial()
 			}
 			else
 			{
-				if (sType == "float")
+				if (eType == UT_FLOAT)
 					SetUniform(sName.c_str(), oAction.m_flValue);
-				else if (sType == "vec2")
+				else if (eType == UT_VECTOR2D)
 					SetUniform(sName.c_str(), oAction.m_vec2Value);
-				else if (sType == "vec3")
+				else if (eType == UT_VECTOR3D)
 					SetUniform(sName.c_str(), oAction.m_vecValue);
-				else if (sType == "vec4")
+				else if (eType == UT_VECTOR4D)
 					SetUniform(sName.c_str(), oAction.m_vec4Value);
-				else if (sType == "int")
+				else if (eType == UT_INT)
 					SetUniform(sName.c_str(), oAction.m_iValue);
-				else if (sType == "bool")
+				else if (eType == UT_BOOL)
 					SetUniform(sName.c_str(), oAction.m_bValue);
-				else if (sType == "mat4")
+				else if (eType == UT_MATRIX4X4)
 				{
 					TUnimplemented();
 				}
-				else if (sType == "sampler2D")
+				else if (eType == UT_SAMPLER)
 				{
 					TUnimplemented();
 					SetUniform(sName.c_str(), 0);
@@ -664,57 +664,81 @@ void CRenderingContext::SetupMaterial()
 void CRenderingContext::SetUniform(const char* pszName, int iValue)
 {
 	TAssert(m_pShader);
-	int iUniform = glGetUniformLocation((GLuint)m_iProgram, pszName);
-	glUniform1i(iUniform, iValue);
+	const auto& it = m_pShader->m_aUniforms.find(pszName);
+	if (it == m_pShader->m_aUniforms.end())
+		return;
+
+	glUniform1i(it->second.m_iUniform, iValue);
 }
 
 void CRenderingContext::SetUniform(const char* pszName, float flValue)
 {
 	TAssert(m_pShader);
-	int iUniform = glGetUniformLocation((GLuint)m_iProgram, pszName);
-	glUniform1f(iUniform, flValue);
+	const auto& it = m_pShader->m_aUniforms.find(pszName);
+	if (it == m_pShader->m_aUniforms.end())
+		return;
+
+	glUniform1f(it->second.m_iUniform, flValue);
 }
 
 void CRenderingContext::SetUniform(const char* pszName, const Vector& vecValue)
 {
 	TAssert(m_pShader);
-	int iUniform = glGetUniformLocation((GLuint)m_iProgram, pszName);
-	glUniform3fv(iUniform, 1, vecValue);
+	const auto& it = m_pShader->m_aUniforms.find(pszName);
+	if (it == m_pShader->m_aUniforms.end())
+		return;
+
+	glUniform3fv(it->second.m_iUniform, 1, vecValue);
 }
 
 void CRenderingContext::SetUniform(const char* pszName, const Vector4D& vecValue)
 {
 	TAssert(m_pShader);
-	int iUniform = glGetUniformLocation((GLuint)m_iProgram, pszName);
-	glUniform4fv(iUniform, 1, vecValue);
+	const auto& it = m_pShader->m_aUniforms.find(pszName);
+	if (it == m_pShader->m_aUniforms.end())
+		return;
+
+	glUniform4fv(it->second.m_iUniform, 1, vecValue);
 }
 
 void CRenderingContext::SetUniform(const char* pszName, const ::Color& clrValue)
 {
 	TAssert(m_pShader);
-	int iUniform = glGetUniformLocation((GLuint)m_iProgram, pszName);
-	glUniform4fv(iUniform, 1, Vector4D(clrValue));
+	const auto& it = m_pShader->m_aUniforms.find(pszName);
+	if (it == m_pShader->m_aUniforms.end())
+		return;
+
+	glUniform4fv(it->second.m_iUniform, 1, Vector4D(clrValue));
 }
 
 void CRenderingContext::SetUniform(const char* pszName, const Matrix4x4& mValue)
 {
 	TAssert(m_pShader);
-	int iUniform = glGetUniformLocation((GLuint)m_iProgram, pszName);
-	glUniformMatrix4fv(iUniform, 1, false, mValue);
+	const auto& it = m_pShader->m_aUniforms.find(pszName);
+	if (it == m_pShader->m_aUniforms.end())
+		return;
+
+	glUniformMatrix4fv(it->second.m_iUniform, 1, false, mValue);
 }
 
 void CRenderingContext::SetUniform(const char* pszName, size_t iSize, const float* aflValues)
 {
 	TAssert(m_pShader);
-	int iUniform = glGetUniformLocation((GLuint)m_iProgram, pszName);
-	glUniform1fv(iUniform, iSize, aflValues);
+	const auto& it = m_pShader->m_aUniforms.find(pszName);
+	if (it == m_pShader->m_aUniforms.end())
+		return;
+
+	glUniform1fv(it->second.m_iUniform, iSize, aflValues);
 }
 
 void CRenderingContext::SetUniform(const char* pszName, size_t iSize, const Vector* avecValues)
 {
 	TAssert(m_pShader);
-	int iUniform = glGetUniformLocation((GLuint)m_iProgram, pszName);
-	glUniform3fv(iUniform, iSize, &avecValues[0].x);
+	const auto& it = m_pShader->m_aUniforms.find(pszName);
+	if (it == m_pShader->m_aUniforms.end())
+		return;
+
+	glUniform3fv(it->second.m_iUniform, iSize, &avecValues[0].x);
 }
 
 void CRenderingContext::BindTexture(size_t iTexture, int iChannel, bool bMultisample)

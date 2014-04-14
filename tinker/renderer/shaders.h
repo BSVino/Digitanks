@@ -120,7 +120,7 @@ public:
 	bool					Compile();
 	void					Destroy();
 
-	tstring					FindType(const tstring& sName) const;
+	uniform_type_t          FindType(const tstring& sName) const;
 
 	size_t					FindTextureByUniform(const tstring& sUniform) const;
 
@@ -169,12 +169,23 @@ public:
 	class CUniform
 	{
 	public:
-		tstring					m_sUniformType;
-		CParameter::CUniform*	m_pDefault;
+		uniform_type_t m_eType;
+		int            m_iUniform;
+		CParameter::CUniform* m_pDefault;
 	};
 
+	struct cmp_str
+	{
+		bool operator()(char const *a, char const *b)
+		{
+			return strcmp(a, b) < 0;
+		}
+	};
+
+	tvector<tstring> m_asUniformNames;                 // Have to keep this separate from the map for chicken/egg reasons. These make sure the memory for the m_aUniforms keys always exists.
+	tmap<const char*, CUniform, cmp_str> m_aUniforms;  // What the hardware has. Values are types.
+
 	tmap<tstring, CParameter>			m_aParameters;	// What the shader.txt has.
-	tmap<tstring, CUniform>				m_asUniforms;	// What the hardware has. Values are types.
 	tmap<tstring, CParameter::CUniform>	m_aDefaults;	// Defaults for each uniform as specified by shader .txt (not GLSL)
 	tvector<tstring>					m_asTextures;	// List of textures for purposes of assigning to channels and whatnot.
 

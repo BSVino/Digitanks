@@ -504,41 +504,44 @@ bool CShader::Compile()
 	GLsizei iLength;
 	GLint iSize;
 	GLenum iType;
+
+	// Allocate all names first. Don't want a vector resize to screw it up.
 	for (int i = 0; i < iNumUniforms; i++)
 	{
 		glGetActiveUniform(m_iProgram, i, sizeof(szUniformName), &iLength, &iSize, &iType, szUniformName);
 
-		tstring sUniformName = szUniformName;
-		if (sUniformName == "mProjection")
-			continue;
-		if (sUniformName == "mView")
-			continue;
-		if (sUniformName == "mGlobal")
-			continue;
+		m_asUniformNames.push_back(szUniformName);
+	}
 
-		CShader::CUniform& oUniform = m_asUniforms[sUniformName];
+	for (int i = 0; i < iNumUniforms; i++)
+	{
+		glGetActiveUniform(m_iProgram, i, sizeof(szUniformName), &iLength, &iSize, &iType, szUniformName);
+
+		CShader::CUniform& oUniform = m_aUniforms[m_asUniformNames[i].c_str()];
 		oUniform.m_pDefault = nullptr;
 		switch (iType)
 		{
-		case GL_FLOAT: oUniform.m_sUniformType = "float"; break;
-		case GL_FLOAT_VEC2: oUniform.m_sUniformType = "vec2"; break;
-		case GL_FLOAT_VEC3: oUniform.m_sUniformType = "vec3"; break;
-		case GL_FLOAT_VEC4: oUniform.m_sUniformType = "vec4"; break;
-		case GL_INT: oUniform.m_sUniformType = "int"; break;
-		case GL_BOOL: oUniform.m_sUniformType = "bool"; break;
-		case GL_FLOAT_MAT4: oUniform.m_sUniformType = "mat4"; break;
-		case GL_SAMPLER_2D: oUniform.m_sUniformType = "sampler2D"; break;
+		case GL_FLOAT: oUniform.m_eType = UT_FLOAT; break;
+		case GL_FLOAT_VEC2: oUniform.m_eType = UT_VECTOR2D; break;
+		case GL_FLOAT_VEC3: oUniform.m_eType = UT_VECTOR3D; break;
+		case GL_FLOAT_VEC4: oUniform.m_eType = UT_VECTOR4D; break;
+		case GL_INT: oUniform.m_eType = UT_INT; break;
+		case GL_BOOL: oUniform.m_eType = UT_BOOL; break;
+		case GL_FLOAT_MAT4: oUniform.m_eType = UT_MATRIX4X4; break;
+		case GL_SAMPLER_2D: oUniform.m_eType = UT_SAMPLER; break;
 		default: TUnimplemented();
 		}
+
+		oUniform.m_iUniform = glGetUniformLocation((GLuint)m_iProgram, m_asUniformNames[i].c_str());
 	}
 
 	for (auto it = m_aParameters.begin(); it != m_aParameters.end(); it++)
 	{
 		for (size_t j = 0; j < it->second.m_aActions.size(); j++)
 		{
-			auto it2 = m_asUniforms.find(it->second.m_aActions[j].m_sName);
-			TAssert(it2 != m_asUniforms.end());
-			if (it2 == m_asUniforms.end())
+			auto it2 = m_aUniforms.find(it->second.m_aActions[j].m_sName.c_str());
+			TAssert(it2 != m_aUniforms.end());
+			if (it2 == m_aUniforms.end())
 			{
 				TError("Shader '" + m_sName + "' specifies a uniform '" + it->second.m_aActions[j].m_sName + "' that is not in the linked program.\n");
 				continue;
@@ -550,23 +553,23 @@ bool CShader::Compile()
 			CData d;
 			d.SetValue(it->second.m_aActions[j].m_sValue);
 
-			if (oUniform.m_sUniformType == "float")
+			if (oUniform.m_eType == UT_FLOAT)
 				it->second.m_aActions[j].m_flValue = d.GetValueFloat();
-			else if (oUniform.m_sUniformType == "vec2")
+			else if (oUniform.m_eType == UT_VECTOR2D)
 				it->second.m_aActions[j].m_vec2Value = d.GetValueVector2D();
-			else if (oUniform.m_sUniformType == "vec3")
+			else if (oUniform.m_eType == UT_VECTOR3D)
 				it->second.m_aActions[j].m_vecValue = d.GetValueVector();
-			else if (oUniform.m_sUniformType == "vec4")
+			else if (oUniform.m_eType == UT_VECTOR4D)
 				it->second.m_aActions[j].m_vec4Value = d.GetValueVector4D();
-			else if (oUniform.m_sUniformType == "int")
+			else if (oUniform.m_eType == UT_INT)
 				it->second.m_aActions[j].m_iValue = d.GetValueInt();
-			else if (oUniform.m_sUniformType == "bool")
+			else if (oUniform.m_eType == UT_BOOL)
 				it->second.m_aActions[j].m_bValue = d.GetValueBool();
-			else if (oUniform.m_sUniformType == "mat4")
+			else if (oUniform.m_eType == UT_MATRIX4X4)
 			{
 				TUnimplemented();
 			}
-			else if (oUniform.m_sUniformType == "sampler2D")
+			else if (oUniform.m_eType == UT_SAMPLER)
 			{
 				// No op.
 			}
@@ -577,9 +580,9 @@ bool CShader::Compile()
 
 	for (auto it = m_aDefaults.begin(); it != m_aDefaults.end(); it++)
 	{
-		auto it2 = m_asUniforms.find(it->first);
-		TAssert(it2 != m_asUniforms.end());
-		if (it2 == m_asUniforms.end())
+		auto it2 = m_aUniforms.find(it->first.c_str());
+		TAssert(it2 != m_aUniforms.end());
+		if (it2 == m_aUniforms.end())
 		{
 			TError("Shader '" + m_sName + "' specifies a default for uniform '" + it->second.m_sName + "' that is not in the linked program.\n");
 			continue;
@@ -592,23 +595,23 @@ bool CShader::Compile()
 		CData d;
 		d.SetValue(it->second.m_sValue);
 
-		if (oUniform.m_sUniformType == "float")
+		if (oUniform.m_eType == UT_FLOAT)
 			it->second.m_flValue = d.GetValueFloat();
-		else if (oUniform.m_sUniformType == "vec2")
+		else if (oUniform.m_eType == UT_VECTOR2D)
 			it->second.m_vec2Value = d.GetValueVector2D();
-		else if (oUniform.m_sUniformType == "vec3")
+		else if (oUniform.m_eType == UT_VECTOR3D)
 			it->second.m_vecValue = d.GetValueVector();
-		else if (oUniform.m_sUniformType == "vec4")
+		else if (oUniform.m_eType == UT_VECTOR4D)
 			it->second.m_vec4Value = d.GetValueVector4D();
-		else if (oUniform.m_sUniformType == "int")
+		else if (oUniform.m_eType == UT_INT)
 			it->second.m_iValue = d.GetValueInt();
-		else if (oUniform.m_sUniformType == "bool")
+		else if (oUniform.m_eType == UT_BOOL)
 			it->second.m_bValue = d.GetValueBool();
-		else if (oUniform.m_sUniformType == "mat4")
+		else if (oUniform.m_eType == UT_MATRIX4X4)
 		{
 			TUnimplemented(); 
 		}
-		else if (oUniform.m_sUniformType == "sampler2D")
+		else if (oUniform.m_eType == UT_SAMPLER)
 		{
 			TUnimplemented(); // Can't set a default texture... yet.
 		}
@@ -616,50 +619,50 @@ bool CShader::Compile()
 			TUnimplemented();
 	}
 
-	for (auto it = m_asUniforms.begin(); it != m_asUniforms.end(); it++)
+	for (auto it = m_aUniforms.begin(); it != m_aUniforms.end(); it++)
 	{
 		CShader::CUniform& pUniformName = it->second;
 		CShader::CParameter::CUniform* pUniform = it->second.m_pDefault;
 
 		if (pUniform)
 		{
-			if (pUniformName.m_sUniformType == "float")
-				m_aDefaultsBuffer.push_back(CShaderDefault(it->first.c_str(), UT_FLOAT, pUniform->m_flValue));
-			else if (pUniformName.m_sUniformType == "vec2")
-				m_aDefaultsBuffer.push_back(CShaderDefault(it->first.c_str(), pUniform->m_vec2Value));
-			else if (pUniformName.m_sUniformType == "vec3")
-				m_aDefaultsBuffer.push_back(CShaderDefault(it->first.c_str(), pUniform->m_vecValue));
-			else if (pUniformName.m_sUniformType == "vec4")
-				m_aDefaultsBuffer.push_back(CShaderDefault(it->first.c_str(), pUniform->m_vec4Value));
-			else if (pUniformName.m_sUniformType == "int")
-				m_aDefaultsBuffer.push_back(CShaderDefault(it->first.c_str(), UT_INT, pUniform->m_iValue));
-			else if (pUniformName.m_sUniformType == "bool")
-				m_aDefaultsBuffer.push_back(CShaderDefault(it->first.c_str(), UT_BOOL, pUniform->m_bValue));
-			else if (pUniformName.m_sUniformType == "mat4")
+			if (pUniformName.m_eType == UT_FLOAT)
+				m_aDefaultsBuffer.push_back(CShaderDefault(it->first, UT_FLOAT, pUniform->m_flValue));
+			else if (pUniformName.m_eType == UT_VECTOR2D)
+				m_aDefaultsBuffer.push_back(CShaderDefault(it->first, pUniform->m_vec2Value));
+			else if (pUniformName.m_eType == UT_VECTOR3D)
+				m_aDefaultsBuffer.push_back(CShaderDefault(it->first, pUniform->m_vecValue));
+			else if (pUniformName.m_eType == UT_VECTOR4D)
+				m_aDefaultsBuffer.push_back(CShaderDefault(it->first, pUniform->m_vec4Value));
+			else if (pUniformName.m_eType == UT_INT)
+				m_aDefaultsBuffer.push_back(CShaderDefault(it->first, UT_INT, pUniform->m_iValue));
+			else if (pUniformName.m_eType == UT_BOOL)
+				m_aDefaultsBuffer.push_back(CShaderDefault(it->first, UT_BOOL, pUniform->m_bValue));
+			else if (pUniformName.m_eType == UT_MATRIX4X4)
 				TUnimplemented();
-			else if (pUniformName.m_sUniformType == "sampler2D")
+			else if (pUniformName.m_eType == UT_SAMPLER)
 				TUnimplemented();
 			else
 				TUnimplemented();
 		}
 		else
 		{
-			if (pUniformName.m_sUniformType == "float")
-				m_aDefaultsBuffer.push_back(CShaderDefault(it->first.c_str(), UT_FLOAT, 0.0f));
-			else if (pUniformName.m_sUniformType == "vec2")
-				m_aDefaultsBuffer.push_back(CShaderDefault(it->first.c_str(), Vector2D()));
-			else if (pUniformName.m_sUniformType == "vec3")
-				m_aDefaultsBuffer.push_back(CShaderDefault(it->first.c_str(), Vector()));
-			else if (pUniformName.m_sUniformType == "vec4")
-				m_aDefaultsBuffer.push_back(CShaderDefault(it->first.c_str(), Vector4D()));
-			else if (pUniformName.m_sUniformType == "int")
-				m_aDefaultsBuffer.push_back(CShaderDefault(it->first.c_str(), UT_INT, 0));
-			else if (pUniformName.m_sUniformType == "bool")
-				m_aDefaultsBuffer.push_back(CShaderDefault(it->first.c_str(), UT_BOOL, false));
-			else if (pUniformName.m_sUniformType == "mat4")
-				m_aDefaultsBuffer.push_back(CShaderDefault(it->first.c_str(), Matrix4x4()));
-			else if (pUniformName.m_sUniformType == "sampler2D")
-				m_aDefaultsBuffer.push_back(CShaderDefault(it->first.c_str(), UT_SAMPLER, 0));
+			if (pUniformName.m_eType == UT_FLOAT)
+				m_aDefaultsBuffer.push_back(CShaderDefault(it->first, UT_FLOAT, 0.0f));
+			else if (pUniformName.m_eType == UT_VECTOR2D)
+				m_aDefaultsBuffer.push_back(CShaderDefault(it->first, Vector2D()));
+			else if (pUniformName.m_eType == UT_VECTOR3D)
+				m_aDefaultsBuffer.push_back(CShaderDefault(it->first, Vector()));
+			else if (pUniformName.m_eType == UT_VECTOR4D)
+				m_aDefaultsBuffer.push_back(CShaderDefault(it->first, Vector4D()));
+			else if (pUniformName.m_eType == UT_INT)
+				m_aDefaultsBuffer.push_back(CShaderDefault(it->first, UT_INT, 0));
+			else if (pUniformName.m_eType == UT_BOOL)
+				m_aDefaultsBuffer.push_back(CShaderDefault(it->first, UT_BOOL, false));
+			else if (pUniformName.m_eType == UT_MATRIX4X4)
+				m_aDefaultsBuffer.push_back(CShaderDefault(it->first, Matrix4x4()));
+			else if (pUniformName.m_eType == UT_SAMPLER)
+				m_aDefaultsBuffer.push_back(CShaderDefault(it->first, UT_SAMPLER, 0));
 			else
 				TUnimplemented();
 		}
@@ -677,21 +680,20 @@ void CShader::Destroy()
 	glDeleteProgram((GLuint)m_iProgram);
 }
 
-tstring CShader::FindType(const tstring& sName) const
+uniform_type_t CShader::FindType(const tstring& sName) const
 {
 	auto it = m_aParameters.find(sName);
 	TAssert(it != m_aParameters.end());
 	if (it == m_aParameters.end())
-		return "unknown";
+		return UT_NONE;
 
 	const CShader::CParameter* pShaderPar = &it->second;
 
-	tstring sType;
 	for (size_t j = 0; j < pShaderPar->m_aActions.size(); j++)
 		if (pShaderPar->m_aActions[j].m_sValue == "[value]")
-			return m_asUniforms.find(pShaderPar->m_aActions[j].m_sName)->second.m_sUniformType;
+			return m_aUniforms.find(pShaderPar->m_aActions[j].m_sName.c_str())->second.m_eType;
 
-	return "unknown";
+	return UT_NONE;
 }
 
 size_t CShader::FindTextureByUniform(const tstring& sUniform) const

@@ -20,16 +20,18 @@ LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON A
 #ifdef WITH_EASTL
 #include <EASTL/map.h>
 
-#define TMAP_BASE eastl::map<T, U>
+#define TMAP_BASE eastl::map<T, U, C>
 #define tpair eastl::pair
+#define TMAP_COMPARE eastl::less<T>
 #else
 #include <map>
 
-#define TMAP_BASE std::map<T, U>
+#define TMAP_BASE std::map<T, U, C>
 #define tpair std::pair
+#define TMAP_COMPARE std::less<T>
 #endif
 
-template <class T, class U>
+template <class T, class U, typename C = TMAP_COMPARE>
 class tmap : public TMAP_BASE
 {
 public:
