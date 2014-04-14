@@ -27,6 +27,14 @@ LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON A
 
 #define MAX_TEXTURE_CHANNELS 2
 
+struct cmp_str
+{
+	bool operator()(char const *a, char const *b) const
+	{
+		return strcmp(a, b) < 0;
+	}
+};
+
 typedef enum
 {
 	UT_NONE = 0,
@@ -172,14 +180,6 @@ public:
 		uniform_type_t m_eType;
 		int            m_iUniform;
 		CParameter::CUniform* m_pDefault;
-	};
-
-	struct cmp_str
-	{
-		bool operator()(char const *a, char const *b)
-		{
-			return strcmp(a, b) < 0;
-		}
 	};
 
 	tvector<tstring> m_asUniformNames;                 // Have to keep this separate from the map for chicken/egg reasons. These make sure the memory for the m_aUniforms keys always exists.
