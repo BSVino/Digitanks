@@ -1784,7 +1784,7 @@ void CBaseEntity::CheckTables(const char* pszEntity)
 		CNetworkedVariableData* pVariable = FindNetworkVariable(pSaveData->m_pszVariableName);
 		if (pSaveData->m_eType == CSaveData::DATA_NETVAR)
 			// I better be finding this in the network tables or yer gon have some 'splainin to do!
-			TAssert(pVariable)
+			TAssert(pVariable);
 		else
 		{
 			// I better NOT be finding this in the network tables or yer gon have some 'splainin to do!

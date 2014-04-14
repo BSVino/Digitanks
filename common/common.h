@@ -57,7 +57,7 @@ extern void DebugPrint(const char* pszText);
 #ifdef _DEBUG
 
 #define TAssert(x) \
-{ \
+do { \
 	PRAGMA_WARNING_PUSH \
 	PRAGMA_WARNING_DISABLE(4127) /* conditional expression is constant */ \
 	if (!(x)) \
@@ -66,10 +66,13 @@ extern void DebugPrint(const char* pszText);
 		TMsg("Assert failed: " #x "\n"); \
 		TDebugBreak(); \
 	} \
-} \
+	PRAGMA_WARNING_PUSH \
+	PRAGMA_WARNING_DISABLE(4127) /* conditional expression is constant */ \
+} while (0) \
+PRAGMA_WARNING_POP \
 
 #define TAssertNoMsg(x) \
-{ \
+do { \
 	PRAGMA_WARNING_PUSH \
 	PRAGMA_WARNING_DISABLE(4127) /* conditional expression is constant */ \
 	if (!(x)) \
@@ -78,7 +81,10 @@ extern void DebugPrint(const char* pszText);
 		DebugPrint("Assert failed: " #x "\n"); \
 		TDebugBreak(); \
 	} \
-} \
+	PRAGMA_WARNING_PUSH \
+	PRAGMA_WARNING_DISABLE(4127) /* conditional expression is constant */ \
+} while (0) \
+PRAGMA_WARNING_POP \
 
 #else
 
@@ -106,12 +112,12 @@ extern void DebugPrint(const char* pszText);
 
 #if defined(__ANDROID__)
 // If you hit this, the code is either incomplete or untested.
-#define TUnimplemented() { \
+#define TUnimplemented() do { \
 	char s[1000]; \
 	sprintf(s, "TUnimplemented file " __FILE__ " line %d\n", __LINE__); \
 	DebugPrint(s); \
 	TAssertNoMsg(false); \
-	}
+	} while (0)
 #else
 // If you hit this, the code is either incomplete or untested.
 #define TUnimplemented() TAssertNoMsg(false)

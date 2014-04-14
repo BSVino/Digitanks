@@ -616,6 +616,55 @@ bool CShader::Compile()
 			TUnimplemented();
 	}
 
+	for (auto it = m_asUniforms.begin(); it != m_asUniforms.end(); it++)
+	{
+		CShader::CUniform& pUniformName = it->second;
+		CShader::CParameter::CUniform* pUniform = it->second.m_pDefault;
+
+		if (pUniform)
+		{
+			if (pUniformName.m_sUniformType == "float")
+				m_aDefaultsBuffer.push_back(CShaderDefault(it->first.c_str(), UT_FLOAT, pUniform->m_flValue));
+			else if (pUniformName.m_sUniformType == "vec2")
+				m_aDefaultsBuffer.push_back(CShaderDefault(it->first.c_str(), pUniform->m_vec2Value));
+			else if (pUniformName.m_sUniformType == "vec3")
+				m_aDefaultsBuffer.push_back(CShaderDefault(it->first.c_str(), pUniform->m_vecValue));
+			else if (pUniformName.m_sUniformType == "vec4")
+				m_aDefaultsBuffer.push_back(CShaderDefault(it->first.c_str(), pUniform->m_vec4Value));
+			else if (pUniformName.m_sUniformType == "int")
+				m_aDefaultsBuffer.push_back(CShaderDefault(it->first.c_str(), UT_INT, pUniform->m_iValue));
+			else if (pUniformName.m_sUniformType == "bool")
+				m_aDefaultsBuffer.push_back(CShaderDefault(it->first.c_str(), UT_BOOL, pUniform->m_bValue));
+			else if (pUniformName.m_sUniformType == "mat4")
+				TUnimplemented();
+			else if (pUniformName.m_sUniformType == "sampler2D")
+				TUnimplemented();
+			else
+				TUnimplemented();
+		}
+		else
+		{
+			if (pUniformName.m_sUniformType == "float")
+				m_aDefaultsBuffer.push_back(CShaderDefault(it->first.c_str(), UT_FLOAT, 0.0f));
+			else if (pUniformName.m_sUniformType == "vec2")
+				m_aDefaultsBuffer.push_back(CShaderDefault(it->first.c_str(), Vector2D()));
+			else if (pUniformName.m_sUniformType == "vec3")
+				m_aDefaultsBuffer.push_back(CShaderDefault(it->first.c_str(), Vector()));
+			else if (pUniformName.m_sUniformType == "vec4")
+				m_aDefaultsBuffer.push_back(CShaderDefault(it->first.c_str(), Vector4D()));
+			else if (pUniformName.m_sUniformType == "int")
+				m_aDefaultsBuffer.push_back(CShaderDefault(it->first.c_str(), UT_INT, 0));
+			else if (pUniformName.m_sUniformType == "bool")
+				m_aDefaultsBuffer.push_back(CShaderDefault(it->first.c_str(), UT_BOOL, false));
+			else if (pUniformName.m_sUniformType == "mat4")
+				m_aDefaultsBuffer.push_back(CShaderDefault(it->first.c_str(), Matrix4x4()));
+			else if (pUniformName.m_sUniformType == "sampler2D")
+				m_aDefaultsBuffer.push_back(CShaderDefault(it->first.c_str(), UT_SAMPLER, 0));
+			else
+				TUnimplemented();
+		}
+	}
+
 	return true;
 }
 

@@ -532,56 +532,46 @@ void CRenderingContext::SetupMaterial()
 		}
 	}
 
-	for (auto it = m_pShader->m_asUniforms.begin(); it != m_pShader->m_asUniforms.end(); it++)
+	for (auto& oDefault : m_pShader->m_aDefaultsBuffer)
 	{
-		CShader::CUniform& pUniformName = it->second;
-		CShader::CParameter::CUniform* pUniform = it->second.m_pDefault;
+		switch (oDefault.m_eType)
+		{
+		default:
+		case UT_NONE:
+			TUnimplemented();
+			continue;
 
-		if (pUniform)
-		{
-			if (pUniformName.m_sUniformType == "float")
-				SetUniform(it->first.c_str(), pUniform->m_flValue);
-			else if (pUniformName.m_sUniformType == "vec2")
-				SetUniform(it->first.c_str(), pUniform->m_vec2Value);
-			else if (pUniformName.m_sUniformType == "vec3")
-				SetUniform(it->first.c_str(), pUniform->m_vecValue);
-			else if (pUniformName.m_sUniformType == "vec4")
-				SetUniform(it->first.c_str(), pUniform->m_vec4Value);
-			else if (pUniformName.m_sUniformType == "int")
-				SetUniform(it->first.c_str(), pUniform->m_iValue);
-			else if (pUniformName.m_sUniformType == "bool")
-				SetUniform(it->first.c_str(), pUniform->m_bValue);
-			else if (pUniformName.m_sUniformType == "mat4")
-			{
-				TUnimplemented();
-			}
-			else if (pUniformName.m_sUniformType == "sampler2D")
-			{
-				TUnimplemented();
-			}
-			else
-				TUnimplemented();
-		}
-		else
-		{
-			if (pUniformName.m_sUniformType == "float")
-				SetUniform(it->first.c_str(), 0.0f);
-			else if (pUniformName.m_sUniformType == "vec2")
-				SetUniform(it->first.c_str(), Vector2D());
-			else if (pUniformName.m_sUniformType == "vec3")
-				SetUniform(it->first.c_str(), Vector());
-			else if (pUniformName.m_sUniformType == "vec4")
-				SetUniform(it->first.c_str(), Vector4D());
-			else if (pUniformName.m_sUniformType == "int")
-				SetUniform(it->first.c_str(), 0);
-			else if (pUniformName.m_sUniformType == "bool")
-				SetUniform(it->first.c_str(), false);
-			else if (pUniformName.m_sUniformType == "mat4")
-				SetUniform(it->first.c_str(), Matrix4x4());
-			else if (pUniformName.m_sUniformType == "sampler2D")
-				SetUniform(it->first.c_str(), 0);
-			else
-				TUnimplemented();
+		case UT_FLOAT:
+			SetUniform(oDefault.m_pszUniform, oDefault.GetFloat());
+			continue;
+
+		case UT_VECTOR2D:
+			SetUniform(oDefault.m_pszUniform, oDefault.GetVector2D());
+			continue;
+
+		case UT_VECTOR3D:
+			SetUniform(oDefault.m_pszUniform, oDefault.GetVector3D());
+			continue;
+
+		case UT_VECTOR4D:
+			SetUniform(oDefault.m_pszUniform, oDefault.GetVector4D());
+			continue;
+
+		case UT_INT:
+			SetUniform(oDefault.m_pszUniform, oDefault.GetInt());
+			continue;
+
+		case UT_BOOL:
+			SetUniform(oDefault.m_pszUniform, oDefault.GetBool());
+			continue;
+
+		case UT_MATRIX4X4:
+			SetUniform(oDefault.m_pszUniform, oDefault.GetMatrix4x4());
+			continue;
+
+		case UT_SAMPLER:
+			SetUniform(oDefault.m_pszUniform, oDefault.GetSampler());
+			continue;
 		}
 	}
 

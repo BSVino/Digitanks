@@ -23,8 +23,93 @@ LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON A
 
 #include <tstring.h>
 #include <vector.h>
+#include <matrix.h>
 
 #define MAX_TEXTURE_CHANNELS 2
+
+typedef enum
+{
+	UT_NONE = 0,
+	UT_FLOAT,
+	UT_VECTOR2D,
+	UT_VECTOR3D,
+	UT_VECTOR4D,
+	UT_INT,
+	UT_BOOL,
+	UT_MATRIX4X4,
+	UT_SAMPLER,
+} uniform_type_t;
+
+class CShaderDefault
+{
+public:
+	CShaderDefault(const char* pszUniform, uniform_type_t eType, float flValue)
+	{
+		TAssertNoMsg(eType == UT_FLOAT);
+		m_pszUniform = pszUniform;
+		m_eType = eType;
+		*(float*)&m_oData[0] = flValue;
+	}
+
+	CShaderDefault(const char* pszUniform, Vector2D vecValue)
+	{
+		m_pszUniform = pszUniform;
+		m_eType = UT_VECTOR2D;
+		*(Vector2D*)&m_oData[0] = vecValue;
+	}
+
+	CShaderDefault(const char* pszUniform, Vector vecValue)
+	{
+		m_pszUniform = pszUniform;
+		m_eType = UT_VECTOR3D;
+		*(Vector*)&m_oData[0] = vecValue;
+	}
+
+	CShaderDefault(const char* pszUniform, Vector4D vecValue)
+	{
+		m_pszUniform = pszUniform;
+		m_eType = UT_VECTOR4D;
+		*(Vector4D*)&m_oData[0] = vecValue;
+	}
+
+	CShaderDefault(const char* pszUniform, uniform_type_t eType, bool vecValue)
+	{
+		TAssertNoMsg(eType == UT_BOOL);
+		m_pszUniform = pszUniform;
+		m_eType = eType;
+		*(bool*)&m_oData[0] = vecValue;
+	}
+
+	CShaderDefault(const char* pszUniform, Matrix4x4 mValue)
+	{
+		m_pszUniform = pszUniform;
+		m_eType = UT_MATRIX4X4;
+		*(Matrix4x4*)&m_oData[0] = mValue;
+	}
+
+	CShaderDefault(const char* pszUniform, uniform_type_t eType, int iValue)
+	{
+		TAssertNoMsg(eType == UT_INT || eType == UT_SAMPLER);
+		m_pszUniform = pszUniform;
+		m_eType = eType;
+		*(int*)&m_oData[0] = iValue;
+	}
+
+public:
+	float     GetFloat()     { TAssertNoMsg(m_eType == UT_FLOAT);     return *(float*)&m_oData[0]; }
+	Vector2D  GetVector2D()  { TAssertNoMsg(m_eType == UT_VECTOR2D);  return *(Vector2D*)&m_oData[0]; }
+	Vector    GetVector3D()  { TAssertNoMsg(m_eType == UT_VECTOR3D);  return *(Vector*)&m_oData[0]; }
+	Vector4D  GetVector4D()  { TAssertNoMsg(m_eType == UT_VECTOR4D);  return *(Vector4D*)&m_oData[0]; }
+	Matrix4x4 GetMatrix4x4() { TAssertNoMsg(m_eType == UT_MATRIX4X4); return *(Matrix4x4*)&m_oData[0]; }
+	bool      GetBool()      { TAssertNoMsg(m_eType == UT_BOOL);      return *(bool*)&m_oData[0]; }
+	int       GetInt()       { TAssertNoMsg(m_eType == UT_INT);       return *(int*)&m_oData[0]; }
+	int       GetSampler()   { TAssertNoMsg(m_eType == UT_SAMPLER);   return *(int*)&m_oData[0]; }
+
+public:
+	const char*    m_pszUniform;
+	uniform_type_t m_eType;
+	char           m_oData[sizeof(Matrix4x4)];
+};
 
 class CShader
 {
@@ -92,6 +177,8 @@ public:
 	tmap<tstring, CUniform>				m_asUniforms;	// What the hardware has. Values are types.
 	tmap<tstring, CParameter::CUniform>	m_aDefaults;	// Defaults for each uniform as specified by shader .txt (not GLSL)
 	tvector<tstring>					m_asTextures;	// List of textures for purposes of assigning to channels and whatnot.
+
+	tvector<CShaderDefault> m_aDefaultsBuffer;
 };
 
 class CShaderLibrary

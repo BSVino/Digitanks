@@ -101,7 +101,7 @@ void CTextField::Paint(float x, float y, float w, float h)
 		tstring sCommand = m_asAutoCompleteCommands[iAutoComplete];
 
 		if (m_bSlashInsensitive)
-			TAssertNoMsg(ToForwardSlashes(sCommand).compare(0, m_sText.length(), ToForwardSlashes(m_sText)) == 0)	// By an amazing oddity of preproccesor magic the semicolon is not welcome here.
+			TAssertNoMsg(ToForwardSlashes(sCommand).compare(0, m_sText.length(), ToForwardSlashes(m_sText)) == 0);
 		else
 			TAssertNoMsg(sCommand.compare(0, m_sText.length(), m_sText) == 0);
 
