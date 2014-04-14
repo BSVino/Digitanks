@@ -183,6 +183,7 @@ public:
 	bool		Intersects(const TemplateAABB<F>& oBox) const;
 
 	void        Expand(const TemplateVector<F>& vecPoint);
+	void        Expand(const TemplateAABB<F>& aabbBox); // Assumes well formed aabbBox with min < max for x y and z.
 
 	TemplateAABB<F>		operator+(const TemplateAABB<F>& oBox) const;
 	TemplateAABB<F>		operator*(float s) const;
@@ -302,6 +303,18 @@ inline void TemplateAABB<F>::Expand(const TemplateVector<F>& vecNew)
 			m_vecMins[i] = vecNew[i];
 		else if (vecNew[i] > m_vecMaxs[i])
 			m_vecMaxs[i] = vecNew[i];
+	}
+}
+
+template <class F>
+inline void TemplateAABB<F>::Expand(const TemplateAABB<F>& aabbNew)
+{
+	for (size_t i = 0; i < 3; i++)
+	{
+		if (aabbNew.m_vecMins[i] < m_vecMins[i])
+			m_vecMins[i] = aabbNew.m_vecMins[i];
+		else if (aabbNew.m_vecMaxs[i] > m_vecMaxs[i])
+			m_vecMaxs[i] = aabbNew.m_vecMaxs[i];
 	}
 }
 

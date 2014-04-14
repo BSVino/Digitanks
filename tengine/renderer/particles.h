@@ -71,6 +71,8 @@ protected:
 	tvector<CParticle>				m_aParticles;
 	size_t							m_iNumParticlesAlive;
 
+	AABB m_aabbBounds;
+
 	double							m_flLastEmission;
 	int								m_iTotalEmitted;
 

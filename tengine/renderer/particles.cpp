@@ -75,6 +75,8 @@ CParticleSystem* CParticleSystemLibrary::GetParticleSystem(size_t i)
 
 void CParticleSystemLibrary::Simulate()
 {
+	TPROF("CParticleSystemLibrary::Simulate");
+
 	CParticleSystemLibrary* pPSL = Get();
 
 	tmap<size_t, CSystemInstance*>::iterator it = pPSL->m_apInstances.begin();
@@ -454,6 +456,28 @@ void CSystemInstance::Simulate()
 
 	if (m_pSystem->GetEmissionMax() && m_iTotalEmitted >= m_pSystem->GetEmissionMax() || !m_pSystem->IsRenderable())
 		m_bStopped = true;
+
+	if (!m_bStopped && m_aParticles.size())
+	{
+		auto& oParticle = m_aParticles[0];
+		float& flRadius = oParticle.m_flRadius;
+		Vector vecRadius = Vector(flRadius, flRadius, flRadius);
+		m_aabbBounds.m_vecMins = oParticle.m_vecOrigin - vecRadius;
+		m_aabbBounds.m_vecMaxs = oParticle.m_vecOrigin + vecRadius;
+
+		for (size_t i = 1; i < m_aParticles.size(); i++)
+		{
+			auto& oParticle = m_aParticles[i];
+
+			if (!oParticle.m_bActive)
+				continue;
+
+			float& flRadius = oParticle.m_flRadius;
+			Vector vecRadius = Vector(flRadius, flRadius, flRadius);
+
+			m_aabbBounds.Expand(AABB(oParticle.m_vecOrigin - vecRadius, oParticle.m_vecOrigin + vecRadius));
+		}
+	}
 }
 
 void CSystemInstance::SpawnParticle()
@@ -526,6 +550,8 @@ void CSystemInstance::SpawnParticle()
 		pNewParticle->m_flBillboardYaw = 0;
 }
 
+CVar particles_debug("particles_debug", "0");
+
 void CSystemInstance::Render(CGameRenderingContext* c, bool bTransparent)
 {
 	for (size_t i = 0; i < m_apChildren.size(); i++)
@@ -539,6 +565,18 @@ void CSystemInstance::Render(CGameRenderingContext* c, bool bTransparent)
 
 	CGameRenderer* pRenderer = GameWindow()->GetGameRenderer();
 
+	if (particles_debug.GetBool())
+	{
+		CRenderingContext c(pRenderer, true);
+		c.UseProgram("debug");
+		c.SetUniform("vecColor", Color(1.0, 1.0, 1.0, 1.0f));
+		c.ResetTransformations();
+		c.RenderWireBox(m_aabbBounds);
+	}
+
+	if (!pRenderer->IsSphereInFrustum(m_aabbBounds.Center(), m_aabbBounds.Size().Length() / 2))
+		return;
+
 	Vector vecForward, vecLeft, vecUp;
 	pRenderer->GetCameraVectors(&vecForward, &vecLeft, &vecUp);
 
@@ -547,22 +585,21 @@ void CSystemInstance::Render(CGameRenderingContext* c, bool bTransparent)
 
 	c->SetBlend(m_pSystem->GetBlend());
 
-	for (size_t i = 0; i < m_aParticles.size(); i++)
+	Color clrParticle = m_pSystem->GetColor();
+	if (m_bColorOverride)
+		clrParticle = m_clrOverride;
+
+	if (m_pSystem->GetModel())
 	{
-		CParticle* pParticle = &m_aParticles[i];
-
-		if (!pParticle->m_bActive)
-			continue;
-
-		if (m_pSystem->GetModel())
+		for (size_t i = 0; i < m_aParticles.size(); i++)
 		{
+			CParticle* pParticle = &m_aParticles[i];
+
+			if (!pParticle->m_bActive)
+				continue;
+
 			c->SetUniform("flAlpha", pParticle->m_flAlpha);
-
-			if (m_bColorOverride)
-				c->SetColor(m_clrOverride);
-			else
-				c->SetColor(m_pSystem->GetColor());
-
+			c->SetColor(clrParticle);
 			c->Translate(pParticle->m_vecOrigin);
 			c->Rotate(-pParticle->m_angAngles.y, Vector(0, 0, 1));
 			c->Rotate(pParticle->m_angAngles.p, Vector(0, 1, 0));
@@ -571,8 +608,16 @@ void CSystemInstance::Render(CGameRenderingContext* c, bool bTransparent)
 			c->RenderModel(m_pSystem->GetModel());
 			c->ResetTransformations();
 		}
-		else
+	}
+	else
+	{
+		for (size_t i = 0; i < m_aParticles.size(); i++)
 		{
+			CParticle* pParticle = &m_aParticles[i];
+
+			if (!pParticle->m_bActive)
+				continue;
+
 			float flRadius = pParticle->m_flRadius;
 			Vector vecOrigin = pParticle->m_vecOrigin;
 
@@ -599,11 +644,7 @@ void CSystemInstance::Render(CGameRenderingContext* c, bool bTransparent)
 			Vector vecBR = vecOrigin + vecParticleRight - vecParticleUp;
 
 			c->SetUniform("flAlpha", pParticle->m_flAlpha);
-
-			if (m_bColorOverride)
-				c->SetUniform("vecColor", m_clrOverride);
-			else
-				c->SetUniform("vecColor", m_pSystem->GetColor());
+			c->SetColor(clrParticle);
 
 			c->BeginRenderTriFan();
 
