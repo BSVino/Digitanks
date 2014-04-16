@@ -510,7 +510,12 @@ bool CShader::Compile()
 	{
 		glGetActiveUniform(m_iProgram, i, sizeof(szUniformName), &iLength, &iSize, &iType, szUniformName);
 
-		m_asUniformNames.push_back(szUniformName);
+		tstring sUniformName = szUniformName;
+
+		if (sUniformName.endswith("[0]"))
+			sUniformName = sUniformName.substr(0, sUniformName.length() - 3);
+
+		m_asUniformNames.push_back(sUniformName);
 	}
 
 	for (int i = 0; i < iNumUniforms; i++)
