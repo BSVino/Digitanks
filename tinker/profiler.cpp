@@ -86,7 +86,8 @@ void CPerfBlock::BlockEnded()
 CPerfBlock* CProfiler::s_pTopBlock = NULL;
 CPerfBlock* CProfiler::s_pBottomBlock = NULL;
 bool CProfiler::s_bProfiling = false;
-double CProfiler::s_flProfilerTime;
+double CProfiler::s_flProfilerTime = 0;
+double CProfiler::s_flLastProfilerTime = 0;
 
 void CProfiler::BeginFrame()
 {
@@ -165,6 +166,7 @@ void CProfiler::Render()
 	if (!s_pBottomBlock)
 		return;
 
+	s_flLastProfilerTime = s_flProfilerTime;
 	s_flProfilerTime = CApplication::Get()->GetTime();
 
 	PopAllScopes();
@@ -185,6 +187,24 @@ void CProfiler::Render()
 	c.UseFrameBuffer(NULL);
 
 	glgui::CBaseControl::PaintRect(flCurrLeft, flCurrTop, 400, 800, Color(0, 0, 0, 150), 5, true);
+
+	{
+		flCurrTop += 15;
+
+		double flProfilerTime = s_flProfilerTime - s_flLastProfilerTime;
+
+		Color clrBlock(255, 255, 255);
+		if (flProfilerTime < 0.005)
+			clrBlock = Color(255, 255, 255, 150);
+
+		glgui::CBaseControl::PaintRect(flCurrLeft + 15, flCurrTop, (float)flProfilerTime * 5000, 1, clrBlock);
+
+		tstring sName = "Frame time:";
+		sName += tsprintf(": %d ms", (int)(flProfilerTime * 1000));
+		glgui::CLabel::PaintText(sName, sName.length(), "sans-serif", 10, (float)flCurrLeft + 15, (float)flCurrTop, clrBlock);
+
+		flCurrLeft += 15;
+	}
 
 	Render(s_pBottomBlock, flCurrLeft, flCurrTop);
 

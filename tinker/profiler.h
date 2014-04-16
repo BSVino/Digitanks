@@ -90,6 +90,7 @@ protected:
 
 	static bool					s_bProfiling;
 
+	static double               s_flLastProfilerTime;
 	static double               s_flProfilerTime;
 };
 
