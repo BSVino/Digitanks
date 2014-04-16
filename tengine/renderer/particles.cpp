@@ -21,6 +21,8 @@ extern void InitSystems();
 
 CParticleSystemLibrary::CParticleSystemLibrary()
 {
+	m_iQuadVBO = ~0;
+
 	s_pParticleSystemLibrary = this;
 	m_iParticleSystemsLoaded = 0;
 
@@ -75,6 +77,9 @@ CParticleSystem* CParticleSystemLibrary::GetParticleSystem(size_t i)
 
 void CParticleSystemLibrary::MakeQuad()
 {
+	if (Get()->m_iQuadVBO != ~0)
+		return;
+
 	CRenderingContext c(GameServer()->GetRenderer());
 
 	float flRadius = 1;
