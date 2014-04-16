@@ -66,6 +66,7 @@ public:
 	void							Rescue(CDigitanksEntity* pOther);
 	DECLARE_ENTITY_OUTPUT(OnRescue);
 
+	virtual bool                    ShouldRenderTransparent() const;
 	virtual void					ModifyContext(class CRenderingContext* pContext) const;
 	virtual void					OnRender(class CGameRenderingContext* pContext) const;
 

@@ -566,6 +566,15 @@ void CDigitanksEntity::Rescue(CDigitanksEntity* pOther)
 	m_flNextDirtyArea = GameServer()->GetGameTime();
 }
 
+bool CDigitanksEntity::ShouldRenderTransparent() const
+{
+	float flVisibility = GetVisibility();
+	if (flVisibility < 1)
+		return true;
+
+	return BaseClass::ShouldRenderTransparent();
+}
+
 void CDigitanksEntity::ModifyContext(CRenderingContext* pContext) const
 {
 	BaseClass::ModifyContext(pContext);
