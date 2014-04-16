@@ -496,7 +496,12 @@ void CRenderingContext::UseMaterial(const CMaterialHandle& hUseMaterial)
 	if (!hUseMaterial.IsValid())
 		return;
 
-	GetContext().m_hMaterial = hUseMaterial;
+	auto& c = GetContext();
+
+	if (c.m_hMaterial == hUseMaterial)
+		return;
+
+	c.m_hMaterial = hUseMaterial;
 
 	UseProgram(hUseMaterial->m_pShader);
 
