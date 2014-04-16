@@ -135,9 +135,14 @@ void CParticleSystemLibrary::Simulate()
 		RemoveInstance(aiDeleted[i]);
 }
 
+CVar r_particles("r_particles", "1");
+
 void CParticleSystemLibrary::Render()
 {
 	TPROF("CParticleSystemLibrary::Render");
+
+	if (!r_particles.GetBool())
+		return;
 
 	MakeQuad();
 
@@ -674,7 +679,7 @@ void CSystemInstance::Render(CGameRenderingContext* c, bool bTransparent)
 			c->SetUniform(iOrigin, pParticle->m_vecOrigin);
 			c->SetUniform(iAlpha, pParticle->m_flAlpha);
 			c->SetUniform(iRadius, pParticle->m_flRadius);
-			c->SetUniform(iYaw, pParticle->m_flBillboardYaw*M_PI/180);
+			c->SetUniform(iYaw, (float)(pParticle->m_flBillboardYaw*M_PI/180));
 			c->SetUniform(iColor, clrParticle);
 
 			c->BeginRenderVertexArray(iQuadVBO);

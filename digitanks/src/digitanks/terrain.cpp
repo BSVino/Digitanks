@@ -9,6 +9,7 @@
 #include <textures/texturelibrary.h>
 #include <renderer/shaders.h>
 #include <renderer/game_renderingcontext.h>
+#include <tinker/profiler.h>
 
 #include "dt_renderer.h"
 #include "digitanksgame.h"
@@ -1348,8 +1349,15 @@ void CTerrain::RenderTransparentTerrain() const
 #endif
 }
 
+CVar r_terrain("r_terrain", "1");
+
 void CTerrain::RenderWithShaders() const
 {
+	TPROF("CTerrain::RenderWithShaders");
+
+	if (!r_terrain.GetBool())
+		return;
+
 	CGameRenderingContext c(GameServer()->GetRenderer(), true);
 
 	c.UseProgram("terrain");
