@@ -254,8 +254,6 @@ void CGameWindow::Run()
 
 	while (IsOpen())
 	{
-		CProfiler::BeginFrame();
-
 		if (GameServer()->IsHalting())
 		{
 			DestroyGame();
@@ -299,6 +297,8 @@ void CGameWindow::Run()
 		}
 
 		CProfiler::Render();
+		CProfiler::BeginFrame();
+
 		SwapBuffers();
 	}
 }
