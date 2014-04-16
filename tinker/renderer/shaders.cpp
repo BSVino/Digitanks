@@ -505,6 +505,8 @@ bool CShader::Compile()
 	GLint iSize;
 	GLenum iType;
 
+	m_asUniformNames.clear();
+
 	// Allocate all names first. Don't want a vector resize to screw it up.
 	for (int i = 0; i < iNumUniforms; i++)
 	{
@@ -517,6 +519,8 @@ bool CShader::Compile()
 
 		m_asUniformNames.push_back(sUniformName);
 	}
+
+	m_aUniforms.clear();
 
 	for (int i = 0; i < iNumUniforms; i++)
 	{
@@ -623,6 +627,8 @@ bool CShader::Compile()
 		else
 			TUnimplemented();
 	}
+
+	m_aDefaultsBuffer.clear();
 
 	for (auto it = m_aUniforms.begin(); it != m_aUniforms.end(); it++)
 	{
