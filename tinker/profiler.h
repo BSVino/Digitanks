@@ -90,7 +90,7 @@ protected:
 	static void					RenderTree(CPerfBlock* pBlock, float& flLeft, float& flTop);
 
 protected:
-	static CPerfBlock*			s_pBottomBlock;
+	static tvector<CPerfBlock*> s_apBottomBlocks;
 	static CPerfBlock*			s_pTopBlock;
 
 	static bool					s_bProfiling;

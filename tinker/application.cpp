@@ -472,6 +472,7 @@ void CApplication::PollEvents()
 
 void CApplication::SwapBuffers()
 {
+	TPROF("CApplication::SwapBuffers()");
 	SDL_GL_SwapWindow(m_pWindow);
 }
 

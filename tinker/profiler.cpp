@@ -85,7 +85,7 @@ void CPerfBlock::BlockEnded()
 }
 
 CPerfBlock* CProfiler::s_pTopBlock = NULL;
-CPerfBlock* CProfiler::s_pBottomBlock = NULL;
+tvector<CPerfBlock*> CProfiler::s_apBottomBlocks;
 bool CProfiler::s_bProfiling = false;
 double CProfiler::s_flProfilerTime = 0;
 double CProfiler::s_flLastProfilerTime = 0;
@@ -95,8 +95,11 @@ void CProfiler::BeginFrame()
 {
 	s_bProfiling = prof_enable.GetBool();
 
-	if (s_pBottomBlock)
-		s_pBottomBlock->BeginFrame();
+	for (auto& pBlock : s_apBottomBlocks)
+	{
+		if (pBlock)
+			pBlock->BeginFrame();
+	}
 
 	// Just in case.
 	s_pTopBlock = NULL;
@@ -111,10 +114,20 @@ void CProfiler::PushScope(CProfileScope* pScope)
 
 	if (!s_pTopBlock)
 	{
-		if (!s_pBottomBlock)
-			s_pBottomBlock = new CPerfBlock(pScope->GetName(), NULL);
+		for (auto& pBottomBlock : s_apBottomBlocks)
+		{
+			if (pBottomBlock && pBottomBlock->GetName() == pScope->GetName())
+			{
+				pBlock = pBottomBlock;
+				break;
+			}
+		}
 
-		pBlock = s_pBottomBlock;
+		if (!pBlock)
+		{
+			pBlock = new CPerfBlock(pScope->GetName(), NULL);
+			s_apBottomBlocks.push_back(pBlock);
+		}
 	}
 	else
 	{
@@ -165,7 +178,7 @@ void CProfiler::Render()
 	if (!IsProfiling())
 		return;
 
-	if (!s_pBottomBlock)
+	if (!s_apBottomBlocks.size())
 		return;
 
 	s_flLastProfilerTime = s_flProfilerTime;
@@ -218,7 +231,8 @@ void CProfiler::RenderTree()
 		flCurrLeft += 15;
 	}
 
-	RenderTree(s_pBottomBlock, flCurrLeft, flCurrTop);
+	for (auto& pBlock : s_apBottomBlocks)
+		RenderTree(pBlock, flCurrLeft, flCurrTop);
 
 	flCurrTop += 15;
 	flCurrLeft += 15;
@@ -316,7 +330,8 @@ void CProfiler::RenderTimeline()
 		glgui::CLabel::PaintText(sName, sName.length(), "sans-serif", 10, 0, 0, clrBlock);
 	}
 
-	::RenderTimeline(s_pBottomBlock, s_flLastProfilerTime, s_flProfilerTime, 1);
+	for (auto& pBlock : s_apBottomBlocks)
+		::RenderTimeline(pBlock, s_flLastProfilerTime, s_flProfilerTime, 1);
 
 	float flTime = (float)(s_flEndLastProfilerTime - s_flLastProfilerTime);
 	float flStart = 0;
