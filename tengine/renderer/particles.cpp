@@ -73,6 +73,39 @@ CParticleSystem* CParticleSystemLibrary::GetParticleSystem(size_t i)
 	return m_apParticleSystems[i];
 }
 
+void CParticleSystemLibrary::MakeQuad()
+{
+	CRenderingContext c(GameServer()->GetRenderer());
+
+	float flRadius = 1;
+	Vector vecOrigin(0, 0, 0);
+
+	Vector vecParticleUp = Vector(0, 0, flRadius);
+	Vector vecParticleRight = Vector(0, flRadius, 0);
+
+	Vector vecTL = vecOrigin - vecParticleRight + vecParticleUp;
+	Vector vecTR = vecOrigin + vecParticleRight + vecParticleUp;
+	Vector vecBL = vecOrigin - vecParticleRight - vecParticleUp;
+	Vector vecBR = vecOrigin + vecParticleRight - vecParticleUp;
+
+	c.BeginRenderTris();
+
+	c.TexCoord(0.0f, 1.0f);
+	c.Vertex(vecTL);
+	c.TexCoord(1.0f, 0.0f);
+	c.Vertex(vecBR);
+	c.TexCoord(1.0f, 1.0f);
+	c.Vertex(vecTR);
+	c.TexCoord(0.0f, 1.0f);
+	c.Vertex(vecTL);
+	c.TexCoord(0.0f, 0.0f);
+	c.Vertex(vecBL);
+	c.TexCoord(1.0f, 0.0f);
+	c.Vertex(vecBR);
+
+	c.CreateVBO(Get()->m_iQuadVBO, Get()->m_iQuadVBOSize);
+}
+
 void CParticleSystemLibrary::Simulate()
 {
 	TPROF("CParticleSystemLibrary::Simulate");
@@ -100,6 +133,8 @@ void CParticleSystemLibrary::Simulate()
 void CParticleSystemLibrary::Render()
 {
 	TPROF("CParticleSystemLibrary::Render");
+
+	MakeQuad();
 
 	CParticleSystemLibrary* pPSL = Get();
 
@@ -611,6 +646,11 @@ void CSystemInstance::Render(CGameRenderingContext* c, bool bTransparent)
 	}
 	else
 	{
+		c->SetUniform("vecCameraPosition", GameServer()->GetRenderer()->GetCameraPosition());
+
+		size_t iQuadVBO = CParticleSystemLibrary::Get()->GetQuadVBO();
+		size_t iQuadVBOSize = CParticleSystemLibrary::Get()->GetQuadVBOSize();
+
 		for (size_t i = 0; i < m_aParticles.size(); i++)
 		{
 			CParticle* pParticle = &m_aParticles[i];
@@ -618,46 +658,16 @@ void CSystemInstance::Render(CGameRenderingContext* c, bool bTransparent)
 			if (!pParticle->m_bActive)
 				continue;
 
-			float flRadius = pParticle->m_flRadius;
-			Vector vecOrigin = pParticle->m_vecOrigin;
-
-			Vector vecParticleUp, vecParticleRight;
-
-			if (fabs(pParticle->m_flBillboardYaw) > 0.01f)
-			{
-				float flYaw = pParticle->m_flBillboardYaw*M_PI/180;
-				float flSin = sin(flYaw);
-				float flCos = cos(flYaw);
-
-				vecParticleUp = (flCos*vecUp + flSin*vecLeft)*flRadius;
-				vecParticleRight = (flCos*vecLeft - flSin*vecUp)*flRadius;
-			}
-			else
-			{
-				vecParticleUp = vecUp*flRadius;
-				vecParticleRight = vecLeft*flRadius;
-			}
-
-			Vector vecTL = vecOrigin - vecParticleRight + vecParticleUp;
-			Vector vecTR = vecOrigin + vecParticleRight + vecParticleUp;
-			Vector vecBL = vecOrigin - vecParticleRight - vecParticleUp;
-			Vector vecBR = vecOrigin + vecParticleRight - vecParticleUp;
-
+			c->SetUniform("vecOrigin", pParticle->m_vecOrigin);
 			c->SetUniform("flAlpha", pParticle->m_flAlpha);
+			c->SetUniform("flRadius", pParticle->m_flRadius);
+			c->SetUniform("flYaw", pParticle->m_flBillboardYaw*M_PI/180);
 			c->SetColor(clrParticle);
 
-			c->BeginRenderTriFan();
-
-			c->TexCoord(0.0f, 1.0f);
-			c->Vertex(vecTL);
-			c->TexCoord(1.0f, 1.0f);
-			c->Vertex(vecTR);
-			c->TexCoord(1.0f, 0.0f);
-			c->Vertex(vecBR);
-			c->TexCoord(0.0f, 0.0f);
-			c->Vertex(vecBL);
-
-			c->EndRender();
+			c->BeginRenderVertexArray(iQuadVBO);
+			c->SetPositionBuffer(0u, 20);
+			c->SetTexCoordBuffer(12, 20);
+			c->EndRenderVertexArray(iQuadVBOSize);
 		}
 	}
 }

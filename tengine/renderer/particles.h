@@ -234,7 +234,12 @@ public:
 	void							LoadParticleSystem(size_t iSystem);
 	CParticleSystem*				GetParticleSystem(size_t i);
 
+	size_t GetQuadVBO() { return m_iQuadVBO; }
+	size_t GetQuadVBOSize() { return m_iQuadVBOSize; }
+
 public:
+	static void MakeQuad();
+
 	static void						Simulate();
 	static void						Render();
 
@@ -262,6 +267,9 @@ protected:
 	size_t							m_iParticleSystemsLoaded;
 	tmap<size_t, CSystemInstance*>	m_apInstances;
 	size_t							m_iSystemInstanceIndex;
+
+	size_t m_iQuadVBO;
+	size_t m_iQuadVBOSize;
 
 private:
 	static CParticleSystemLibrary*	s_pParticleSystemLibrary;
