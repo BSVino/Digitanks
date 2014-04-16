@@ -741,6 +741,56 @@ void CRenderingContext::SetUniform(const char* pszName, size_t iSize, const Vect
 	glUniform3fv(it->second.m_iUniform, iSize, &avecValues[0].x);
 }
 
+int CRenderingContext::GetUniform(const char* pszName)
+{
+	TAssert(m_pShader);
+	const auto& it = m_pShader->m_aUniforms.find(pszName);
+	if (it == m_pShader->m_aUniforms.end())
+		return ~0;
+
+	return it->second.m_iUniform;
+}
+
+void CRenderingContext::SetUniform(int iUniform, int iValue)
+{
+	glUniform1i(iUniform, iValue);
+}
+
+void CRenderingContext::SetUniform(int iUniform, float flValue)
+{
+	glUniform1f(iUniform, flValue);
+}
+
+void CRenderingContext::SetUniform(int iUniform, const Vector& vecValue)
+{
+	glUniform3fv(iUniform, 1, vecValue);
+}
+
+void CRenderingContext::SetUniform(int iUniform, const Vector4D& vecValue)
+{
+	glUniform4fv(iUniform, 1, vecValue);
+}
+
+void CRenderingContext::SetUniform(int iUniform, const ::Color& clrValue)
+{
+	glUniform4fv(iUniform, 1, Vector4D(clrValue));
+}
+
+void CRenderingContext::SetUniform(int iUniform, const Matrix4x4& mValue)
+{
+	glUniformMatrix4fv(iUniform, 1, false, mValue);
+}
+
+void CRenderingContext::SetUniform(int iUniform, size_t iSize, const float* aflValues)
+{
+	glUniform1fv(iUniform, iSize, aflValues);
+}
+
+void CRenderingContext::SetUniform(int iUniform, size_t iSize, const Vector* avecValues)
+{
+	glUniform3fv(iUniform, iSize, &avecValues[0].x);
+}
+
 void CRenderingContext::BindTexture(size_t iTexture, int iChannel, bool bMultisample)
 {
 	glActiveTexture(GL_TEXTURE0+iChannel);

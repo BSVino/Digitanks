@@ -126,6 +126,17 @@ public:
 	void					BindBufferTexture(const CFrameBuffer& oBuffer, int iChannel = 0);
 	void					SetColor(const ::Color& c);	// Set the mesh's uniform color. Do this before BeginRender*
 
+	// You can store it for perf.
+	int  GetUniform(const char* pszName);
+	void SetUniform(int iUniform, int iValue);
+	void SetUniform(int iUniform, float flValue);
+	void SetUniform(int iUniform, const Vector& vecValue);
+	void SetUniform(int iUniform, const Vector4D& vecValue);
+	void SetUniform(int iUniform, const ::Color& vecValue);
+	void SetUniform(int iUniform, const Matrix4x4& mValue);
+	void SetUniform(int iUniform, size_t iSize, const float* aflValues);
+	void SetUniform(int iUniform, size_t iSize, const Vector* avecValues);
+
 	// Immediate mode emulation
 	void					BeginRenderTris();
 	void					BeginRenderTriFan();

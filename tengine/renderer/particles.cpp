@@ -626,6 +626,8 @@ void CSystemInstance::Render(CGameRenderingContext* c, bool bTransparent)
 
 	if (m_pSystem->GetModel())
 	{
+		int iRadius = c->GetUniform("flRadius");
+
 		for (size_t i = 0; i < m_aParticles.size(); i++)
 		{
 			CParticle* pParticle = &m_aParticles[i];
@@ -633,7 +635,7 @@ void CSystemInstance::Render(CGameRenderingContext* c, bool bTransparent)
 			if (!pParticle->m_bActive)
 				continue;
 
-			c->SetUniform("flAlpha", pParticle->m_flAlpha);
+			c->SetUniform(iRadius, pParticle->m_flAlpha);
 			c->SetColor(clrParticle);
 			c->Translate(pParticle->m_vecOrigin);
 			c->Rotate(-pParticle->m_angAngles.y, Vector(0, 0, 1));
@@ -651,6 +653,12 @@ void CSystemInstance::Render(CGameRenderingContext* c, bool bTransparent)
 		size_t iQuadVBO = CParticleSystemLibrary::Get()->GetQuadVBO();
 		size_t iQuadVBOSize = CParticleSystemLibrary::Get()->GetQuadVBOSize();
 
+		int iOrigin = c->GetUniform("vecOrigin");
+		int iAlpha = c->GetUniform("flAlpha");
+		int iRadius = c->GetUniform("flRadius");
+		int iYaw = c->GetUniform("flYaw");
+		int iColor = c->GetUniform("vecColor");
+
 		for (size_t i = 0; i < m_aParticles.size(); i++)
 		{
 			CParticle* pParticle = &m_aParticles[i];
@@ -658,11 +666,11 @@ void CSystemInstance::Render(CGameRenderingContext* c, bool bTransparent)
 			if (!pParticle->m_bActive)
 				continue;
 
-			c->SetUniform("vecOrigin", pParticle->m_vecOrigin);
-			c->SetUniform("flAlpha", pParticle->m_flAlpha);
-			c->SetUniform("flRadius", pParticle->m_flRadius);
-			c->SetUniform("flYaw", pParticle->m_flBillboardYaw*M_PI/180);
-			c->SetColor(clrParticle);
+			c->SetUniform(iOrigin, pParticle->m_vecOrigin);
+			c->SetUniform(iAlpha, pParticle->m_flAlpha);
+			c->SetUniform(iRadius, pParticle->m_flRadius);
+			c->SetUniform(iYaw, pParticle->m_flBillboardYaw*M_PI/180);
+			c->SetUniform(iColor, clrParticle);
 
 			c->BeginRenderVertexArray(iQuadVBO);
 			c->SetPositionBuffer(0u, 20);
