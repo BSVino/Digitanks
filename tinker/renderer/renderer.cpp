@@ -589,10 +589,6 @@ void CRenderer::RenderFullscreenBuffers(class CRenderingContext*)
 	}
 }
 
-#define KERNEL_SIZE   3
-//float aflKernel[KERNEL_SIZE] = { 5, 6, 5 };
-float aflKernel[KERNEL_SIZE] = { 0.3125f, 0.375f, 0.3125f };
-
 void CRenderer::RenderBloomPass(CFrameBuffer* apSources, CFrameBuffer* apTargets, bool bHorizontal)
 {
 	CRenderingContext c(this);
@@ -600,20 +596,19 @@ void CRenderer::RenderBloomPass(CFrameBuffer* apSources, CFrameBuffer* apTargets
 	c.UseProgram("blur");
 
 	c.SetUniform("iSource", 0);
-	c.SetUniform("aflCoefficients", KERNEL_SIZE, &aflKernel[0]);
 	c.SetUniform("flOffsetX", 0.0f);
 	c.SetUniform("flOffsetY", 0.0f);
 
-    // Perform the blurring.
-    for (size_t i = 0; i < BLOOM_FILTERS; i++)
-    {
+	// Perform the blurring.
+	for (size_t i = 0; i < BLOOM_FILTERS; i++)
+	{
 		if (bHorizontal)
 			c.SetUniform("flOffsetX", 1.2f / apSources[i].m_iWidth);
 		else
 			c.SetUniform("flOffsetY", 1.2f / apSources[i].m_iWidth);
 
 		RenderMapToBuffer(apSources[i].m_iMap, &apTargets[i]);
-    }
+	}
 }
 
 void CRenderer::RenderFrameBufferFullscreen(CFrameBuffer* pBuffer)
