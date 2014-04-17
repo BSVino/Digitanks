@@ -118,7 +118,7 @@ bool CGeppetto::LoadSceneAreas(CData* pData)
 		if (!sGameOutput.length())
 			sGameOutput = t.GetOutputDirectory() + "/" + ts.GetOutputFile() + ".toy";
 
-		tstring sFileOutput = FindAbsolutePath(t.GetGameDirectory() + DIR_SEP + sGameOutput);
+		tstring sFileOutput = FindAbsolutePath(t.GetGameDirectory() + T_DIR_SEP + sGameOutput);
 
 		TMsg(tsprintf(" Mesh materials: %d\n", ts.GetNumMaterials()));
 		TMsg(tsprintf(" Mesh tris: %d\n", ts.GetNumVerts() / 3));
@@ -214,7 +214,7 @@ bool CGeppetto::BuildFromInputScript(const tstring& sScript)
 	t.SetOutputFile(GetFilename(sOutputDir));
 	t.SetScriptDirectory(GetDirectory((GetPath(sScript))));
 
-	m_sOutput = FindAbsolutePath(t.GetGameDirectory() + DIR_SEP + pOutput->GetValueString());
+	m_sOutput = FindAbsolutePath(t.GetGameDirectory() + T_DIR_SEP + pOutput->GetValueString());
 
 	CData* pSceneAreas = pData->FindChild("SceneAreas");
 	CData* pMesh = pData->FindChild("Mesh");

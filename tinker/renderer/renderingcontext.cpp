@@ -1444,6 +1444,11 @@ void CRenderingContext::Finish()
 	glFinish();
 }
 
+void CRenderingContext::DebugFinish()
+{
+	//glFinish();
+}
+
 CRenderingContext::CRenderContext::CRenderContext()
 {
 	m_bProjectionUpdated = false;

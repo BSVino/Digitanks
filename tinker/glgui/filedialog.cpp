@@ -110,9 +110,9 @@ void CFileDialog::Layout()
 		tstring sFileLower = sFile;
 		sFileLower.tolower();
 
-		if (IsDirectory(m_sDirectory + DIR_SEP + sFile))
+		if (IsDirectory(m_sDirectory + T_DIR_SEP + sFile))
 		{
-			m_hFileList->AddNode(sFile + DIR_SEP);
+			m_hFileList->AddNode(sFile + T_DIR_SEP);
 			continue;
 		}
 
@@ -210,7 +210,7 @@ void CFileDialog::NewFileChangedCallback(const tstring&)
 void CFileDialog::SelectCallback(const tstring&)
 {
 	tstring sFile = GetFile();
-	if (sFile.find(DIR_SEP"..") == sFile.length()-3)
+	if (sFile.find(T_DIR_SEP"..") == sFile.length() - 3)
 	{
 		m_sDirectory = FindAbsolutePath(sFile);
 		Layout();
@@ -298,24 +298,24 @@ tstring CFileDialog::GetFile()
 		if (pDialog->m_iCurrentExtension)
 		{
 			if (sName.endswith(pDialog->m_asExtensions[pDialog->m_iCurrentExtension-1]))
-				return FindAbsolutePath(pDialog->m_sDirectory + DIR_SEP + pDialog->m_hNewFile->GetText());
+				return FindAbsolutePath(pDialog->m_sDirectory + T_DIR_SEP + pDialog->m_hNewFile->GetText());
 			else
-				return FindAbsolutePath(pDialog->m_sDirectory + DIR_SEP + pDialog->m_hNewFile->GetText() + pDialog->m_asExtensions[pDialog->m_iCurrentExtension-1]);
+				return FindAbsolutePath(pDialog->m_sDirectory + T_DIR_SEP + pDialog->m_hNewFile->GetText() + pDialog->m_asExtensions[pDialog->m_iCurrentExtension - 1]);
 		}
 		else
 		{
 			for (size_t j = 0; j < pDialog->m_asExtensions.size(); j++)
 			{
 				if (sName.endswith(pDialog->m_asExtensions[j]))
-					return FindAbsolutePath(pDialog->m_sDirectory + DIR_SEP + pDialog->m_hNewFile->GetText());
+					return FindAbsolutePath(pDialog->m_sDirectory + T_DIR_SEP + pDialog->m_hNewFile->GetText());
 			}
 
-			return FindAbsolutePath(pDialog->m_sDirectory + DIR_SEP + pDialog->m_hNewFile->GetText() + pDialog->m_asExtensions[0]);
+			return FindAbsolutePath(pDialog->m_sDirectory + T_DIR_SEP + pDialog->m_hNewFile->GetText() + pDialog->m_asExtensions[0]);
 		}
 	}
 
 	if (!pDialog->m_hFileList->GetSelectedNode())
 		return "";
 
-	return FindAbsolutePath(pDialog->m_sDirectory + DIR_SEP + pDialog->m_hFileList->GetSelectedNode()->m_hLabel->GetText());
+	return FindAbsolutePath(pDialog->m_sDirectory + T_DIR_SEP + pDialog->m_hFileList->GetSelectedNode()->m_hLabel->GetText());
 }

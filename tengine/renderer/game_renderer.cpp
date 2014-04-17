@@ -105,6 +105,8 @@ void CGameRenderer::Render()
 	}
 
 	PostRender();
+
+	CRenderingContext::DebugFinish();
 }
 
 static Vector g_vecNearPlanePoint;
@@ -197,6 +199,8 @@ void CGameRenderer::SetupFrame(class CRenderingContext* pContext)
 
 	if (m_hSkyboxFT.IsValid())
 		DrawSkybox(pContext);
+
+	CRenderingContext::DebugFinish();
 }
 
 void CGameRenderer::DrawSkybox(class CRenderingContext* pContext)
@@ -270,6 +274,8 @@ void CGameRenderer::DrawSkybox(class CRenderingContext* pContext)
 	c.ClearDepth();
 
 	OnDrawSkybox(pContext);
+
+	CRenderingContext::DebugFinish();
 }
 
 CVar phys_show("phys_show", "no");
@@ -485,6 +491,8 @@ void CGameRenderer::RenderBatches()
 			m_pRendering = nullptr;
 		}
 	}
+
+	CRenderingContext::DebugFinish();
 }
 
 void CGameRenderer::ClassifySceneAreaPosition(CModel* pModel)

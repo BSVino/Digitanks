@@ -181,6 +181,8 @@ void CParticleSystemLibrary::Render()
 			pInstance->Render(&c, true);
 		}
 	}
+
+	CRenderingContext::DebugFinish();
 }
 
 size_t CParticleSystemLibrary::AddInstance(const tstring& sName, Vector vecOrigin, EAngle angAngles)

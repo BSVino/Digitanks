@@ -187,6 +187,17 @@ void CRenderer::ViewportResize(size_t w, size_t h)
 
 	size_t iWidth = m_oSceneBuffer.m_iWidth;
 	size_t iHeight = m_oSceneBuffer.m_iHeight;
+
+	// If we have a high DPI screen then we downscale the bloom buffers to save perf and get more consistent results.
+	iWidth = (size_t)(iWidth * Application()->GetGUIScale());
+	iHeight = (size_t)(iHeight * Application()->GetGUIScale());
+
+#ifdef T_PLATFORM_MOBILE
+	// There are fewer filters so start at a lower res.
+	iWidth /= 2;
+	iHeight /= 2;
+#endif
+
 	for (size_t i = 0; i < BLOOM_FILTERS; i++)
 	{
 		m_oBloom1Buffers[i].Destroy();
@@ -537,6 +548,8 @@ void CRenderer::RenderOffscreenBuffers(class CRenderingContext*)
 
 		RenderBloomPass(m_oBloom1Buffers, m_oBloom2Buffers, true);
 		RenderBloomPass(m_oBloom2Buffers, m_oBloom1Buffers, false);
+
+		CRenderingContext::DebugFinish();
 	}
 }
 
@@ -548,16 +561,22 @@ void CRenderer::RenderFullscreenBuffers(class CRenderingContext*)
 {
 	TPROF("CRenderer::RenderFullscreenBuffers");
 
-	if (m_iScreenSamples)
 	{
-		RenderBufferToBuffer(&m_oSceneBuffer, &m_oResolvedSceneBuffer);
-		RenderFrameBufferFullscreen(&m_oResolvedSceneBuffer);
+		TPROF("Resolve scene buffer");
+		if (m_iScreenSamples)
+		{
+			RenderBufferToBuffer(&m_oSceneBuffer, &m_oResolvedSceneBuffer);
+			RenderFrameBufferFullscreen(&m_oResolvedSceneBuffer);
+		}
+		else
+			RenderFrameBufferFullscreen(&m_oSceneBuffer);
+
+		CRenderingContext::DebugFinish();
 	}
-	else
-		RenderFrameBufferFullscreen(&m_oSceneBuffer);
 
 	if (r_bloom.GetBool())
 	{
+		TPROF("Bloom");
 		if (r_bloom_buffer.GetInt() >= 0 && r_bloom_buffer.GetInt() < BLOOM_FILTERS)
 		{
 			CRenderingContext c(this);
@@ -576,6 +595,8 @@ void CRenderer::RenderFullscreenBuffers(class CRenderingContext*)
 			for (size_t i = 0; i < BLOOM_FILTERS; i++)
 				RenderFrameBufferFullscreen(&m_oBloom1Buffers[i]);
 		}
+
+		CRenderingContext::DebugFinish();
 	}
 
 	if (r_show_depth.GetBool())
@@ -587,6 +608,8 @@ void CRenderer::RenderFullscreenBuffers(class CRenderingContext*)
 
 		RenderMapFullscreen(m_oSceneBuffer.m_iDepthTexture);
 	}
+
+	CRenderingContext::DebugFinish();
 }
 
 void CRenderer::RenderBloomPass(CFrameBuffer* apSources, CFrameBuffer* apTargets, bool bHorizontal)

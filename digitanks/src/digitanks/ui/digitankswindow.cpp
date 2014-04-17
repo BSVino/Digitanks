@@ -245,6 +245,8 @@ void CDigitanksWindow::RenderMouseCursor()
 	if (m_eMouseCursor == MOUSECURSOR_NONE)
 		return;
 
+	TPROF("CDigitanksWindow::RenderMouseCursor");
+
 	CRenderingContext c(GetRenderer(), true);
 
 	c.ClearDepth();
@@ -280,6 +282,8 @@ void CDigitanksWindow::RenderMouseCursor()
 	}
 	else if (m_eMouseCursor == MOUSECURSOR_AIMINVALID)
 		glgui::CBaseControl::PaintSheet(m_hCursors, mx-20, my-20, 80, 40, 160, 80, 80, 40, 256, 128);
+
+	CRenderingContext::DebugFinish();
 }
 
 void CDigitanksWindow::NewCampaign()

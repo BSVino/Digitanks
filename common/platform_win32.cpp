@@ -248,7 +248,7 @@ bool IsDirectory(const tstring& sPath)
 {
 	tstring sPathNoSep = sPath;
 
-	while (sPathNoSep.substr(sPathNoSep.length()-1) == DIR_SEP)
+	while (sPathNoSep.substr(sPathNoSep.length() - 1) == T_DIR_SEP)
 		sPathNoSep = sPathNoSep.substr(0, sPathNoSep.length()-1);
 
 	WIN32_FIND_DATA fd;

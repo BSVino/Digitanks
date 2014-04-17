@@ -950,25 +950,35 @@ void CDigitanksGame::SetupMenuMarch()
 #if !defined(TINKER_OPTIMIZE_SOFTWARE)
 	CMenuMarcher* pMarcher;
 
+#ifdef T_PLATFORM_MOBILE
+	size_t iColumns = 3;
+	size_t iRows = 3;
+	float flSpread = 12;
+#else
+	size_t iColumns = 5;
+	size_t iRows = 4;
+	float flSpread = 15;
+#endif
+
 	if (GameServer()->GetWorkListener())
-		GameServer()->GetWorkListener()->SetAction("Specifying marchers", 4*5*4);
+		GameServer()->GetWorkListener()->SetAction("Specifying marchers", 4 * iColumns * iRows);
 
 	for (size_t i = 0; i < 4; i++)
 	{
 		float flY = RemapVal((float)i, 0, 4, -79, 79);
 
-		for (size_t j = 0; j < 5; j++)
+		for (size_t j = 0; j < iColumns; j++)
 		{
-			for (size_t k = 0; k < 4; k++)
+			for (size_t k = 0; k < iRows; k++)
 			{
 				pMarcher = GameServer()->Create<CMenuMarcher>("CMenuMarcher");
 				pTeam->AddEntity(pMarcher);
 
-				pMarcher->SetGlobalOrigin(GetTerrain()->GetPointHeight(Vector(RemapVal((float)j, 0, 5, -15, 15), flY + RemapVal((float)k, 0, 4, -15, 15), 0)));
+				pMarcher->SetGlobalOrigin(GetTerrain()->GetPointHeight(Vector(RemapVal((float)j, 0, iColumns, -flSpread, flSpread), flY + RemapVal((float)k, 0, iRows, -15, 15), 0)));
 				pMarcher->SetGlobalAngles(EAngle(0,90,0));
 
 				if (GameServer()->GetWorkListener())
-					GameServer()->GetWorkListener()->WorkProgress(i*4*5 + j*4 + k);
+					GameServer()->GetWorkListener()->WorkProgress(i * 4 * iColumns + j * 4 + k);
 			}
 		}
 	}

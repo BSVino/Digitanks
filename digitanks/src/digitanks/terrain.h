@@ -78,6 +78,8 @@ protected:
 	Color							m_aclrTexture[TERRAIN_CHUNK_TEXTURE_SIZE][TERRAIN_CHUNK_TEXTURE_SIZE];
 	CTextureHandle					m_hChunkTexture;
 
+	AABB m_aabbVisBounds;
+
 	size_t							m_iTerrainVerts;
 	size_t							m_iOpaqueIndices;
 	size_t							m_iOpaqueIndicesVerts;

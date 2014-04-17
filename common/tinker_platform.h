@@ -45,15 +45,19 @@ void GetScreenDPI(float& xdpi, float& ydpi); // The number of physical pixels pe
 void EnableMulticast();
 
 #ifdef _WIN32
-#define DIR_SEP "\\"
+#define T_DIR_SEP "\\"
 #else
-#define DIR_SEP "/"
+#define T_DIR_SEP "/"
 #endif
 
 #ifdef __ANDROID__
 #define T_ASSETS_PREFIX "$ASSETS/"
 #else
 #define T_ASSETS_PREFIX ""
+#endif
+
+#ifdef __ANDROID__
+#define T_PLATFORM_MOBILE
 #endif
 
 #endif

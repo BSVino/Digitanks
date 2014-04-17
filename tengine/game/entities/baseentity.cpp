@@ -1107,6 +1107,8 @@ void CBaseEntity::PreRender() const
 
 void CBaseEntity::Render() const
 {
+	CRenderingContext::DebugFinish();
+
 	TPROF("CBaseEntity::Render");
 
 	if (!IsVisible())
@@ -1140,6 +1142,7 @@ void CBaseEntity::Render() const
 			{
 				TPROF("CRenderingContext::RenderModel()");
 				r.RenderModel(GetModelID(), this);
+				CRenderingContext::DebugFinish();
 			}
 
 			if (m_hMaterialModel.IsValid())
@@ -1147,6 +1150,7 @@ void CBaseEntity::Render() const
 				TPROF("CRenderingContext::RenderModel(Material)");
 				r.Scale((float)m_vecScale.Get().x, (float)m_vecScale.Get().y, (float)m_vecScale.Get().z);
 				r.RenderMaterialModel(m_hMaterialModel, this);
+				CRenderingContext::DebugFinish();
 			}
 		}
 
@@ -1169,6 +1173,8 @@ void CBaseEntity::Render() const
 			r.Vertex(Vector(0, 0, 1));
 		r.EndRender();
 	}
+
+	CRenderingContext::DebugFinish();
 }
 
 void CBaseEntity::RenderTransparent() const
@@ -1206,6 +1212,8 @@ void CBaseEntity::RenderTransparent() const
 			{
 				TPROF("CRenderingContext::RenderModel()");
 				r.RenderModel(GetModelID(), this);
+
+				CRenderingContext::DebugFinish();
 			}
 
 			if (m_hMaterialModel.IsValid())
@@ -1214,6 +1222,8 @@ void CBaseEntity::RenderTransparent() const
 				r.SetBlend(BLEND_ALPHA);
 				r.Scale((float)m_vecScale.Get().x, (float)m_vecScale.Get().y, (float)m_vecScale.Get().z);
 				r.RenderMaterialModel(m_hMaterialModel, this);
+
+				CRenderingContext::DebugFinish();
 			}
 		}
 
@@ -1221,6 +1231,8 @@ void CBaseEntity::RenderTransparent() const
 	} while (false);
 
 	PostRender();
+
+	CRenderingContext::DebugFinish();
 }
 
 void CBaseEntity::Delete()

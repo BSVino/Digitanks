@@ -180,7 +180,8 @@ public:
 	// Reads w*h RGBA pixels in float format
 	void					ReadPixels(size_t x, size_t y, size_t w, size_t h, Vector4D* pvecPixels);
 
-	void					Finish();	// Flush and block until complete
+	static void Finish();      // Flush and block until complete
+	static void DebugFinish(); // Same as above, but used to detect what the most expensive ops are, and easily removable.
 
 protected:
 	inline CRenderContext&	GetContext() { return s_aContexts.back(); }

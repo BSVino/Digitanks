@@ -27,7 +27,7 @@ public:
 	virtual void	RenderOffscreenBuffers(class CRenderingContext* pContext);
 	virtual void	RenderFullscreenBuffers(class CRenderingContext* pContext);
 
-	const CFrameBuffer*	GetExplosionBuffer() { return &m_oExplosionBuffer; }
+	const CFrameBuffer*	GetExplosionBuffer() { m_bExplosionsThisFrame = true; return &m_oExplosionBuffer; }
 	const CFrameBuffer*	GetVisibility1Buffer() { return &m_oVisibility1Buffer; }
 	const CFrameBuffer*	GetVisibility2Buffer() { return &m_oVisibility2Buffer; }
 	const CFrameBuffer*	GetVisibilityMaskedBuffer() { return &m_oVisibilityMaskedBuffer; }
@@ -51,6 +51,9 @@ protected:
 #ifdef _DEBUG
 	CFrameBuffer    m_oDebugBuffer;
 #endif
+
+	bool m_bExplosionsThisFrame;
+	bool m_bAvailableAreasThisFrame;
 
 	CTextureHandle  m_hNoise;
 	CTextureHandle  m_hVignetting;

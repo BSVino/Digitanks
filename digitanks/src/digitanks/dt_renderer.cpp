@@ -25,6 +25,9 @@ CDigitanksRenderer::CDigitanksRenderer()
 	m_oExplosionBuffer("explosion"), m_oVisibility1Buffer("vis1"), m_oVisibility2Buffer("vis2"),
 	m_oVisibilityMaskedBuffer("vismasked"), m_oAvailableAreaBuffer("availablearea")
 {
+	// Clear these buffers.
+	m_bAvailableAreasThisFrame = true;
+	m_bExplosionsThisFrame = true;
 }
 
 void CDigitanksRenderer::Initialize()
@@ -93,22 +96,37 @@ void CDigitanksRenderer::SetupFrame(class CRenderingContext* pContext)
 	{
 		CRenderingContext c(this);
 
-		c.UseFrameBuffer(&m_oExplosionBuffer);
-		c.ClearColor();
+		if (m_bExplosionsThisFrame)
+		{
+			c.UseFrameBuffer(&m_oExplosionBuffer);
+			c.ClearColor();
+			m_bExplosionsThisFrame = false;
+		}
 
-		c.UseFrameBuffer(&m_oVisibility2Buffer);
-		c.ClearColor();
+		if (DigitanksGame()->ShouldRenderFogOfWar())
+		{
+			c.UseFrameBuffer(&m_oVisibility2Buffer);
+			c.ClearColor();
 
-		c.UseFrameBuffer(&m_oVisibilityMaskedBuffer);
-		c.ClearColor();
+			c.UseFrameBuffer(&m_oVisibilityMaskedBuffer);
+			c.ClearColor();
+		}
 
-		c.UseFrameBuffer(&m_oAvailableAreaBuffer);
-		c.ClearColor();
+		if (m_bAvailableAreasThisFrame)
+		{
+			c.UseFrameBuffer(&m_oAvailableAreaBuffer);
+			c.ClearColor();
+			m_bAvailableAreasThisFrame = false;
+		}
 	}
 
 	pContext->UseFrameBuffer(&m_oSceneBuffer);
 
+	CRenderingContext::DebugFinish();
+
 	BaseClass::SetupFrame(pContext);
+
+	CRenderingContext::DebugFinish();
 }
 
 void CDigitanksRenderer::StartRendering(class CRenderingContext* pContext)
@@ -116,6 +134,8 @@ void CDigitanksRenderer::StartRendering(class CRenderingContext* pContext)
 	TPROF("CDigitanksRenderer::StartRendering");
 
 	ClearTendrilBatches();
+
+	CRenderingContext::DebugFinish();
 
 	BaseClass::StartRendering(pContext);
 }
@@ -295,6 +315,8 @@ void CDigitanksRenderer::OnDrawSkybox(class CRenderingContext* pContext)
 #endif
 
 	r.ClearDepth();
+
+	CRenderingContext::DebugFinish();
 }
 
 void CDigitanksRenderer::FinishRendering(class CRenderingContext* pContext)
@@ -305,6 +327,8 @@ void CDigitanksRenderer::FinishRendering(class CRenderingContext* pContext)
 	RenderPreviewModes();
 	RenderFogOfWar();
 	RenderAvailableAreas();
+
+	CRenderingContext::DebugFinish();
 
 	BaseClass::FinishRendering(pContext);
 }
@@ -611,6 +635,8 @@ void CDigitanksRenderer::RenderPreviewModes()
 			continue;
 		}
 	}
+
+	CRenderingContext::DebugFinish();
 }
 
 CVar r_fogofwar("r_fogofwar", "1");
@@ -673,6 +699,8 @@ void CDigitanksRenderer::RenderFogOfWar()
 		// Copy the results to the second buffer
 		RenderMapToBuffer(m_oVisibility1Buffer.m_iMap, &m_oVisibility2Buffer);
 	}
+
+	CRenderingContext::DebugFinish();
 }
 
 void CDigitanksRenderer::RenderAvailableAreas()
@@ -724,8 +752,11 @@ void CDigitanksRenderer::RenderAvailableAreas()
 
 			// Copy the results to the second buffer
 			RenderMapToBuffer(m_oVisibility1Buffer.m_iMap, &m_oAvailableAreaBuffer);
+			m_bAvailableAreasThisFrame = true;
 		}
 	}
+
+	CRenderingContext::DebugFinish();
 }
 
 void CDigitanksRenderer::RenderOffscreenBuffers(class CRenderingContext* pContext)
@@ -735,7 +766,7 @@ void CDigitanksRenderer::RenderOffscreenBuffers(class CRenderingContext* pContex
 	if (!DigitanksGame())
 		return;
 
-	if (true)
+	if (m_bExplosionsThisFrame)
 	{
 		TPROF("Explosions");
 
@@ -752,9 +783,11 @@ void CDigitanksRenderer::RenderOffscreenBuffers(class CRenderingContext* pContex
 		c.SetBlend(BLEND_ADDITIVE);
 
 		RenderMapToBuffer(m_oExplosionBuffer.m_iMap, &m_oSceneBuffer);
+
+		CRenderingContext::DebugFinish();
 	}
 
-	if (true)
+	if (m_bAvailableAreasThisFrame)
 	{
 		TPROF("Available areas");
 
@@ -770,6 +803,8 @@ void CDigitanksRenderer::RenderOffscreenBuffers(class CRenderingContext* pContex
 			c.SetUniform("vecColor", Color(50, 250, 50, 30));
 
 		RenderMapToBuffer(m_oAvailableAreaBuffer.m_iMap, &m_oSceneBuffer);
+
+		CRenderingContext::DebugFinish();
 	}
 
 	// Draw the fog of war.
@@ -806,9 +841,13 @@ void CDigitanksRenderer::RenderOffscreenBuffers(class CRenderingContext* pContex
 		c.SetBlend(BLEND_BOTH);
 
 		RenderMapToBuffer(m_oVisibilityMaskedBuffer.m_iMap, &m_oSceneBuffer);
+
+		CRenderingContext::DebugFinish();
 	}
 
 	BaseClass::RenderOffscreenBuffers(pContext);
+
+	CRenderingContext::DebugFinish();
 }
 
 #ifdef _DEBUG
@@ -832,9 +871,12 @@ void CDigitanksRenderer::RenderFullscreenBuffers(class CRenderingContext* pConte
 #ifndef TINKER_OPTIMIZE_SOFTWARE
 	if (true)
 	{
+		TPROF("Vignette");
 		CRenderingContext c(this, true);
 		c.SetBlend(BLEND_ADDITIVE);
 		RenderMapFullscreen(m_hVignetting->m_iGLID);
+
+		CRenderingContext::DebugFinish();
 	}
 #endif
 
@@ -844,6 +886,8 @@ void CDigitanksRenderer::RenderFullscreenBuffers(class CRenderingContext* pConte
 	if (r_show_debug.GetBool())
 		RenderFrameBufferFullscreen(&m_oDebugBuffer);
 #endif
+
+	CRenderingContext::DebugFinish();
 }
 
 float CDigitanksRenderer::BloomBrightnessCutoff() const
@@ -916,4 +960,6 @@ void CDigitanksRenderer::RenderTendrilBatches()
 
 		pSupplier->RenderTendrils(r);
 	}
+
+	CRenderingContext::DebugFinish();
 }

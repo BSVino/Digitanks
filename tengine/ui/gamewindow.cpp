@@ -18,6 +18,7 @@
 #include <game/level.h>
 #include <renderer/particles.h>
 #include <renderer/game_renderer.h>
+#include <renderer/game_renderingcontext.h>
 #include <tinker/keys.h>
 #include <portals/portal.h>
 #include <ui/instructor.h>
@@ -327,7 +328,11 @@ void CGameWindow::Render()
 		TPROF("GUI");
 		glgui::CRootPanel::Get()->Think(GameServer()->GetGameTime());
 		glgui::CRootPanel::Get()->Paint(0, 0, (float)GetRenderer()->GetDrawableWidth(), (float)GetRenderer()->GetDrawableHeight());
+
+		CRenderingContext::DebugFinish();
 	}
+
+	CRenderingContext::DebugFinish();
 }
 
 bool CGameWindow::KeyPress(int c)

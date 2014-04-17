@@ -153,14 +153,17 @@ void CParticleSystemLibrary::InitSystems()
 	CParticleSystem* pTankHover = pPSL->GetParticleSystem(iTankHover);
 
 	pTankHover->SetMaterialName("textures/particles/haze-white.mat");
-	pTankHover->SetLifeTime(0.5f);
-	pTankHover->SetEmissionRate(0.1f);
-	pTankHover->SetAlpha(0.2f);
-	pTankHover->SetRadius(3.5f);
+	pTankHover->SetLifeTime(0.6f);
+	pTankHover->SetEmissionRate(0.25f);
+	pTankHover->SetAlpha(0.7f);
+	pTankHover->SetRadius(2.5f);
+	pTankHover->SetFadeIn(0.5f);
 	pTankHover->SetFadeOut(0.5f);
 	pTankHover->SetSpawnOffset(Vector(0, 0, -1));
 	pTankHover->SetRandomVelocity(AABB(Vector(0, 0, -1), Vector(0, 0, -2)));
 	pTankHover->SetGravity(Vector(0, 0, 10));
+	pTankHover->SetInheritedVelocity(0.8f);
+	pTankHover->SetRandomBillboardYaw(true);
 
 	size_t iElectronodeSpark = pPSL->AddParticleSystem("electronode-spark");
 	CParticleSystem* pElectronodeSpark = pPSL->GetParticleSystem(iElectronodeSpark);

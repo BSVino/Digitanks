@@ -107,7 +107,7 @@ bool CGeppetto::BuildFiles(const tstring& sOutput, const tstring& sInput, const 
 	t.AllowConcave(bAllowConcave);
 
 	m_sOutput = FindAbsolutePath(sOutput);
-	t.SetOutputDirectory(m_sOutput.substr(0, m_sOutput.rfind(DIR_SEP)));
+	t.SetOutputDirectory(m_sOutput.substr(0, m_sOutput.rfind(T_DIR_SEP)));
 
 	time_t iInputModificationTime = GetFileModificationTime(sInput.c_str());
 	time_t iOutputModificationTime = GetFileModificationTime(m_sOutput.c_str());

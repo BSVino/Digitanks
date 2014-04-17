@@ -66,7 +66,7 @@ void CMenuMarcher::Think()
 
 	vecNewOrigin.z = vecNewOrigin.z + GetGlobalVelocity().z * (float)GameServer()->GetFrameTime();
 
-	float flNewHoverHeight = FindHoverHeight(vecNewOrigin) + 1;
+	float flNewHoverHeight = FindHoverHeight(vecNewOrigin) + 2;
 
 	if (vecNewOrigin.z > flNewHoverHeight)
 	{

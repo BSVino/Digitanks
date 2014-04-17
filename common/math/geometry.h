@@ -297,25 +297,39 @@ inline bool TemplateAABB<F>::Intersects(const TemplateAABB<F>& oBox) const
 template <class F>
 inline void TemplateAABB<F>::Expand(const TemplateVector<F>& vecNew)
 {
-	for (size_t i = 0; i < 3; i++)
-	{
-		if (vecNew[i] < m_vecMins[i])
-			m_vecMins[i] = vecNew[i];
-		else if (vecNew[i] > m_vecMaxs[i])
-			m_vecMaxs[i] = vecNew[i];
-	}
+	if (vecNew.x < m_vecMins.x)
+		m_vecMins.x = vecNew.x;
+	else if (vecNew.x > m_vecMaxs.x)
+		m_vecMaxs.x = vecNew.x;
+
+	if (vecNew.y < m_vecMins.y)
+		m_vecMins.y = vecNew.y;
+	else if (vecNew.y > m_vecMaxs.y)
+		m_vecMaxs.y = vecNew.y;
+
+	if (vecNew.z < m_vecMins.z)
+		m_vecMins.z = vecNew.z;
+	else if (vecNew.z > m_vecMaxs.z)
+		m_vecMaxs.z = vecNew.z;
 }
 
 template <class F>
 inline void TemplateAABB<F>::Expand(const TemplateAABB<F>& aabbNew)
 {
-	for (size_t i = 0; i < 3; i++)
-	{
-		if (aabbNew.m_vecMins[i] < m_vecMins[i])
-			m_vecMins[i] = aabbNew.m_vecMins[i];
-		else if (aabbNew.m_vecMaxs[i] > m_vecMaxs[i])
-			m_vecMaxs[i] = aabbNew.m_vecMaxs[i];
-	}
+	if (aabbNew.m_vecMins.x < m_vecMins.x)
+		m_vecMins.x = aabbNew.m_vecMins.x;
+	else if (aabbNew.m_vecMaxs.x > m_vecMaxs.x)
+		m_vecMaxs.x = aabbNew.m_vecMaxs.x;
+
+	if (aabbNew.m_vecMins.y < m_vecMins.y)
+		m_vecMins.y = aabbNew.m_vecMins.y;
+	else if (aabbNew.m_vecMaxs.y > m_vecMaxs.y)
+		m_vecMaxs.y = aabbNew.m_vecMaxs.y;
+
+	if (aabbNew.m_vecMins.z < m_vecMins.z)
+		m_vecMins.z = aabbNew.m_vecMins.z;
+	else if (aabbNew.m_vecMaxs.z > m_vecMaxs.z)
+		m_vecMaxs.z = aabbNew.m_vecMaxs.z;
 }
 
 template<>

@@ -31,12 +31,12 @@ CToyUtil::CToyUtil()
 
 tstring CToyUtil::GetGameDirectoryFile(const tstring& sFile) const
 {
-	return FindAbsolutePath(m_sGameDirectory + DIR_SEP + sFile);
+	return FindAbsolutePath(m_sGameDirectory + T_DIR_SEP + sFile);
 }
 
 tstring CToyUtil::GetScriptDirectoryFile(const tstring& sFile) const
 {
-	return FindAbsolutePath(m_sScriptDirectory + DIR_SEP + sFile);
+	return FindAbsolutePath(m_sScriptDirectory + T_DIR_SEP + sFile);
 }
 
 void CToyUtil::AddMaterial(const tstring& sMaterial, const tstring& sOriginalFile)
@@ -247,7 +247,7 @@ void CToyUtil::AddPhysBox(const TRS& trsBox)
 size_t CToyUtil::AddSceneArea(const tstring& sFileName)
 {
 	CToy* pArea = new CToy();
-	bool bRead = CToyUtil::Read(GetGameDirectory() + DIR_SEP + sFileName, pArea);
+	bool bRead = CToyUtil::Read(GetGameDirectory() + T_DIR_SEP + sFileName, pArea);
 
 	if (!bRead)
 	{

@@ -616,6 +616,13 @@ void CTerrain::GenerateTerrainCallList(int i, int j)
 	tvector<CTerrainTriangle> avecPoints;
 	avecPoints.reserve(TERRAIN_CHUNK_SIZE*TERRAIN_CHUNK_SIZE);
 
+	{
+		int x_first = TERRAIN_CHUNK_SIZE*i;
+		int y_first = TERRAIN_CHUNK_SIZE*j;
+		Vector vecFirst = Vector(ArrayToWorldSpace(x_first), ArrayToWorldSpace(y_first), GetRealHeight(x_first, y_first));
+		pChunk->m_aabbVisBounds.m_vecMins = pChunk->m_aabbVisBounds.m_vecMaxs = vecFirst;
+	}
+
 	for (int x = TERRAIN_CHUNK_SIZE*i; x < TERRAIN_CHUNK_SIZE*(i+1)+1; x++)
 	{
 		float flX = ArrayToWorldSpace((int)x);
@@ -638,10 +645,14 @@ void CTerrain::GenerateTerrainCallList(int i, int j)
 			float flColor = RemapVal(GetRealHeight(x, y), m_flLowest, m_flHighest, 0.0f, 0.98f);
 			Vector vecColor(flColor, flColor, flColor);
 
+			Vector vecPosition = Vector(flX, flY, GetRealHeight(x, y));
+
 			avecPoints.push_back();
-			avecPoints.back().vecPosition = Vector(flX, flY, GetRealHeight(x, y));
+			avecPoints.back().vecPosition = vecPosition;
 			avecPoints.back().vecColor = vecColor * flVisibility * GetAOValue(x, y);
 			avecPoints.back().vecUV = Vector2D(flUVX0, flUVY0);
+
+			pChunk->m_aabbVisBounds.Expand(vecPosition);
 		}
 	}
 
@@ -1358,7 +1369,9 @@ void CTerrain::RenderWithShaders() const
 	if (!r_terrain.GetBool())
 		return;
 
-	CGameRenderingContext c(GameServer()->GetRenderer(), true);
+	CGameRenderer* pRenderer = GameServer()->GetRenderer();
+
+	CGameRenderingContext c(pRenderer, true);
 
 	c.UseProgram("terrain");
 
@@ -1489,14 +1502,19 @@ void CTerrain::RenderWithShaders() const
 	{
 		for (size_t j = 0; j < TERRAIN_CHUNKS; j++)
 		{
-			if (m_aTerrainChunks[i][j].m_hChunkTexture.IsValid())
-				c.BindTexture(m_aTerrainChunks[i][j].m_hChunkTexture->m_iGLID);
+			const auto& oChunk = m_aTerrainChunks[i][j];
 
-			c.BeginRenderVertexArray(m_aTerrainChunks[i][j].m_iTerrainVerts);
+			if (!pRenderer->IsSphereInFrustum(oChunk.m_aabbVisBounds.Center(), oChunk.m_aabbVisBounds.Size().Length() / 2))
+				continue;
+
+			if (oChunk.m_hChunkTexture.IsValid())
+				c.BindTexture(oChunk.m_hChunkTexture->m_iGLID);
+
+			c.BeginRenderVertexArray(oChunk.m_iTerrainVerts);
 			c.SetPositionBuffer(0u, sizeof(CTerrainTriangle));
 			c.SetColorBuffer(iColorOffset, sizeof(CTerrainTriangle));
 			c.SetTexCoordBuffer(iUVOffset, sizeof(CTerrainTriangle));
-			c.EndRenderVertexArrayIndexed(m_aTerrainChunks[i][j].m_iOpaqueIndices, m_aTerrainChunks[i][j].m_iOpaqueIndicesVerts);
+			c.EndRenderVertexArrayIndexed(oChunk.m_iOpaqueIndices, oChunk.m_iOpaqueIndicesVerts);
 		}
 	}
 
@@ -1509,6 +1527,8 @@ void CTerrain::RenderWithShaders() const
 		}
 	}
 #endif
+
+	CRenderingContext::DebugFinish();
 }
 
 void CTerrain::DebugRenderQuadTree() const

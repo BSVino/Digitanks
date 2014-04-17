@@ -25,6 +25,7 @@ LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON A
 #include <matrix.h>
 #include <color.h>
 #include <frustum.h>
+#include <tinker_platform.h>
 
 #include <textures/texturehandle.h>
 #include <textures/materiallibrary.h>
@@ -81,7 +82,11 @@ private:
 	static void RemoveFromBufferList(CFrameBuffer*);
 };
 
+#ifdef T_PLATFORM_MOBILE
+#define BLOOM_FILTERS 1
+#else
 #define BLOOM_FILTERS 3
+#endif
 
 class CRenderer
 {

@@ -191,6 +191,8 @@ void CProfiler::Render()
 	else
 		RenderTree();
 
+	CRenderingContext::DebugFinish();
+
 	s_flEndLastProfilerTime = Application()->GetTime();
 }
 
