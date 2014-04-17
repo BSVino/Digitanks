@@ -1373,11 +1373,17 @@ void CTerrain::RenderWithShaders() const
 
 	CGameRenderingContext c(pRenderer, true);
 
-	c.UseProgram("terrain");
+	CDigitank* pCurrentTank = DigitanksGame()->GetPrimarySelectionTank();
+
+	if (pCurrentTank && (DigitanksGame()->GetControlMode() == MODE_MOVE || DigitanksGame()->GetControlMode() == MODE_TURN ||
+		DigitanksGame()->GetControlMode() == MODE_AIM && DigitanksGame()->GetAimType() == AIM_MOVEMENT))
+		c.UseProgram("terrain_move");
+	else if (pCurrentTank && DigitanksGame()->GetAimType() != AIM_NONE)
+		c.UseProgram("terrain_aim");
+	else
+		c.UseProgram("terrain_simple");
 
 	c.SetWinding(false);
-
-	CDigitank* pCurrentTank = DigitanksGame()->GetPrimarySelectionTank();
 
 	bool bIsCurrentTeam = false;
 	if (pCurrentTank && pCurrentTank->GetPlayerOwner() == DigitanksGame()->GetCurrentLocalDigitanksPlayer())

@@ -134,6 +134,7 @@ public:
 
 public:
 	tstring					m_sName;
+	tstring                 m_sDefines;
 	tstring					m_sVertexFile;
 	tstring					m_sFragmentFile;
 	size_t					m_iVShader;

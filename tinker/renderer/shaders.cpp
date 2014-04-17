@@ -158,6 +158,19 @@ void CShaderLibrary::AddShader(const tstring& sFile)
 	std::shared_ptr<CData> pData(new CData());
 	CDataSerializer::Read(fp, pData.get());
 
+	tstring sDefines;
+
+	CData* pDefine = pData->FindChild("Define");
+	if (pDefine)
+	{
+		tstring sValue = pDefine->GetValueString();
+		tvector<tstring> asTokens;
+		tstrtok(sValue, asTokens, " ");
+
+		for (auto& sToken : asTokens)
+			sDefines += "#define " + sToken + "\n";
+	}
+
 	CData* pName = pData->FindChild("Name");
 	CData* pVertex = pData->FindChild("Vertex");
 	CData* pFragment = pData->FindChild("Fragment");
@@ -187,6 +200,8 @@ void CShaderLibrary::AddShader(const tstring& sFile)
 	Get()->m_aShaderNames[pName->GetValueString()] = Get()->m_aShaders.size()-1;
 
 	auto& oShader = Get()->m_aShaders.back();
+
+	oShader.m_sDefines = sDefines;
 
 	for (size_t i = 0; i < pData->GetNumChildren(); i++)
 	{
@@ -376,10 +391,12 @@ bool CShader::Compile()
 	tstring sVertexHeader;
 	sVertexHeader += sShaderHeader;
 	sVertexHeader += "#define VERTEX_PROGRAM\n";
+	sVertexHeader += m_sDefines;
 
 	tstring sFragmentHeader;
 	sFragmentHeader += sShaderHeader;
 	sFragmentHeader += "#define FRAGMENT_PROGRAM\n";
+	sFragmentHeader += m_sDefines;
 
 	tstring sVertexFile = tstring("shaders/") + m_sVertexFile + ".vs";
 	FILE* f = tfopen_asset(sVertexFile, "r");

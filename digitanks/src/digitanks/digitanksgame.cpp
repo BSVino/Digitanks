@@ -974,7 +974,7 @@ void CDigitanksGame::SetupMenuMarch()
 				pMarcher = GameServer()->Create<CMenuMarcher>("CMenuMarcher");
 				pTeam->AddEntity(pMarcher);
 
-				pMarcher->SetGlobalOrigin(GetTerrain()->GetPointHeight(Vector(RemapVal((float)j, 0, iColumns, -flSpread, flSpread), flY + RemapVal((float)k, 0, iRows, -15, 15), 0)));
+				pMarcher->SetGlobalOrigin(GetTerrain()->GetPointHeight(Vector(RemapVal((float)j, 0, (float)iColumns, -flSpread, flSpread), flY + RemapVal((float)k, 0, (float)iRows, -15, 15), 0)));
 				pMarcher->SetGlobalAngles(EAngle(0,90,0));
 
 				if (GameServer()->GetWorkListener())
