@@ -643,7 +643,7 @@ void CDigitanksEntity::OnRender(CGameRenderingContext* pContext) const
 	c.SetAlpha(1);
 	c.BindTexture(0);
 
-	TUnimplemented();
+	TStubbed("Tank outlines in trees");
 
 	/*
 	// Draw outlines of objects in trees.

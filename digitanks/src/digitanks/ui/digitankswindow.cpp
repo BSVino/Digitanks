@@ -294,7 +294,7 @@ void CDigitanksWindow::NewCampaign()
 	CVar::SetCVar("game_level", m_pCampaign->BeginCampaign());
 
 	DigitanksWindow()->SetServerType(SERVER_LOCAL);
-	DigitanksWindow()->CreateGame("campaign");
+	GameWindow()->Restart("campaign");
 }
 
 void CDigitanksWindow::RestartCampaignLevel()

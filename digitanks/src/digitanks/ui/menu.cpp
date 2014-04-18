@@ -422,7 +422,7 @@ void CGamesPanel::OpenCallback(const tstring& sArgs)
 	else
 	{
 		DigitanksWindow()->DestroyGame();
-		DigitanksWindow()->CreateGame("menu");
+		GameWindow()->Restart("menu");
 	}
 }
 
@@ -510,7 +510,7 @@ void CMultiplayerPanel::OpenCallback(const tstring& sArgs)
 	else
 	{
 		DigitanksWindow()->DestroyGame();
-		DigitanksWindow()->CreateGame("menu");
+		GameWindow()->Restart("menu");
 	}
 }
 
@@ -795,10 +795,7 @@ void CArtilleryGamePanel::BeginGameCallback(const tstring& sArgs)
 	CVar::SetCVar("game_difficulty", m_pDifficulty->GetSelectionValue());
 	CVar::SetCVar(_T("game_level"), CDigitanksGame::GetLevel(GAMETYPE_ARTILLERY, m_iLevelSelected)->GetFile());
 
-	DigitanksWindow()->CreateGame("artillery");
-
-	if (!GameServer())
-		return;
+	GameWindow()->Restart("artillery");
 
 	CInstructor* pInstructor = DigitanksWindow()->GetInstructor();
 
@@ -1076,7 +1073,7 @@ void CStrategyGamePanel::BeginGameCallback(const tstring& sArgs)
 	CVar::SetCVar("game_difficulty", m_pDifficulty->GetSelectionValue());
 	CVar::SetCVar(_T("game_level"), CDigitanksGame::GetLevel(GAMETYPE_STANDARD, m_iLevelSelected)->GetFile());
 
-	DigitanksWindow()->CreateGame("standard");
+	GameWindow()->Restart("standard");
 
 	if (!GameServer())
 		return;

@@ -1644,6 +1644,9 @@ void CHUD::Paint(float x, float y, float w, float h)
 			if (!pTeam)
 				continue;
 
+			if (i >= m_ahScoreboardTanks.size())
+				continue;
+
 			tmap<size_t, CEntityHandle<CDigitank> >& ahTeamTanks = m_ahScoreboardTanks[i];
 
 			Color clrTeam = pTeam->GetColor();
@@ -2286,6 +2289,8 @@ void CHUD::ClientEnterGame()
 	m_pSceneTree->BuildTree(true);
 
 	m_ahScoreboardTanks.clear();
+
+	Layout();
 }
 
 void CHUD::UpdateInfo()
