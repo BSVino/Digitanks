@@ -142,19 +142,47 @@ void InitializeAssetManager()
 
 tvector<tstring> ListAndroidAssetsDirectory(const tstring& sDirectory, bool bDirectories)
 {
-	InitializeAssetManager();
+	JNIEnv* env = (JNIEnv*)SDL_AndroidGetJNIEnv();
+	jobject activity = (jobject)SDL_AndroidGetActivity();
 
-	AAssetDir* pAssetDir = AAssetManager_openDir(g_pAssetManager, sDirectory.c_str());
+	jclass activity_class = env->GetObjectClass(activity);
+	jmethodID activity_class_assetOpenDir = env->GetMethodID(activity_class, "assetOpenDir", "(Ljava/lang/String;)Z");
+	jstring assetOpenDir_sDirectory = env->NewStringUTF(sDirectory.c_str());
+	jboolean assetOpenDir_success = env->CallBooleanMethod(activity, activity_class_assetOpenDir, assetOpenDir_sDirectory); // activity.assetOpenDir(sDirectory);
+	env->DeleteLocalRef(assetOpenDir_sDirectory);
 
-	if (!pAssetDir)
+	if (!assetOpenDir_success)
 		return tvector<tstring>();
 
 	tvector<tstring> asResult;
 	const char* pszDir;
-	while ((pszDir = AAssetDir_getNextFileName(pAssetDir)) != NULL)
-		asResult.push_back(pszDir);
 
-	AAssetDir_close(pAssetDir);
+	jmethodID activity_class_assetGetNext = env->GetMethodID(activity_class, "assetGetNext", "()Ljava/lang/String;");
+	jmethodID activity_class_assetIsDirectory = env->GetMethodID(activity_class, "assetIsDirectory", "(Ljava/lang/String;)Z");
+
+	jstring dir;
+
+	while ((dir = (jstring)env->CallObjectMethod(activity, activity_class_assetGetNext)) != NULL)
+	{
+		const char* pszDir = env->GetStringUTFChars(dir, nullptr);
+		tstring sDir = pszDir;
+		env->ReleaseStringUTFChars(dir, pszDir);
+
+		tstring sFullDir = sDirectory + "/" + sDir;
+
+		if (!bDirectories)
+		{
+			jstring assetIsDirectory_sFile = env->NewStringUTF(sFullDir.c_str());
+			jboolean assetIsDirectory_result = env->CallBooleanMethod(activity, activity_class_assetIsDirectory, assetIsDirectory_sFile); // activity.assetIsDirectory(file);
+			bool bIsDirectory = assetIsDirectory_result;
+			env->DeleteLocalRef(assetIsDirectory_sFile);
+
+			if (bIsDirectory)
+				continue;
+		}
+
+		asResult.push_back(sDir);
+	}
 
 	return asResult;
 }
@@ -250,6 +278,20 @@ bool IsFile(const tstring& sPath)
 
 bool IsDirectory(const tstring& sPath)
 {
+	// Check first to see if it's in the assets folder.
+	JNIEnv* env = (JNIEnv*)SDL_AndroidGetJNIEnv();
+	jobject activity = (jobject)SDL_AndroidGetActivity();
+	jclass activity_class = env->GetObjectClass(activity);
+	jmethodID activity_class_assetIsDirectory = env->GetMethodID(activity_class, "assetIsDirectory", "(Ljava/lang/String;)Z");
+
+	jstring assetIsDirectory_sFile = env->NewStringUTF(sPath.c_str());
+	jboolean assetIsDirectory_result = env->CallBooleanMethod(activity, activity_class_assetIsDirectory, assetIsDirectory_sFile); // activity.assetIsDirectory(file);
+	bool bIsDirectory = assetIsDirectory_result;
+	env->DeleteLocalRef(assetIsDirectory_sFile);
+
+	if (bIsDirectory)
+		return true;
+
 	struct stat stFileInfo;
 	bool blnReturn;
 	int intStat;

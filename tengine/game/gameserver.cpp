@@ -492,7 +492,7 @@ void CGameServer::ReadLevels()
 
 void CGameServer::ReadLevels(tstring sDirectory)
 {
-	tvector<tstring> asFiles = ListDirectory(sDirectory);
+	tvector<tstring> asFiles = ListDirectory(T_ASSETS_PREFIX + sDirectory);
 
 	for (size_t i = 0; i < asFiles.size(); i++)
 	{

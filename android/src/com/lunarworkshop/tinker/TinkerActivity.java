@@ -1,5 +1,8 @@
 package com.lunarworkshop.tinker;
 
+import java.io.IOException;
+import java.util.Arrays;
+
 import android.view.*;
 import android.app.*;
 import android.content.res.*;
@@ -16,6 +19,81 @@ public class TinkerActivity extends SDLActivity {
 	void TinkerLog(String s)
 	{
 		//Log.v("TinkerDebug", s);
+	}
+
+	AssetManager am;
+	String[]     assetList;
+	int          assetList_index;
+
+	public boolean assetOpenDir(String sDirectory)
+	{
+		if (am == null)
+			am = getAssets();
+
+		try
+		{
+			assetList = am.list(sDirectory);
+		}
+		catch (IOException e)
+		{
+			return false;
+		}
+
+		if (assetList == null)
+			return false;
+
+		assetList_index = 0;
+		return true;
+	}
+
+	public String assetGetNext()
+	{
+		if (assetList_index >= assetList.length)
+			return null;
+
+		return assetList[assetList_index++];
+	}
+
+	public boolean assetIsDirectory(String sDirectory)
+	{
+		if (!assetExists(sDirectory))
+			return false;
+
+		if (am == null)
+			am = getAssets();
+
+		try
+		{
+			return am.open(sDirectory) == null;
+		}
+		catch (IOException e)
+		{
+			// Assume the file exists so if it can't be opened as a file it must be a directory.
+			return true;
+		}
+	}
+
+	public boolean assetExists(String sFile)
+	{
+		if (am == null)
+			am = getAssets();
+
+		int slash = sFile.lastIndexOf('/');
+
+		try
+		{
+			if (slash < 0)
+				return Arrays.asList(am.list("")).contains(sFile);
+
+			String sPath = sFile.substring(0, slash);
+			String sFileOnly = sFile.substring(slash+1);
+
+			return Arrays.asList(am.list(sPath)).contains(sFileOnly);
+		}
+		catch (IOException e)
+		{
+			return false;
+		}
 	}
 
 	@Override
