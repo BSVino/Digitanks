@@ -34,6 +34,8 @@ void CDigitanksRenderer::Initialize()
 {
 	BaseClass::Initialize();
 
+	glgui::RootPanel()->SetDesignHeight(768);
+
 	DigitanksWindow()->RenderLoading();
 
 	m_hVignetting = CTextureLibrary::AddTexture("textures/vignetting.png");

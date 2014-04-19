@@ -35,6 +35,8 @@ namespace glgui
 		virtual						~CRootPanel( );
 
 	public:
+		virtual void SetDesignHeight(float flHeight); // Set to < 0 to disable.
+
 		virtual void				Think(double flTime);
 		virtual void				UpdateScene();
 		virtual void				Paint(float x, float y, float w, float h);
@@ -98,6 +100,8 @@ namespace glgui
 	private:
 		static CControlResource	s_pRootPanel;
 		static bool					s_bRootPanelValid;
+
+		float m_flDesignHeight;
 
 		tvector<IDroppable*>		m_apDroppables;
 		IDroppable*					m_pDragging;

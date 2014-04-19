@@ -51,6 +51,8 @@ static Display* g_pDisplay = NULL;
 static Window g_iWindow = 0;
 #endif
 
+using namespace glgui;
+
 CDigitanksWindow::CDigitanksWindow(int argc, char** argv)
 	: CGameWindow(argc, argv)
 {
@@ -140,14 +142,16 @@ void CDigitanksWindow::OpenWindow()
 
 	CApplication::OpenWindow(m_iWindowWidth, m_iWindowHeight, m_bCfgFullscreen, false);
 
-	m_hCursors = CMaterialLibrary::AddMaterial("textures/cursors.mat");
-
 	RenderLoading();
+
+	m_hCursors = CMaterialLibrary::AddMaterial("textures/cursors.mat");
 
 	CVar::SetCVar("game_mode", GetInitialGameMode());
 
 	m_pGameServer = new CGameServer();
 	m_pInstructor = new CInstructor();
+
+	GameServer()->SetWorkListener(this);
 
 	InitUI();
 
@@ -164,7 +168,7 @@ void CDigitanksWindow::OpenWindow()
 			TMsg(tstring("Retrieved player nickname from ") + TPortal_GetPortalIdentifier() + ": " + m_sNickname + "\n");
 		}
 		else
-			m_sNickname = "Noobie";
+			m_sNickname = "Commander";
 	}
 
 	SaveConfig();
@@ -172,9 +176,6 @@ void CDigitanksWindow::OpenWindow()
 	mtsrand((size_t)time(NULL));
 
 	glgui::CRootPanel::Get()->AddControl(m_pHUD = CreateHUD());
-
-	glgui::CRootPanel::Get()->SetSize((float)GetWindowWidth(), (float)GetWindowHeight());
-	glgui::CRootPanel::Get()->Layout();
 
 	GameServer()->SetLoading(false);
 
@@ -218,21 +219,21 @@ void CDigitanksWindow::RenderLoading()
 	c.ClearColor();
 	c.ClearDepth();
 
-	c.SetProjection(Matrix4x4::ProjectOrthographic(0, m_iWindowWidth, m_iWindowHeight, 0, -1, 1));
+	c.SetProjection(Matrix4x4::ProjectOrthographic(0, RootPanel()->GetWidth(), RootPanel()->GetHeight(), 0, -1, 1));
 
 	c.SetDepthTest(false);
 	c.SetBlend(BLEND_ALPHA);
 
-	glgui::CRootPanel::PaintTexture(m_hLoading, m_iWindowWidth/2 - 150, m_iWindowHeight/2 - 150, 300, 300);
-	glgui::CRootPanel::PaintTexture(GetLunarWorkshopLogo(), m_iWindowWidth-200-20, m_iWindowHeight - 200, 200, 200);
+	glgui::CRootPanel::PaintTexture(m_hLoading, RootPanel()->GetWidth() / 2 - 150, RootPanel()->GetHeight() / 2 - 150, 300, 300);
+	glgui::CRootPanel::PaintTexture(GetLunarWorkshopLogo(), RootPanel()->GetWidth() - 200 - 20, RootPanel()->GetHeight() - 200, 200, 200);
 
 	float flWidth = glgui::RootPanel()->GetTextWidth(m_sAction, m_sAction.length(), "text", 12);
-	glgui::CLabel::PaintText(m_sAction, m_sAction.length(), "text", 12, (float)m_iWindowWidth/2 - flWidth/2, (float)m_iWindowHeight/2 + 170);
+	glgui::CLabel::PaintText(m_sAction, m_sAction.length(), "text", 12, (float)RootPanel()->GetWidth() / 2 - flWidth / 2, (float)RootPanel()->GetHeight() / 2 + 170);
 
 	if (m_iTotalProgress)
 	{
 		float flProgress = (float)m_iProgress/(float)m_iTotalProgress;
-		glgui::CBaseControl::PaintRect(m_iWindowWidth/2 - 200, m_iWindowHeight/2 + 190, (int)(400*flProgress), 10, Color(255, 255, 255));
+		glgui::CBaseControl::PaintRect(RootPanel()->GetWidth() / 2 - 200, RootPanel()->GetHeight() / 2 + 190, (int)(400 * flProgress), 10, Color(255, 255, 255));
 	}
 
 	CApplication::Get()->GetConsole()->Paint();

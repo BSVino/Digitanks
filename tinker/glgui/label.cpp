@@ -248,6 +248,13 @@ void CLabel::DrawSection(const CLine& l, const CLineSection& s, float x, float y
 	m_iCharsDrawn += s.m_sText.length()+1;
 }
 
+void CLabel::Layout()
+{
+	BaseClass::Layout();
+
+	m_bNeedsCompute = true;
+}
+
 void CLabel::GetAlignmentOffset(float flLineWidth, float, const tstring&, size_t, float flAreaWidth, float flAreaHeight, float& x, float& y) const
 {
 	float lw = flLineWidth;

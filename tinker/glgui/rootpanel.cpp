@@ -70,6 +70,35 @@ CRootPanel::~CRootPanel( )
 	CRenderer::UnloadVertexDataFromGL(m_iQuad);
 }
 
+void CRootPanel::SetDesignHeight(float flDesignHeight)
+{
+	if (flDesignHeight <= 0)
+	{
+		SetSize(Application()->GetWindowWidth() * Application()->GetGUIScale(), Application()->GetWindowHeight() * Application()->GetGUIScale());
+		Layout();
+
+		return;
+	}
+
+	float flGuiScaleHeight = Application()->GetWindowHeight() * Application()->GetGUIScale();
+	float flFurtherScale = flDesignHeight / flGuiScaleHeight;
+
+	Application()->SetGUIScale(Application()->GetGUIScale() * flFurtherScale);
+
+	SetSize(Application()->GetWindowWidth() * Application()->GetGUIScale(), Application()->GetWindowHeight() * Application()->GetGUIScale());
+
+	// Clear out any fonts we've loaded, they'll be loaded again promptly.
+	for (auto& aFontMap : m_aFonts)
+	{
+		for (auto& pFont : aFontMap.second.m_apFonts)
+			delete pFont.second;
+
+		aFontMap.second.m_apFonts.clear();
+	}
+
+	Layout();
+}
+
 static bool bDeletingRoot = false;
 
 CRootPanel* CRootPanel::Get()
@@ -443,22 +472,28 @@ void CRootPanel::GetFullscreenMousePos(int& mx, int& my)
 	{
 		sRealName = "sans-serif";
 		it = m_aFonts.find(sRealName);
-	}
 
-	if (it == m_aFonts.end())
-	{
-		tstring sFont;
+		if (it == m_aFonts.end())
+		{
+			tstring sFont;
 
 #if defined(__ANDROID__)
-		sFont = "/system/fonts/DroidSans.ttf";
+			sFont = "/system/fonts/DroidSans.ttf";
 #elif defined(_WIN32)
-		sFont = tsprintf(tstring("%s\\Fonts\\Arial.ttf"), getenv("windir"));
+			sFont = tsprintf(tstring("%s\\Fonts\\Arial.ttf"), getenv("windir"));
+#elif defined(__linux__)
+			sFont = "/usr/share/fonts/truetype/freefont/FreeSans.ttf";
 #else
-		sFont = "/usr/share/fonts/truetype/freefont/FreeSans.ttf";
+			TUnimplemented();
 #endif
 
-		AddFont("sans-serif", sFont);
+			AddFont("sans-serif", sFont);
+		}
 	}
+
+	FTFont* pFont = m_aFonts[sRealName].m_apFonts[iSize];
+	if (!pFont)
+		AddFontSize(sRealName, iSize);
 
 	return m_aFonts[sRealName].m_apFonts[iSize];
 }

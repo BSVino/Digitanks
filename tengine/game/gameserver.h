@@ -128,7 +128,7 @@ public:
 	bool										IsClient() { return m_iClient >= 0; };
 	size_t										GetMaxEntities() { return m_iMaxEnts; };
 
-	void										SetWorkListener(IWorkListener* pListener);
+	void										SetWorkListener(IWorkListener* pListener)  { m_pWorkListener = pListener; };
 	IWorkListener*								GetWorkListener() { return m_pWorkListener; };
 
 	static CGameServer*							GetGameServer() { return s_pGameServer; };

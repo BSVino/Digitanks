@@ -99,6 +99,7 @@ public:
 	int							GetWindowWidth() { return (int)m_iWindowWidth; };
 	int							GetWindowHeight() { return (int)m_iWindowHeight; };
 	float                       GetGUIScale() const { return m_flGUIScale; }
+	void                        SetGUIScale(float flScale) { m_flGUIScale = flScale; }
 
 	void                        GetViewportSize(size_t& w, size_t& h);
 

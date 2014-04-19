@@ -28,6 +28,8 @@ namespace glgui
 {
 	class CLabel : public CBaseControl
 	{
+		DECLARE_CLASS(CLabel, CBaseControl);
+
 		friend class CRootPanel;
 
 	public:
@@ -80,7 +82,7 @@ namespace glgui
 		virtual void	Paint(float x, float y) { Paint(x, y, m_flW, m_flH); };
 		virtual void	Paint(float x, float y, float w, float h);
 		virtual void	DrawSection(const CLine& l, const CLineSection& s, float x, float y, float w, float h);
-		virtual void	Layout() {};
+		virtual void	Layout();
 		virtual void	Think() {};
 
 		virtual void	GetAlignmentOffset(float flLineWidth, float flLineHeight, const tstring& sFont, size_t iFontSize, float flAreaWidth, float flAreaHeight, float& x, float& y) const;

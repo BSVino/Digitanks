@@ -172,7 +172,7 @@ void CApplication::OpenWindow(size_t iWidth, size_t iHeight, bool bFullscreen, b
 	m_iWindowWidth = iWidth;
 	m_iWindowHeight = iHeight;
 
-	TMsg(tsprintf("Opening %dx%d %s %s window.\n", iWidth, iHeight, bFullscreen?"fullscreen":"windowed", bResizeable?"resizeable":"fixed-size"));
+	TMsg(tsprintf("Requesting %dx%d %s %s window.\n", iWidth, iHeight, bFullscreen?"fullscreen":"windowed", bResizeable?"resizeable":"fixed-size"));
 
 	int iScreenWidth;
 	int iScreenHeight;
@@ -191,6 +191,18 @@ void CApplication::OpenWindow(size_t iWidth, size_t iHeight, bool bFullscreen, b
 	{
 		SDL_Quit();
 		return;
+	}
+
+	{
+		int iWindowWidth, iWindowHeight;
+		SDL_GetWindowSize(m_pWindow, &iWindowWidth, &iWindowHeight);
+
+		if (iWindowWidth != m_iWindowWidth || iWindowHeight != m_iWindowHeight)
+		{
+			TMsg(tsprintf("Window size opened: %dx%d.\n", iWindowWidth, iWindowHeight));
+			m_iWindowWidth = iWindowWidth;
+			m_iWindowHeight = iWindowHeight;
+		}
 	}
 
 	if (!bResizeable)
@@ -260,8 +272,7 @@ void CApplication::OpenWindow(size_t iWidth, size_t iHeight, bool bFullscreen, b
 	m_pRenderer = CreateRenderer();
 	m_pRenderer->Initialize();
 
-	glgui::RootPanel()->SetSize((float)m_pRenderer->GetDrawableWidth(), (float)m_pRenderer->GetDrawableHeight());
-	glgui::RootPanel()->Layout();
+	glgui::RootPanel()->SetDesignHeight(-1);
 }
 
 CApplication::~CApplication()
