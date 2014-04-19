@@ -2386,6 +2386,9 @@ Color CTerrain::GetPrimaryTerrainColor()
 
 void CTerrain::UpdateTerrainData()
 {
+	if (GameServer()->GetWorkListener())
+		GameServer()->GetWorkListener()->SetAction("Reticulating splines", TERRAIN_CHUNKS*TERRAIN_CHUNKS);
+
 	// Go in reverse so that the highest numbered chunks arrive at the client first.
 	// Since terrain generation depends on the next higher chunk, we want the highest chunks to be right first.
 	for (size_t i = TERRAIN_CHUNKS-1; i < TERRAIN_CHUNKS; i--)
@@ -2420,6 +2423,9 @@ void CTerrain::UpdateTerrainData()
 				GameNetwork()->CallFunctionParameters(NETWORK_TOCLIENTS, "TerrainData", &p);
 
 			TerrainData(&p);
+
+			if (GameServer()->GetWorkListener())
+				GameServer()->GetWorkListener()->WorkProgress((TERRAIN_CHUNKS - i)*TERRAIN_CHUNKS + TERRAIN_CHUNKS - j);
 		}
 	}
 }
@@ -2480,10 +2486,7 @@ void CTerrain::TerrainData(class CNetworkParameters* p)
 	if (!pChunk->m_bNeedsRegenerate)
 		return;
 
-	if (!GameServer()->IsLoading())
-	{
-		GenerateTerrainCallList(i, j);
-	}
+	GenerateTerrainCallList(i, j);
 }
 
 void CTerrain::ResyncClientTerrainData(int iClient)

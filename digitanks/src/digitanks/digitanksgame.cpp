@@ -333,6 +333,9 @@ void CDigitanksGame::SetupGame(tstring sGameType)
 
 	DigitanksGame()->SetDifficulty(game_difficulty.GetInt());
 
+	// Get this out of the way.
+	DigitanksGame()->GetTerrain()->UpdateTerrainData();
+
 	GameServer()->SetLoading(false);
 
 	DigitanksWindow()->GetMainMenu()->SetVisible(m_eGameType == GAMETYPE_MENU);
