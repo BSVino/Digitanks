@@ -26,6 +26,14 @@ typedef enum
 	ACTIONTYPE_DOWNLOADCOMPLETE,
 } actiontype_t;
 
+typedef enum
+{
+	TOUCHCOMMAND_NONE = 0,
+	TOUCHCOMMAND_CENTERSELECT,
+	TOUCHCOMMAND_DRAG,
+	TOUCHCOMMAND_ROTATEZOOM,
+} touchcommand_t;
+
 typedef struct
 {
 	size_t			iUnit;
@@ -161,6 +169,8 @@ public:
 	virtual void				KeyRelease(int c);
 	virtual void				CharPress(int c);
 	virtual void				CharRelease(int c);
+	virtual void TouchMotion(int iFinger, float x, float y, float dx, float dy);
+	virtual bool TouchInput(int iFinger, tinker_mouse_state_t iState, float x, float y);
 
 	bool GetBoxSelection(size_t& iX, size_t& iY, size_t& iX2, size_t& iY2);
 	bool IsMouseDragging();
@@ -173,6 +183,8 @@ public:
 
 	void						DontIncludeInScoreboard() { m_bIncludeInScoreboard = false; }
 	bool						ShouldIncludeInScoreboard() const { return m_bIncludeInScoreboard; }
+
+	touchcommand_t GetTouchCommand() const { return m_eTouchCommand; }
 
 protected:
 	CNetworkedSTLVector<CEntityHandle<CDigitank> >        m_ahTanks;
@@ -246,6 +258,11 @@ protected:
 	int							m_iMouseInitialY;
 	int							m_iMouseCurrentX;
 	int							m_iMouseCurrentY;
+
+	touchcommand_t m_eTouchCommand;
+	float m_flTouchStartX;
+	float m_flTouchStartY;
+	float m_flTouchMoved;
 };
 
 inline CDigitanksPlayer* ToDigitanksPlayer(CBaseEntity* pPlayer)

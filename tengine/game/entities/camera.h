@@ -28,6 +28,8 @@ public:
 	virtual bool MouseInput(int iButton, tinker_mouse_state_t iState) { return false; };
 	virtual bool KeyDown(int c) { return false; }
 	virtual bool KeyUp(int c) { return false; }
+	virtual void TouchMotion(int iFinger, float x, float y, float dx, float dy) { if (iFinger == 0) MouseMotion((int)x, (int)y, (int)dx, (int)dy); };
+	virtual bool TouchInput(int iFinger, tinker_mouse_state_t iState, float x, float y) { if (iFinger == 0) return MouseInput(TINKER_KEY_MOUSE_LEFT, iState); else return false; }
 
 protected:
 	CEntityHandle<CBaseEntity>	m_hCameraTarget;

@@ -40,6 +40,8 @@ public:
 	virtual void					JoystickButtonPress(int iJoystick, int c);
 	virtual void					JoystickButtonRelease(int iJoystick, int c) {};
 	virtual void					JoystickAxis(int iJoystick, int iAxis, float flValue, float flChange);
+	virtual void TouchMotion(int iFinger, float x, float y, float dx, float dy) { if (iFinger == 0) MouseMotion((int)dx, (int)dy); };
+	virtual bool TouchInput(int iFinger, tinker_mouse_state_t iState, float x, float y) { if (iFinger == 0) return MouseInput(TINKER_KEY_MOUSE_LEFT, iState); else return false; }
 
 	virtual void                    Think();
 

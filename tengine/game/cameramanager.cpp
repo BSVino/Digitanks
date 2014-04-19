@@ -348,6 +348,41 @@ bool CCameraManager::MouseInput(int iButton, tinker_mouse_state_t iState)
 	return false;
 }
 
+void CCameraManager::TouchMotion(int iFinger, float x, float y, float dx, float dy)
+{
+	if (m_bFreeMode && iFinger == 0)
+	{
+		m_angFreeCamera.y -= (dx / 5.0f);
+		m_angFreeCamera.p -= (dy / 5.0f);
+
+		if (m_angFreeCamera.p > 89)
+			m_angFreeCamera.p = 89;
+
+		if (m_angFreeCamera.p < -89)
+			m_angFreeCamera.p = -89;
+
+		while (m_angFreeCamera.y > 180)
+			m_angFreeCamera.y -= 360;
+
+		while (m_angFreeCamera.y < -180)
+			m_angFreeCamera.y += 360;
+	}
+
+	if (GetActiveCamera())
+		GetActiveCamera()->TouchMotion(iFinger, x, y, dx, dy);
+}
+
+bool CCameraManager::TouchInput(int iFinger, tinker_mouse_state_t iState, float x, float y)
+{
+	if (GetActiveCamera())
+	{
+		if (GetActiveCamera()->TouchInput(iFinger, iState, x, y))
+			return true;
+	}
+
+	return false;
+}
+
 CVar lock_freemode_frustum("debug_lock_freemode_frustum", "no");
 
 bool CCameraManager::KeyDown(int c)

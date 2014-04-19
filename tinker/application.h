@@ -69,6 +69,9 @@ public:
 	void						CharEvent(int c);
 	void                        IgnoreMouseRelease() { m_bMouseDownInGUI = true; }
 
+	virtual void TouchMotion(int iFinger, float x, float y, float dx, float dy);
+	virtual bool TouchInput(int iFinger, tinker_mouse_state_t iState, float x, float y);
+
 	virtual bool				DoKeyPress(int /*c*/) { return false; };
 	virtual void				DoKeyRelease(int /*c*/) {};
 

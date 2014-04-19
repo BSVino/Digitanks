@@ -500,7 +500,12 @@ bool CDigitanksWindow::GetMouseGridPosition(Vector& vecPoint, CBaseEntity** pHit
 	int x, y;
 	glgui::CRootPanel::Get()->GetFullscreenMousePos(x, y);
 
-	Vector vecWorld = GameServer()->GetRenderer()->WorldPosition(Vector((float)x, (float)y, 1));
+	return GetGridPosition(Vector2D(x, y), vecPoint, pHit, bTerrainOnly);
+}
+
+bool CDigitanksWindow::GetGridPosition(const Vector2D& vecScreen, Vector& vecPoint, CBaseEntity** pHit, bool bTerrainOnly)
+{
+	Vector vecWorld = GameServer()->GetRenderer()->WorldPosition(Vector(vecScreen.x, vecScreen.y, 1));
 
 	Vector vecCameraVector = GameServer()->GetRenderer()->GetCameraPosition();
 

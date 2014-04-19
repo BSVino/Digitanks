@@ -61,7 +61,7 @@ CApplication::CApplication(int argc, char** argv)
 
 	SDL_Init(iMode);
 
-	m_flGUIScale = 1;
+	m_flGUIScale = 2;
 
 	// SDL has no support for Android high DPI, so we'll just scale it.
 #ifdef __ANDROID__
@@ -419,6 +419,8 @@ tstring CApplication::GetAppDataDirectory(const tstring& sFile)
 	return sPath;
 }
 
+CVar m_emulate_touch("m_emulate_touch", "0");
+
 tinker_keys_t MapMouseKey(Uint8 c);
 
 void CApplication::PollEvents()
@@ -457,19 +459,54 @@ void CApplication::PollEvents()
 				CharEvent((int)e.text.text[i]);
 			break;
 
+		case SDL_FINGERDOWN:
+			TouchInput((int)e.tfinger.fingerId, TINKER_MOUSE_PRESSED, Application()->GetWindowWidth() * e.tfinger.x, Application()->GetWindowHeight() * e.tfinger.y);
+			break;
+
+		case SDL_FINGERUP:
+			TouchInput((int)e.tfinger.fingerId, TINKER_MOUSE_RELEASED, Application()->GetWindowWidth() * e.tfinger.x, Application()->GetWindowHeight() * e.tfinger.y);
+			break;
+
+		case SDL_FINGERMOTION:
+			TouchMotion((int)e.tfinger.fingerId, Application()->GetWindowWidth() * e.tfinger.x, Application()->GetWindowHeight() * e.tfinger.y, Application()->GetWindowWidth() * e.tfinger.dx, Application()->GetWindowHeight() * e.tfinger.dy);
+			break;
+
 		case SDL_MOUSEMOTION:
-			MouseMotion(e.motion.x, e.motion.y);
+			if (e.motion.which != SDL_TOUCH_MOUSEID)
+			{
+				if (m_emulate_touch.GetBool())
+				{
+					if (IsMouseLeftDown())
+						TouchMotion(0, (float)e.motion.x, (float)e.motion.y, (float)e.motion.xrel, (float)e.motion.yrel);
+				}
+				else
+					MouseMotion(e.motion.x, e.motion.y);
+			}
 			break;
 
 		case SDL_MOUSEBUTTONUP:
-			MouseInput(MapMouseKey(e.button.button), TINKER_MOUSE_RELEASED);
+			if (e.motion.which != SDL_TOUCH_MOUSEID)
+			{
+				if (m_emulate_touch.GetBool())
+					TouchInput(0, TINKER_MOUSE_RELEASED, (float)e.button.x, (float)e.button.y);
+				else
+					MouseInput(MapMouseKey(e.button.button), TINKER_MOUSE_RELEASED);
+			}
 			break;
 
 		case SDL_MOUSEBUTTONDOWN:
-			if (e.button.clicks == 2)
-				MouseInput(MapMouseKey(e.button.button), TINKER_MOUSE_DOUBLECLICK);
-			else
-				MouseInput(MapMouseKey(e.button.button), TINKER_MOUSE_PRESSED);
+			if (e.motion.which != SDL_TOUCH_MOUSEID)
+			{
+				if (m_emulate_touch.GetBool())
+					TouchInput(0, TINKER_MOUSE_PRESSED, (float)e.button.x, (float)e.button.y);
+				else
+				{
+					if (e.button.clicks == 2)
+						MouseInput(MapMouseKey(e.button.button), TINKER_MOUSE_DOUBLECLICK);
+					else
+						MouseInput(MapMouseKey(e.button.button), TINKER_MOUSE_PRESSED);
+				}
+			}
 			break;
 
 		case SDL_MOUSEWHEEL:
@@ -556,6 +593,40 @@ void CApplication::WindowResize(int w, int h)
 	Render();
 
 	SwapBuffers();
+}
+
+void CApplication::TouchMotion(int iFinger, float x, float y, float dx, float dy)
+{
+}
+
+bool CApplication::TouchInput(int iFinger, tinker_mouse_state_t iState, float x, float y)
+{
+	if (iFinger == 0)
+	{
+		if (iState == TINKER_MOUSE_PRESSED)
+		{
+			if (glgui::CRootPanel::Get()->MousePressed(TINKER_KEY_MOUSE_LEFT, (int)x, (int)y))
+			{
+				m_bMouseDownInGUI = true;
+				return true;
+			}
+			else
+				m_bMouseDownInGUI = false;
+		}
+		else if (iState == TINKER_MOUSE_RELEASED)
+		{
+			if (glgui::CRootPanel::Get()->MouseReleased(TINKER_KEY_MOUSE_LEFT, (int)x, (int)y))
+				return true;
+
+			if (m_bMouseDownInGUI)
+			{
+				m_bMouseDownInGUI = false;
+				return true;
+			}
+		}
+	}
+
+	return false;
 }
 
 void CApplication::MouseMotion(int x, int y)

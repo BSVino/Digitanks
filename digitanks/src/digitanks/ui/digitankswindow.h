@@ -86,6 +86,7 @@ public:
 	tstring						GetPlayerNickname() { return m_sNickname; }
 
 	bool						GetMouseGridPosition(Vector& vecPoint, CBaseEntity** pHit = NULL, bool bTerrainOnly = false);
+	bool						GetGridPosition(const Vector2D& vecScreen, Vector& vecPoint, CBaseEntity** pHit = NULL, bool bTerrainOnly = false);
 
 	void						GameOver(bool bPlayerWon);
 

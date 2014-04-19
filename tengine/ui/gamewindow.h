@@ -42,6 +42,9 @@ public:
 	virtual void				JoystickButtonRelease(int iJoystick, int c);
 	virtual void				JoystickAxis(int iJoystick, int iAxis, float flValue, float flChange);
 
+	virtual void TouchMotion(int iFinger, float x, float y, float dx, float dy);
+	virtual bool TouchInput(int iFinger, tinker_mouse_state_t iState, float x, float y);
+
 	class CGameServer*			GetGameServer() { return m_pGameServer; };
 	class CGameRenderer*		GetGameRenderer();
 

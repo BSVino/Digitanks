@@ -50,6 +50,8 @@ public:
 	virtual bool MouseInput(int iButton, tinker_mouse_state_t iState);
 	virtual bool KeyDown(int c);
 	virtual bool KeyUp(int c);
+	virtual void TouchMotion(int iFinger, float x, float y, float dx, float dy);
+	virtual bool TouchInput(int iFinger, tinker_mouse_state_t iState, float x, float y);
 
 public:
 	Vector			m_vecOldTarget;

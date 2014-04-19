@@ -22,6 +22,8 @@
 #include "wreckage.h"
 #include "ui/digitankswindow.h"
 #include "ui/ui.h"
+#include "digitanksgame.h"
+#include "dt_camera.h"
 
 REGISTER_ENTITY(CDigitanksPlayer);
 
@@ -111,6 +113,11 @@ CDigitanksPlayer::CDigitanksPlayer()
 	m_bLost = false;
 
 	m_bBoxSelect = false;
+
+	m_eTouchCommand = TOUCHCOMMAND_NONE;
+	m_flTouchStartX = 0;
+	m_flTouchStartY = 0;
+	m_flTouchMoved = 0;
 }
 
 CDigitanksPlayer::~CDigitanksPlayer()
@@ -1186,6 +1193,67 @@ CDigitanksEntity* CDigitanksPlayer::GetUnit(size_t i) const
 		return NULL;
 
 	return m_ahUnits[i];
+}
+
+void CDigitanksPlayer::TouchMotion(int iFinger, float x, float y, float dx, float dy)
+{
+	if (iFinger == 0 && m_eTouchCommand == TOUCHCOMMAND_CENTERSELECT)
+	{
+		m_flTouchMoved += (int)(fabs((float)dx) + fabs((float)dy));
+
+		if (m_flTouchMoved > 30)
+		{
+			m_eTouchCommand = TOUCHCOMMAND_DRAG;
+			return; // The camera will handle it from here on out.
+		}
+	}
+}
+
+bool CDigitanksPlayer::TouchInput(int iFinger, tinker_mouse_state_t iState, float x, float y)
+{
+	if (iState == TINKER_MOUSE_PRESSED && iFinger == 0)
+	{
+		// First finger down. Begin with centerselect.
+		m_eTouchCommand = TOUCHCOMMAND_CENTERSELECT;
+		m_flTouchStartX = x;
+		m_flTouchStartY = y;
+		m_flTouchMoved = 0;
+	}
+
+	if (iState == TINKER_MOUSE_RELEASED && iFinger == 0 && m_eTouchCommand == TOUCHCOMMAND_CENTERSELECT && !DigitanksGame()->IsFeatureDisabled(DISABLE_SELECT))
+	{
+		// Finger 0 came up and we're still on centerselect. That means we center and select.
+		// Selection is done here, centering in the camera.
+
+		Vector vecGridPosition;
+		CBaseEntity* pClickedEntity = NULL;
+		bool bOnTerrain = DigitanksWindow()->GetGridPosition(Vector2D(x, y), vecGridPosition, &pClickedEntity);
+
+		if (bOnTerrain && DigitanksGame()->GetCurrentLocalDigitanksPlayer())
+		{
+			CSelectable* pSelectable = dynamic_cast<CSelectable*>(pClickedEntity);
+
+			if (pSelectable)
+			{
+				if (Application()->IsShiftDown())
+					DigitanksGame()->GetCurrentLocalDigitanksPlayer()->AddToSelection(pSelectable);
+				else
+					DigitanksGame()->GetCurrentLocalDigitanksPlayer()->SetPrimarySelection(pSelectable);
+			}
+			else if (!Application()->IsShiftDown())
+			{
+				DigitanksGame()->GetCurrentLocalDigitanksPlayer()->SetPrimarySelection(NULL);
+				DigitanksWindow()->GetHUD()->CloseWeaponPanel();
+			}
+		}
+
+		m_bBoxSelect = false;
+
+		DigitanksWindow()->GetHUD()->SetupMenu();
+		return true;
+	}
+
+	return false;
 }
 
 void CDigitanksPlayer::MouseMotion(int dx, int dy)

@@ -857,3 +857,51 @@ bool COverheadCamera::KeyUp(int c)
 
 	return false;
 }
+
+void COverheadCamera::TouchMotion(int iFinger, float x, float y, float dx, float dy)
+{
+	CDigitanksPlayer* pPlayer = DigitanksGame()->GetCurrentLocalDigitanksPlayer();
+
+	if (pPlayer && iFinger == 0 && pPlayer->GetTouchCommand() == TOUCHCOMMAND_DRAG)
+	{
+		Matrix4x4 mRotation;
+		mRotation.SetAngles(EAngle(0, m_angCamera.y, 0));
+
+		float flStrength = -1;
+
+		Vector vecVelocity = mRotation * Vector((float)dy*flStrength, (float)dx*flStrength, 0);
+
+		SetTarget(m_vecTarget + vecVelocity);
+
+		DigitanksWindow()->GetInstructor()->FinishedLesson("mission-1-moveview2");
+	}
+}
+
+bool COverheadCamera::TouchInput(int iFinger, tinker_mouse_state_t iState, float x, float y)
+{
+	CDigitanksPlayer* pPlayer = DigitanksGame()->GetCurrentLocalDigitanksPlayer();
+
+	if (pPlayer && iState == TINKER_MOUSE_RELEASED && iFinger == 0 && pPlayer->GetTouchCommand() == TOUCHCOMMAND_CENTERSELECT && !DigitanksGame()->IsFeatureDisabled(DISABLE_SELECT))
+	{
+		// Finger 0 came up and we're still on centerselect. That means we center and select.
+
+		Vector vecGridPosition;
+		CBaseEntity* pClickedEntity = NULL;
+		bool bOnTerrain = DigitanksWindow()->GetGridPosition(Vector2D(x, y), vecGridPosition, &pClickedEntity);
+
+		if (bOnTerrain && DigitanksGame()->GetCurrentLocalDigitanksPlayer())
+		{
+			CSelectable* pSelectable = dynamic_cast<CSelectable*>(pClickedEntity);
+
+			if (pSelectable)
+				DigitanksGame()->GetOverheadCamera()->SetTarget(pSelectable->GetGlobalOrigin());
+			else if (!Application()->IsShiftDown())
+				DigitanksGame()->GetOverheadCamera()->SetTarget(vecGridPosition);
+		}
+
+		// Don't return true, drop through to the player to let him select also.
+	}
+
+	return false;
+}
+

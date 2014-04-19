@@ -394,6 +394,48 @@ void CGameWindow::KeyRelease(int c)
 	}
 }
 
+void CGameWindow::TouchMotion(int iFinger, float x, float y, float dx, float dy)
+{
+	BaseClass::TouchMotion(iFinger, x, y, dx, dy);
+
+	if (GameServer() && GameServer()->GetCameraManager())
+		GameServer()->GetCameraManager()->TouchMotion(iFinger, x, y, dx, dy);
+
+	if (Game())
+	{
+		for (size_t i = 0; i < Game()->GetNumLocalPlayers(); i++)
+		{
+			CPlayer* pPlayer = Game()->GetLocalPlayer(i);
+			pPlayer->TouchMotion(iFinger, x, y, dx, dy);
+		}
+	}
+}
+
+bool CGameWindow::TouchInput(int iFinger, tinker_mouse_state_t iState, float x, float y)
+{
+	if (BaseClass::TouchInput(iFinger, iState, x, y))
+		return true;
+
+	if (GameServer() && GameServer()->GetCameraManager())
+	{
+		if (GameServer()->GetCameraManager()->TouchInput(iFinger, iState, x * Application()->GetGUIScale(), y * Application()->GetGUIScale()))
+			return true;
+	}
+
+	bool bUsed = false;
+
+	if (Game())
+	{
+		for (size_t i = 0; i < Game()->GetNumLocalPlayers(); i++)
+		{
+			CPlayer* pPlayer = Game()->GetLocalPlayer(i);
+			bUsed |= pPlayer->TouchInput(iFinger, iState, x * Application()->GetGUIScale(), y * Application()->GetGUIScale());
+		}
+	}
+
+	return bUsed;
+}
+
 void CGameWindow::MouseMotion(int x, int y)
 {
 	if (!HasFocus())
