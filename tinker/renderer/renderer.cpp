@@ -837,7 +837,7 @@ const Vector CRenderer::ScreenPosition(const Vector& vecWorld)
 	v.x = v.x * m_aiViewport[2] + m_aiViewport[0];
 	v.y = v.y * m_aiViewport[3] + m_aiViewport[1];
 
-	return Vector(v.x, m_iViewportHeight - v.y, v.z);
+	return Vector(v.x * Application()->GetGUIScale(), (m_iViewportHeight - v.y) * Application()->GetGUIScale(), v.z);
 }
 
 const Vector CRenderer::WorldPosition(const Vector& vecScreen)
@@ -849,7 +849,7 @@ const Vector CRenderer::WorldPosition(const Vector& vecScreen)
 	// Ignoring the homogeneous coordinate conversion, the result is the inverse of the above: v = (PM)^-1 R^-1 V^-1 p
 	// I think it's slightly faster to do (PM)^-1 than P^-1 M^-1 since we cut out one inverse matrix calculation.
 
-	Vector4D v(vecScreen.x, m_iViewportHeight - vecScreen.y, vecScreen.z, 1.0);
+	Vector4D v(vecScreen.x / Application()->GetGUIScale(), (m_iViewportHeight - vecScreen.y) / Application()->GetGUIScale(), vecScreen.z, 1.0);
 
 	v.x = (v.x - m_aiViewport[0]) / m_aiViewport[2];
 	v.y = (v.y - m_aiViewport[1]) / m_aiViewport[3];
