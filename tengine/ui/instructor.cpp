@@ -104,6 +104,8 @@ void CInstructor::ReadLesson(const class CData* pData)
 			pLesson->m_flSlideAmount = pChildData->GetValueFloat();
 		else if (pChildData->GetKey() == "SlideX")
 			pLesson->m_bSlideX = pChildData->GetValueBool();
+		else if (pChildData->GetKey() == "Rotation")
+			pLesson->m_bRotation = pChildData->GetValueBool();
 		else if (pChildData->GetKey() == "Output")
 			ReadLessonOutput(pChildData, pLesson);
 		else if (pChildData->GetKey() == "Priority")
@@ -425,6 +427,9 @@ void CPlayer::Instructor_Think()
 			CLessonProgress* pLessonProgress = &it->second;
 			CLesson* pLesson = GameWindow()->GetInstructor()->GetLesson(it->first);
 
+			if (!pLesson->m_bRotation)
+				continue;
+
 			if (!pLesson)
 			{
 				TMsg("Couldn't find lesson '" + it->first + "'\n");
@@ -577,6 +582,7 @@ CLesson::CLesson(CInstructor* pInstructor, tstring sLesson)
 	m_bKillOnFinish = false;
 	m_flSlideAmount = 0;
 	m_bSlideX = true;
+	m_bRotation = false;
 	m_iPriority = 0;
 	m_iLessonType = LESSON_INFO;
 	m_iLearningMethod = LEARN_DISPLAYING;

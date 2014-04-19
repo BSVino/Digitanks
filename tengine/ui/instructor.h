@@ -51,6 +51,7 @@ public:
 	bool                            m_bKillOnFinish;
 	float                           m_flSlideAmount;
 	bool                            m_bSlideX;
+	bool                            m_bRotation;
 
 	int                             m_iPriority;
 	tvector<tstring>                m_asPrerequisites;
