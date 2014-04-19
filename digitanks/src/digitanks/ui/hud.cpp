@@ -5,6 +5,7 @@
 
 #include <tinker/cvar.h>
 #include <glgui/rootpanel.h>
+#include <tinker/profiler.h>
 
 #include <sound/sound.h>
 #include <renderer/game_renderer.h>
@@ -977,6 +978,8 @@ CVar show_fps("show_fps", SHOW_FPS);
 
 void CHUD::Paint(float x, float y, float w, float h)
 {
+	TPROF("CHUD::Paint()");
+
 	if (!DigitanksGame())
 		return;
 
@@ -1829,6 +1832,8 @@ void CHUD::Paint(float x, float y, float w, float h)
 		float flHintWidth = glgui::RootPanel()->GetTextWidth(sChooseHint, sChooseHint.length(), _T("text"), 9);
 		glgui::CLabel::PaintText(sChooseHint, sChooseHint.length(), _T("text"), 9, (float)(m_pButtonPanel->GetLeft() + m_pButtonPanel->GetWidth()/2) - flHintWidth/2, (float)(m_pButtonPanel->GetTop() - 12));
 	}
+
+	CRenderingContext::DebugFinish();
 }
 
 void CHUD::PaintCameraGuidedMissile(float x, float y, float w, float h)
