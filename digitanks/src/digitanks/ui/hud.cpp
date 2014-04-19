@@ -672,9 +672,12 @@ void CHUD::Think()
 	Vector vecTerrainPoint, vecEntityPoint;
 	bool bMouseOnGrid = false;
 	CBaseEntity* pHit = NULL;
+
+#ifndef T_PLATFORM_TOUCH
 	if (DigitanksGame()->GetControlMode() == MODE_NONE)
 	{
-		bMouseOnGrid = DigitanksWindow()->GetMouseGridPosition(vecEntityPoint, &pHit);
+		if (!CVar::GetCVarBool("m_emulate_touch"))
+			bMouseOnGrid = DigitanksWindow()->GetMouseGridPosition(vecEntityPoint, &pHit);
 
 		bool bSpotVisible = false;
 		if (DigitanksGame()->GetCurrentLocalDigitanksPlayer())
@@ -703,13 +706,14 @@ void CHUD::Think()
 		else
 			SetTooltip(_T(""));
 	}
-	else
+	else if (!CVar::GetCVarBool("m_emulate_touch"))
 	{
 		bMouseOnGrid = DigitanksWindow()->GetMouseGridPosition(vecEntityPoint, &pHit);
 		bMouseOnGrid = DigitanksWindow()->GetMouseGridPosition(vecTerrainPoint, NULL, true);
 
 		SetTooltip(_T(""));
 	}
+#endif
 
 	if (pCurrentTank)
 	{
@@ -1006,12 +1010,14 @@ void CHUD::Paint(float x, float y, float w, float h)
 		sFPS = tsprintf(tstring("FPS: %d"), (int)(1 / GameServer()->GetFrameTime()));
 		glgui::CLabel::PaintText(sFPS, sFPS.length(), _T("text"), 10, 125, flFontHeight*2 + 50);
 
+#ifndef T_PLATFORM_TOUCH
 		Vector vecTerrainPoint;
 		if (DigitanksWindow()->GetMouseGridPosition(vecTerrainPoint, NULL, true))
 		{
 			sFPS = tsprintf(tstring("%.2f, %.2f"), vecTerrainPoint.x, vecTerrainPoint.y);
 			glgui::CLabel::PaintText(sFPS, sFPS.length(), _T("text"), 10, 125, flFontHeight*3 + 50);
 		}
+#endif
 	}
 
 	if (DigitanksGame()->GetOverheadCamera()->HasCameraGuidedMissile())

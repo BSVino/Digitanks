@@ -364,7 +364,13 @@ void CDigitanksRenderer::RenderPreviewModes()
 	size_t iFormation = 0;
 	
 	Vector vecLookAt;
-	bool bMouseOK = DigitanksWindow()->GetMouseGridPosition(vecLookAt);
+
+	bool bMouseOK = false;
+
+#ifndef T_PLATFORM_TOUCH
+	if (!CVar::GetCVarBool("m_emulate_touch"))
+		bMouseOK = DigitanksWindow()->GetMouseGridPosition(vecLookAt);
+#endif
 
 	for (size_t i = 0; i < pTeam->GetNumUnits(); i++)
 	{

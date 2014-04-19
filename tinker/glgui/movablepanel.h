@@ -21,7 +21,7 @@ LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON A
 #include <glgui/button.h>
 #include <glgui/selector.h>
 
-#ifdef T_TOUCH_PLATFORM
+#ifdef T_PLATFORM_TOUCH
 // Nice fat finger friendly header size.
 #define T_HEADER_HEIGHT 32
 #else

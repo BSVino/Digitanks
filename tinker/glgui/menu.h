@@ -23,7 +23,7 @@ LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON A
 
 namespace glgui
 {
-#ifdef T_TOUCH_PLATFORM
+#ifdef T_PLATFORM_TOUCH
 // Nice fat finger friendly size.
 #define T_MENU_SPACING 10
 #define T_MENU_HEIGHT 30

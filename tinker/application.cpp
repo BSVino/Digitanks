@@ -605,6 +605,11 @@ bool CApplication::TouchInput(int iFinger, tinker_mouse_state_t iState, float x,
 	{
 		if (iState == TINKER_MOUSE_PRESSED)
 		{
+			if (m_flLastMousePress > 0 && GetTime() - m_flLastMousePress < 0.25f)
+				TouchInput(iFinger, TINKER_MOUSE_DOUBLECLICK, x, y);
+
+			m_flLastMousePress = GetTime();
+
 			if (glgui::CRootPanel::Get()->MousePressed(TINKER_KEY_MOUSE_LEFT, (int)x, (int)y))
 			{
 				m_bMouseDownInGUI = true;

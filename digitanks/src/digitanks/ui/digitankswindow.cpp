@@ -494,6 +494,11 @@ bool CDigitanksWindow::ShouldConstrainMouse()
 
 bool CDigitanksWindow::GetMouseGridPosition(Vector& vecPoint, CBaseEntity** pHit, bool bTerrainOnly)
 {
+#ifdef T_PLATFROM_TOUCH
+	// Mouse doesn't exist on this platform.
+	TAssert(false);
+#endif
+
 	if (!DigitanksGame()->GetTerrain())
 		return false;
 

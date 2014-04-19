@@ -170,7 +170,13 @@ private:
 #endif
 
 #ifdef __ANDROID__
-#define T_TOUCH_PLATFORM
+// A platform whose major input method is touch, and does not have a mouse.
+#define T_PLATFORM_TOUCH
+#endif
+
+#ifdef __ANDROID__
+// A platform whose rendering capabilities are limited.
+#define T_PLATFORM_MOBILE
 #endif
 
 #endif

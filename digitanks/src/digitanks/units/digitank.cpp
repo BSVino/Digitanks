@@ -15,6 +15,7 @@
 #include <sound/sound.h>
 #include <renderer/game_renderingcontext.h>
 #include <glgui/rootpanel.h>
+#include <tinker/cvar.h>
 
 #include <game/networkedeffect.h>
 #include <digitanksgame.h>
@@ -1680,7 +1681,27 @@ void CDigitank::Think()
 	{
 		Vector vecMouseAim;
 		CBaseEntity* pHit = NULL;
-		bool bMouseOK = DigitanksWindow()->GetMouseGridPosition(vecMouseAim, &pHit);
+		bool bMouseOK = false;
+
+#ifdef T_PLATFORM_TOUCH
+		if (m_bPreviewAim)
+		{
+			vecMouseAim = m_vecPreviewAim;
+			bMouseOK = true;
+		}
+#else
+		if (CVar::GetCVarBool("m_emulate_touch"))
+		{
+			if (m_bPreviewAim)
+			{
+				// Super hacky this whole section of code is meh.
+				vecMouseAim = m_vecPreviewAim;
+				bMouseOK = true;
+			}
+		}
+		else
+			bMouseOK = DigitanksWindow()->GetMouseGridPosition(vecMouseAim, &pHit);
+#endif
 
 		Vector vecTankAim;
 		if (m_bFiredWeapon)

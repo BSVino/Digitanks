@@ -1220,37 +1220,84 @@ bool CDigitanksPlayer::TouchInput(int iFinger, tinker_mouse_state_t iState, floa
 		m_flTouchMoved = 0;
 	}
 
-	if (iState == TINKER_MOUSE_RELEASED && iFinger == 0 && m_eTouchCommand == TOUCHCOMMAND_CENTERSELECT && !DigitanksGame()->IsFeatureDisabled(DISABLE_SELECT))
+	if (DigitanksGame()->GetControlMode() == MODE_NONE)
 	{
-		// Finger 0 came up and we're still on centerselect. That means we center and select.
-		// Selection is done here, centering in the camera.
-
-		Vector vecGridPosition;
-		CBaseEntity* pClickedEntity = NULL;
-		bool bOnTerrain = DigitanksWindow()->GetGridPosition(Vector2D(x, y), vecGridPosition, &pClickedEntity);
-
-		if (bOnTerrain && DigitanksGame()->GetCurrentLocalDigitanksPlayer())
+		if (iState == TINKER_MOUSE_RELEASED && iFinger == 0 && m_eTouchCommand == TOUCHCOMMAND_CENTERSELECT && !DigitanksGame()->IsFeatureDisabled(DISABLE_SELECT))
 		{
-			CSelectable* pSelectable = dynamic_cast<CSelectable*>(pClickedEntity);
+			// Finger 0 came up and we're still on centerselect. That means we center and select.
+			// Selection is done here, centering in the camera.
 
-			if (pSelectable)
+			Vector vecGridPosition;
+			CBaseEntity* pClickedEntity = NULL;
+			bool bOnTerrain = DigitanksWindow()->GetGridPosition(Vector2D(x, y), vecGridPosition, &pClickedEntity);
+
+			if (bOnTerrain && DigitanksGame()->GetCurrentLocalDigitanksPlayer())
 			{
-				if (Application()->IsShiftDown())
-					DigitanksGame()->GetCurrentLocalDigitanksPlayer()->AddToSelection(pSelectable);
-				else
-					DigitanksGame()->GetCurrentLocalDigitanksPlayer()->SetPrimarySelection(pSelectable);
+				CSelectable* pSelectable = dynamic_cast<CSelectable*>(pClickedEntity);
+
+				if (pSelectable)
+				{
+					if (Application()->IsShiftDown())
+						DigitanksGame()->GetCurrentLocalDigitanksPlayer()->AddToSelection(pSelectable);
+					else
+						DigitanksGame()->GetCurrentLocalDigitanksPlayer()->SetPrimarySelection(pSelectable);
+				}
+				else if (!Application()->IsShiftDown())
+				{
+					DigitanksGame()->GetCurrentLocalDigitanksPlayer()->SetPrimarySelection(NULL);
+					DigitanksWindow()->GetHUD()->CloseWeaponPanel();
+				}
 			}
-			else if (!Application()->IsShiftDown())
-			{
-				DigitanksGame()->GetCurrentLocalDigitanksPlayer()->SetPrimarySelection(NULL);
-				DigitanksWindow()->GetHUD()->CloseWeaponPanel();
-			}
+
+			m_bBoxSelect = false;
+
+			DigitanksWindow()->GetHUD()->SetupMenu();
+			return true;
 		}
+	}
+	else if (DigitanksGame()->GetControlMode() == MODE_AIM)
+	{
+		if (iState == TINKER_MOUSE_RELEASED && iFinger == 0 && m_eTouchCommand == TOUCHCOMMAND_CENTERSELECT)
+		{
+			// Finger 0 came up and we're still on centerselect. That means we center and select.
+			// Selection is done here, centering in the camera.
 
-		m_bBoxSelect = false;
+			Vector vecGridPosition;
+			CBaseEntity* pClickedEntity = NULL;
+			bool bOnTerrain = DigitanksWindow()->GetGridPosition(Vector2D(x, y), vecGridPosition, &pClickedEntity);
 
-		DigitanksWindow()->GetHUD()->SetupMenu();
-		return true;
+			if (bOnTerrain && DigitanksGame()->GetCurrentLocalDigitanksPlayer())
+			{
+				CDigitank* pCurrentTank = GetPrimarySelectionTank();
+
+				CSelectable* pSelectable = dynamic_cast<CSelectable*>(pClickedEntity);
+
+				for (size_t i = 0; i < GetNumTanks(); i++)
+				{
+					CDigitank* pTank = GetTank(i);
+					if (!pTank)
+						continue;
+
+					if (!pTank->AimsWith(pCurrentTank))
+						continue;
+
+					if (!IsSelected(pTank))
+						continue;
+
+					if (pClickedEntity)
+						pTank->SetPreviewAim(pClickedEntity->GetGlobalOrigin());
+					else
+						pTank->SetPreviewAim(vecGridPosition);
+				}
+			}
+			return true;
+		}
+		else if (iState == TINKER_MOUSE_DOUBLECLICK && iFinger == 0)
+		{
+			DigitanksGame()->FireTanks();
+			GameWindow()->GetInstructor()->FinishedLesson("mission-1-fire-away");
+			return true;
+		}
 	}
 
 	return false;

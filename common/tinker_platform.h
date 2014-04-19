@@ -56,8 +56,4 @@ void EnableMulticast();
 #define T_ASSETS_PREFIX ""
 #endif
 
-#ifdef __ANDROID__
-#define T_PLATFORM_MOBILE
-#endif
-
 #endif

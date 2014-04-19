@@ -1526,6 +1526,7 @@ void CDigitanksGame::Think()
 		m_flShowArtilleryTutorial = 0;
 	}
 
+#ifndef T_PLATFORM_TOUCH
 	if (DigitanksWindow()->ShouldUseContextualCommands() && GetCurrentLocalDigitanksPlayer())
 	{
 		CDigitank* pSelection = GetCurrentLocalDigitanksPlayer()->GetPrimarySelectionTank();
@@ -1566,6 +1567,7 @@ void CDigitanksGame::Think()
 				SetControlMode(MODE_NONE);
 		}
 	}
+#endif
 
 	if (GetGameType() == GAMETYPE_MENU)
 		return;

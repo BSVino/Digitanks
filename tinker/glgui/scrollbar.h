@@ -18,7 +18,7 @@ LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON A
 
 #include "basecontrol.h"
 
-#ifdef T_TOUCH_PLATFORM
+#ifdef T_PLATFORM_TOUCH
 // Nice fat finger friendly size.
 #define T_SCROLLBAR_THICKNESS 24
 #else

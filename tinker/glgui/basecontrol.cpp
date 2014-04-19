@@ -470,7 +470,7 @@ void CBaseControl::PaintBackground(float x, float y, float w, float h)
 
 void CBaseControl::PostPaint()
 {
-#ifndef T_TOUCH_PLATFORM
+#ifndef T_PLATFORM_TOUCH
 	if (m_sTip.length() > 0 && m_flMouseInTime > 0 && CRootPanel::Get()->GetTime() > m_flMouseInTime + 0.5f)
 	{
 		int iFontSize = 12;
