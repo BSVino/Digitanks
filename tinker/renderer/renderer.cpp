@@ -160,7 +160,7 @@ void CRenderer::LoadShaders()
 {
 	CShaderLibrary::Initialize();
 
-	tvector<tstring> asShaders = ListDirectory(T_ASSETS_PREFIX "shaders", false);
+	tvector<tstring> asShaders = ListDirectory(T_ASSETS_PREFIX "shaders");
 
 	int iShadersLoaded = 0;
 	for (size_t i = 0; i < asShaders.size(); i++)
