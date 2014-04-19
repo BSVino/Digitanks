@@ -1259,9 +1259,7 @@ bool CDigitanksPlayer::TouchInput(int iFinger, tinker_mouse_state_t iState, floa
 	{
 		if (iState == TINKER_MOUSE_RELEASED && iFinger == 0 && m_eTouchCommand == TOUCHCOMMAND_CENTERSELECT)
 		{
-			// Finger 0 came up and we're still on centerselect. That means we center and select.
-			// Selection is done here, centering in the camera.
-
+			// Finger 0 came up and we're still on centerselect. That means we aim and fire.
 			Vector vecGridPosition;
 			CBaseEntity* pClickedEntity = NULL;
 			bool bOnTerrain = DigitanksWindow()->GetGridPosition(Vector2D(x, y), vecGridPosition, &pClickedEntity);
@@ -1296,6 +1294,25 @@ bool CDigitanksPlayer::TouchInput(int iFinger, tinker_mouse_state_t iState, floa
 		{
 			DigitanksGame()->FireTanks();
 			GameWindow()->GetInstructor()->FinishedLesson("mission-1-fire-away");
+			return true;
+		}
+	}
+	else if (DigitanksGame()->GetControlMode() == MODE_MOVE)
+	{
+		if (iState == TINKER_MOUSE_RELEASED && iFinger == 0 && m_eTouchCommand == TOUCHCOMMAND_CENTERSELECT)
+		{
+			// Finger 0 came up and we're still on centerselect. That means we move.
+			Vector vecGridPosition;
+			CBaseEntity* pClickedEntity = NULL;
+			bool bOnTerrain = DigitanksWindow()->GetGridPosition(Vector2D(x, y), vecGridPosition, &pClickedEntity);
+
+			if (bOnTerrain && DigitanksGame()->GetCurrentLocalDigitanksPlayer())
+			{
+				CDigitank* pCurrentTank = GetPrimarySelectionTank();
+
+				pCurrentTank->SetPreviewMove(vecGridPosition);
+				pCurrentTank->Move();
+			}
 			return true;
 		}
 	}
